@@ -12,6 +12,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "black", "isort", "flake8", "pre-commit"]
+hw = ["psutil", "nvidia-ml-py"]  # enables better RAM and VRAM detection
 
 [project.scripts]
 bear-ai = "bear_ai.__main__:main"

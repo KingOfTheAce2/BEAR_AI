@@ -1,8 +1,7 @@
 from __future__ import annotations
-import os
 import pathlib
 from typing import Iterable, List, Optional
-from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub import HfApi, hf_hub_download, repo_info
 from tqdm import tqdm
 
 def list_files(model_id: str) -> List[str]:
@@ -29,3 +28,17 @@ def resolve_selection(model_id: str, include: Optional[str] = None) -> List[str]
         # Simple contains filter, can later be upgraded to fnmatch
         files = [f for f in files if include in f]
     return files
+
+
+def list_files_with_sizes(model_id: str):
+    """
+    Return list of dicts: {name, size_bytes}
+    """
+    info = repo_info(model_id, files_metadata=True)
+    out = []
+    for f in info.siblings:
+        # skip directories
+        if getattr(f, "size", None) is None:
+            continue
+        out.append({"name": f.rfilename, "size_bytes": f.size})
+    return out
