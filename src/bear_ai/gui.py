@@ -12,6 +12,7 @@ from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
 
 from .model_downloader import download_model, list_model_files
+from . import audit_log
 
 
 class DownloaderApp:
@@ -63,6 +64,7 @@ class DownloaderApp:
             files = list_model_files(self.model_var.get())
             message = "\n".join(files) if files else "No files found."
             messagebox.showinfo("Available files", message)
+            audit_log(f"GUI listed files for {self.model_var.get()}")
         except Exception as exc:  # pragma: no cover - UI feedback
             messagebox.showerror("Error", str(exc))
 
@@ -74,6 +76,9 @@ class DownloaderApp:
                 Path(self.dest_var.get()),
             )
             messagebox.showinfo("Success", f"Model downloaded to {path}")
+            audit_log(
+                f"GUI downloaded {self.model_var.get()}/{self.file_var.get()} to {path}"
+            )
         except Exception as exc:  # pragma: no cover - UI feedback
             messagebox.showerror("Error", str(exc))
 

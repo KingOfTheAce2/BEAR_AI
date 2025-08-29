@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from .model_downloader import download_model, list_model_files
+from . import audit_log
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -33,6 +34,7 @@ def main(argv: list[str] | None = None) -> None:
         files = list_model_files(args.model)
         for name in files:
             print(name)
+        audit_log(f"Listed files for {args.model}")
         return
 
     if not args.filename:
@@ -40,6 +42,7 @@ def main(argv: list[str] | None = None) -> None:
 
     path = download_model(args.model, args.filename, destination=args.dest)
     print(f"Model downloaded to {path}")
+    audit_log(f"Downloaded {args.model}/{args.filename} to {path}")
 
 
 if __name__ == "__main__":  # pragma: no cover - entrypoint
