@@ -13,6 +13,26 @@ BEAR AI (Bridge for Expertise, Audit and Research) is designed for legal profess
 
 ---
 
+## Quick Start: Downloading Models on Windows
+
+The repository includes a small command-line tool for fetching GGUF or other
+model files from the [Hugging Face Hub](https://huggingface.co). This scaffolding
+is intended for use inside **Windows Terminal** or PowerShell and will grow into
+the full BEAR AI desktop experience.
+
+```powershell
+# Install the package in editable mode
+pip install -e .
+
+# Example: download a model file into .\models
+python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
+```
+
+The command accepts an optional `--dest` argument to choose a different download
+directory.
+
+---
+
 ## Current Solutions—Their Benefits, Drawbacks, and Common Complaints
 
 ### 1. **LM Studio**

@@ -33,5 +33,6 @@ BEAR AI (Bridge for Expertise, Audit and Research) aims to deliver a privacy-fir
 2. Prototype document chat and PII scrubbing modules.
 3. Establish CI/CD with GitHub Actions.
 4. Package initial Windows build.
+5. Ship a basic Windows Terminal command-line tool to download GGUF models.
 
 This plan will evolve as the project progresses and new requirements emerge.

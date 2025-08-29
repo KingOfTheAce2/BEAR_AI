@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bear-ai"
+version = "0.1.0"
+description = "BEAR AI command line utilities"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "huggingface_hub>=0.20",
+]
