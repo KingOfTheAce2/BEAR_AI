@@ -344,3 +344,14 @@ python scripts/build_exe.py
 pip install -e .[dev]
 pre-commit install
 pytest -q
+
+Optional hardware extras
+pip install -e .[hw]
+
+Assess models vs your laptop
+python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --assess
+
+GUI tips
+- Click "Assess & List" to see files with Size, Fit, and Path hint.
+- Select rows and click "Download selected".
+- Click "Run speed benchmark" to see the live speed meter.
