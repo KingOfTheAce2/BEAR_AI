@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from bear_ai.model_downloader import download_model
+from bear_ai.model_downloader import download_model, list_model_files
 
 
 @patch("bear_ai.model_downloader.hf_hub_download")
@@ -22,3 +22,19 @@ def test_missing_dependency(monkeypatch):
     monkeypatch.setattr("bear_ai.model_downloader.hf_hub_download", None)
     with pytest.raises(ImportError):
         download_model("owner/repo", "model.gguf")
+
+
+@patch("bear_ai.model_downloader.list_repo_files")
+def test_list_model_files_uses_huggingface(mock_list):
+    mock_list.return_value = ["a.gguf", "b.gguf"]
+
+    result = list_model_files("owner/repo")
+
+    mock_list.assert_called_once_with(model_id="owner/repo")
+    assert result == ["a.gguf", "b.gguf"]
+
+
+def test_list_model_files_missing_dependency(monkeypatch):
+    monkeypatch.setattr("bear_ai.model_downloader.list_repo_files", None)
+    with pytest.raises(ImportError):
+        list_model_files("owner/repo")
