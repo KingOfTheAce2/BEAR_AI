@@ -1,37 +1,34 @@
-name: build
+name: ci
 
 on:
   push:
-    branches: ["*"]
+    branches: [ main ]
   pull_request:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - run: pip install flake8
-      - run: flake8 src tests
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - run: pip install . pytest
-      - run: pytest
-
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
-      - run: pip install . pyinstaller
-      - run: python scripts/build_exe.py
+          python-version: "3.11"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          pip install pyinstaller
+      - name: Lint
+        run: |
+          black --check .
+          isort --check-only .
+          flake8 .
+      - name: Test
+        run: pytest -q
+      - name: Build exe
+        run: python scripts/build_exe.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bear_ai_windows_exe
+          path: dist/bear_ai.exe

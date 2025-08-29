@@ -1,49 +1,36 @@
-"""Command line interface for BEAR AI model downloads."""
-
-from __future__ import annotations
-
 import argparse
-from pathlib import Path
+import sys
+from .download import list_files, resolve_selection, download_many
+from .logging_utils import audit_log
 
-from .model_downloader import download_model, list_model_files
-from . import audit_log
 
-
-def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Download LLM models for BEAR AI")
-    parser.add_argument("model", help="Hugging Face model repository ID")
-    parser.add_argument(
-        "filename",
-        nargs="?",
-        help="File name within the model repository",
-    )
-    parser.add_argument(
-        "--dest",
-        type=Path,
-        default=Path("models"),
-        help="Destination directory for the download (default: ./models)",
-    )
-    parser.add_argument(
-        "--list",
-        action="store_true",
-        help="List available files for the given model and exit",
-    )
-    args = parser.parse_args(argv)
+def main():
+    p = argparse.ArgumentParser("bear_ai")
+    p.add_argument("model_id", help="Hugging Face repo id, for example TheBloke/Mistral-7B-Instruct-v0.2-GGUF")
+    p.add_argument("filename", nargs="?", help="Specific filename to download. Omit to use --include or interactive list.")
+    p.add_argument("--list", action="store_true", help="List available files and exit")
+    p.add_argument("--dest", default="models", help="Download directory")
+    p.add_argument("--include", help="Substring to match multiple files")
+    args = p.parse_args()
 
     if args.list:
-        files = list_model_files(args.model)
-        for name in files:
-            print(name)
-        audit_log(f"Listed files for {args.model}")
+        for f in list_files(args.model_id):
+            print(f)
         return
 
-    if not args.filename:
-        parser.error("filename is required unless --list is specified")
+    if args.filename:
+        selection = [args.filename]
+    else:
+        selection = resolve_selection(args.model_id, include=args.include)
+        if not selection:
+            print("No files matched. Use --list to inspect available files.", file=sys.stderr)
+            sys.exit(2)
 
-    path = download_model(args.model, args.filename, destination=args.dest)
-    print(f"Model downloaded to {path}")
-    audit_log(f"Downloaded {args.model}/{args.filename} to {path}")
+    paths = download_many(args.model_id, selection, args.dest)
+    for pth in paths:
+        print(pth)
 
+    audit_log(event="download", details={"model_id": args.model_id, "count": len(paths), "dest": args.dest})
 
-if __name__ == "__main__":  # pragma: no cover - entrypoint
+if __name__ == "__main__":
     main()

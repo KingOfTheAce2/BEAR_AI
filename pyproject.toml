@@ -1,13 +1,21 @@
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "bear-ai"
+name = "bear_ai"
 version = "0.1.0"
-description = "BEAR AI command line utilities"
+description = "Privacy first local AI utilities"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
+authors = [{ name = "BEAR AI Contributors" }]
 dependencies = [
-    "huggingface_hub>=0.20",
+  "huggingface_hub>=0.24.0",
+  "tqdm>=4.66.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "isort", "flake8", "pre-commit"]
+
+[project.scripts]
+bear-ai = "bear_ai.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"

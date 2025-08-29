@@ -329,3 +329,18 @@ This layered and adaptable approach, combining best-in-class open-source tools w
 *Contributions, feature suggestions, and all new bear jokes welcome!* 🐻
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
+
+## Quick Start
+pip install -e .
+python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
+python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
+python -m bear_ai.gui
+
+## Build Windows EXE
+pip install pyinstaller
+python scripts/build_exe.py
+
+## Dev
+pip install -e .[dev]
+pre-commit install
+pytest -q

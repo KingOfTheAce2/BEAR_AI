@@ -1,11 +1,9 @@
-"""Placeholder module for Retrieval-Augmented Generation (RAG)."""
+class RAGPipeline:
+    def __init__(self):
+        raise NotImplementedError("RAG pipeline will handle chunking, indexing, and retrieval")
 
-class RAGEngine:
-    """Stub class for future RAG engine integration."""
+    def ingest(self, paths):
+        raise NotImplementedError
 
-    def retrieve(self, query: str) -> list[str]:
-        """Retrieve documents relevant to *query*.
-
-        This will later integrate with a proper RAG system.
-        """
-        raise NotImplementedError("RAG retrieval not implemented")
+    def query(self, text):
+        raise NotImplementedError
