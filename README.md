@@ -4,6 +4,16 @@ BEAR AI (Bridge for Expertise, Audit and Research) is designed for legal profess
 
 ---
 
+## The Case for Running AI Yourself
+
+Recent headlines suggest major AI labs are racing to build systems that could displace entire software sectors. When teams feed third-party services with proprietary prompts and documents, they may be training the very products that will compete with them. By the time those efforts surface publicly, the damage is already done.
+
+Self-hosting keeps those insights on your hardware, away from outsiders' roadmaps. Running the entire stack yourself prevents silent data exfiltration, unexpected terms-of-service changes, and dependency on platforms whose goals might not align with yours.
+
+BEAR AI embraces this philosophy. Operating locally protects sensitive information and removes reliance on vendors that may one day replace you. Beyond this strategic concern, the project also tackles day-to-day frustrations that plague other "local" tools—murky licensing, hidden network calls, and clumsy installs.
+
+---
+
 ## Why BEAR AI?
 
 - **Privacy-first, never phones home.**
