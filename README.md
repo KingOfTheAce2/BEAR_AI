@@ -29,7 +29,11 @@ python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
 ```
 
 The command accepts an optional `--dest` argument to choose a different download
-directory.
+directory. To inspect available files before downloading, use:
+
+```powershell
+python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
+```
 
 ---
 

@@ -10,9 +10,10 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from huggingface_hub import hf_hub_download
+    from huggingface_hub import hf_hub_download, list_repo_files
 except ImportError:  # pragma: no cover - library may not be installed at test time
     hf_hub_download = None  # type: ignore
+    list_repo_files = None  # type: ignore
 
 
 def download_model(model_id: str, filename: str, destination: Optional[Path] = None) -> Path:
@@ -40,3 +41,22 @@ def download_model(model_id: str, filename: str, destination: Optional[Path] = N
     dest.mkdir(parents=True, exist_ok=True)
 
     return Path(hf_hub_download(model_id=model_id, filename=filename, cache_dir=dest))
+
+
+def list_model_files(model_id: str) -> list[str]:
+    """Return the list of files available in a Hugging Face repository.
+
+    Parameters
+    ----------
+    model_id:
+        Repository ID on the Hugging Face Hub.
+
+    Returns
+    -------
+    list[str]
+        Names of files contained in the repository.
+    """
+    if list_repo_files is None:
+        raise ImportError("huggingface_hub is required to list model files")
+
+    return list_repo_files(model_id=model_id)
