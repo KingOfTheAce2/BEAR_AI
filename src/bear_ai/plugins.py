@@ -1,9 +1,5 @@
-"""Placeholder module for a plugin system."""
+class ExportPlugin:
+    name = "base"
 
-
-def load_plugins() -> None:
-    """Load available plugins.
-
-    A future version will discover and initialize plugin modules here.
-    """
-    raise NotImplementedError("Plugin loading not implemented")
+    def export(self, conversation, dest_path):
+        raise NotImplementedError("Implement export to PDF, DOCX, or JSONL")

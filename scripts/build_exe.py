@@ -1,34 +1,26 @@
-"""Build a standalone Windows executable for the BEAR AI GUI.
-
-This script wraps a simple ``pyinstaller`` invocation so contributors can
-create a distributable ``bear-ai.exe`` without remembering all the flags.
-Run it on Windows after installing ``pyinstaller``::
-
-    pip install pyinstaller
-    python scripts/build_exe.py
-"""
-from __future__ import annotations
-
-import subprocess
+import PyInstaller.__main__
+import sys
 from pathlib import Path
 
+ICON = str(Path(__file__).parent / "bear.ico")  # optional icon if present
 
-def build() -> None:
-    root = Path(__file__).resolve().parents[1]
-    subprocess.run(
-        [
-            "pyinstaller",
-            "--name",
-            "bear-ai",
-            "--onefile",
-            "--windowed",
-            "-m",
-            "bear_ai.gui",
-        ],
-        cwd=root,
-        check=True,
-    )
+def main():
+    args = [
+        "bear_ai/gui.py",
+        "--name",
+        "bear_ai",
+        "--noconfirm",
+        "--clean",
+        "--onefile",
+        "--windowed",
+    ]
+    if Path(ICON).exists():
+        args += ["--icon", ICON]
+    PyInstaller.__main__.run(args)
 
-
-if __name__ == "__main__":  # pragma: no cover - manual build script
-    build()
+if __name__ == "__main__":
+    try:
+        main()
+        print("Build complete: dist/bear_ai.exe")
+    except SystemExit as e:
+        sys.exit(e.code)

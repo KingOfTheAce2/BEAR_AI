@@ -1,94 +1,116 @@
-"""Simple Tkinter GUI for downloading Hugging Face models.
-
-This minimal interface is part of the BEAR AI scaffolding. It allows users to
-enter a model repository ID, select a file, and download it to a chosen
-location without using the command line.
-"""
-
-from __future__ import annotations
-
+import threading
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from pathlib import Path
-
-from .model_downloader import download_model, list_model_files
-from . import audit_log
+from tkinter import filedialog, messagebox, ttk
+from .download import list_files, resolve_selection, download_many
+from .logging_utils import audit_log
 
 
-class DownloaderApp:
-    """Basic model downloader GUI."""
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("BEAR AI Model Fetcher")
+        self.geometry("560x360")
 
-    def __init__(self, root: tk.Tk) -> None:
-        self.root = root
-        self.root.title("BEAR AI Model Downloader")
+        self.model_var = tk.StringVar()
+        self.include_var = tk.StringVar()
+        self.dest_var = tk.StringVar(value="models")
 
-        self.model_var = tk.StringVar(root)
-        self.file_var = tk.StringVar(root)
-        self.dest_var = tk.StringVar(root, value="models")
+        frm = ttk.Frame(self, padding=12)
+        frm.pack(fill="both", expand=True)
 
-        main = ttk.Frame(root, padding=10)
-        main.grid(column=0, row=0, sticky="nsew")
+        ttk.Label(frm, text="Model id").grid(row=0, column=0, sticky="w")
+        ttk.Entry(frm, textvariable=self.model_var, width=50).grid(row=0, column=1, columnspan=2, sticky="we")
 
-        ttk.Label(main, text="Model ID:").grid(row=0, column=0, sticky="w")
-        ttk.Entry(main, textvariable=self.model_var, width=40).grid(
-            row=0, column=1, columnspan=2, sticky="ew"
-        )
+        ttk.Label(frm, text="Include filter").grid(row=1, column=0, sticky="w")
+        ttk.Entry(frm, textvariable=self.include_var, width=50).grid(row=1, column=1, sticky="we")
 
-        ttk.Label(main, text="Filename:").grid(row=1, column=0, sticky="w")
-        ttk.Entry(main, textvariable=self.file_var, width=40).grid(
-            row=1, column=1, columnspan=2, sticky="ew"
-        )
+        ttk.Label(frm, text="Destination").grid(row=2, column=0, sticky="w")
+        ttk.Entry(frm, textvariable=self.dest_var, width=40).grid(row=2, column=1, sticky="we")
+        ttk.Button(frm, text="Browse", command=self.pick_dest).grid(row=2, column=2)
 
-        ttk.Label(main, text="Destination:").grid(row=2, column=0, sticky="w")
-        ttk.Entry(main, textvariable=self.dest_var, width=30).grid(
-            row=2, column=1, sticky="ew"
-        )
-        ttk.Button(main, text="Browse", command=self.browse_dest).grid(
-            row=2, column=2, sticky="w"
-        )
+        self.files_box = tk.Listbox(frm, height=8)
+        self.files_box.grid(row=3, column=0, columnspan=3, sticky="nsew", pady=(8, 4))
+        frm.rowconfigure(3, weight=1)
+        frm.columnconfigure(1, weight=1)
 
-        ttk.Button(main, text="List Files", command=self.list_files).grid(
-            row=3, column=0, pady=5
-        )
-        ttk.Button(main, text="Download", command=self.download).grid(
-            row=3, column=2, pady=5, sticky="e"
-        )
+        btns = ttk.Frame(frm)
+        btns.grid(row=4, column=0, columnspan=3, sticky="e", pady=(6, 6))
+        ttk.Button(btns, text="List files", command=self.on_list).pack(side="left", padx=4)
+        ttk.Button(btns, text="Download", command=self.on_download).pack(side="left", padx=4)
 
-    def browse_dest(self) -> None:
-        directory = filedialog.askdirectory(initialdir=self.dest_var.get() or ".")
-        if directory:
-            self.dest_var.set(directory)
+        self.progress = ttk.Progressbar(frm, mode="indeterminate")
+        self.progress.grid(row=5, column=0, columnspan=3, sticky="we")
 
-    def list_files(self) -> None:
-        try:
-            files = list_model_files(self.model_var.get())
-            message = "\n".join(files) if files else "No files found."
-            messagebox.showinfo("Available files", message)
-            audit_log(f"GUI listed files for {self.model_var.get()}")
-        except Exception as exc:  # pragma: no cover - UI feedback
-            messagebox.showerror("Error", str(exc))
+        self.status = tk.StringVar(value="Ready")
+        ttk.Label(frm, textvariable=self.status).grid(row=6, column=0, columnspan=3, sticky="w")
 
-    def download(self) -> None:
-        try:
-            path = download_model(
-                self.model_var.get(),
-                self.file_var.get(),
-                Path(self.dest_var.get()),
-            )
-            messagebox.showinfo("Success", f"Model downloaded to {path}")
-            audit_log(
-                f"GUI downloaded {self.model_var.get()}/{self.file_var.get()} to {path}"
-            )
-        except Exception as exc:  # pragma: no cover - UI feedback
-            messagebox.showerror("Error", str(exc))
+    def pick_dest(self):
+        path = filedialog.askdirectory() or ""
+        if path:
+            self.dest_var.set(path)
+
+    def set_busy(self, busy: bool):
+        if busy:
+            self.progress.start(10)
+            self.status.set("Working...")
+        else:
+            self.progress.stop()
+            self.status.set("Ready")
+
+    def on_list(self):
+        model = self.model_var.get().strip()
+        if not model:
+            messagebox.showerror("Error", "Enter a model id")
+            return
+
+        def work():
+            try:
+                files = list_files(model)
+                self.files_box.delete(0, tk.END)
+                for f in files:
+                    self.files_box.insert(tk.END, f)
+                audit_log("gui_list", {"model_id": model, "count": len(files)})
+            except Exception as e:  # pragma: no cover - UI feedback
+                messagebox.showerror("Error", str(e))
+            finally:
+                self.after(0, lambda: self.set_busy(False))
+
+        self.set_busy(True)
+        threading.Thread(target=work, daemon=True).start()
+
+    def on_download(self):
+        model = self.model_var.get().strip()
+        dest = self.dest_var.get().strip()
+        include = self.include_var.get().strip() or None
+        if not model:
+            messagebox.showerror("Error", "Enter a model id")
+            return
+
+        def work():
+            try:
+                files = resolve_selection(model, include=include)
+                if not files:
+                    messagebox.showinfo("Info", "No files matched. Try List files")
+                    return
+                # If user selected items in the listbox, use those
+                sel = [self.files_box.get(i) for i in self.files_box.curselection()]
+                if sel:
+                    files = sel
+                paths = download_many(model, files, dest)
+                messagebox.showinfo("Done", f"Downloaded {len(paths)} file(s) to {dest}")
+                audit_log("gui_download", {"model_id": model, "count": len(paths), "dest": dest})
+            except Exception as e:  # pragma: no cover - UI feedback
+                messagebox.showerror("Error", str(e))
+            finally:
+                self.after(0, lambda: self.set_busy(False))
+
+        self.set_busy(True)
+        threading.Thread(target=work, daemon=True).start()
 
 
-def main() -> None:
-    """Launch the Tkinter application."""
-    root = tk.Tk()
-    DownloaderApp(root)
-    root.mainloop()
+def main():
+    App().mainloop()
 
 
-if __name__ == "__main__":  # pragma: no cover - manual launch
+if __name__ == "__main__":
     main()
