@@ -35,6 +35,24 @@ directory. To inspect available files before downloading, use:
 python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
 ```
 
+## Windows GUI and Executable
+
+A tiny Tkinter GUI is included for people who prefer a windowed interface.
+Run it after installing the package:
+
+```powershell
+python -m bear_ai.gui
+```
+
+To bundle the GUI as a standalone `.exe`, install `pyinstaller` and run the
+build script:
+
+```powershell
+pip install pyinstaller
+python scripts/build_exe.py
+```
+
+
 ---
 
 ## Current Solutions—Their Benefits, Drawbacks, and Common Complaints
