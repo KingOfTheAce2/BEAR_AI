@@ -295,3 +295,5 @@ This layered and adaptable approach, combining best-in-class open-source tools w
 ---
 
 *Contributions, feature suggestions, and all new bear jokes welcome!* 🐻
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
