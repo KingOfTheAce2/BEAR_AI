@@ -13,9 +13,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest", "black", "isort", "flake8", "pre-commit"]
 hw = ["psutil", "nvidia-ml-py"]  # enables better RAM and VRAM detection
+inference = ["llama-cpp-python>=0.2.66"]
 
 [project.scripts]
 bear-ai = "bear_ai.__main__:main"
+bear-scrub = "bear_ai.scrub:main"
+bear-chat = "bear_ai.chat:main"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]

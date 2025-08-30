@@ -324,6 +324,19 @@ For a GDPR-proof legal use case, expanding on PII removal methods involves tools
 
 This layered and adaptable approach, combining best-in-class open-source tools with GDPR-focused strategies, provides a robust path to PII removal/anonymization in legal use cases to meet compliance with data protection laws and minimize privacy risks with local LLM deployments.
 
+### New: Local PII Scrubber (Baseline)
+
+- Run a lightweight, offline redactor for common PII using:
+
+```powershell
+bear-scrub --in input.txt --out output.txt
+# Or pipe
+type input.txt | bear-scrub > output.txt
+```
+
+- Replaces common patterns with tags: `[EMAIL]`, `[PHONE]`, `[SSN]`, `[CARD]`, `[IP]`.
+- Designed as a safe baseline; you can later swap in Microsoft Presidio for advanced GDPR-grade pipelines.
+
 ---
 
 *Contributions, feature suggestions, and all new bear jokes welcome!* 🐻
@@ -340,6 +353,26 @@ python -m bear_ai.gui
 pip install pyinstaller
 python scripts/build_exe.py
 
+## Easiest Install (Windows)
+From the repo root, run the installer (PowerShell) or double-click the batch file:
+
+```powershell
+scripts\install.ps1      # or: double-click scripts\install.bat
+```
+
+What it does:
+- Creates `.venv`, upgrades pip, installs `bear_ai`
+- Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
+- Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
+
+After install, quick launch without activating the venv:
+
+```powershell
+scripts\run_gui.bat
+scripts\run_cli.bat TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
+scripts\run_scrub.bat --in input.txt --out output.txt
+```
+
 ## Dev
 pip install -e .[dev]
 pre-commit install
@@ -355,3 +388,37 @@ GUI tips
 - Click "Assess & List" to see files with Size, Fit, and Path hint.
 - Select rows and click "Download selected".
 - Click "Run speed benchmark" to see the live speed meter.
+
+## Local Inference (Optional, CPU by default)
+
+Install the inference extra and run a chat against a GGUF model:
+
+```powershell
+pip install -e .[inference]
+bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128
+```
+
+Notes:
+- CPU runs by default; to use GPU you need a CUDA-enabled wheel of `llama-cpp-python` and can pass `--n-gpu-layers`.
+- You can also use the helper: `scripts\run_chat.bat --model .\models\... --prompt "..."`.
+
+## Easiest Install (Windows)
+From the repo root, run the installer (PowerShell) or double-click the batch file:
+
+```powershell
+scripts\install.ps1      # or: double-click scripts\install.bat
+```
+
+What it does:
+- Creates `.venv`, upgrades pip, installs `bear_ai`
+- Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
+- Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
+
+After install, quick launch without activating the venv:
+
+```powershell
+scripts\run_gui.bat
+scripts\run_cli.bat TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
+scripts\run_scrub.bat --in input.txt --out output.txt
+scripts\run_chat.bat --model .\models\model.q4_0.gguf --prompt "Hello"
+```
