@@ -50,6 +50,13 @@ if ($Dev) {
 if ($BuildExe) {
   Write-Host "Building Windows executable with PyInstaller..."
   & $venvPy -m pip install pyinstaller
+  # Ensure llama-cpp-python (CPU wheel) is present so it gets bundled
+  Write-Host "Ensuring llama-cpp-python (CPU) is installed for bundling..."
+  try {
+    & $venvPy -m pip show llama-cpp-python | Out-Null
+  } catch {
+    & $venvPy -m pip install --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu llama-cpp-python
+  }
   & $venvPy scripts\build_exe.py
 }
 
@@ -58,4 +65,3 @@ Write-Host "Run GUI:    scripts\\run_gui.bat"
 Write-Host "Run CLI:    scripts\\run_cli.bat <model_id> [filename] [--list|--assess]"
 Write-Host "Scrubber:   scripts\\run_scrub.bat --in input.txt --out output.txt"
 Write-Host "(Or activate venv: .\\.venv\\Scripts\\Activate.ps1)"
-

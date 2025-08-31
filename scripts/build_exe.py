@@ -13,6 +13,7 @@ def main():
         "--clean",
         "--onefile",
         "--windowed",
+        "--hidden-import=llama_cpp",
     ]
     if Path(ICON).exists():
         args += ["--icon", ICON]

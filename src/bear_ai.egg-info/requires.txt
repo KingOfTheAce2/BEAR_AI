@@ -1,0 +1,16 @@
+huggingface_hub>=0.24.0
+tqdm>=4.66.0
+
+[dev]
+pytest
+black
+isort
+flake8
+pre-commit
+
+[hw]
+psutil
+nvidia-ml-py
+
+[inference]
+llama-cpp-python>=0.2.66

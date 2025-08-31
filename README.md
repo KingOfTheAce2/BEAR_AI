@@ -64,6 +64,38 @@ python scripts/build_exe.py
 
 
 ---
+## Non‑Technical Quick Start (Windows)
+
+- Double‑click `scripts\\setup_gui.bat`.
+- The first run installs Python packages (may take a few minutes).
+- In the GUI:
+  - Enter a model id (e.g. `TheBloke/Mistral-7B-Instruct-v0.2-GGUF`) and click “Assess & List”.
+  - Select files you want and click “Download selected”.
+  - In the Chat section, click “Browse” to pick the downloaded `.gguf` file.
+  - Type your prompt and click “Start Chat”.
+
+Notes:
+- CPU works out of the box. GPU acceleration requires a CUDA build of `llama-cpp-python` and a compatible NVIDIA setup; the default installer uses a CPU build for reliability.
+- No data leaves your device. Audit logs write to `bear_ai.log`.
+
+---
+## Desktop Shortcut (Windows)
+
+- Create a shortcut on your Desktop to launch the GUI:
+
+```powershell
+scripts\create_shortcut.bat
+```
+
+- Re-run with `-Force` to overwrite if it already exists:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\create_shortcut.ps1 -Force
+```
+
+This points to `scripts\run_gui.bat` and starts in the project folder.
+
+---
 
 ## Current Solutions—Their Benefits, Drawbacks, and Common Complaints
 

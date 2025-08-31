@@ -1,0 +1,4 @@
+[console_scripts]
+bear-ai = bear_ai.__main__:main
+bear-chat = bear_ai.chat:main
+bear-scrub = bear_ai.scrub:main

@@ -1,0 +1,4 @@
+2025-08-31 19:49:22,519 INFO bear_ai AUDIT {"event": "gui_assess", "ts": "2025-08-31T17:49:22.519368Z", "model_id": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF", "count": 15}
+2025-08-31 19:52:40,743 INFO bear_ai AUDIT {"event": "gui_assess", "ts": "2025-08-31T17:52:40.743400Z", "model_id": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF", "count": 15}
+2025-08-31 20:04:39,387 INFO bear_ai AUDIT {"event": "gui_download", "ts": "2025-08-31T18:04:39.387331Z", "model_id": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF", "count": 1, "dest": "C:/Users/evgga/Documents/BEAR AI MODELS"}
+2025-08-31 20:11:55,679 INFO bear_ai AUDIT {"event": "gui_download", "ts": "2025-08-31T18:11:55.679486Z", "model_id": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF", "count": 1, "dest": "C:/Users/evgga/Documents/BEAR AI MODELS"}
