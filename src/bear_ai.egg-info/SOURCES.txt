@@ -10,6 +10,7 @@ src/bear_ai/hw.py
 src/bear_ai/inference.py
 src/bear_ai/logging_utils.py
 src/bear_ai/model_compat.py
+src/bear_ai/model_suggest.py
 src/bear_ai/plugins.py
 src/bear_ai/rag.py
 src/bear_ai/scrub.py
@@ -22,5 +23,11 @@ src/bear_ai.egg-info/entry_points.txt
 src/bear_ai.egg-info/requires.txt
 src/bear_ai.egg-info/top_level.txt
 tests/test_assess.py
+tests/test_chat.py
 tests/test_download.py
+tests/test_gui.py
+tests/test_hw.py
+tests/test_main.py
 tests/test_scrub.py
+tests/test_security.py
+tests/test_suggest.py

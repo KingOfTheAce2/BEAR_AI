@@ -46,6 +46,21 @@ BEAR AI embraces this philosophy. Operating locally protects sensitive informati
 
 ---
 
+## Installation and Model Selection Recommendations
+
+BEAR AI aims to streamline setup and help users pick the right models for their hardware.
+See [Installation and Model Selection Recommendations](docs/INSTALLATION_MODEL_SELECTION.md)
+for ideas like single-step installers, hardware detection with curated model lists, and
+an advanced Hugging Face search interface with clear performance notes.
+
+To view models that fit your current hardware, run:
+
+```powershell
+python -m bear_ai --suggest
+```
+
+---
+
 ## Quick Start: Downloading Models on Windows
 
 The repository includes a small command-line tool for fetching GGUF or other
@@ -450,12 +465,13 @@ Install the inference extra and run a chat against a GGUF model:
 
 ```powershell
 pip install -e .[inference]
-bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128
+bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128 --show-speed
 ```
 
 Notes:
 - CPU runs by default; to use GPU you need a CUDA-enabled wheel of `llama-cpp-python` and can pass `--n-gpu-layers`.
 - You can also use the helper: `scripts\run_chat.bat --model .\models\... --prompt "..."`.
+ - Pass `--show-speed` to display token throughput while generating.
 
 ## Easiest Install (Windows)
 From the repo root, run the installer (PowerShell) or double-click the batch file:

@@ -33,6 +33,7 @@ class LocalInference:
                 n_threads = 4
 
         # Initialize llama
+        self._n_ctx = n_ctx
         self._llm = Llama(
             model_path=model_path,
             n_ctx=n_ctx,
@@ -71,3 +72,15 @@ class LocalInference:
                 text = ""
             if text:
                 yield text
+
+    def tokenize_count(self, text: str) -> int:
+        try:
+            # llama_cpp expects bytes; do not add BOS here
+            toks = self._llm.tokenize(text.encode("utf-8"), add_bos=False)
+            return len(toks)
+        except Exception:
+            # Fallback to character length if tokenizer not available
+            return len(text)
+
+    def context_limit(self) -> int:
+        return int(self._n_ctx)

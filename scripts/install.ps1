@@ -12,17 +12,30 @@ Set-Location $repo
 
 Write-Host "BEAR AI installer starting..." -ForegroundColor Cyan
 
-# Detect Python launcher or python.exe
+# Detect and prefer a Python with prebuilt wheels for llama-cpp-python (3.12 preferred)
 $pythonCmd = $null
 if (Get-Command py -ErrorAction SilentlyContinue) {
-  $pythonCmd = 'py -3'
+  # Try specific versions in order of preference
+  $candidates = @('py -3.12', 'py -3.11', 'py -3.10', 'py -3')
+  foreach ($cand in $candidates) {
+    try {
+      $ver = & cmd /c "$cand -c ""import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"""
+      if ($LASTEXITCODE -eq 0 -and $ver) {
+        $pythonCmd = $cand
+        break
+      }
+    } catch {}
+  }
 } elseif (Get-Command python -ErrorAction SilentlyContinue) {
   $pythonCmd = 'python'
 } else {
   Write-Error "Python 3.9+ not found. Install from https://www.python.org/downloads/windows/ and re-run."
 }
 
+if ($pythonCmd -eq $null) { Write-Error "No suitable Python found." }
+
 # Create venv
+Write-Host "Using Python: $pythonCmd"
 Write-Host "Creating virtual environment in .venv..."
 & cmd /c "$pythonCmd -m venv .venv"
 

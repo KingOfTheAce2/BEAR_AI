@@ -40,6 +40,8 @@ class App(tk.Tk):
         # Chat controls
         self.chat_model_var = tk.StringVar()
         self.chat_status_var = tk.StringVar(value="Idle")
+        self.max_tokens_var = tk.IntVar(value=512)
+        self.ctx_var = tk.StringVar(value="Context: 0/0")
 
         # Main notebook with two tabs: Models and Chat
         container = ttk.Frame(self, padding=12)
@@ -116,6 +118,13 @@ class App(tk.Tk):
         ttk.Label(output_box, text="Response").pack(anchor="w")
         self.output_text = tk.Text(output_box, height=10, wrap="word")
         self.output_text.pack(fill="both", expand=True)
+
+        # Generation settings row
+        rowc1b = ttk.Frame(chat)
+        rowc1b.pack(fill="x", pady=(4, 0))
+        ttk.Label(rowc1b, text="Max tokens").pack(side="left")
+        ttk.Spinbox(rowc1b, from_=32, to=4096, increment=32, width=8, textvariable=self.max_tokens_var).pack(side="left", padx=(6, 12))
+        ttk.Label(rowc1b, textvariable=self.ctx_var).pack(side="right")
 
         rowc2 = ttk.Frame(chat)
         rowc2.pack(fill="x", pady=(6, 0))
@@ -256,6 +265,24 @@ class App(tk.Tk):
                 msg = str(e)
                 # Attempt an in-app install of llama-cpp-python (CPU wheel) if missing
                 if "llama-cpp-python" in msg:
+                    # If running on a Python without prebuilt wheels (e.g., 3.13), guide the user.
+                    if sys.version_info >= (3, 13):
+                        def show_pyver_help():
+                            message = (
+                                "llama-cpp-python does not yet provide wheels for Python "
+                                f"{sys.version_info.major}.{sys.version_info.minor}.\n\n"
+                                "Recommended fixes:\n"
+                                "- Use the project venv with Python 3.12: scripts\\setup_gui.bat\n"
+                                "- Or create a 3.12 venv and install: .\\.venv\\Scripts\\python.exe -m pip install -e .[inference]\n"
+                                "- Or use the Conda installer: scripts\\setup_conda.ps1 -LaunchGUI\n\n"
+                                "Advanced: If you must stay on this Python, you'll need a local build toolchain (CMake + Visual Studio) "
+                                "to compile llama-cpp-python from source."
+                            )
+                            messagebox.showerror("Unsupported Python Version", message)
+                        self.after(0, show_pyver_help)
+                        self.after(0, self._chat_reset_idle)
+                        return
+
                     self.after(0, lambda: self.chat_status_var.set("Installing llama runtime (CPU)..."))
                     try:
                         # Try official prebuilt CPU wheels first
@@ -264,6 +291,8 @@ class App(tk.Tk):
                             "-m",
                             "pip",
                             "install",
+                            "-U",
+                            "--prefer-binary",
                             "--retries",
                             "3",
                             "--timeout",
@@ -272,20 +301,30 @@ class App(tk.Tk):
                             "https://abetlen.github.io/llama-cpp-python/whl/cpu",
                             "llama-cpp-python",
                         ]
+                        # If not in a venv, add --user to avoid permission issues
+                        in_venv = hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+                        if not in_venv:
+                            cmd1.append("--user")
+
                         subprocess.run(cmd1, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
                         # Retry initialization after install
                         try:
                             llm = LocalInference(model_path=model)
-                        except Exception as e2:
+                        except Exception:
                             # Second attempt: force wheels from PyPI
                             cmd2 = [
                                 sys.executable,
                                 "-m",
                                 "pip",
                                 "install",
+                                "-U",
+                                "--prefer-binary",
                                 "--only-binary=:all:",
                                 "llama-cpp-python",
                             ]
+                            if not in_venv:
+                                cmd2.append("--user")
                             subprocess.run(cmd2, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                             llm = LocalInference(model_path=model)
                     except Exception:
@@ -293,10 +332,12 @@ class App(tk.Tk):
                             messagebox.showerror(
                                 "Error",
                                 "Failed to install llama-cpp-python automatically.\n\n"
-                                "Try one of these commands in PowerShell (from the project folder):\n\n"
+                                "Try one of these (PowerShell from repo root):\n\n"
                                 ".\\.venv\\Scripts\\python.exe -m pip install --extra-index-url "
                                 "https://abetlen.github.io/llama-cpp-python/whl/cpu llama-cpp-python\n"
-                                ".\\.venv\\Scripts\\python.exe -m pip install --only-binary=:all: llama-cpp-python"
+                                ".\\.venv\\Scripts\\python.exe -m pip install --only-binary=:all: llama-cpp-python\n\n"
+                                "Or use the Conda-based installer with prebuilt binaries:\n"
+                                "scripts\\setup_conda.ps1 -LaunchGUI"
                             )
                         self.after(0, show_help)
                         self.after(0, self._chat_reset_idle)
@@ -306,15 +347,33 @@ class App(tk.Tk):
                     self.after(0, self._chat_reset_idle)
                     return
 
-            self.after(0, lambda: self.chat_status_var.set("Generating..."))
+            # Compute prompt tokens and prepare context indicator
             try:
-                for tok in llm.generate(prompt):
+                prompt_tokens = llm.tokenize_count(prompt)
+                ctx_limit = llm.context_limit()
+            except Exception:
+                prompt_tokens, ctx_limit = len(prompt), 0
+            gen_tokens = 0
+
+            self.after(0, lambda: self.chat_status_var.set("Generating..."))
+            self.after(0, lambda: self.ctx_var.set(f"Context: {prompt_tokens}/{ctx_limit or '?.?'}"))
+            try:
+                n_predict = int(self.max_tokens_var.get() or 256)
+                for tok in llm.generate(prompt, n_predict=n_predict):
                     if self._chat_stop.is_set():
                         break
-                    self._chat_meter.on_tokens(len(tok))
+                    # Count tokens using llama tokenizer for accurate tps/context
+                    try:
+                        t_add = llm.tokenize_count(tok)
+                    except Exception:
+                        t_add = len(tok)
+                    gen_tokens += t_add
+                    self._chat_meter.on_tokens(t_add)
                     tps = self._chat_meter.tokens_per_sec()
                     self.after(0, lambda s=tok: self.output_text.insert("end", s))
                     self.after(0, lambda v=tps: self.speed_var.set(f"Speed: {v:.1f} tok/s"))
+                    used = prompt_tokens + gen_tokens
+                    self.after(0, lambda u=used, lim=ctx_limit: self.ctx_var.set(f"Context: {u}/{lim or '?.?'}"))
             finally:
                 self.after(0, self._chat_reset_idle)
                 audit_log("gui_chat", {"model": model})
