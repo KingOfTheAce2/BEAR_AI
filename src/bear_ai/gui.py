@@ -5,6 +5,11 @@ import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
+BEAR_ICON_PNG = (
+    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGUlEQVR4nGNYqqX1"
+    "nxLMMGrAqAGjBgwXAwB5AfgQKHmRIgAAAABJRU5ErkJggg=="
+)
+
 from .download import list_files_with_sizes, resolve_selection, download_many
 from .logging_utils import audit_log
 from .hw import hw_summary
@@ -19,20 +24,12 @@ class App(tk.Tk):
         self.title("BEAR AI")
         # Larger default window for high-DPI laptops
         self.geometry("900x640")
-        # Optional app icon if bear.ico is present next to scripts/
+        # Optional app icon embedded directly in the source to avoid shipping
+        # a separate binary file. If image creation fails (e.g., a headless
+        # environment), the default Tk icon is used.
         try:
-            import os
-            from pathlib import Path
-            here = Path(__file__).resolve()
-            icon1 = here.parent.parent / 'scripts' / 'bear.ico'
-            icon2 = here.parent / 'bear.ico'
-            icon_path = None
-            if icon1.exists():
-                icon_path = str(icon1)
-            elif icon2.exists():
-                icon_path = str(icon2)
-            if icon_path:
-                self.iconbitmap(icon_path)
+            self._icon = tk.PhotoImage(data=BEAR_ICON_PNG)
+            self.iconphoto(True, self._icon)
         except Exception:
             pass
 

@@ -1,3 +1,8 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 from bear_ai.security import scrub_pii
 
 
@@ -12,4 +17,14 @@ def test_scrub_basic_patterns():
     assert "[SSN]" in out
     assert "[CARD]" in out
     assert "[IP]" in out
+
+
+def test_scrub_cli_help():
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+    proc = subprocess.run(
+        [sys.executable, "-m", "bear_ai.scrub", "--help"], env=env, capture_output=True, text=True
+    )
+    assert proc.returncode == 0
+    assert "Redact" in proc.stdout
 
