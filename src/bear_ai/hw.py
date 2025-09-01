@@ -7,14 +7,32 @@ def _bytes_to_gb(n: int) -> float:
 
 
 def system_ram_gb() -> float:
-    # Lazy, cross-platform: try psutil, fall back to shutil
+    """Return total system RAM in GB.
+
+    Attempts to use :mod:`psutil` if available. When unavailable, fall back to
+    standard library mechanisms: ``os.sysconf`` on Unix-like platforms or, as a
+    last resort, a rough estimate based on total disk size.
+    """
+
     try:
         import psutil  # type: ignore
+
         return _bytes_to_gb(psutil.virtual_memory().total)
     except Exception:
-        # No psutil installed - rough fallback based on disk total
-        # Better than nothing for environments without psutil
-        return 8.0
+        # psutil not installed or failed; try using os.sysconf (Unix)
+        try:
+            import os
+
+            pages = os.sysconf("SC_PHYS_PAGES")
+            page_size = os.sysconf("SC_PAGE_SIZE")
+            return _bytes_to_gb(pages * page_size)
+        except Exception:
+            # Final fallback: approximate from total disk size
+            import shutil
+
+            total, _, _ = shutil.disk_usage("/")
+            # Heuristic: assume RAM ~25% of disk capacity
+            return _bytes_to_gb(total // 4)
 
 
 def free_ram_gb() -> float:

@@ -19,6 +19,7 @@ def main():
     p.add_argument("--top-p", type=float, default=0.95)
     p.add_argument("--mmap", action="store_true", help="Enable memory-mapped model loading")
     p.add_argument("--mlock", action="store_true", help="Lock model in RAM (if supported)")
+    p.add_argument("--show-speed", action="store_true", help="Display token/sec throughput")
     args = p.parse_args()
 
     model_path = Path(args.model)
@@ -46,13 +47,21 @@ def main():
     meter = ThroughputMeter()
     total = 0
     try:
-        for tok in llm.generate(text, n_predict=args.n_predict, temperature=args.temperature, top_p=args.top_p):
+        for tok in llm.generate(
+            text, n_predict=args.n_predict, temperature=args.temperature, top_p=args.top_p
+        ):
             total += len(tok)
             meter.on_tokens(len(tok))
             sys.stdout.write(tok)
             sys.stdout.flush()
+            if args.show_speed:
+                tps = meter.tokens_per_sec()
+                sys.stderr.write(f"\r{tps:.1f} tok/s")
+                sys.stderr.flush()
     finally:
         sys.stdout.write("\n")
+        if args.show_speed:
+            sys.stderr.write("\n")
         audit_log(
             "chat_run",
             {

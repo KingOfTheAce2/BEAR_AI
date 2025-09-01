@@ -6,13 +6,19 @@ from tqdm import tqdm
 
 def list_files(model_id: str) -> List[str]:
     api = HfApi()
-    return api.list_repo_files(model_id)
+    try:
+        return api.list_repo_files(model_id)
+    except Exception as e:
+        raise RuntimeError(f"Failed to list files for {model_id}: {e}") from e
 
 def download_one(model_id: str, filename: str, dest_dir: str) -> str:
     dest = pathlib.Path(dest_dir)
     dest.mkdir(parents=True, exist_ok=True)
     # Use hf_hub_download to leverage HF caching and etags
-    local_path = hf_hub_download(repo_id=model_id, filename=filename, local_dir=str(dest))
+    try:
+        local_path = hf_hub_download(repo_id=model_id, filename=filename, local_dir=str(dest))
+    except Exception as e:
+        raise RuntimeError(f"Failed to download {filename} from {model_id}: {e}") from e
     return local_path
 
 def download_many(model_id: str, files: Iterable[str], dest_dir: str) -> List[str]:
@@ -34,7 +40,10 @@ def list_files_with_sizes(model_id: str):
     """
     Return list of dicts: {name, size_bytes}
     """
-    info = repo_info(model_id, files_metadata=True)
+    try:
+        info = repo_info(model_id, files_metadata=True)
+    except Exception as e:
+        raise RuntimeError(f"Failed to fetch repo info for {model_id}: {e}") from e
     out = []
     for f in info.siblings:
         # skip directories

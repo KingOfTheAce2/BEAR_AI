@@ -187,7 +187,7 @@ class App(tk.Tk):
 
         def work():
             try:
-                files = selected or [v[0] for v in [self.table.item(i, "values") for i in self.table.get_children()]]
+                files = selected or [self.table.item(i, "values")[0] for i in self.table.get_children()]
                 if not selected and include:
                     # If user did not select rows but typed an include filter, re-resolve
                     files = resolve_selection(model, include=include)
