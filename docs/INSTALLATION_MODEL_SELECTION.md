@@ -9,3 +9,11 @@
 - Detect user hardware (CPU, GPU, RAM) and offer a curated list of popular models that fit their system.
 - Provide an advanced search interface connected to Hugging Face for browsing all available models.
 - Include clear descriptions and performance notes so non-technical users know the expected hardware demands.
+
+### Quick CLI Suggestion
+
+```powershell
+python -m bear_ai --suggest
+```
+
+Displays curated models that are likely to run on your current machine.
