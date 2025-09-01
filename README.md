@@ -442,12 +442,13 @@ Install the inference extra and run a chat against a GGUF model:
 
 ```powershell
 pip install -e .[inference]
-bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128
+bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128 --show-speed
 ```
 
 Notes:
 - CPU runs by default; to use GPU you need a CUDA-enabled wheel of `llama-cpp-python` and can pass `--n-gpu-layers`.
 - You can also use the helper: `scripts\run_chat.bat --model .\models\... --prompt "..."`.
+ - Pass `--show-speed` to display token throughput while generating.
 
 ## Easiest Install (Windows)
 From the repo root, run the installer (PowerShell) or double-click the batch file:

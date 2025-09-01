@@ -36,7 +36,7 @@ def main():
     p.add_argument(
         "filename",
         nargs="?",
-        help="Specific filename to download. Omit to use --include or interactive list.",
+        help="Specific filename to download. Omit to use --include or download all matching files.",
     )
     p.add_argument("--list", action="store_true", help="List available files and exit")
     p.add_argument("--assess", action="store_true", help="Assess model files vs your RAM and VRAM")
