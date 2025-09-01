@@ -23,6 +23,21 @@ BEAR AI embraces this philosophy. Operating locally protects sensitive informati
 
 ---
 
+## Installation and Model Selection Recommendations
+
+BEAR AI aims to streamline setup and help users pick the right models for their hardware.
+See [Installation and Model Selection Recommendations](docs/INSTALLATION_MODEL_SELECTION.md)
+for ideas like single-step installers, hardware detection with curated model lists, and
+an advanced Hugging Face search interface with clear performance notes.
+
+To view models that fit your current hardware, run:
+
+```powershell
+python -m bear_ai --suggest
+```
+
+---
+
 ## Quick Start: Downloading Models on Windows
 
 The repository includes a small command-line tool for fetching GGUF or other

@@ -30,6 +30,7 @@ def main():
     p = argparse.ArgumentParser("bear_ai")
     p.add_argument(
         "model_id",
+        nargs="?",
         help="Hugging Face repo id, for example TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
     )
     p.add_argument(
@@ -39,9 +40,22 @@ def main():
     )
     p.add_argument("--list", action="store_true", help="List available files and exit")
     p.add_argument("--assess", action="store_true", help="Assess model files vs your RAM and VRAM")
+    p.add_argument("--suggest", action="store_true", help="Suggest models that fit your hardware")
     p.add_argument("--dest", default="models", help="Download directory")
     p.add_argument("--include", help="Substring to match multiple files")
     args = p.parse_args()
+
+    if args.suggest:
+        from .model_suggest import suggest_models
+
+        for spec in suggest_models():
+            print(
+                f"{spec['id']:60} {spec['size_gb']:>6.2f}GB {spec['fit']:>10} {spec['hint']:>12}"
+            )
+        return
+
+    if not args.model_id:
+        p.error("model_id required unless using --suggest")
 
     if args.list:
         for f in list_files(args.model_id):
