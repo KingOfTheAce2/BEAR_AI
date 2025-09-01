@@ -1,15 +1,41 @@
+import os
 import re
 from typing import Pattern
 
 
-def enable_cuda():
+def enable_cuda() -> bool:
+    """Detect an NVIDIA GPU and enable CUDA acceleration.
+
+    Returns ``True`` if CUDA support was enabled. Detection relies on
+    ``pynvml`` which is an optional dependency. When a GPU is found the
+    ``LLAMA_CPP_USE_CUDA`` environment variable is set so that
+    ``llama-cpp-python`` will offload layers to the GPU.
+
+    The helper is intentionally light‑weight – failures simply result in
+    returning ``False`` without raising.
     """
-    Future: detect and enable CUDA for local inference runtimes.
-    Options:
-      - llama.cpp CUDA build flags
-      - PyTorch + bitsandbytes
-    """
-    raise NotImplementedError
+
+    try:
+        import pynvml  # type: ignore
+    except Exception:
+        return False
+
+    try:
+        pynvml.nvmlInit()
+        has_gpu = pynvml.nvmlDeviceGetCount() > 0
+    except Exception:
+        return False
+    finally:
+        try:  # pragma: no cover - best effort shutdown
+            pynvml.nvmlShutdown()
+        except Exception:
+            pass
+
+    if not has_gpu:
+        return False
+
+    os.environ.setdefault("LLAMA_CPP_USE_CUDA", "1")
+    return True
 
 
 _RE_PATTERNS: dict[str, Pattern[str]] = {

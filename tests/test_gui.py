@@ -1,6 +1,5 @@
 import types
 
-import types
 from bear_ai import gui
 
 
@@ -95,3 +94,8 @@ def test_on_download_selected(monkeypatch):
 
     gui.App.on_download(app)
     assert captured["files"] == ["b"]
+
+
+def test_icon_embedded():
+    assert hasattr(gui, "BEAR_ICON_PNG")
+    assert gui.BEAR_ICON_PNG.strip()
