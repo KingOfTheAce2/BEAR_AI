@@ -45,8 +45,8 @@ if (-not (Test-Path $venvPy)) { throw "Failed to create .venv (missing $venvPy)"
 Write-Host "Upgrading pip..."
 & $venvPy -m pip install -U pip
 
-Write-Host "Installing BEAR AI (editable)..."
-& $venvPy -m pip install -e .
+Write-Host "Installing BEAR AI (editable, with inference runtime)..."
+& $venvPy -m pip install -e .[inference]
 
 # Optional extras
 $hasNvidiaSmi = (Get-Command nvidia-smi -ErrorAction SilentlyContinue) -ne $null

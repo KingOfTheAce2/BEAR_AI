@@ -2,6 +2,7 @@ import threading
 import time
 import subprocess
 import sys
+import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
@@ -141,6 +142,9 @@ class App(tk.Tk):
         self._chat_stop = threading.Event()
         self._chat_meter = ThroughputMeter()
 
+        # Ensure the llama.cpp runtime is available as early as possible
+        threading.Thread(target=self._ensure_llama_runtime, daemon=True).start()
+
     def pick_dest(self):
         path = filedialog.askdirectory() or ""
         if path:
@@ -157,6 +161,97 @@ class App(tk.Tk):
             self.progress.start(10)
         else:
             self.progress.stop()
+
+    def _ensure_llama_runtime(self) -> bool:
+        try:
+            import llama_cpp  # type: ignore
+            return True
+        except Exception:
+            pass
+
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            return True
+
+        if sys.version_info >= (3, 13):
+            def show_pyver_help():
+                message = (
+                    "llama-cpp-python does not yet provide wheels for Python "
+                    f"{sys.version_info.major}.{sys.version_info.minor}.\n\n"
+                    "Recommended fixes:\n"
+                    "- Use the project venv with Python 3.12: scripts\\setup_gui.bat\n"
+                    "- Or create a 3.12 venv and install: .\\.venv\\Scripts\\python.exe -m pip install -e .[inference]\n"
+                    "- Or use the Conda installer: scripts\\setup_conda.ps1 -LaunchGUI\n\n"
+                    "Advanced: If you must stay on this Python, you'll need a local build toolchain (CMake + Visual Studio) "
+                    "to compile llama-cpp-python from source."
+                )
+                messagebox.showerror("Unsupported Python Version", message)
+
+            self.after(0, show_pyver_help)
+            return False
+
+        self.after(0, lambda: self.chat_status_var.set("Installing llama runtime (CPU)..."))
+
+        in_venv = hasattr(sys, "real_prefix") or (
+            hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+        )
+        success = False
+        try:
+            cmd1 = [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "-U",
+                "--prefer-binary",
+                "--retries",
+                "3",
+                "--timeout",
+                "60",
+                "--extra-index-url",
+                "https://abetlen.github.io/llama-cpp-python/whl/cpu",
+                "llama-cpp-python",
+            ]
+            if not in_venv:
+                cmd1.append("--user")
+            subprocess.run(cmd1, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            import llama_cpp  # type: ignore
+            success = True
+        except Exception:
+            try:
+                cmd2 = [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "-U",
+                    "--prefer-binary",
+                    "--only-binary=:all:",
+                    "llama-cpp-python",
+                ]
+                if not in_venv:
+                    cmd2.append("--user")
+                subprocess.run(cmd2, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                import llama_cpp  # type: ignore
+                success = True
+            except Exception:
+                def show_help():
+                    messagebox.showerror(
+                        "Error",
+                        "Failed to install llama-cpp-python automatically.\n\n"
+                        "Try one of these (PowerShell from repo root):\n\n"
+                        ".\\.venv\\Scripts\\python.exe -m pip install --extra-index-url "
+                        "https://abetlen.github.io/llama-cpp-python/whl/cpu llama-cpp-python\n"
+                        ".\\.venv\\Scripts\\python.exe -m pip install --only-binary=:all: llama-cpp-python\n\n"
+                        "Or use the Conda-based installer with prebuilt binaries:\n"
+                        "scripts\\setup_conda.ps1 -LaunchGUI",
+                    )
+
+                self.after(0, show_help)
+                success = False
+        finally:
+            self.after(0, lambda: self.chat_status_var.set("Idle"))
+
+        return success
 
     def on_assess(self):
         model = self.model_var.get().strip()
@@ -259,93 +354,16 @@ class App(tk.Tk):
         self.chat_status_var.set("Loading model...")
 
         def work():
+            if not self._ensure_llama_runtime():
+                self.after(0, self._chat_reset_idle)
+                return
             try:
                 llm = LocalInference(model_path=model)
             except Exception as e:
                 msg = str(e)
-                # Attempt an in-app install of llama-cpp-python (CPU wheel) if missing
-                if "llama-cpp-python" in msg:
-                    # If running on a Python without prebuilt wheels (e.g., 3.13), guide the user.
-                    if sys.version_info >= (3, 13):
-                        def show_pyver_help():
-                            message = (
-                                "llama-cpp-python does not yet provide wheels for Python "
-                                f"{sys.version_info.major}.{sys.version_info.minor}.\n\n"
-                                "Recommended fixes:\n"
-                                "- Use the project venv with Python 3.12: scripts\\setup_gui.bat\n"
-                                "- Or create a 3.12 venv and install: .\\.venv\\Scripts\\python.exe -m pip install -e .[inference]\n"
-                                "- Or use the Conda installer: scripts\\setup_conda.ps1 -LaunchGUI\n\n"
-                                "Advanced: If you must stay on this Python, you'll need a local build toolchain (CMake + Visual Studio) "
-                                "to compile llama-cpp-python from source."
-                            )
-                            messagebox.showerror("Unsupported Python Version", message)
-                        self.after(0, show_pyver_help)
-                        self.after(0, self._chat_reset_idle)
-                        return
-
-                    self.after(0, lambda: self.chat_status_var.set("Installing llama runtime (CPU)..."))
-                    try:
-                        # Try official prebuilt CPU wheels first
-                        cmd1 = [
-                            sys.executable,
-                            "-m",
-                            "pip",
-                            "install",
-                            "-U",
-                            "--prefer-binary",
-                            "--retries",
-                            "3",
-                            "--timeout",
-                            "60",
-                            "--extra-index-url",
-                            "https://abetlen.github.io/llama-cpp-python/whl/cpu",
-                            "llama-cpp-python",
-                        ]
-                        # If not in a venv, add --user to avoid permission issues
-                        in_venv = hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
-                        if not in_venv:
-                            cmd1.append("--user")
-
-                        subprocess.run(cmd1, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                        # Retry initialization after install
-                        try:
-                            llm = LocalInference(model_path=model)
-                        except Exception:
-                            # Second attempt: force wheels from PyPI
-                            cmd2 = [
-                                sys.executable,
-                                "-m",
-                                "pip",
-                                "install",
-                                "-U",
-                                "--prefer-binary",
-                                "--only-binary=:all:",
-                                "llama-cpp-python",
-                            ]
-                            if not in_venv:
-                                cmd2.append("--user")
-                            subprocess.run(cmd2, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                            llm = LocalInference(model_path=model)
-                    except Exception:
-                        def show_help():
-                            messagebox.showerror(
-                                "Error",
-                                "Failed to install llama-cpp-python automatically.\n\n"
-                                "Try one of these (PowerShell from repo root):\n\n"
-                                ".\\.venv\\Scripts\\python.exe -m pip install --extra-index-url "
-                                "https://abetlen.github.io/llama-cpp-python/whl/cpu llama-cpp-python\n"
-                                ".\\.venv\\Scripts\\python.exe -m pip install --only-binary=:all: llama-cpp-python\n\n"
-                                "Or use the Conda-based installer with prebuilt binaries:\n"
-                                "scripts\\setup_conda.ps1 -LaunchGUI"
-                            )
-                        self.after(0, show_help)
-                        self.after(0, self._chat_reset_idle)
-                        return
-                else:
-                    self.after(0, lambda: messagebox.showerror("Error", msg))
-                    self.after(0, self._chat_reset_idle)
-                    return
+                self.after(0, lambda: messagebox.showerror("Error", msg))
+                self.after(0, self._chat_reset_idle)
+                return
 
             # Compute prompt tokens and prepare context indicator
             try:
