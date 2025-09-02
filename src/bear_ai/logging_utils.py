@@ -2,7 +2,7 @@ import json
 import logging
 import pathlib
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
+from datetime import datetime, timezone
 
 LOG_PATH = pathlib.Path("bear_ai.log")
 
@@ -19,5 +19,6 @@ def _ensure_logger() -> logging.Logger:
 
 def audit_log(event: str, details: dict):
     logger = _ensure_logger()
-    payload = {"event": event, "ts": datetime.utcnow().isoformat() + "Z", **details}
+    ts = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    payload = {"event": event, "ts": ts, **details}
     logger.info("AUDIT %s", json.dumps(payload, ensure_ascii=False))

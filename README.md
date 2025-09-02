@@ -46,8 +46,8 @@ is intended for use inside **Windows Terminal** or PowerShell and will grow into
 the full BEAR AI desktop experience.
 
 ```powershell
-# Install the package in editable mode
-pip install -e .
+# Install the package in editable mode (including inference runtime)
+pip install -e .[inference]
 
 # Example: download a model file into .\models
 python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
@@ -391,7 +391,7 @@ type input.txt | bear-scrub > output.txt
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
 
 ## Quick Start
-pip install -e .
+pip install -e .[inference]
 python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
 python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
 python -m bear_ai.gui
@@ -408,7 +408,7 @@ scripts\install.ps1      # or: double-click scripts\install.bat
 ```
 
 What it does:
-- Creates `.venv`, upgrades pip, installs `bear_ai`
+- Creates `.venv`, upgrades pip, installs `bear_ai` with inference runtime
 - Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
 - Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
 
@@ -458,7 +458,7 @@ scripts\install.ps1      # or: double-click scripts\install.bat
 ```
 
 What it does:
-- Creates `.venv`, upgrades pip, installs `bear_ai`
+- Creates `.venv`, upgrades pip, installs `bear_ai` with inference runtime
 - Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
 - Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
 
