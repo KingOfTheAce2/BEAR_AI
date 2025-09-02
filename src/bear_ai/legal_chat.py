@@ -22,6 +22,8 @@ from .local_store import (
     list_documents,
     add_document,
 )
+from .local_store import DATA_DIR
+from .rag import RAGPipeline
 
 
 class LegalChatWindow(tk.Toplevel):
@@ -53,6 +55,14 @@ class LegalChatWindow(tk.Toplevel):
         self.pii_status = tk.StringVar(value="PII: off")
         ttk.Label(top, textvariable=self.pii_status).pack(side="right", padx=(0, 8))
         ttk.Button(top, text="PII Settings", command=self._toggle_pii).pack(side="right", padx=(0, 8))
+
+        # Window icon
+        try:
+            from .gui import _try_load_logo_photoimage, BEAR_ICON_PNG
+            icon = _try_load_logo_photoimage() or tk.PhotoImage(data=BEAR_ICON_PNG)
+            self.iconphoto(True, icon)
+        except Exception:
+            pass
 
         # Main split: cases | chat
         main = ttk.Panedwindow(self, orient=tk.HORIZONTAL)
@@ -247,29 +257,39 @@ class LegalChatWindow(tk.Toplevel):
         # Build prompt with context
         case_docs = list_documents(self.selected_case_id)
         doc_ctx = ""
+        rag_snips = []
         if case_docs:
             names = ", ".join(d.get("name", "") for d in case_docs)
             doc_ctx = f"Available documents: {names}. "
+            # Lightweight RAG over local documents (.txt by default; pdf/docx supported if parsers installed)
+            try:
+                rag = RAGPipeline.from_case_docs(self.selected_case_id, base_dir=DATA_DIR)
+                rag_snips = rag.query(inbound_text, top_k=3)
+            except Exception:
+                rag_snips = []
         if self.selected_action:
             action = self.selected_action
             self.selected_action = None
             self.action_lbl.configure(text="")
+            # Include top snippets if available
+            snip_block = "\n\nRelevant excerpts:\n" + "\n".join(f"- {s.file}: {s.text}" for s in rag_snips) if rag_snips else ""
             prompts = {
                 "summarize": f"{doc_ctx}Provide a professional legal summary of the following: {text}",
                 "redline": f"{doc_ctx}Provide redline suggestions and comments for: {text}",
-                "draft": f"{doc_ctx}Draft a professional legal document based on: {text}",
+                "draft": f"{doc_ctx}Draft a professional legal document based on: {text}{snip_block}",
                 "explain": f"{doc_ctx}Provide a clear, plain-English explanation of: {text}",
                 "compare": f"{doc_ctx}Compare and analyze the following: {text}",
-                "research": f"{doc_ctx}Research and provide comprehensive legal analysis on: {text}",
+                "research": f"{doc_ctx}Research and provide comprehensive legal analysis on: {text}{snip_block}",
             }
             full_prompt = prompts.get(action, text)
             task_type = action
             is_draft = True
         else:
+            snip_block = "\n\nRelevant excerpts:\n" + "\n".join(f"- {s.file}: {s.text}" for s in rag_snips) if rag_snips else ""
             full_prompt = (
                 "You are a professional legal AI assistant. Provide helpful, accurate legal guidance while being clear "
                 "that this is not formal legal advice. Keep responses professional and concise unless detailed analysis is requested.\n\n"
-                f"User question: {inbound_text}"
+                f"User question: {inbound_text}{snip_block}"
             )
             task_type = None
             is_draft = False
@@ -330,6 +350,9 @@ class LegalChatWindow(tk.Toplevel):
     # Utils
     def _export_chat(self):
         if not self.selected_case_id:
+            return
+        if not can_export():
+            messagebox.showwarning("Access", "Your role is not permitted to export chats (set BEAR_ROLE).")
             return
         path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text", "*.txt"), ("All", "*.*")])
         if not path:

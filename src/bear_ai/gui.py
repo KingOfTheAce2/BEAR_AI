@@ -7,9 +7,34 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 BEAR_ICON_PNG = (
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGUlEQVR4nGNYqqX1"
+    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGUlEQVR4nGNYqqX1"  # tiny fallback
     "nxLMMGrAqAGjBgwXAwB5AfgQKHmRIgAAAABJRU5ErkJggg=="
 )
+
+def _try_load_logo_photoimage() -> tk.PhotoImage | None:
+    """Attempt to load BEAR_AI_logo.png from common locations, else None.
+    Handles PyInstaller (sys._MEIPASS) and source runs.
+    """
+    import sys
+    # Candidate paths
+    candidates = []
+    # 1) PyInstaller temp dir
+    base = getattr(sys, "_MEIPASS", None)
+    if base:
+        candidates.append(os.path.join(base, "BEAR_AI_logo.png"))
+    # 2) Repo root relative to this file (../../.. from src/bear_ai/gui.py)
+    here = os.path.dirname(__file__)
+    repo_root = os.path.abspath(os.path.join(here, os.pardir, os.pardir))
+    candidates.append(os.path.join(repo_root, "BEAR_AI_logo.png"))
+    # 3) Current working dir
+    candidates.append(os.path.abspath("BEAR_AI_logo.png"))
+    for p in candidates:
+        try:
+            if os.path.exists(p):
+                return tk.PhotoImage(file=p)
+        except Exception:
+            continue
+    return None
 
 from .download import list_files_with_sizes, resolve_selection, download_many
 from .logging_utils import audit_log
@@ -29,7 +54,10 @@ class App(tk.Tk):
         # a separate binary file. If image creation fails (e.g., a headless
         # environment), the default Tk icon is used.
         try:
-            self._icon = tk.PhotoImage(data=BEAR_ICON_PNG)
+            icon = _try_load_logo_photoimage()
+            if icon is None:
+                icon = tk.PhotoImage(data=BEAR_ICON_PNG)
+            self._icon = icon
             self.iconphoto(True, self._icon)
         except Exception:
             pass

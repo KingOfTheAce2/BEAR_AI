@@ -36,6 +36,62 @@ To view models that fit your current hardware, run:
 python -m bear_ai --suggest
 ```
 
+## Privacy & Safety Controls
+
+BEAR AI is privacy-by-design and runs entirely offline.
+
+- PII scrubbing: Microsoft Presidio anonymizes input before the model and output before it’s shown/saved. Supported entities include EMAIL, PHONE, CREDIT_CARD, IBAN, IP, PERSON, ORGANIZATION, DATE, plus Dutch BSN and RSIN (with 11‑test validators). PERSON/ORG are replaced with salted stable tokens. Set `PII_SALT` env var to control stable tokenization (defaults to a dev salt).
+- Policy: Inbound/outbound scrubbing is toggled in the UI. Programmatic entry points are available via `pii.Policy` and `pii.Scrubber`.
+- Audit: Optional append-only JSONL with SHA256 hashes and metadata, no raw text. Enable via `PII_AUDIT=1`.
+- Safety Guardrails: We align conversation safety with NVIDIA NeMo Guardrails principles for local governance. Guardrails are applied locally and are compatible with the PII pipeline (no external APIs).
+
+Compliance: Compliance officers own policy thresholds (e.g., min_confidence) and audit retention. Defaults are sensible; adjust as needed.
+
+## GUI notes and Icons
+
+- The desktop GUI (`python -m bear_ai.gui`) includes an “Open Legal Chat” window. Set your GGUF model path and use quick actions.
+- The application and taskbar icon are set to `BEAR_AI_logo.png`. The PyInstaller spec files bundle this asset so packaged EXEs display the BEAR AI logo.
+
+## Building standalone EXEs (PyInstaller)
+
+For fully offline distribution, build with the provided spec files which bundle spaCy + Presidio resources:
+
+```powershell
+pip install pyinstaller presidio-analyzer presidio-anonymizer spacy
+python -m spacy download en_core_web_lg
+python -m spacy download nl_core_news_lg
+
+# main CLI
+pyinstaller packaging/pyinstaller/bear-ai.spec
+
+# optional entry points
+pyinstaller packaging/pyinstaller/bear-chat.spec
+pyinstaller packaging/pyinstaller/bear-scrub.spec
+```
+
+Outputs are placed under `dist/`.
+
+## Repo hygiene
+
+- Virtualenvs are not committed. `.gitignore` includes `.venv/`, `build/`, `dist/`, and `*.spec`.
+- Use a clean venv when building EXEs so PyInstaller reliably detects optional deps.
+
+## Document RAG (lightweight)
+
+- The Legal Chat window performs simple retrieval over case documents to ground responses.
+- Indexed formats: `.txt` by default. Optional: `.pdf` (via `pypdf`) and `.docx` (via `python-docx`).
+- Place files under `~/.bear_ai/data/docs/<case_id>/`.
+- Retrieval is dependency-free for `.txt` and uses a simple token match heuristic; it adds top excerpts to the prompt as “Relevant excerpts”. If optional parsers are not installed, non-text files are skipped.
+
+Install optional parsers for richer indexing:
+```powershell
+pip install pypdf python-docx
+```
+
+## CI
+
+- A basic GitHub Actions workflow runs `pytest` and a light linter on pushes/PRs. Extend it to add binary build checks or audits as needed.
+
 ---
 
 ## Quick Start: Downloading Models on Windows
