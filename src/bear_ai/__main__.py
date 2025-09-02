@@ -1,6 +1,12 @@
 import argparse
 import sys
-from .download import list_files, resolve_selection, download_many, list_files_with_sizes
+from .download import (
+    list_files,
+    resolve_selection,
+    download_many,
+    list_files_with_sizes,
+    get_context_length,
+)
 from .logging_utils import audit_log
 from .hw import hw_summary
 from .model_compat import combined_fit
@@ -16,6 +22,9 @@ def do_assess(model_id: str):
     if not files:
         print("No files found to assess")
         return
+    ctx = get_context_length(model_id)
+    if ctx:
+        print(f"Context window: {ctx} tokens")
     print(
         f"Hardware: RAM {hw['free_ram_gb']}/{hw['ram_gb']} GB free/total, VRAM {hw['gpu_vram_gb'] or 'None'} GB"
     )

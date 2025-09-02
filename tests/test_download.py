@@ -1,5 +1,3 @@
-import pytest
-from bear_ai import download
 
 import pytest
 from bear_ai import download
@@ -36,3 +34,23 @@ def test_download_one_error(monkeypatch, tmp_path):
     monkeypatch.setattr(download, "hf_hub_download", bad_download)
     with pytest.raises(RuntimeError, match="Failed to download"):
         download.download_one("repo/model", "file.gguf", tmp_path)
+
+
+def test_get_context_length(monkeypatch, tmp_path):
+    cfg = tmp_path / "config.json"
+    cfg.write_text("{\"max_position_embeddings\": 2048}")
+
+    def fake_download(repo_id, filename):
+        assert filename == "config.json"
+        return str(cfg)
+
+    monkeypatch.setattr(download, "hf_hub_download", fake_download)
+    assert download.get_context_length("repo/model") == 2048
+
+
+def test_get_context_length_missing(monkeypatch):
+    def bad_download(**kwargs):
+        raise OSError("no config")
+
+    monkeypatch.setattr(download, "hf_hub_download", bad_download)
+    assert download.get_context_length("repo/model") is None
