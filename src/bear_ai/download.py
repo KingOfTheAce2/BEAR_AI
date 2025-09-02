@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import pathlib
 from typing import Iterable, List, Optional
 from huggingface_hub import HfApi, hf_hub_download, repo_info
@@ -51,3 +52,32 @@ def list_files_with_sizes(model_id: str):
             continue
         out.append({"name": f.rfilename, "size_bytes": f.size})
     return out
+
+
+def get_context_length(model_id: str) -> Optional[int]:
+    """Return the model's maximum context length if available.
+
+    Tries to download the model's ``config.json`` and looks for common keys
+    that indicate the supported context window. If the config cannot be
+    retrieved or no relevant fields are found, ``None`` is returned.
+    """
+    try:
+        cfg_path = hf_hub_download(repo_id=model_id, filename="config.json")
+    except Exception:
+        return None
+    try:
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+    except Exception:
+        return None
+    for key in (
+        "max_position_embeddings",
+        "max_sequence_length",
+        "n_positions",
+        "seq_length",
+        "context_length",
+    ):
+        val = cfg.get(key)
+        if isinstance(val, int):
+            return int(val)
+    return None
