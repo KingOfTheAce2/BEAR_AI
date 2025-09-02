@@ -43,6 +43,13 @@ class App(tk.Tk):
         self.chat_status_var = tk.StringVar(value="Idle")
         self.max_tokens_var = tk.IntVar(value=512)
         self.ctx_var = tk.StringVar(value="Context: 0/0")
+        # UI settings
+        self.settings = {
+            "auto_save": True,
+            "export_format": "pdf",
+            "show_citations": True,
+            "enable_notifications": False,
+        }
 
         # Main notebook with two tabs: Models and Chat
         container = ttk.Frame(self, padding=12)
@@ -136,6 +143,7 @@ class App(tk.Tk):
         ttk.Button(rowc2, text="Clear", command=self.on_chat_clear).pack(side="left", padx=(6, 0))
         # Mirror speed meter on chat tab for clarity
         ttk.Label(rowc2, textvariable=self.speed_var).pack(side="right")
+        ttk.Button(rowc2, text="Settings", command=self.open_settings).pack(side="right", padx=(0, 6))
 
         # Chat state
         self._chat_thread = None
@@ -154,6 +162,9 @@ class App(tk.Tk):
         p = filedialog.askopenfilename(filetypes=[("GGUF model", "*.gguf"), ("All files", "*.*")]) or ""
         if p:
             self.chat_model_var.set(p)
+
+    def open_settings(self):
+        SettingsDialog(self, self.settings)
 
     def set_busy(self, busy: bool):
         self._busy = busy
@@ -410,6 +421,44 @@ class App(tk.Tk):
     def on_chat_clear(self):
         self.output_text.delete("1.0", "end")
 
+
+class SettingsDialog(tk.Toplevel):
+    def __init__(self, parent, settings):
+        super().__init__(parent)
+        self.title("Settings")
+        self.resizable(False, False)
+        self.settings = settings
+
+        frame = ttk.Frame(self, padding=12)
+        frame.pack(fill="both", expand=True)
+
+        self.auto_save_var = tk.BooleanVar(value=settings.get("auto_save", True))
+        self.show_citations_var = tk.BooleanVar(value=settings.get("show_citations", True))
+        self.enable_notifications_var = tk.BooleanVar(value=settings.get("enable_notifications", False))
+        self.export_format_var = tk.StringVar(value=settings.get("export_format", "pdf"))
+
+        ttk.Checkbutton(frame, text="Auto-save responses", variable=self.auto_save_var).pack(anchor="w", pady=(0,4))
+        ttk.Checkbutton(frame, text="Show citations", variable=self.show_citations_var).pack(anchor="w", pady=(0,4))
+        ttk.Checkbutton(frame, text="Enable notifications", variable=self.enable_notifications_var).pack(anchor="w", pady=(0,4))
+
+        fmt_row = ttk.Frame(frame)
+        fmt_row.pack(fill="x", pady=(8,4))
+        ttk.Label(fmt_row, text="Default export format").pack(side="left")
+        ttk.OptionMenu(fmt_row, self.export_format_var, self.export_format_var.get(), "pdf", "docx", "txt").pack(side="left", padx=(8,0))
+
+        btns = ttk.Frame(frame)
+        btns.pack(fill="x", pady=(12,0))
+        ttk.Button(btns, text="Save", command=self.on_save).pack(side="right")
+        ttk.Button(btns, text="Cancel", command=self.destroy).pack(side="right", padx=(0,6))
+
+    def on_save(self):
+        self.settings.update({
+            "auto_save": self.auto_save_var.get(),
+            "show_citations": self.show_citations_var.get(),
+            "enable_notifications": self.enable_notifications_var.get(),
+            "export_format": self.export_format_var.get(),
+        })
+        self.destroy()
 
 def main():
     App().mainloop()
