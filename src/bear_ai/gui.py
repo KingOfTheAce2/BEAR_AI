@@ -144,6 +144,8 @@ class App(tk.Tk):
         # Mirror speed meter on chat tab for clarity
         ttk.Label(rowc2, textvariable=self.speed_var).pack(side="right")
         ttk.Button(rowc2, text="Settings", command=self.open_settings).pack(side="right", padx=(0, 6))
+        # Launch the Legal Chat UI (local desktop UI)
+        ttk.Button(rowc2, text="Open Legal Chat", command=self.open_legal_chat).pack(side="right", padx=(0, 6))
 
         # Chat state
         self._chat_thread = None
@@ -165,6 +167,14 @@ class App(tk.Tk):
 
     def open_settings(self):
         SettingsDialog(self, self.settings)
+
+    def open_legal_chat(self):
+        try:
+            from .legal_chat import LegalChatWindow
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load Legal Chat: {e}")
+            return
+        LegalChatWindow(self)
 
     def set_busy(self, busy: bool):
         self._busy = busy
