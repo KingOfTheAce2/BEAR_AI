@@ -20,7 +20,7 @@ Unlike existing solutions that suffer from vendor lock-in, security vulnerabilit
 - **Model Flexibility**: Support for any GGUF model without restrictions
 - **Professional-Grade Security**: Built-in PII scrubbing with audit trails
 - **User Experience**: Simple installation with powerful advanced features
-- **Open Architecture**: MIT licensed, fully extensible, no vendor lock-in
+- **Modular Architecture**: Proprietary license, extensible with permission, distribution restricted
 
 ### Addressing Competitor Shortcomings
 
