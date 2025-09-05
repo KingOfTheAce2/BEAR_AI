@@ -1,4 +1,7 @@
 [console_scripts]
 bear-ai = bear_ai.__main__:main
 bear-chat = bear_ai.chat:main
+bear-gui = bear_ai.gui:main
 bear-scrub = bear_ai.scrub:main
+bear-serve = bear_ai.server:start_openai_server
+bear-setup = bear_ai.setup:main

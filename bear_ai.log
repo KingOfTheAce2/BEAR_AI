@@ -1,0 +1,25 @@
+2025-09-03 07:18:50,212 WARNING bear_ai.pii.scrubber Presidio not available. Install with: pip install presidio-analyzer presidio-anonymizer
+2025-09-03 07:18:50,212 WARNING bear_ai.pii.policy PII_SALT not set, generated random salt: 35c6f8a14ed72ea0bdcb8c4ac6101d14. Set PII_SALT environment variable for consistent tokenization across sessions.
+2025-09-03 07:18:50,212 WARNING bear_ai.pii.scrubber Presidio not available. Install with: pip install presidio-analyzer presidio-anonymizer
+2025-09-03 07:18:50,212 WARNING bear_ai.pii.policy PII_SALT not set, generated random salt: 2e1e6377738693ee01aee02d3f1d49be. Set PII_SALT environment variable for consistent tokenization across sessions.
+2025-09-03 07:21:52,465 INFO bear_ai.rag Indexed contract.txt: 1 chunks
+2025-09-03 07:21:52,474 INFO bear_ai.rag Indexed memo.md: 1 chunks
+2025-09-03 07:21:52,476 INFO bear_ai.rag Updated index for 2 files
+2025-09-03 07:21:52,490 INFO bear_ai.rag Indexed agreement.txt: 1 chunks
+2025-09-03 07:21:52,502 INFO bear_ai.rag Indexed policy.txt: 1 chunks
+2025-09-03 07:21:52,503 INFO bear_ai.rag Updated index for 2 files
+2025-09-03 07:21:52,517 INFO bear_ai.rag Indexed initial.txt: 1 chunks
+2025-09-03 07:21:52,518 INFO bear_ai.rag Updated index for 1 files
+2025-09-03 07:21:52,533 INFO bear_ai.rag Indexed added.txt: 1 chunks
+2025-09-03 07:21:52,540 INFO bear_ai.rag Indexed contract.md: 1 chunks
+2025-09-03 07:21:52,541 INFO bear_ai.rag Updated index for 2 files
+2025-09-03 07:21:52,542 INFO bear_ai.rag Indexed added.txt: 1 chunks
+2025-09-03 07:21:52,543 INFO bear_ai.rag Indexed contract.md: 1 chunks
+2025-09-03 07:21:52,543 INFO bear_ai.rag Indexed initial.txt: 1 chunks
+2025-09-03 07:21:52,544 INFO bear_ai.rag Updated index for 3 files
+2025-09-04 20:09:45,854 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:45.854091Z", "in": "-", "out": "-", "bytes": 0}
+2025-09-04 20:09:47,987 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:47.986955Z", "in": "-", "out": "-", "bytes": 0}
+2025-09-04 20:09:49,255 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:49.255518Z", "in": "-", "out": "-", "bytes": 0}
+2025-09-04 20:09:51,628 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:51.628595Z", "in": "-", "out": "-", "bytes": 0}
+2025-09-04 20:09:54,141 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:54.140938Z", "in": "-", "out": "-", "bytes": 0}
+2025-09-04 20:09:54,699 INFO bear_ai AUDIT {"event": "scrub_pii", "ts": "2025-09-04T18:09:54.699606Z", "in": "-", "out": "-", "bytes": 0}

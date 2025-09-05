@@ -1,528 +1,302 @@
-# BEAR AI (Bridge for Expertise, Audit and Research): Privacy-First, Local-Only AI—Tackling Major Pitfalls of Existing Tools
+# BEAR AI 🐻
 
-BEAR AI (Bridge for Expertise, Audit and Research) is designed for legal professionals, privacy advocates, and anyone who requires the utmost control over their AI workflows **without cloud dependencies or vendor lock-in**. This document inventories real-world complaints and shortcomings of leading local/offline AI solutions—and explains how BEAR AI addresses each one.
+**B**ridge for **E**xpertise, **A**udit and **R**esearch
 
----
+> Privacy-First, Local-Only AI Assistant for Legal Professionals and Privacy Advocates
 
-## The Case for Running AI Yourself
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/KingOfTheAce2/BEAR_AI)
 
-Recent headlines suggest major AI labs are racing to build systems that could displace entire software sectors. When teams feed third-party services with proprietary prompts and documents, they may be training the very products that will compete with them. By the time those efforts surface publicly, the damage is already done.
+## 🚀 Key Features
 
-Self-hosting keeps those insights on your hardware, away from outsiders' roadmaps. Running the entire stack yourself prevents silent data exfiltration, unexpected terms-of-service changes, and dependency on platforms whose goals might not align with yours.
+### 🔒 Privacy-First Design
+- **Zero Network Calls**: Operates completely offline
+- **No Telemetry**: Your data stays on your device
+- **GDPR Compliant**: Built for privacy regulations
+- **Audit Trail**: Complete logging for compliance
 
-BEAR AI embraces this philosophy. Operating locally protects sensitive information and removes reliance on vendors that may one day replace you. Beyond this strategic concern, the project also tackles day-to-day frustrations that plague other "local" tools—murky licensing, hidden network calls, and clumsy installs.
+### 🛡️ Professional Security
+- **PII Detection & Scrubbing**: Automatically identify and remove sensitive information
+- **Document Security**: Secure processing of legal documents
+- **Multi-format Support**: PDF, DOCX, TXT, and more
+- **Encryption Ready**: Secure storage options
 
----
+### ⚡ Intelligent Performance
+- **Hardware Adaptive**: Automatic model recommendations based on your system
+- **Memory Optimized**: Efficient resource usage
+- **GPU Acceleration**: NVIDIA GPU support when available
+- **Model Flexibility**: Support for any GGUF model
 
-## Why BEAR AI?
+### 🎯 Built for Professionals
+- **Legal Document Analysis**: Specialized for legal workflows
+- **Multi-modal Support**: Text, images, audio processing
+- **RAG Integration**: Document retrieval and analysis
+- **Batch Processing**: Handle multiple documents efficiently
 
-- **Privacy-first, never phones home.**
-- **Runs 100% locally—no data leaves the device, ever.**
-- **Handles ALL major pain points in current solutions with clean, open design.**
-- **Builder-friendly: YOU choose models, plugins, export formats, integrations.**
+## 🏗️ Architecture
 
----
+BEAR AI is built with a modular, extensible architecture:
 
-## Installation and Model Selection Recommendations
-
-BEAR AI aims to streamline setup and help users pick the right models for their hardware.
-See [Installation and Model Selection Recommendations](docs/INSTALLATION_MODEL_SELECTION.md)
-for ideas like single-step installers, hardware detection with curated model lists, and
-an advanced Hugging Face search interface with clear performance notes.
-
-To view models that fit your current hardware, run:
-
-```powershell
-python -m bear_ai --suggest
+```
+src/bear_ai/
+├── __main__.py          # Main entry point
+├── chat.py             # Interactive chat interface  
+├── gui.py              # Tkinter-based GUI
+├── scrub.py            # PII detection and scrubbing
+├── inference.py        # AI model inference engine
+├── download.py         # Model download and management
+├── security.py         # Security and privacy features
+├── rag.py              # Retrieval-Augmented Generation
+├── hardware_profiles.py # Hardware optimization
+└── plugins/            # Extensible plugin system
 ```
 
-## Privacy & Safety Controls
+## 📦 Installation
 
-BEAR AI is privacy-by-design and runs entirely offline.
+### 🪟 Windows One-Click Install (Recommended)
+```batch
+# 1. Download/clone BEAR AI
+# 2. Double-click to install:
+INSTALL_BEAR_AI.bat
+```
+**Features:**
+- ✅ Automatic Python detection
+- ✅ GPU acceleration auto-setup
+- ✅ Desktop shortcuts created  
+- ✅ Cleans old installations
+- ✅ Complete system integration
 
-- PII scrubbing: Microsoft Presidio anonymizes input before the model and output before it’s shown/saved. Supported entities include EMAIL, PHONE, CREDIT_CARD, IBAN, IP, PERSON, ORGANIZATION, DATE, plus Dutch BSN and RSIN (with 11‑test validators). PERSON/ORG are replaced with salted stable tokens. Set `PII_SALT` env var to control stable tokenization (defaults to a dev salt).
-- Policy: Inbound/outbound scrubbing is toggled in the UI. Programmatic entry points are available via `pii.Policy` and `pii.Scrubber`.
-- Audit: Optional append-only JSONL with SHA256 hashes and metadata, no raw text. Enable via `PII_AUDIT=1`.
-- Safety Guardrails: We align conversation safety with NVIDIA NeMo Guardrails principles for local governance. Guardrails are applied locally and are compatible with the PII pipeline (no external APIs).
+[📚 **Detailed Windows Guide**](docs/WINDOWS_INSTALLATION.md)
 
-Compliance: Compliance officers own policy thresholds (e.g., min_confidence) and audit retention. Defaults are sensible; adjust as needed.
+### 🐧 Linux/Mac Installation
+```bash
+# Clone the repository
+git clone https://github.com/KingOfTheAce2/BEAR_AI.git
+cd BEAR_AI
 
-## GUI notes and Icons
+# Install with AI capabilities
+pip install -e ".[inference]"
 
-- The desktop GUI (`python -m bear_ai.gui`) includes an “Open Legal Chat” window. Set your GGUF model path and use quick actions.
-- The application and taskbar icon are set to `BEAR_AI_logo.png`. The PyInstaller spec files bundle this asset so packaged EXEs display the BEAR AI logo.
-
-## Building standalone EXEs (PyInstaller)
-
-For fully offline distribution, build with the provided spec files which bundle spaCy + Presidio resources:
-
-```powershell
-pip install pyinstaller presidio-analyzer presidio-anonymizer spacy
-python -m spacy download en_core_web_lg
-python -m spacy download nl_core_news_lg
-
-# main CLI
-pyinstaller packaging/pyinstaller/bear-ai.spec
-
-# optional entry points
-pyinstaller packaging/pyinstaller/bear-chat.spec
-pyinstaller packaging/pyinstaller/bear-scrub.spec
+# Or install with all features
+pip install -e ".[all]"
 ```
 
-Outputs are placed under `dist/`.
+### 🎯 Feature-Specific Installation
+```bash
+# For AI inference (required)
+pip install -e ".[inference]"
 
-## Repo hygiene
+# For multi-modal support (images, audio)
+pip install -e ".[multimodal]"
 
-- Virtualenvs are not committed. `.gitignore` includes `.venv/`, `build/`, `dist/`, and `*.spec`.
-- Use a clean venv when building EXEs so PyInstaller reliably detects optional deps.
+# For PII detection and privacy
+pip install -e ".[privacy]"
 
-## Document RAG (lightweight)
+# For RAG and document analysis
+pip install -e ".[rag]"
 
-- The Legal Chat window performs simple retrieval over case documents to ground responses.
-- Indexed formats: `.txt` by default. Optional: `.pdf` (via `pypdf`) and `.docx` (via `python-docx`).
-- Place files under `~/.bear_ai/data/docs/<case_id>/`.
-- Retrieval is dependency-free for `.txt` and uses a simple token match heuristic; it adds top excerpts to the prompt as “Relevant excerpts”. If optional parsers are not installed, non-text files are skipped.
+# For GUI interface
+pip install -e ".[gui]"
 
-Install optional parsers for richer indexing:
-```powershell
-pip install pypdf python-docx
+# For hardware optimization
+pip install -e ".[hardware]"
+
+# Everything (except development tools)
+pip install -e ".[all]"
 ```
 
-## CI
+## 🚀 Quick Start
 
-- A basic GitHub Actions workflow runs `pytest` and a light linter on pushes/PRs. Extend it to add binary build checks or audits as needed.
+### 🪟 Windows Users
+1. **Install**: Double-click `INSTALL_BEAR_AI.bat`
+2. **Launch**: Double-click "BEAR AI" desktop icon
+3. **Ready**: Start using your privacy-first AI!
 
----
+### 🐧 Linux/Mac Users
+```bash
+# 1. Install BEAR AI
+pip install -e ".[inference]"
 
-## Quick Start: Downloading Models on Windows
+# 2. Initialize setup
+bear-setup
 
-The repository includes a small command-line tool for fetching GGUF or other
-model files from the [Hugging Face Hub](https://huggingface.co). This scaffolding
-is intended for use inside **Windows Terminal** or PowerShell and will grow into
-the full BEAR AI desktop experience.
-
-```powershell
-# Install the package in editable mode (including inference runtime)
-pip install -e .[inference]
-
-# Example: download a model file into .\models
-python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
+# 3. Launch GUI
+bear-gui
 ```
 
-The command accepts an optional `--dest` argument to choose a different download
-directory. To inspect available files before downloading, use:
-
-```powershell
-python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
+### 📱 All Platforms - Available Commands
+```bash
+bear-gui            # Launch GUI interface
+bear-chat           # Start chat interface
+bear-scrub file.pdf # Scrub PII from documents
+bear-serve          # Start API server (optional)
+bear-setup          # Initial configuration
 ```
 
-## Windows GUI and Executable
+## 💻 Usage Examples
 
-A tiny Tkinter GUI is included for people who prefer a windowed interface.
-Run it after installing the package:
+### Interactive Chat
+```python
+from bear_ai import BearChat
 
-```powershell
-python -m bear_ai.gui
+# Initialize chat with privacy settings
+chat = BearChat(
+    model_path="models/llama-2-7b-chat.gguf",
+    privacy_mode=True,
+    pii_scrubbing=True
+)
+
+# Start conversation
+response = chat.ask("Analyze this contract for key terms")
 ```
 
-To bundle the GUI as a standalone `.exe`, install `pyinstaller` and run the
-build script:
+### Document Analysis
+```python
+from bear_ai import DocumentAnalyzer
 
-```powershell
-pip install pyinstaller
-python scripts/build_exe.py
+# Analyze legal document
+analyzer = DocumentAnalyzer()
+result = analyzer.analyze_document(
+    "contract.pdf",
+    analysis_type="legal_terms",
+    scrub_pii=True
+)
 ```
 
+### PII Scrubbing
+```python
+from bear_ai import PIIScrubber
 
----
-## Non‑Technical Quick Start (Windows)
-
-- Double‑click `scripts\\setup_gui.bat`.
-- The first run installs Python packages (may take a few minutes).
-- In the GUI:
-  - Enter a model id (e.g. `TheBloke/Mistral-7B-Instruct-v0.2-GGUF`) and click “Assess & List”.
-  - Select files you want and click “Download selected”.
-  - In the Chat section, click “Browse” to pick the downloaded `.gguf` file.
-  - Type your prompt and click “Start Chat”.
-
-Notes:
-- CPU works out of the box. GPU acceleration requires a CUDA build of `llama-cpp-python` and a compatible NVIDIA setup; the default installer uses a CPU build for reliability.
-- No data leaves your device. Audit logs write to `bear_ai.log`.
-
----
-## Desktop Shortcut (Windows)
-
-- Create a shortcut on your Desktop to launch the GUI:
-
-```powershell
-scripts\create_shortcut.bat
+# Scrub sensitive information
+scrubber = PIIScrubber()
+cleaned_text = scrubber.scrub_text(
+    "John Doe's SSN is 123-45-6789",
+    preserve_structure=True
+)
 ```
 
-- Re-run with `-Force` to overwrite if it already exists:
+## 🔧 Configuration
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\create_shortcut.ps1 -Force
+### Hardware Profiles
+BEAR AI automatically detects your hardware and recommends optimal settings:
+
+- **Laptop/Low-end**: 1-3B parameter models
+- **Desktop/Mid-range**: 7-13B parameter models  
+- **Workstation/High-end**: 30B+ parameter models
+- **GPU Acceleration**: Automatic CUDA detection and optimization
+
+### Privacy Settings
+Configure privacy and security settings:
+
+```python
+# Configuration in ~/.bear_ai/config.yaml
+privacy:
+  pii_detection: true
+  audit_logging: true
+  secure_deletion: true
+  encryption: true
+
+performance:
+  auto_model_selection: true
+  gpu_acceleration: true
+  memory_limit: "8GB"
 ```
 
-This points to `scripts\run_gui.bat` and starts in the project folder.
+## 📚 Documentation
 
----
+- [Installation Guide](docs/INSTALLATION.md)
+- [User Manual](docs/USER_GUIDE.md)
+- [PII Setup Guide](docs/PII_SETUP_GUIDE.md)
+- [Hardware Guide](docs/HARDWARE_GUIDE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [API Documentation](docs/API.md)
 
-## Current Solutions—Their Benefits, Drawbacks, and Common Complaints
+## 🤝 Contributing
 
-### 1. **LM Studio**
-#### Benefits
-- Friendly model management UI.
-- One-click installer for Windows; easy to set up.
-- Built-in RAG/doc chat, OpenAI API server, supports many GGUF models.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-#### Drawbacks & Complaints
-- **Mixed Licensing & Closed Core**: License/TOS can change; not fully open.
-- **RAM-Hungry:** Fails/crashes below 16GB+ RAM.
-- **Limited Context:** Default 4096 tokens; can’t handle big legal docs.
-- **Overwhelming for Non-Techies:** UI and setup daunting for newbies.
-- **No Multi-Conversation Export:** Users want downloadable PDF/chat transcripts.
+### Development Setup
+```bash
+# Clone and setup development environment
+git clone https://github.com/KingOfTheAce2/BEAR_AI.git
+cd BEAR_AI
 
----
+# Install in development mode with all features
+pip install -e ".[dev,all]"
 
-### 2. **Ollama**
-#### Benefits
-- Apache 2.0 license, open source.
-- Top-tier model selection (Llama, Mistral, Qwen).
-- CLI and experimental GUI; now on Windows.
+# Run tests
+pytest tests/
 
-#### Drawbacks & Complaints
-- **Service Issues:** Problems registering as a proper service on Windows.
-- **Startup/Port Conflicts:** Auto-launch quirks; port clashes.
-- **GPU/Memory Problems:** Fails to use GPU or excessive RAM.
-- **Persistent Installs:** Sometimes fails to fully uninstall/reinstall.
-- **Poor Documentation:** Troubleshooting is trial-and-error for many.
-
----
-
-### 3. **GPT4All**
-#### Benefits
-- MIT licensed, no cloud required.
-- Simple GUI, light on resources.
-- Strong privacy posture for basic work.
-
-#### Drawbacks & Complaints
-- **Locked to ‘Approved’ Models:** Can’t use favorite GGUF models from Hugging Face.
-- **Limited File Formats:** Office file upload only (not PDF/DOCX).
-- **Steep Learning Curve:** For tech novices, non-trivial setup.
-- **Underpowered Models:** 10B model limit yields shallow legal/logic answers.
-- **Political/Content Bias:** Some user-reported issues.
-- **Vendor Lock-in Behaviors:** Custom models frustrating to add.
-
----
-
-### 4. **AnythingLLM Desktop**
-#### Benefits
-- MIT licensed, local only, agentic automations.
-- All-in-one doc chat, file database, agents, teams.
-
-#### Drawbacks & Complaints
-- **Stability:** Hangs/freezes with large docs or long chats.
-- **Agent Problems:** Automation can fail or never complete.
-- **Laggy Performance:** UI looks friendly, behaves sluggishly.
-- **Critical CVEs:** Historical path traversal, DoS, auth bypass, etc.
-- **Hard to Debug:** Sparse logs make issues mysterious.
-- **Incomplete Feature Set:** Some RAG/Agent features only partially work.
-
-
----
-
-### 5. **Jan.ai**
-#### Benefits
-- AGPLv3, open API, cross-platform, easy install.
-- Good offline doc chat, GGUF model support.
-- Honest, responsive bugfixes.
-
-#### Drawbacks & Complaints
-- **Security Incidents:** File upload & CSRF bugs in past releases.
-- **GPU Support:** Windows/Linux often fail to use NVIDIA cards.
-- **Model Download Woes:** Frequent broken builds, stuck installations.
-- **Not Dev-Oriented:** Advanced customization is hard without hacking.
-- **Limited Logs/Tracebacks:** Not as transparent on backend issues as needed.
-
-
----
-
-### 6. **Text Generation WebUI (Oobabooga)**
-#### Benefits
-- Aggressively open, AGPL.
-- Supports any GGUF (no vendor lock-in).
-- UI is well-known, multi-user, has chat memory/history, API mode.
-- Portable ZIP—no admin rights, no Python required.
-
-#### Drawbacks & Complaints
-- **Setup Headaches:** Python/pip dependency errors common if not using portable build.
-- **Generation Glitches:** “Model loaded” doesn’t always mean it works—output fails for mis-configured models.
-- **CUDA/VRAM Issues:** GPU errors common, hard to debug.
-- **Steep for Non-Tech:** UI still bewildering for absolute novices.
-
-
----
-
-### 7. **KoboldCPP**
-#### Benefits
-- No install, single .exe file.
-- Strong GGUF support, OpenAI API, web interface.
-- Story & roleplay features.
-
-#### Drawbacks & Complaints
-- **Framerate Drops:** Gets slow on long stories/complex chats.
-- **RAM/VRAM Consumption:** Newer releases eat more memory.
-- **SmartContext Issues:** Context management unreliable in some builds.
-- **CUDA Errors:** “Out of memory” on some GPUs.
-
-
----
-
-### 8. **Llamafile**
-#### Benefits
-- Ultimate simplicity: one file = model + runtime.
-- No install needed, ideal for locked-down setups.
-- Completely local, ironclad privacy.
-
-#### Drawbacks & Complaints
-- **False Positives:** Antivirus/Defender blocks.
-- **Limited UI:** No chat memory, no multi-model switching.
-- **Startup Issues:** “Opens and closes instantly” bugs on Windows.
-- **Large File Size:** Distribution is clunky for huge models.
-
-
----
-
-### 9. **MLC Chat**
-#### Benefits
-- Mobile and desktop support, TVM optimized.
-- Lower resource needs for small models.
-
-#### Drawbacks & Complaints
-- **Build Failures:** Mobile/Android builds difficult.
-- **Limited Docs:** Poor instructions for advanced users.
-- **Not Enterprise-Ready:** Still maturing, bugs on edge cases.
-
-
----
-
-### 10. **Open WebUI**
-#### Benefits
-- MIT license, robust RAG, plugins.
-- Offered as Docker/app, graphical interface.
-
-#### Drawbacks & Complaints
-- **Documentation Gaps:** Not beginner friendly; users report confusion.
-- **RAG Limitations:** Context windows chop large docs to snippets.
-- **Timeouts, Slow Uploads:** Not responsive for legal-scale files.
-- **Integration Confusion:** Setup and connection to Ollama/etc. can fail silently.
-
-
----
-
-### 11. **LocalAI**
-#### Benefits
-- MIT, open API, multi-modal.
-- Aimed for scaling, production, flexibility.
-
-#### Drawbacks & Complaints
-- **Model Failures:** “Could not load model” errors.
-- **GPU/Hardware Mayhem:** Models don’t see GPU, VRAM bugs.
-- **API Flakiness:** Common connection reset/timeouts.
-- **Build Complexity:** Poor documentation, missing deps.
-
-
----
-
-## **What Users Most Often Complain About (All Solutions)**
-- **Hardware requirements sky-high:** Consumer laptops choke on models larger than 7–13B.
-- **Poor VRAM/RAM management:** Crashes, slowdowns, memory leaks.
-- **Actual model performance:** Local models “so bad” vs. cloud solutions for nuanced legal, business, or research needs.
-- **Setup too hard:** Even “one-click” setups fail for non-techies.
-- **Documentation is inconsistent:** Missing prerequisites, outdated examples, dead links.
-- **GPU acceleration unreliable:** Inconsistent support means many run on CPU by accident.
-- **Vendor lock-in:** GPT4All (and others) restrict custom model freedom.
-- **Context window is too small:** Big docs get chopped or ignored.
-- **Unstable document support:** PDF/Word limited or buggy.
-- **No logs/debugging:** Errors hide in the background.
-- **Security holes:** Several have had public CVEs, weak file handling, or CSRF problems.
-
----
-
-## How BEAR AI Fixes These Pain Points
-
-| Concern Addressed           | How BEAR AI Tackles It                                                                                    |
-|-----------------------------|----------------------------------------------------------------------------------------------------------|
-| **Privacy**                 | True local-first: *never* phones home, open source, fully auditable                                      |
-| **Hardware Adaptivity**     | Smart model scaling for modest machines; bears recommend optimal settings, warn about RAM/VRAM           |
-| **Model Flexibility**       | Accepts any GGUF model—no vendor lock, easy swap/test/setup                                              |
-| **Doc Processing**          | Modern RAG engine, offline doc parsing; supports PDF, DOCX, TXT, markdown                               |
-| **Lawyer-first Experience** | Intuitive, guided onboarding, clean legal-use document chains, and audit logs                            |
-| **Logs & Troubleshooting**  | Extensive logs, user-friendly error explanations, live setup checker                                     |
-| **Pro/Tech Mode**           | Advanced settings for techies (prompt formats, rest hooks), simple mode for others                       |
-| **Security**                | Fuzzed for vuln paths, locked file handling, pluggable auth, secure by design                           |
-| **Context & Memory**        | Conversation and document memory, persistent chat/context across restarts                                |
-| **Install Experience**      | Double-click installer (and portable ZIP), zero python or Powershell needed                             |
-| **Open API**                | AI API compatible: plug into existing LLM GUIs, power user automation                                   |
-
----
-
-## **Summary Table: BEAR AI vs. Alternatives**
-
-| Solution                | Open License | True Local? | Multi-Model | Easy Install | Any GGUF | File Chat | Doc RAG | Robust Logs | Security | Good for Lawyers? |
-|-------------------------|:------------:|:-----------:|:-----------:|:------------:|:--------:|:---------:|:-------:|:-----------:|:--------:|:---------------:|
-| **BEAR AI**             |  ✓           |     ✓       |     ✓       |      ✓       |    ✓     |     ✓     |    ✓    |      ✓      |    ✓     |       ✓         |
-| LM Studio               |  ~           |     ✓       |     ✓       |      ✓       |    ✓     |     ✓     |    ✓    |      ~      |    ~     |       ✓         |
-| Ollama                  |  ✓           |     ✓       |     ✓       |      ✓       |    ~     |     ✓     |    ~    |      ~      |    ~     |       ✓         |
-| GPT4All                 |  ✓           |     ✓       |    (x)      |      ✓       |   (x)    |    (x)    |   (x)   |     (x)     |    ✓     |      (x)        |
-| Jan.ai                  |  ✓           |     ✓       |     ✓       |      ✓       |    ✓     |    ~      |    ✓    |      ~      |    ~     |      ✓~         |
-| Text Generation WebUI   |  ✓           |     ✓       |     ✓       |     ~        |    ✓     |     ✓     |    ~    |      ~      |    ~     |       ✓         |
-| AnythingLLM             |  ✓           |     ✓       |     ✓       |      ✓       |    ✓     |     ✓     |    ✓    |     (x)     |   (x)    |       ✓         |
-| KoboldCPP               |  ✓           |     ✓       |     ✓       |      ✓       |    ✓     |    (x)    |   (x)   |      ~      |    ~     |      (x)        |
-| Llamafile               |  ✓           |     ✓       |    (x)      |      ✓       |    ✓     |    (x)    |   (x)   |      ~      |    ~     |      (x)        |
-| LocalAI                 |  ✓           |     ✓       |     ✓       |     (x)      |    ✓     |     ~     |    ~    |     (x)     |    ~     |      (x)        |
-
-- ✓ = strong
-- ~ = variable/partial or user reports mixed results
-- (x) = missing or widely reported problem
-
----
-
-**BEAR AI exists because too many “local” solutions have hidden caveats, confusing deploys, and security holes. The legal world needs software that simply works, is secure, transparent, debuggable, and—above all—keeps client data private by design.**
-
-## Privacy & GDPR-Proof PII Handling
-
-For a GDPR-proof legal use case, expanding on PII removal methods involves tools and approaches explicitly designed or suitable for regulatory compliance with strong focus on privacy, data protection, auditability, and irreversible anonymization. Here are additional specialized open-source tools and best practices beyond the core methods already mentioned:
-
-### Additional Open Source Tools for GDPR-Compliant PII Handling
-
-| Tool              | Language | Description & Features                                                                                  | GDPR-Relevance                                        |
-|-------------------|----------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| **PII Guard**          | Python/LLM-powered | Uses LLM to detect and manage PII in logs and data streams, designed explicitly for GDPR support. Clever at handling messy real-world data beyond regex. | Designed for GDPR and data privacy compliance purposes. |
-| **Privado**            | Unspecified        | Comprehensive open-source automation framework for privacy law compliance including GDPR, HIPAA. Focuses on data security and compliance auditing. | One-stop compliance automation, including PII handling. |
-| **Fogger**             | Java               | GDPR-friendly database masker, masks sensitive data in dev/testing databases with configurability and integrity of foreign key relations. | Ensures masked data that still respects DB referential integrity for compliance. |
-| **Databunker**         | Go                 | Self-hosted secure vault for tokenizing and storing personal records, designed to be GDPR compliant by securely isolating PII. | Storage-level PII security to ensure GDPR safe handling. |
-| **ARX Data Anonymization Tool**  | Java               | Open-source anonymization tool supporting various privacy models (k-anonymity, l-diversity) and data transformations—widely used in GDPR contexts. | Enables systematic and irreversible anonymization, critical for GDPR. |
-| **Microsoft Presidio** (Open Source)  | Python | NER-based detection and anonymization pipeline integrating with PySpark and Faker; scalable for big data workflows. | Supports privacy-by-design, strong anonymization for GDPR. |
-| **LLM-Based Custom Fine-Tuning**  | Python, LLMs | Fine-tuning smaller open-source LLMs (e.g., LLaMA 7b or similar) with custom labeled datasets enables contextual PII detection tailored to your legal documents. | Tailors detection for higher accuracy and fewer false positives in regulated documents. |
-
-### GDPR-Specific PII Anonymization Techniques and Best Practices
-
-- **Irreversibility:** True anonymization rather than reversible pseudonymization is preferred to ensure individuals cannot be re-identified, aligning with GDPR Article 4 definitions of anonymization.
-- **Context-Aware Redaction:** Mask, replace, or redact PII while keeping enough context so outputs remain useful (e.g., replacing names with consistent tokens rather than full removal) - important in legal docs/workflows.
-- **Data Minimization:** Only process or pass through to the LLM the minimum data necessary, reducing risk.
-- **Audit Trails and Logging:** Maintain detailed, tamper-proof logs of PII detection and anonymization steps for GDPR accountability.
-- **Privacy by Design:** Integrate PII scrubbing as an enforced gatekeeper step before any sensitive data leaves the system or enters the LLM.
-- **Continuous Model/Rule Updates:** Regularly update NER models, regex patterns, and heuristics to capture evolving data types and new identifiers relevant to your legal domain.
-
-### Practical GDPR Implementation
-
-- Use tools like **Microsoft Presidio** or **ARX** for batch anonymization of documents before LLM processing, especially for large corpora.
-- Employ **PII Guard** or fine-tuned LLM NER models for real-time PII scrubbing in chat or logs.
-- Mask database data in test/dev environments with **Fogger** to maintain compliance across development pipelines.
-- Securely tokenize or vault PII separately via tools like **Databunker** to reduce exposure risk.
-- Combine AI detection (NER models or LLMs) and rule-based methods (regex, heuristics) to balance precision and recall.
-- Embed data anonymization early in the pipeline following privacy-by-design principles to reduce risk.
-
-This layered and adaptable approach, combining best-in-class open-source tools with GDPR-focused strategies, provides a robust path to PII removal/anonymization in legal use cases to meet compliance with data protection laws and minimize privacy risks with local LLM deployments.
-
-### New: Local PII Scrubber (Baseline)
-
-- Run a lightweight, offline redactor for common PII using:
-
-```powershell
-bear-scrub --in input.txt --out output.txt
-# Or pipe
-type input.txt | bear-scrub > output.txt
+# Format code
+black src/
+isort src/
 ```
 
-- Replaces common patterns with tags: `[EMAIL]`, `[PHONE]`, `[SSN]`, `[CARD]`, `[IP]`.
-- Designed as a safe baseline; you can later swap in Microsoft Presidio for advanced GDPR-grade pipelines.
+## 🛡️ Security & Privacy
+
+BEAR AI is designed with security and privacy as core principles:
+
+- **Local Processing**: No data sent to external servers
+- **Audit Trails**: Complete logging for compliance requirements
+- **PII Protection**: Automatic detection and scrubbing of sensitive information
+- **Secure Storage**: Encrypted local storage options
+- **Regular Security Audits**: Ongoing security assessments
+
+## 📋 System Requirements
+
+### Minimum Requirements
+- **OS**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
+- **Python**: 3.9+
+- **RAM**: 8GB (16GB recommended)
+- **Storage**: 10GB free space
+- **CPU**: x64 processor with AVX2 support
+
+### Recommended
+- **RAM**: 32GB+ for large models
+- **GPU**: NVIDIA GPU with 8GB+ VRAM for acceleration
+- **Storage**: SSD with 50GB+ free space
+- **CPU**: Modern multi-core processor (8+ cores)
+
+## 🗺️ Roadmap
+
+### Phase 1 (Current) - Core Features ✅
+- [x] Basic AI inference engine
+- [x] PII detection and scrubbing
+- [x] GUI interface
+- [x] Hardware optimization
+
+### Phase 2 - Advanced Features 🚧
+- [ ] Advanced RAG implementation
+- [ ] Multi-modal document analysis
+- [ ] Plugin ecosystem
+- [ ] Advanced security features
+
+### Phase 3 - Enterprise Features 📋
+- [ ] Team collaboration features
+- [ ] Advanced audit and compliance
+- [ ] Integration APIs
+- [ ] Cloud-hybrid options
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+BEAR AI builds upon the work of the open-source AI community:
+
+- [llama.cpp](https://github.com/ggerganov/llama.cpp) for efficient inference
+- [Hugging Face](https://huggingface.co/) for model ecosystem
+- [Presidio](https://github.com/microsoft/presidio) for PII detection
+- [ChromaDB](https://github.com/chroma-core/chroma) for vector storage
+
+## 🆘 Support
+
+- **Issues**: [GitHub Issues](https://github.com/KingOfTheAce2/BEAR_AI/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/KingOfTheAce2/BEAR_AI/discussions)
+- **Documentation**: [docs/](docs/)
 
 ---
 
-*Contributions, feature suggestions, and all new bear jokes welcome!* 🐻
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
-
-## Quick Start
-pip install -e .[inference]
-python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
-python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF model.q4_0.gguf
-python -m bear_ai.gui
-
-## Build Windows EXE
-pip install pyinstaller
-python scripts/build_exe.py
-
-## Easiest Install (Windows)
-From the repo root, run the installer (PowerShell) or double-click the batch file:
-
-```powershell
-scripts\install.ps1      # or: double-click scripts\install.bat
-```
-
-What it does:
-- Creates `.venv`, upgrades pip, installs `bear_ai` with inference runtime
-- Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
-- Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
-
-After install, quick launch without activating the venv:
-
-```powershell
-scripts\run_gui.bat
-scripts\run_cli.bat TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
-scripts\run_scrub.bat --in input.txt --out output.txt
-```
-
-## Dev
-pip install -e .[dev]
-pre-commit install
-pytest -q
-
-Optional hardware extras
-pip install -e .[hw]
-
-Assess models vs your laptop
-python -m bear_ai TheBloke/Mistral-7B-Instruct-v0.2-GGUF --assess
-
-GUI tips
-- Click "Assess & List" to see files with Size, Fit, and Path hint.
-- Select rows and click "Download selected".
-- Click "Run speed benchmark" to see the live speed meter.
-
-## Local Inference (Optional, CPU by default)
-
-Install the inference extra and run a chat against a GGUF model:
-
-```powershell
-pip install -e .[inference]
-bear-chat --model .\models\model.q4_0.gguf --prompt "Hello, Bear!" --n-predict 128 --show-speed
-```
-
-Notes:
-- CPU runs by default; to use GPU you need a CUDA-enabled wheel of `llama-cpp-python` and can pass `--n-gpu-layers`.
-- You can also use the helper: `scripts\run_chat.bat --model .\models\... --prompt "..."`.
- - Pass `--show-speed` to display token throughput while generating.
-
-## Easiest Install (Windows)
-From the repo root, run the installer (PowerShell) or double-click the batch file:
-
-```powershell
-scripts\install.ps1      # or: double-click scripts\install.bat
-```
-
-What it does:
-- Creates `.venv`, upgrades pip, installs `bear_ai` with inference runtime
-- Installs hardware extras automatically if `nvidia-smi` is detected (or pass `-HW`)
-- Optional flags: `-Dev` for dev tools, `-BuildExe` to generate `dist/bear_ai.exe`
-
-After install, quick launch without activating the venv:
-
-```powershell
-scripts\run_gui.bat
-scripts\run_cli.bat TheBloke/Mistral-7B-Instruct-v0.2-GGUF --list
-scripts\run_scrub.bat --in input.txt --out output.txt
-scripts\run_chat.bat --model .\models\model.q4_0.gguf --prompt "Hello"
-```
+**BEAR AI** - Privacy-First AI for Professionals 🐻✨

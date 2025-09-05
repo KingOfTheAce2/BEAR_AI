@@ -7,9 +7,9 @@ from .inference import LocalInference
 import os
 
 try:
-    from pii.scrubber import Scrubber
-    from pii.policy import Policy
-    from pii.audit import Audit
+    from .pii.scrubber import Scrubber
+    from .pii.policy import Policy
+    from .pii.audit import Audit
 except Exception:  # Presidio not installed; keep UI functional without PII
     Scrubber = None  # type: ignore
     Policy = None  # type: ignore

@@ -1,7 +1,9 @@
 Param(
   [switch]$HW,
   [switch]$Dev,
-  [switch]$BuildExe
+  [switch]$BuildExe,
+  [switch]$CreateShortcut,
+  [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
@@ -73,8 +75,36 @@ if ($BuildExe) {
   & $venvPy scripts\build_exe.py
 }
 
-Write-Host "\nSuccess!" -ForegroundColor Green
-Write-Host "Run GUI:    scripts\\run_gui.bat"
-Write-Host "Run CLI:    scripts\\run_cli.bat <model_id> [filename] [--list|--assess]"
-Write-Host "Scrubber:   scripts\\run_scrub.bat --in input.txt --out output.txt"
-Write-Host "(Or activate venv: .\\.venv\\Scripts\\Activate.ps1)"
+# Create desktop shortcut if requested
+if ($CreateShortcut) {
+  Write-Host "Creating desktop shortcut..."
+  $WshShell = New-Object -comObject WScript.Shell
+  $Shortcut = $WshShell.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\BEAR AI.lnk")
+  $Shortcut.TargetPath = Join-Path $repo "run.bat"
+  $Shortcut.WorkingDirectory = $repo
+  $Shortcut.IconLocation = Join-Path $repo "BEAR_AI_logo.png"
+  $Shortcut.Description = "BEAR AI - Privacy-First Local AI Assistant"
+  $Shortcut.Save()
+  Write-Host "Desktop shortcut created: BEAR AI.lnk" -ForegroundColor Green
+}
+
+Write-Host "\n🎉 BEAR AI Installation Complete!" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "📱 Quick Start:" -ForegroundColor Yellow
+Write-Host "   Double-click:  run.bat                    (Launch BEAR AI GUI)"
+Write-Host "   GUI:          scripts\\run_gui.bat         (Alternative GUI launch)"
+Write-Host "   CLI:          scripts\\run_cli.bat         (Command line interface)"
+Write-Host "   PII Scrubber: scripts\\run_scrub.bat       (Privacy tool)"
+Write-Host ""
+Write-Host "🔧 Advanced:" -ForegroundColor Yellow  
+Write-Host "   Manual venv:  .\\.venv\\Scripts\\Activate.ps1  (Developer mode)"
+Write-Host "   Python CLI:   python -m bear_ai --help    (Direct Python access)"
+Write-Host ""
+Write-Host "📚 Documentation:" -ForegroundColor Yellow
+Write-Host "   README.md         - Quick start and overview"
+Write-Host "   docs/SPEC.md      - Technical specifications"  
+Write-Host "   RELEASE_NOTES.md  - Current version features"
+Write-Host ""
+Write-Host "🛡️  Privacy-First: All processing happens locally - no data ever leaves your device!" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan

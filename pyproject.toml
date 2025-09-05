@@ -1,24 +1,123 @@
 [project]
 name = "bear_ai"
-version = "0.1.0"
-description = "Privacy first local AI utilities"
+version = "0.1.0-alpha"
+description = "BEAR AI: Privacy-First, Local-Only AI - Bridge for Expertise, Audit and Research"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [{ name = "BEAR AI Contributors" }]
 dependencies = [
   "huggingface_hub>=0.24.0",
   "tqdm>=4.66.0",
+  "Pillow>=10.0.0", 
+  "requests>=2.31.0",
+  "numpy>=1.24.0",
+  "click>=8.0.0",
+  "rich>=13.0.0",
+  "typer>=0.9.0",
+  "fastapi>=0.104.0",
+  "uvicorn>=0.24.0",
+  "customtkinter>=5.2.0",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "isort", "flake8", "pre-commit"]
-hw = ["psutil", "nvidia-ml-py"]  # enables better RAM and VRAM detection
-inference = ["llama-cpp-python>=0.2.66"]
+# Basic AI inference
+inference = [
+    "llama-cpp-python>=0.2.66",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+]
+
+# Multi-modal support
+multimodal = [
+    "sentence-transformers>=2.2.0",
+    "Pillow>=10.0.0",
+    "opencv-python>=4.8.0",
+    "pytesseract>=0.3.10",
+    "openai-whisper>=20231117",
+    "librosa>=0.10.0",
+    "mutagen>=1.47.0",
+    "pypdf>=3.0.0",
+    "python-docx>=1.0.0",
+    "beautifulsoup4>=4.12.0",
+]
+
+# RAG and vector search
+rag = [
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "faiss-cpu>=1.7.0",
+]
+
+# PII detection and privacy
+privacy = [
+    "presidio-analyzer>=2.2.0",
+    "presidio-anonymizer>=2.2.0",
+    "spacy>=3.6.0",
+    "spacy-transformers>=1.2.0",
+]
+
+# Hardware monitoring and optimization
+hardware = [
+    "psutil>=5.9.0",
+    "nvidia-ml-py>=11.495.46",
+    "GPUtil>=1.4.0",
+]
+
+# Development tools
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.4.0",
+    "pre-commit>=3.0.0",
+]
+
+# GUI interface
+gui = [
+    "tkinter-tooltip>=2.0.0",
+    "customtkinter>=5.2.0",
+    "matplotlib>=3.7.0",
+    "plotly>=5.15.0",
+]
+
+# Server components
+server = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.0.0",
+]
+
+# All features (excluding dev)
+all = [
+    # Combine all feature sets except dev
+    "llama-cpp-python>=0.2.66",
+    "torch>=2.0.0", 
+    "transformers>=4.30.0",
+    "sentence-transformers>=2.2.0",
+    "opencv-python>=4.8.0",
+    "pytesseract>=0.3.10",
+    "openai-whisper>=20231117",
+    "librosa>=0.10.0",
+    "chromadb>=0.4.0",
+    "presidio-analyzer>=2.2.0",
+    "presidio-anonymizer>=2.2.0",
+    "spacy>=3.6.0",
+    "psutil>=5.9.0",
+    "tkinter-tooltip>=2.0.0",
+    "customtkinter>=5.2.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+]
 
 [project.scripts]
 bear-ai = "bear_ai.__main__:main"
 bear-scrub = "bear_ai.scrub:main"
 bear-chat = "bear_ai.chat:main"
+bear-setup = "bear_ai.setup:main"
+bear-gui = "bear_ai.gui:main"
+bear-serve = "bear_ai.server:start_openai_server"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]

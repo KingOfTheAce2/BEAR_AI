@@ -1,1 +1,27 @@
-huggingface_hub>=0.20
+pydantic
+pydantic-settings
+tqdm
+appdirs
+huggingface_hub
+PyQt6
+openai
+llama-cpp-python
+pynvml
+watchdog
+
+# RAG system dependencies
+pypdf>=4.0.0
+python-docx>=1.1.0
+
+# Testing dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# PII Detection and Scrubbing
+presidio-analyzer>=2.2.33
+presidio-anonymizer>=2.2.33
+spacy>=3.4.0
+transformers>=4.21.0
+
+# Dutch language models for PII detection
+# Note: Install with: python -m spacy download nl_core_news_lg
