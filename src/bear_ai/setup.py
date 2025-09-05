@@ -231,7 +231,7 @@ class SetupManager:
         print()
         
         # Basic license agreement
-        print("By continuing, you agree to the MIT License terms.")
+        print("By continuing, you agree to the BEAR AI proprietary license terms.")
         response = input("Continue? (y/N): ").strip().lower()
         if response != 'y':
             print("Setup cancelled.")
@@ -286,21 +286,17 @@ class SetupManager:
         """Show license agreement"""
         
         license_text = """
-BEAR AI is released under the MIT License.
+BEAR AI is distributed under a proprietary license.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Copyright (c) 2024 BEAR AI. All rights reserved.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software and associated documentation files (the "Software") are the proprietary property of BEAR AI and are protected by copyright law.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+Unless you have received prior written authorization from BEAR AI, you may not copy, reproduce, modify, publish, distribute, sublicense, sell, or otherwise use the Software, in whole or in part.
+
+Any unauthorized use of the Software is strictly prohibited and may result in civil and/or criminal penalties.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         """
         
         console.print(Panel(
