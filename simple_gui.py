@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Simple BEAR AI GUI Launcher
 Works around import issues by providing a basic interface

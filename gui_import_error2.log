@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from bear_ai import gui; print('Successfully imported bear_ai.gui')
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\gui\__init__.py", line 6, in <module>
+    from .desktop_app import BearAIDesktopApp, main
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\gui\desktop_app.py", line 20, in <module>
+    from ..server.openai_server import get_openai_server
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\server\__init__.py", line 6, in <module>
+    from .openai_server import (
+    ...<3 lines>...
+    )
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\server\openai_server.py", line 23, in <module>
+    from ..pii.scrubber import get_pii_scrubber
+ImportError: cannot import name 'get_pii_scrubber' from 'bear_ai.pii.scrubber' (C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\pii\scrubber.py)

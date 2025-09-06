@@ -348,3 +348,14 @@ class Scrubber:
                 return False
         except Exception:
             return False
+
+
+# Factory function for compatibility
+def get_pii_scrubber() -> Scrubber:
+    """
+    Get a configured PII scrubber instance.
+    
+    Returns:
+        Configured Scrubber instance
+    """
+    return Scrubber()

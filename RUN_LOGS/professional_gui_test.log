@@ -1,0 +1,11 @@
+Warning: Some BEAR AI modules not available. Using fallback implementations.
+CustomTkinter not available. Install with: pip install customtkinter
+Traceback (most recent call last):
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\professional_gui.py", line 101, in <module>
+    class SimplePIIScrubber:
+    ...<49 lines>...
+            return scrubbed, True, detected_types
+  File "C:\Users\evgga\Documents\GitHub\BEAR_AI\src\bear_ai\professional_gui.py", line 121, in SimplePIIScrubber
+    def analyze(self, text: str) -> List[PIIEntity]:
+                                         ^^^^^^^^^
+NameError: name 'PIIEntity' is not defined

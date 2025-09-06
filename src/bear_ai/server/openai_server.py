@@ -20,7 +20,7 @@ import uvicorn
 
 from ..models.multi_model_manager import get_model_manager
 from ..context.smart_context_manager import get_context_manager
-from ..privacy.pii_scrubber import get_pii_scrubber
+from ..pii.scrubber import get_pii_scrubber
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 BEAR AI - Ultra Modern GUI with Model Management
 Sleek dark theme with HuggingFace model browser and download functionality

@@ -92,10 +92,16 @@ if !ERRORLEVEL! neq 0 (
     exit /b 1
 )
 
-echo    Installing modern GUI components...
-".venv\Scripts\python.exe" -m pip install customtkinter pillow --quiet
+echo    Installing GUI components...
+".venv\Scripts\python.exe" -m pip install customtkinter pillow tkinter-tooltip --quiet
 if !ERRORLEVEL! neq 0 (
     echo WARNING: CustomTkinter install failed (will use basic GUI)
+)
+
+echo    Installing professional GUI components...
+".venv\Scripts\python.exe" -m pip install PyQt6 qtawesome --quiet
+if !ERRORLEVEL! neq 0 (
+    echo WARNING: PyQt6 install failed (professional GUI may not work)
 )
 
 echo    Installing model management...
@@ -123,49 +129,87 @@ if !ERRORLEVEL! equ 0 (
     echo WARNING: Test had issues but should still work
 )
 
-REM Create desktop shortcut
+REM Create desktop shortcuts for all interfaces
 echo.
-echo SHORTCUT: Creating desktop shortcut...
+echo SHORTCUT: Creating desktop shortcuts...
 set "DESKTOP=%USERPROFILE%\Desktop"
+
+REM Main launcher shortcut
 set "SHORTCUT_PATH=%DESKTOP%\BEAR AI.lnk"
 set "TARGET_PATH=%CD%\run.bat"
+call :create_shortcut "%SHORTCUT_PATH%" "%TARGET_PATH%" "BEAR AI - Privacy-First Local AI (Interface Selector)"
+
+REM Modern GUI shortcut
+set "SHORTCUT_PATH=%DESKTOP%\BEAR AI Modern.lnk"
+set "TARGET_PATH=%CD%\launch_modern.bat"
+call :create_shortcut "%SHORTCUT_PATH%" "%TARGET_PATH%" "BEAR AI - Modern Interface"
+
+REM Professional GUI shortcut
+set "SHORTCUT_PATH=%DESKTOP%\BEAR AI Professional.lnk"
+set "TARGET_PATH=%CD%\launch_professional.bat"
+call :create_shortcut "%SHORTCUT_PATH%" "%TARGET_PATH%" "BEAR AI - Professional Interface"
+
+REM Simple GUI shortcut
+set "SHORTCUT_PATH=%DESKTOP%\BEAR AI Simple.lnk"
+set "TARGET_PATH=%CD%\launch_simple.bat"
+call :create_shortcut "%SHORTCUT_PATH%" "%TARGET_PATH%" "BEAR AI - Simple Interface (Fallback)"
+
+REM Start Menu shortcuts
+set "STARTMENU=%APPDATA%\Microsoft\Windows\Start Menu\Programs"
+if exist "%STARTMENU%" (
+    echo SHORTCUT: Creating Start Menu shortcuts...
+    copy "%DESKTOP%\BEAR AI.lnk" "%STARTMENU%\BEAR AI.lnk" >nul 2>&1
+    copy "%DESKTOP%\BEAR AI Modern.lnk" "%STARTMENU%\BEAR AI Modern.lnk" >nul 2>&1
+    copy "%DESKTOP%\BEAR AI Professional.lnk" "%STARTMENU%\BEAR AI Professional.lnk" >nul 2>&1
+    copy "%DESKTOP%\BEAR AI Simple.lnk" "%STARTMENU%\BEAR AI Simple.lnk" >nul 2>&1
+    echo SHORTCUT: Start Menu shortcuts created
+)
+
+goto :end_main
+
+:create_shortcut
+set "shortcut_file=%~1"
+set "target_file=%~2"
+set "description=%~3"
 
 echo Set oWS = WScript.CreateObject("WScript.Shell") > "%TEMP%\CreateShortcut.vbs"
-echo sLinkFile = "%SHORTCUT_PATH%" >> "%TEMP%\CreateShortcut.vbs"
+echo sLinkFile = "%shortcut_file%" >> "%TEMP%\CreateShortcut.vbs"
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> "%TEMP%\CreateShortcut.vbs"
-echo oLink.TargetPath = "%TARGET_PATH%" >> "%TEMP%\CreateShortcut.vbs"
+echo oLink.TargetPath = "%target_file%" >> "%TEMP%\CreateShortcut.vbs"
 echo oLink.WorkingDirectory = "%CD%" >> "%TEMP%\CreateShortcut.vbs"
-echo oLink.Description = "BEAR AI - Privacy-First Local AI" >> "%TEMP%\CreateShortcut.vbs"
+echo oLink.Description = "%description%" >> "%TEMP%\CreateShortcut.vbs"
 echo oLink.Save >> "%TEMP%\CreateShortcut.vbs"
 
 cscript "%TEMP%\CreateShortcut.vbs" >nul 2>&1
 del "%TEMP%\CreateShortcut.vbs" 2>nul
 
-if exist "%SHORTCUT_PATH%" (
-    echo SHORTCUT: Desktop shortcut created
+if exist "%shortcut_file%" (
+    echo SHORTCUT: %~nx1 created
 ) else (
-    echo WARNING: Could not create desktop shortcut
+    echo WARNING: Could not create %~nx1
 )
+goto :eof
 
-REM Start Menu shortcut
-set "STARTMENU=%APPDATA%\Microsoft\Windows\Start Menu\Programs"
-if exist "%STARTMENU%" (
-    copy "%SHORTCUT_PATH%" "%STARTMENU%\BEAR AI.lnk" >nul 2>&1
-    if exist "%STARTMENU%\BEAR AI.lnk" (
-        echo SHORTCUT: Start Menu shortcut created
-    )
-)
-
+:end_main
 echo.
 echo ===============================================================================
 echo INSTALLATION COMPLETE!
 echo ===============================================================================
 echo.
 echo NEW FEATURES:
+echo    - Multiple GUI interfaces available
 echo    - Modern dark theme GUI with CustomTkinter styling
+echo    - Professional interface with advanced features (PyQt6)
+echo    - Simple fallback interface for compatibility
 echo    - Integrated PII protection with automatic detection
 echo    - AI Model Management with hardware compatibility checking
 echo    - Real-time privacy warnings and controls
+echo.
+echo AVAILABLE INTERFACES:
+echo    🎨 Modern GUI      - Enhanced dark theme with modern styling
+echo    💼 Professional   - Advanced interface with extra features
+echo    📱 Simple GUI     - Basic interface for maximum compatibility
+echo    🚀 Launcher       - Interface selector (main shortcut)
 echo.
 echo AI MODEL FEATURES:
 echo    - Automatic hardware detection
@@ -179,27 +223,31 @@ echo    - Credit card and address protection
 echo    - All data stays on your device - 100%% private
 echo.
 echo HOW TO USE:
-echo    1. Double-click "BEAR AI" desktop shortcut
-echo    2. Click "Select Model" to choose and download AI models
-echo    3. Click "Hardware Info" to see your system specifications
-echo    4. Start chatting with privacy protection enabled
+echo    1. Double-click "BEAR AI" desktop shortcut to choose interface
+echo    2. Or use specific shortcuts: "BEAR AI Modern", "BEAR AI Professional", etc.
+echo    3. Click "Select Model" to choose and download AI models
+echo    4. Click "Hardware Info" to see your system specifications
+echo    5. Start chatting with privacy protection enabled
 echo.
 echo LAUNCH BEAR AI NOW? (Y/N)
-set /p LAUNCH_NOW="Launch BEAR AI now? (Y/N): "
+set /p LAUNCH_NOW="Launch BEAR AI interface selector now? (Y/N): "
 
 if /i "%LAUNCH_NOW%"=="Y" (
     echo.
-    echo LAUNCHING: BEAR AI...
+    echo LAUNCHING: BEAR AI Interface Selector...
     start "" "%CD%\run.bat"
     timeout /t 2 >nul
-    echo SUCCESS: BEAR AI launched! Look for the new window.
-    echo TIP: Click "Select Model" to download your first AI model!
+    echo SUCCESS: BEAR AI launched! Choose your preferred interface.
+    echo TIP: Try the Modern interface first, fallback to Simple if needed.
 ) else (
     echo.
     echo READY: Launch BEAR AI anytime using:
-    echo    - Desktop shortcut: "BEAR AI"
-    echo    - Start Menu: "BEAR AI"
-    echo    - Or double-click: run.bat
+    echo    - Desktop shortcut: "BEAR AI" (interface selector)
+    echo    - Desktop shortcut: "BEAR AI Modern" (direct to modern GUI)
+    echo    - Desktop shortcut: "BEAR AI Professional" (direct to professional GUI)
+    echo    - Desktop shortcut: "BEAR AI Simple" (direct to simple GUI)
+    echo    - Start Menu: Same shortcuts available
+    echo    - Or double-click the respective .bat files
 )
 
 echo.

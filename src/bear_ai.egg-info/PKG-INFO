@@ -138,85 +138,135 @@ src/bear_ai/
 
 ## 📦 Installation
 
-### 🪟 Windows One-Click Install (Recommended)
-```batch
-# 1. Download/clone BEAR AI
-# 2. Double-click to install:
-INSTALL_BEAR_AI.bat
-```
-**Features:**
-- ✅ Automatic Python detection
-- ✅ GPU acceleration auto-setup
-- ✅ Desktop shortcuts created  
-- ✅ Cleans old installations
-- ✅ Complete system integration
-
-[📚 **Detailed Windows Guide**](docs/WINDOWS_INSTALLATION.md)
-
-### 🐧 Linux/Mac Installation
+### 🚀 Quick Install (All Platforms)
 ```bash
-# Clone the repository
+# 1. Clone or download BEAR AI
 git clone https://github.com/KingOfTheAce2/BEAR_AI.git
 cd BEAR_AI
 
-# Install with AI capabilities
-pip install -e ".[inference]"
+# 2. Create virtual environment (recommended)
+python -m venv .venv
 
-# Or install with all features
-pip install -e ".[all]"
+# 3. Activate virtual environment
+# Windows:
+.\.venv\Scripts\Activate.ps1
+# Linux/Mac:
+source .venv/bin/activate
+
+# 4. Install BEAR AI
+pip install -e .
+
+# 5. Launch GUI
+bear-ai-gui
 ```
+
+### 🪟 Windows One-Click Install (Alternative)
+```batch
+# 1. Download/clone BEAR AI
+# 2. Double-click to install:
+INSTALL.bat
+```
+**Enhanced Features:**
+- ✅ **Multiple GUI Options**: Modern, Professional, Simple, and Interface Selector
+- ✅ Automatic Python detection and virtual environment setup
+- ✅ Smart dependency management with fallback handling
+- ✅ GPU acceleration auto-setup with hardware detection
+- ✅ Desktop shortcuts created for all interfaces
+- ✅ Start Menu integration with professional presentation
+- ✅ Cleans old installations completely
+- ✅ Complete system integration with error recovery
 
 ### 🎯 Feature-Specific Installation
 ```bash
-# For AI inference (required)
+# Core installation (minimal)
+pip install -e .
+
+# With AI inference capabilities
 pip install -e ".[inference]"
 
-# For multi-modal support (images, audio)
-pip install -e ".[multimodal]"
-
-# For PII detection and privacy
-pip install -e ".[privacy]"
-
-# For RAG and document analysis
-pip install -e ".[rag]"
-
-# For GUI interface
+# With GUI interface
 pip install -e ".[gui]"
 
-# For hardware optimization
-pip install -e ".[hardware]"
-
-# Everything (except development tools)
+# With all features
 pip install -e ".[all]"
+
+# Development mode (includes testing tools)
+pip install -e ".[dev,all]"
 ```
 
 ## 🚀 Quick Start
 
-### 🪟 Windows Users
-1. **Install**: Double-click `INSTALL_BEAR_AI.bat`
-2. **Launch**: Double-click "BEAR AI" desktop icon
-3. **Ready**: Start using your privacy-first AI!
+### ⚡ Launch Methods (After Installation)
 
-### 🐧 Linux/Mac Users
+#### Method 1: Console Scripts (Recommended)
 ```bash
-# 1. Install BEAR AI
-pip install -e ".[inference]"
-
-# 2. Initialize setup
-bear-setup
-
-# 3. Launch GUI
-bear-gui
+bear-ai-gui         # Launch main GUI
+bear-ai chat        # Interactive chat
+bear-ai-scrub       # PII scrubbing tool
+bear-ai-setup       # Configuration
 ```
 
-### 📱 All Platforms - Available Commands
+#### Method 2: Python Module
 ```bash
-bear-gui            # Launch GUI interface
-bear-chat           # Start chat interface
-bear-scrub file.pdf # Scrub PII from documents
-bear-serve          # Start API server (optional)
-bear-setup          # Initial configuration
+python -m bear_ai.gui    # Launch GUI
+python -m bear_ai        # Main application
 ```
+
+#### Method 3: Legacy GUI Files (Still Supported)
+```bash
+python gui_launcher.py   # Interface selector
+python modern_gui.py     # Modern interface
+python simple_gui.py     # Simple interface
+```
+
+### 🎨 Interface Options Available
+- **🚀 Interface Selector**: Choose your preferred interface (main launcher)
+- **🎨 Modern GUI**: Professional dark theme with CustomTkinter styling
+- **💼 Professional GUI**: Advanced PyQt6 interface with document management
+- **📱 Simple GUI**: Basic Tkinter interface for maximum compatibility
+
+### 📋 Verification Commands
+Test your installation:
+```bash
+# Test basic functionality
+python -c "import bear_ai; print('✅ Installation successful')"
+
+# Test GUI module
+python -c "import bear_ai.gui; print('✅ GUI available')"
+
+# Test console scripts
+bear-ai-gui --help
+
+# Run verification script
+python scripts/verify_launch_simple.py
+```
+
+### 🆘 Quick Troubleshooting
+If you encounter issues:
+
+1. **Ensure virtual environment is activated**:
+   ```bash
+   # Windows
+   .\.venv\Scripts\Activate.ps1
+   # Linux/Mac  
+   source .venv/bin/activate
+   ```
+
+2. **Reinstall package**:
+   ```bash
+   pip uninstall bear-ai
+   pip install -e .
+   ```
+
+3. **Use module execution as fallback**:
+   ```bash
+   python -m bear_ai.gui
+   ```
+
+📚 **Detailed Guides:**
+- [📘 Launch Guide](docs/launch.md) - Complete launch documentation
+- [📗 Migration Guide](docs/migration-guide.md) - Migrating from old methods
+- [📙 Installation Guide](docs/INSTALLATION_IMPROVEMENTS.md) - Enhanced installation
 
 ## 💻 Usage Examples
 
@@ -289,11 +339,19 @@ performance:
 
 ## 📚 Documentation
 
+### 📋 New Professional Documentation (v2.0)
+- [**🎨 UI Improvements Guide**](docs/UI_IMPROVEMENTS.md) - Complete overview of all interface enhancements
+- [**🛠️ Installation Improvements**](docs/INSTALLATION_IMPROVEMENTS.md) - Enhanced installation process and features  
+- [**🎯 Interface Selection Guide**](docs/INTERFACE_SELECTION_GUIDE.md) - Choose the best interface for your needs
+- [**🤖 Model Management Guide**](docs/MODEL_MANAGEMENT_GUIDE.md) - AI model selection and hardware optimization
+- [**🆘 Enhanced Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for new interface and installation issues
+- [**📝 Changelog**](CHANGELOG.md) - Complete record of v2.0 improvements
+
+### 📚 Existing Documentation  
 - [Installation Guide](docs/INSTALLATION.md)
 - [User Manual](docs/USER_GUIDE.md)
 - [PII Setup Guide](docs/PII_SETUP_GUIDE.md)
 - [Hardware Guide](docs/HARDWARE_GUIDE.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [API Documentation](docs/API.md)
 
 ## 🤝 Contributing

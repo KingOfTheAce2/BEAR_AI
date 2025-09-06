@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1B365C" />
+    <meta name="description" content="BEAR AI Legal Assistant - Professional AI-powered legal document analysis and research platform" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; img-src 'self' data: https:; connect-src 'self' https:;" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    
+    <!-- SEO and Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="BEAR AI Legal Assistant" />
+    <meta property="og:description" content="Professional AI-powered legal document analysis and research platform" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BEAR AI Legal Assistant" />
+    <meta name="twitter:description" content="Professional AI-powered legal document analysis and research platform" />
+    
+    <!-- Accessibility -->
+    <meta name="color-scheme" content="light" />
+    
+    <title>BEAR AI Legal Assistant</title>
+    
+    <!-- Critical CSS for reducing CLS -->
+    <style>
+      /* Critical loading styles */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1B365C 0%, #059669 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      .loading-content {
+        text-align: center;
+        color: white;
+      }
+      
+      .loading-logo {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 24px;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+      }
+      
+      .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 16px auto 0;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Hide loading screen when React app loads */
+      .app-loaded .loading-screen {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: system-ui;">
+        <h1>JavaScript Required</h1>
+        <p>You need to enable JavaScript to run BEAR AI Legal Assistant.</p>
+        <p>This application requires JavaScript for the interactive legal document analysis features.</p>
+      </div>
+    </noscript>
+    
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+      <div class="loading-content">
+        <div class="loading-logo">B</div>
+        <h2 style="margin: 0 0 8px; font-size: 24px; font-weight: 600;">BEAR AI</h2>
+        <p style="margin: 0; opacity: 0.8; font-size: 16px;">Legal Assistant</p>
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    
+    <!-- React App Root -->
+    <div id="root"></div>
+    
+    <!-- App Initialization Script -->
+    <script>
+      // Hide loading screen when React app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(function() {
+              loadingScreen.style.display = 'none';
+              document.body.classList.add('app-loaded');
+            }, 300);
+          }
+        }, 500); // Minimum loading time for UX
+      });
+      
+      // Error handling
+      window.addEventListener('error', function(e) {
+        console.error('Application Error:', e.error);
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.innerHTML = `
+            <div class="loading-content">
+              <div class="loading-logo">!</div>
+              <h2 style="margin: 0 0 8px; font-size: 24px; font-weight: 600; color: #DC2626;">Error Loading Application</h2>
+              <p style="margin: 0; opacity: 0.8; font-size: 16px;">Please refresh the page to try again.</p>
+            </div>
+          `;
+        }
+      });
+    </script>
+    
+    <!--
+      This HTML file is a template for the BEAR AI Legal Assistant.
+      If you open it directly in the browser, you will see an empty page.
+      
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+      
+      To begin development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>

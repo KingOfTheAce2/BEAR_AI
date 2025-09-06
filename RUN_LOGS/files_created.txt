@@ -1,0 +1,29 @@
+=== BEAR AI GUI Testing Complete ===
+Files created during testing:
+total 65
+drwxr-xr-x 1 evgga 197613    0 Sep  6 07:02 .
+drwxr-xr-x 1 evgga 197613    0 Sep  5 22:56 ..
+-rw-r--r-- 1 evgga 197613 7753 Sep  6 07:01 comprehensive_gui_test_report.md
+-rw-r--r-- 1 evgga 197613 2984 Sep  5 22:46 discovery_report.md
+-rw-r--r-- 1 evgga 197613   67 Sep  6 07:02 files_created.txt
+-rw-r--r-- 1 evgga 197613 4040 Sep  5 22:56 gui_launch_analysis.md
+-rwxr-xr-x 1 evgga 197613 1158 Sep  6 07:01 gui_launcher_encoding_fix.py
+-rw-r--r-- 1 evgga 197613    0 Sep  5 22:59 gui_launcher_test.log
+-rw-r--r-- 1 evgga 197613   47 Sep  5 23:00 launch_gui_selector_test.log
+-rw-r--r-- 1 evgga 197613  142 Sep  6 06:56 launch_modern_cmd_test.log
+-rw-r--r-- 1 evgga 197613   47 Sep  5 22:59 launch_modern_test.log
+-rw-r--r-- 1 evgga 197613  142 Sep  6 06:56 launch_professional_cmd_test.log
+-rw-r--r-- 1 evgga 197613   47 Sep  5 23:00 launch_professional_test.log
+-rw-r--r-- 1 evgga 197613  142 Sep  6 06:56 launch_simple_cmd_test.log
+-rw-r--r-- 1 evgga 197613   47 Sep  5 22:59 launch_simple_test.log
+-rw-r--r-- 1 evgga 197613   83 Sep  5 22:57 modern_gui_test.log
+-rw-r--r-- 1 evgga 197613  656 Sep  5 22:57 professional_gui_test.log
+-rw-r--r-- 1 evgga 197613  132 Sep  6 07:00 python_dependencies.log
+-rw-r--r-- 1 evgga 197613   98 Sep  6 06:57 python_version.log
+-rw-r--r-- 1 evgga 197613  142 Sep  6 06:55 run_bat_cmd_test.log
+-rw-r--r-- 1 evgga 197613   47 Sep  5 22:59 run_bat_test.log
+-rw-r--r-- 1 evgga 197613   24 Sep  5 22:59 simple_gui_direct.log
+-rw-r--r-- 1 evgga 197613   19 Sep  5 22:56 simple_gui_import.log
+-rw-r--r-- 1 evgga 197613   83 Sep  5 22:56 simple_gui_test.log
+-rw-r--r-- 1 evgga 197613   81 Sep  5 22:56 test_summary.log
+-rw-r--r-- 1 evgga 197613 1700 Sep  6 07:02 working_gui_launch.bat

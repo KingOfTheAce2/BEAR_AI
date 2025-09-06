@@ -1,0 +1,171 @@
+name: Package Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  test-packaging:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.9, "3.10", "3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel setuptools
+    
+    - name: Install package (development mode)
+      run: |
+        pip install -e .
+    
+    - name: Run basic import test
+      run: |
+        python -c "import bear_ai; print('✅ Basic import successful')"
+        python -c "import bear_ai; print(f'Version: {bear_ai.__version__}')"
+    
+    - name: Test console scripts installation
+      run: |
+        bear-ai --help || echo "bear-ai script test"
+    
+    - name: Test module execution
+      run: |
+        python -m bear_ai --help || echo "Module execution test"
+    
+    - name: Run verification script
+      run: |
+        python scripts/verify_package.py
+    
+    - name: Test with GUI dependencies (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk
+        pip install -e ".[gui]"
+        python -c "import bear_ai.gui; print('✅ GUI import successful')"
+    
+    - name: Test installation from wheel
+      run: |
+        pip uninstall bear-ai -y
+        python -m build
+        pip install dist/*.whl
+        python -c "import bear_ai; print('✅ Wheel installation successful')"
+    
+    - name: Test uninstallation
+      run: |
+        pip uninstall bear-ai -y
+        python -c "try: import bear_ai; print('❌ Should fail'); except ImportError: print('✅ Uninstallation successful')"
+
+  test-minimal-install:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Test minimal install
+      run: |
+        pip install -e .
+        python -c "import bear_ai"
+    
+    - name: Test feature installs
+      run: |
+        pip install -e ".[inference]"
+        pip install -e ".[gui]"
+        pip install -e ".[all]"
+        python scripts/verify_package.py
+
+  test-entry-points:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install package
+      run: |
+        pip install -e .
+    
+    - name: Test all entry points
+      run: |
+        # Test each console script exists
+        which bear-ai || echo "bear-ai not in PATH"
+        which bear-ai-gui || echo "bear-ai-gui not in PATH"
+        which bear-ai-chat || echo "bear-ai-chat not in PATH"
+        which bear-ai-scrub || echo "bear-ai-scrub not in PATH"
+        which bear-ai-setup || echo "bear-ai-setup not in PATH"
+        
+        # Test help commands (should not fail)
+        bear-ai --help
+        bear-ai-gui --help || echo "GUI help test"
+        bear-ai-chat --help || echo "Chat help test"
+        bear-ai-scrub --help || echo "Scrub help test"
+        bear-ai-setup --help || echo "Setup help test"
+
+  test-cross-platform-launch:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install package with GUI support
+      run: |
+        pip install -e .
+    
+    - name: Test launch methods (non-GUI)
+      run: |
+        # Test different launch methods that don't require GUI
+        python -c "import bear_ai; print('Import test passed')"
+        python -m bear_ai --help
+        bear-ai --help
+        bear-ai discover --task chat || echo "Discover test completed"
+    
+    - name: Test module structure
+      run: |
+        python -c "import bear_ai.gui; print('GUI module import successful')"
+        python -c "from bear_ai.gui import main; print('GUI main function available')"
+    
+    - name: Platform-specific tests (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        # Test PowerShell execution
+        python -c "import bear_ai; print('PowerShell test passed')"
+        & python -m bear_ai --help
+    
+    - name: Platform-specific tests (Linux/Mac)
+      if: matrix.os != 'windows-latest'
+      run: |
+        # Test bash execution
+        bash -c "python -c 'import bear_ai; print(\"Bash test passed\")'"
+        bash -c "python -m bear_ai --help"

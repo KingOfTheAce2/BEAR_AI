@@ -1,0 +1,268 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Inter Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300;400;500;600;700;800&display=swap');
+
+/* Base Styles */
+@layer base {
+  html {
+    @apply antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-inter;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  /* Focus Styles */
+  *:focus {
+    @apply outline-none;
+  }
+
+  *:focus-visible {
+    @apply ring-2 ring-bear-green ring-opacity-50 ring-offset-2 ring-offset-white outline-none;
+  }
+}
+
+/* Component Layer */
+@layer components {
+  /* Professional Button Styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-bear-green hover:bg-bear-green-dark focus:ring-2 focus:ring-bear-green focus:ring-opacity-50 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-bear-green focus:ring-opacity-50 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-gray-600 bg-transparent hover:bg-gray-100 focus:ring-2 focus:ring-bear-green focus:ring-opacity-50 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Form Input Styles */
+  .input-primary {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-bear-green focus:border-bear-green sm:text-sm transition-colors duration-200;
+  }
+
+  .input-search {
+    @apply block w-full px-4 py-2 pl-10 pr-3 border border-gray-300 rounded-lg bg-white placeholder-gray-500 focus:ring-2 focus:ring-bear-green focus:border-bear-green sm:text-sm transition-all duration-200;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+
+  .card-hover {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* Navigation Styles */
+  .nav-item {
+    @apply flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200;
+  }
+
+  .nav-item-active {
+    @apply bg-bear-green text-white shadow-sm;
+  }
+
+  .nav-item-inactive {
+    @apply text-gray-300 hover:bg-bear-navy-light hover:text-white;
+  }
+
+  /* Message Bubble Styles */
+  .message-bubble-user {
+    @apply bg-bear-navy text-white rounded-2xl rounded-br-md px-4 py-3 shadow-sm max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl;
+  }
+
+  .message-bubble-ai {
+    @apply bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl;
+  }
+
+  /* Status Indicators */
+  .status-online {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+  }
+
+  .status-offline {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800;
+  }
+
+  .status-processing {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+  }
+
+  /* Legal-specific Components */
+  .legal-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .legal-badge-contract {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .legal-badge-brief {
+    @apply bg-purple-100 text-purple-800;
+  }
+
+  .legal-badge-evidence {
+    @apply bg-orange-100 text-orange-800;
+  }
+
+  .legal-badge-research {
+    @apply bg-green-100 text-green-800;
+  }
+
+  /* Document Preview Styles */
+  .document-thumbnail {
+    @apply w-full h-32 object-cover rounded-t-lg bg-gradient-to-br from-bear-navy to-bear-green flex items-center justify-center;
+  }
+
+  /* Loading States */
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-bear-green;
+  }
+
+  /* Accessibility */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+  }
+
+  /* Print Styles */
+  @media print {
+    .print-hide {
+      @apply hidden;
+    }
+    
+    .print-show {
+      @apply block;
+    }
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  /* Line Clamping */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Custom Gradients */
+  .bg-legal-gradient {
+    background: linear-gradient(135deg, #1B365C 0%, #059669 100%);
+  }
+
+  .bg-legal-gradient-light {
+    background: linear-gradient(135deg, #2A4A73 0%, #10B981 100%);
+  }
+
+  /* Text Gradients */
+  .text-legal-gradient {
+    background: linear-gradient(135deg, #1B365C 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(27, 54, 92, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Animation Delays */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  /* Hover Transforms */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  /* Professional Shadows */
+  .shadow-legal {
+    box-shadow: 0 4px 6px -1px rgba(27, 54, 92, 0.1), 0 2px 4px -1px rgba(27, 54, 92, 0.06);
+  }
+
+  .shadow-legal-lg {
+    box-shadow: 0 10px 15px -3px rgba(27, 54, 92, 0.1), 0 4px 6px -2px rgba(27, 54, 92, 0.05);
+  }
+
+  .shadow-legal-xl {
+    box-shadow: 0 20px 25px -5px rgba(27, 54, 92, 0.1), 0 10px 10px -5px rgba(27, 54, 92, 0.04);
+  }
+}
+
+/* Dark Mode Support (for future implementation) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-ready {
+    /* Dark mode styles will be added here when needed */
+  }
+}

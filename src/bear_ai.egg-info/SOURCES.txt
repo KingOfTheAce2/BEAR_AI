@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-setup.py
 src/bear_ai/__init__.py
 src/bear_ai/__main__.py
 src/bear_ai/chat.py
@@ -17,6 +16,7 @@ src/bear_ai/model_compat.py
 src/bear_ai/model_manager.py
 src/bear_ai/model_suggest.py
 src/bear_ai/plugins.py
+src/bear_ai/professional_gui.py
 src/bear_ai/rag.py
 src/bear_ai/scrub.py
 src/bear_ai/security.py
@@ -38,7 +38,9 @@ src/bear_ai/discovery/model_discovery.py
 src/bear_ai/formats/__init__.py
 src/bear_ai/formats/universal_converter.py
 src/bear_ai/gui/__init__.py
+src/bear_ai/gui/__main__.py
 src/bear_ai/gui/desktop_app.py
+src/bear_ai/gui/simple.py
 src/bear_ai/models/__init__.py
 src/bear_ai/models/multi_model_manager.py
 src/bear_ai/multimodal/__init__.py
@@ -57,6 +59,7 @@ src/bear_ai/plugins/__init__.py
 src/bear_ai/plugins/builtin_plugins.py
 src/bear_ai/plugins/plugin_interface.py
 src/bear_ai/plugins/plugin_system.py
+src/bear_ai/privacy/__main__.py
 src/bear_ai/rag/__init__.py
 src/bear_ai/rag/document_processor.py
 src/bear_ai/rag/rag_engine.py
@@ -78,7 +81,10 @@ tests/test_custom_nl_ids.py
 tests/test_download.py
 tests/test_gui.py
 tests/test_hw.py
+tests/test_launch_methods.py
 tests/test_main.py
+tests/test_modern_gui.py
+tests/test_professional_gui.py
 tests/test_rag.py
 tests/test_scrub.py
 tests/test_scrubber_basic.py
