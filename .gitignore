@@ -9,6 +9,7 @@ __pycache__/
 *.pyd
 .DS_Store
 Thumbs.db
+Codebases
 
 # Claude Flow generated files
 .claude/settings.local.json
@@ -34,3 +35,53 @@ claude-flow
 claude-flow.bat
 claude-flow.ps1
 hive-mind-prompt-*.txt
+
+# Deprecated files cleanup patterns
+# Legacy launcher scripts
+launch_*.bat
+run.bat
+INSTALL.bat
+CLEANUP.bat
+CREATE_SHORTCUT.bat
+scripts/launch_*.bat
+scripts/run_*.bat
+scripts/create_shortcut.bat
+
+# Legacy setup files
+setup_legacy.py
+setup_legacy.exe
+
+# Old GUI artifacts
+GUI/
+gui_*.log
+*_gui_*.log
+
+# Testing and log artifacts
+RUN_LOGS/
+*.test.log
+*_test.log
+working_gui_*.bat
+
+# Temporary development files
+nul
+*.tmp.py
+temp_*.py
+
+# Third-party codebases (should use proper deps)
+Codebases/
+
+# AI Models - Large files should not be in git
+models/
+*.bin
+*.gguf
+*.safetensors
+*.pt
+*.pth
+*.h5
+*.model
+*.weights
+model_*.json
+tokenizer*.json
+config.json
+pytorch_model.bin
+tf_model.h5

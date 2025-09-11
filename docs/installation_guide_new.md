@@ -36,8 +36,8 @@ bear-ai-chat
 # PII scrubbing
 bear-ai-scrub "Remove sensitive data from this text"
 
-# Start API server
-bear-ai-serve
+# Start local server (offline-only)
+bear-ai-serve --offline
 ```
 
 ## Installation Options

@@ -35,6 +35,15 @@ class PIIEntityType(Enum):
     LOCATION = "LOCATION"
     URL = "URL"
     
+    # Legal entity types for enhanced lawyer privacy protection
+    LAW_FIRM = "LAW_FIRM"
+    COURT_CASE = "COURT_CASE"
+    LEGAL_PROFESSIONAL = "LEGAL_PROFESSIONAL"
+    BAR_LICENSE = "BAR_LICENSE"
+    LEGAL_CITATION = "LEGAL_CITATION"
+    CONFIDENTIAL_LEGAL = "CONFIDENTIAL_LEGAL"
+    OPPOSING_PARTY = "OPPOSING_PARTY"
+    
     # Add more types as needed
     @classmethod
     def all_types(cls) -> Set[str]:
@@ -54,6 +63,11 @@ class PolicyConfig:
         PIIEntityType.BSN.value,
         PIIEntityType.RSIN.value,
         PIIEntityType.IBAN_CODE.value,
+        # Legal entities for lawyer privacy protection
+        PIIEntityType.LAW_FIRM.value,
+        PIIEntityType.COURT_CASE.value,
+        PIIEntityType.BAR_LICENSE.value,
+        PIIEntityType.CONFIDENTIAL_LEGAL.value,
     })
     
     # Entity types to scrub for outbound text (model output)
@@ -66,6 +80,14 @@ class PolicyConfig:
         PIIEntityType.IBAN_CODE.value,
         PIIEntityType.PERSON.value,
         PIIEntityType.ORGANIZATION.value,
+        # Enhanced legal entities for comprehensive lawyer privacy
+        PIIEntityType.LAW_FIRM.value,
+        PIIEntityType.COURT_CASE.value,
+        PIIEntityType.LEGAL_PROFESSIONAL.value,
+        PIIEntityType.BAR_LICENSE.value,
+        PIIEntityType.LEGAL_CITATION.value,
+        PIIEntityType.CONFIDENTIAL_LEGAL.value,
+        PIIEntityType.OPPOSING_PARTY.value,
     })
     
     # Minimum confidence threshold for entity detection (0.0 to 1.0)

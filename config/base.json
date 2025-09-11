@@ -1,0 +1,223 @@
+{
+  "system": {
+    "environment": "development",
+    "debug": true,
+    "version": "1.0.0",
+    "buildNumber": "1",
+    "maintenance": {
+      "enabled": false,
+      "message": null,
+      "allowedRoles": ["admin"]
+    },
+    "resources": {
+      "maxMemoryUsage": 80,
+      "maxCPUUsage": 70,
+      "maxDiskUsage": 85
+    }
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "bear_ai",
+    "username": "bear_ai",
+    "password": "${DATABASE_PASSWORD}",
+    "ssl": false,
+    "poolSize": 10,
+    "timeout": 30000
+  },
+  "api": {
+    "main": {
+      "baseUrl": "http://localhost:3001",
+      "timeout": 30000,
+      "retries": 3,
+      "rateLimit": {
+        "requests": 100,
+        "windowMs": 60000
+      },
+      "authentication": {
+        "type": "bearer",
+        "credentials": {}
+      }
+    }
+  },
+  "models": {
+    "gpt4all": {
+      "name": "GPT4All",
+      "provider": "gpt4all",
+      "endpoint": "http://localhost:4891",
+      "parameters": {
+        "temperature": 0.7,
+        "maxTokens": 4096,
+        "topP": 0.9,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stream": true
+      },
+      "context": {
+        "maxLength": 8192,
+        "truncationStrategy": "sliding_window"
+      },
+      "safety": {
+        "contentFilter": true,
+        "toxicityThreshold": 0.8,
+        "enableModeration": true
+      }
+    },
+    "openai": {
+      "name": "OpenAI GPT-4",
+      "provider": "openai",
+      "endpoint": "https://api.openai.com/v1/chat/completions",
+      "apiKey": "${OPENAI_API_KEY}",
+      "parameters": {
+        "temperature": 0.7,
+        "maxTokens": 4096,
+        "topP": 1.0,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stream": true
+      },
+      "context": {
+        "maxLength": 16384,
+        "truncationStrategy": "summarize"
+      },
+      "safety": {
+        "contentFilter": true,
+        "toxicityThreshold": 0.9,
+        "enableModeration": true
+      }
+    }
+  },
+  "security": {
+    "encryptionKey": "${ENCRYPTION_KEY}",
+    "jwtSecret": "${JWT_SECRET}",
+    "sessionTimeout": 3600,
+    "maxLoginAttempts": 5,
+    "lockoutDuration": 900,
+    "requireMFA": false,
+    "allowedOrigins": [
+      "http://localhost:3000",
+      "http://localhost:3001"
+    ],
+    "csrfProtection": true
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "outputs": [
+      {
+        "type": "console"
+      },
+      {
+        "type": "file",
+        "destination": "./logs/bear-ai.log",
+        "rotation": {
+          "maxSize": "10MB",
+          "maxFiles": 5
+        }
+      }
+    ],
+    "sensitiveFields": [
+      "password",
+      "apiKey",
+      "secret",
+      "token",
+      "credentials"
+    ],
+    "enableMetrics": true
+  },
+  "performance": {
+    "caching": {
+      "enabled": true,
+      "ttl": 3600,
+      "maxSize": 1000,
+      "strategy": "lru"
+    },
+    "monitoring": {
+      "enableAPM": true,
+      "metricsInterval": 60,
+      "healthCheckInterval": 30,
+      "alertThresholds": {
+        "cpu": 80,
+        "memory": 85,
+        "responseTime": 2000
+      }
+    },
+    "optimization": {
+      "enableCompression": true,
+      "enableCDN": false,
+      "bundleOptimization": true,
+      "lazyLoading": true
+    }
+  },
+  "features": {
+    "chatStreaming": {
+      "enabled": true,
+      "conditions": {
+        "environment": ["development", "production"]
+      },
+      "metadata": {
+        "description": "Enable real-time chat streaming",
+        "owner": "frontend-team"
+      }
+    },
+    "advancedSearch": {
+      "enabled": true,
+      "conditions": {
+        "userRole": ["attorney", "admin"],
+        "percentage": 80
+      },
+      "metadata": {
+        "description": "Advanced search capabilities",
+        "owner": "search-team"
+      }
+    },
+    "documentAnalysis": {
+      "enabled": true,
+      "metadata": {
+        "description": "AI-powered document analysis",
+        "owner": "ai-team"
+      }
+    },
+    "betaFeatures": {
+      "enabled": false,
+      "conditions": {
+        "userRole": ["admin"],
+        "environment": ["development", "staging"]
+      },
+      "metadata": {
+        "description": "Beta features for testing",
+        "owner": "product-team",
+        "expiresAt": "2024-12-31T23:59:59Z"
+      }
+    }
+  },
+  "userDefaults": {
+    "theme": "auto",
+    "language": "en",
+    "timezone": "UTC",
+    "dateFormat": "ISO",
+    "notifications": {
+      "desktop": true,
+      "email": true,
+      "inApp": true,
+      "sound": false
+    },
+    "accessibility": {
+      "highContrast": false,
+      "largeText": false,
+      "screenReader": false,
+      "keyboardNavigation": false
+    },
+    "interface": {
+      "sidebarCollapsed": false,
+      "densityMode": "normal",
+      "animationsEnabled": true,
+      "showTooltips": true
+    },
+    "privacy": {
+      "telemetryEnabled": true,
+      "analyticsEnabled": true,
+      "crashReportingEnabled": true
+    }
+  }
+}

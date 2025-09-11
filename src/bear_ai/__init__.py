@@ -14,7 +14,7 @@ _ensure_logger()
 
 # Core modules
 try:
-    from . import chat, gui, scrub, download, inference
+    from . import chat, scrub, download, inference
 except ImportError:
     # Some modules may not be available depending on installation
     pass
@@ -22,7 +22,6 @@ except ImportError:
 # Make key components available at package level
 __all__ = [
     "chat", 
-    "gui", 
     "scrub", 
     "download", 
     "inference",

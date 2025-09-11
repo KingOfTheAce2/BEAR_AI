@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the complete API specification for the BEAR AI legal assistant backend services. The API follows REST principles with additional support for real-time features through WebSocket connections and Server-Sent Events (SSE).
+This document defines the complete Local API specification for the BEAR AI legal assistant backend services. The API operates entirely offline, following REST principles with local WebSocket connections and in-memory event handling.
 
 ## API Design Principles
 
@@ -15,21 +15,24 @@ This document defines the complete API specification for the BEAR AI legal assis
 ## Base Configuration
 
 ```typescript
-// API Configuration
+// Local API Configuration (Offline-Only)
 const API_CONFIG = {
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL: 'http://127.0.0.1:8000/api/v1',
   timeout: 30000,
+  networkAccess: false,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Offline-Mode': 'true',
   },
 };
 
-// WebSocket Configuration
+// Local WebSocket Configuration
 const WS_CONFIG = {
-  baseURL: 'ws://localhost:8000/ws',
+  baseURL: 'ws://127.0.0.1:8000/ws',
   reconnectInterval: 5000,
   maxReconnectAttempts: 5,
+  offlineOnly: true,
 };
 ```
 

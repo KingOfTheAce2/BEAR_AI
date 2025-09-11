@@ -1,0 +1,294 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bear AI Local Settings Schema",
+  "description": "Schema for Bear AI local settings configuration",
+  "type": "object",
+  "properties": {
+    "userPreferences": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "schemaVersion": { "type": "number", "minimum": 1 },
+        "language": { "type": "string", "pattern": "^[a-z]{2}-[A-Z]{2}$" },
+        "timezone": { "type": "string" },
+        "dateFormat": { "type": "string" },
+        "timeFormat": { "enum": ["12h", "24h"] },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "units": { "enum": ["metric", "imperial"] },
+        "autoSave": { "type": "boolean" },
+        "confirmBeforeExit": { "type": "boolean" },
+        "showTooltips": { "type": "boolean" },
+        "enableAnimations": { "type": "boolean" },
+        "soundEnabled": { "type": "boolean" },
+        "notificationsEnabled": { "type": "boolean" }
+      },
+      "required": ["version", "lastModified", "schemaVersion", "language"],
+      "additionalProperties": false
+    },
+    "themeSettings": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "schemaVersion": { "type": "number", "minimum": 1 },
+        "activeTheme": { "enum": ["light", "dark", "auto"] },
+        "customThemes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "colors": {
+                "type": "object",
+                "properties": {
+                  "primary": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "secondary": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "accent": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "background": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "surface": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "text": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "textSecondary": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "border": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "success": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "warning": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "error": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" },
+                  "info": { "type": "string", "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" }
+                },
+                "required": ["primary", "background", "text"],
+                "additionalProperties": false
+              },
+              "fonts": {
+                "type": "object",
+                "properties": {
+                  "primary": { "type": "string" },
+                  "monospace": { "type": "string" },
+                  "sizes": {
+                    "type": "object",
+                    "properties": {
+                      "xs": { "type": "string" },
+                      "sm": { "type": "string" },
+                      "md": { "type": "string" },
+                      "lg": { "type": "string" },
+                      "xl": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": ["id", "name", "colors"],
+            "additionalProperties": false
+          }
+        },
+        "fontSize": { "enum": ["small", "medium", "large", "extra-large"] },
+        "fontFamily": { "type": "string" },
+        "uiScale": { "type": "number", "minimum": 0.5, "maximum": 2 },
+        "colorBlindnessMode": { "enum": ["none", "protanopia", "deuteranopia", "tritanopia"] },
+        "highContrast": { "type": "boolean" },
+        "reduceMotion": { "type": "boolean" },
+        "compactMode": { "type": "boolean" },
+        "sidebarWidth": { "type": "number", "minimum": 200, "maximum": 800 },
+        "showStatusBar": { "type": "boolean" },
+        "showLineNumbers": { "type": "boolean" },
+        "wordWrap": { "type": "boolean" }
+      },
+      "required": ["version", "lastModified", "schemaVersion", "activeTheme"],
+      "additionalProperties": false
+    },
+    "modelSettings": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "schemaVersion": { "type": "number", "minimum": 1 },
+        "defaultModel": { "type": "string" },
+        "modelConfigurations": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "provider": { "type": "string" },
+                "endpoint": { "type": "string", "format": "uri" },
+                "apiKey": { "type": "string" },
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+                    "maxTokens": { "type": "number", "minimum": 1 },
+                    "topP": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "topK": { "type": "number", "minimum": 1 },
+                    "frequencyPenalty": { "type": "number", "minimum": -2, "maximum": 2 },
+                    "presencePenalty": { "type": "number", "minimum": -2, "maximum": 2 },
+                    "stopSequences": { "type": "array", "items": { "type": "string" } }
+                  },
+                  "additionalProperties": false
+                },
+                "enabled": { "type": "boolean" },
+                "custom": { "type": "boolean" }
+              },
+              "required": ["id", "name", "provider", "parameters", "enabled"],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "chatSettings": {
+          "type": "object",
+          "properties": {
+            "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+            "maxTokens": { "type": "number", "minimum": 1 },
+            "topP": { "type": "number", "minimum": 0, "maximum": 1 },
+            "topK": { "type": "number", "minimum": 1 },
+            "frequencyPenalty": { "type": "number", "minimum": -2, "maximum": 2 },
+            "presencePenalty": { "type": "number", "minimum": -2, "maximum": 2 },
+            "stopSequences": { "type": "array", "items": { "type": "string" } },
+            "streamingEnabled": { "type": "boolean" }
+          },
+          "required": ["temperature", "maxTokens", "streamingEnabled"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["version", "lastModified", "schemaVersion", "defaultModel", "chatSettings"],
+      "additionalProperties": false
+    },
+    "privacySettings": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "schemaVersion": { "type": "number", "minimum": 1 },
+        "dataCollection": {
+          "type": "object",
+          "properties": {
+            "analytics": { "type": "boolean" },
+            "crashReporting": { "type": "boolean" },
+            "usageStatistics": { "type": "boolean" },
+            "performanceMetrics": { "type": "boolean" }
+          },
+          "required": ["analytics", "crashReporting"],
+          "additionalProperties": false
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "localStorageEnabled": { "type": "boolean" },
+            "sessionStorageEnabled": { "type": "boolean" },
+            "indexedDBEnabled": { "type": "boolean" },
+            "cookiesEnabled": { "type": "boolean" },
+            "maxStorageSize": { "type": "number", "minimum": 1 },
+            "autoCleanup": { "type": "boolean" },
+            "retentionPeriod": { "type": "number", "minimum": 1 }
+          },
+          "required": ["localStorageEnabled", "maxStorageSize"],
+          "additionalProperties": false
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "allowExternalRequests": { "type": "boolean" },
+            "allowedDomains": { "type": "array", "items": { "type": "string" } },
+            "blockedDomains": { "type": "array", "items": { "type": "string" } },
+            "proxySettings": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "host": { "type": "string" },
+                "port": { "type": "number", "minimum": 1, "maximum": 65535 },
+                "username": { "type": "string" },
+                "password": { "type": "string" }
+              },
+              "required": ["enabled"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["allowExternalRequests"],
+          "additionalProperties": false
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "encryptSettings": { "type": "boolean" },
+            "encryptConversations": { "type": "boolean" },
+            "encryptFiles": { "type": "boolean" },
+            "encryptionKey": { "type": "string" },
+            "algorithm": { "enum": ["aes-256-gcm", "aes-256-cbc"] }
+          },
+          "required": ["encryptSettings", "algorithm"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["version", "lastModified", "schemaVersion", "dataCollection", "storage"],
+      "additionalProperties": false
+    },
+    "systemSettings": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "schemaVersion": { "type": "number", "minimum": 1 },
+        "hardware": {
+          "type": "object",
+          "properties": {
+            "cpuCores": { "type": "number", "minimum": 1 },
+            "totalMemory": { "type": "number", "minimum": 1 },
+            "gpuInfo": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "vendor": { "type": "string" },
+                  "model": { "type": "string" },
+                  "memory": { "type": "number", "minimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "platform": { "type": "string" },
+            "architecture": { "type": "string" }
+          },
+          "required": ["cpuCores", "totalMemory", "platform", "architecture"],
+          "additionalProperties": false
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "maxWorkerThreads": { "type": "number", "minimum": 1 },
+            "memoryLimit": { "type": "number", "minimum": 128 },
+            "gcSettings": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+                "frequency": { "type": "number", "minimum": 1000 }
+              },
+              "required": ["enabled"],
+              "additionalProperties": false
+            },
+            "caching": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "maxSize": { "type": "number", "minimum": 1 },
+                "ttl": { "type": "number", "minimum": 1 }
+              },
+              "required": ["enabled"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["maxWorkerThreads", "memoryLimit"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["version", "lastModified", "schemaVersion", "hardware", "performance"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["userPreferences", "themeSettings", "modelSettings", "privacySettings", "systemSettings"],
+  "additionalProperties": false
+}

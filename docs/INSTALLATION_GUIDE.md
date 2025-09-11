@@ -1,6 +1,6 @@
 # BEAR AI Installation Guide
 
-> **Privacy First**: BEAR AI runs 100% locally. No data ever leaves your device.
+> **100% Offline**: BEAR AI operates completely offline with LanceDB vector storage. Zero network dependencies after installation.
 
 ## Quick Navigation
 - [Non-Technical Users](#non-technical-users-easiest) ⭐ **Start Here**
@@ -30,8 +30,8 @@
 ### First Time Setup
 1. **Open the GUI** (should launch after installation)
 2. **Get a model**:
-   - Enter: `TheBloke/Mistral-7B-Instruct-v0.2-GGUF`
-   - Click **"Assess & List"**
+   - Browse to local model files or use built-in model downloader
+   - Select from pre-configured offline models
    - Select a model file (look for `q4_0` for good balance)
    - Click **"Download selected"**
 3. **Start chatting**:

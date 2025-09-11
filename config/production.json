@@ -1,0 +1,168 @@
+{
+  "system": {
+    "environment": "production",
+    "debug": false,
+    "maintenance": {
+      "enabled": false,
+      "allowedRoles": ["admin", "maintainer"]
+    },
+    "resources": {
+      "maxMemoryUsage": 90,
+      "maxCPUUsage": 85,
+      "maxDiskUsage": 95
+    }
+  },
+  "database": {
+    "host": "${DATABASE_HOST}",
+    "port": 5432,
+    "database": "${DATABASE_NAME}",
+    "username": "${DATABASE_USERNAME}",
+    "password": "${DATABASE_PASSWORD}",
+    "ssl": true,
+    "poolSize": 20,
+    "timeout": 10000
+  },
+  "api": {
+    "main": {
+      "baseUrl": "${API_BASE_URL}",
+      "timeout": 30000,
+      "retries": 5,
+      "rateLimit": {
+        "requests": 1000,
+        "windowMs": 60000
+      }
+    }
+  },
+  "models": {
+    "openai": {
+      "apiKey": "${OPENAI_API_KEY}",
+      "parameters": {
+        "temperature": 0.7,
+        "maxTokens": 4096
+      }
+    },
+    "anthropic": {
+      "name": "Claude",
+      "provider": "anthropic",
+      "endpoint": "https://api.anthropic.com/v1/messages",
+      "apiKey": "${ANTHROPIC_API_KEY}",
+      "parameters": {
+        "temperature": 0.7,
+        "maxTokens": 4096,
+        "topP": 1.0,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stream": true
+      },
+      "context": {
+        "maxLength": 32768,
+        "truncationStrategy": "summarize"
+      },
+      "safety": {
+        "contentFilter": true,
+        "toxicityThreshold": 0.95,
+        "enableModeration": true
+      }
+    }
+  },
+  "security": {
+    "encryptionKey": "${ENCRYPTION_KEY}",
+    "jwtSecret": "${JWT_SECRET}",
+    "sessionTimeout": 1800,
+    "maxLoginAttempts": 3,
+    "lockoutDuration": 1800,
+    "requireMFA": true,
+    "allowedOrigins": [
+      "${FRONTEND_URL}",
+      "${ADMIN_URL}"
+    ],
+    "csrfProtection": true
+  },
+  "logging": {
+    "level": "warn",
+    "format": "json",
+    "outputs": [
+      {
+        "type": "file",
+        "destination": "/var/log/bear-ai/app.log",
+        "rotation": {
+          "maxSize": "100MB",
+          "maxFiles": 10
+        }
+      },
+      {
+        "type": "remote",
+        "destination": "${LOG_AGGREGATOR_URL}"
+      }
+    ],
+    "sensitiveFields": [
+      "password",
+      "apiKey",
+      "secret",
+      "token",
+      "credentials",
+      "authorization",
+      "cookie"
+    ],
+    "enableMetrics": true
+  },
+  "performance": {
+    "caching": {
+      "enabled": true,
+      "ttl": 7200,
+      "maxSize": 10000,
+      "strategy": "lru"
+    },
+    "monitoring": {
+      "enableAPM": true,
+      "metricsInterval": 30,
+      "healthCheckInterval": 15,
+      "alertThresholds": {
+        "cpu": 85,
+        "memory": 90,
+        "responseTime": 1000
+      }
+    },
+    "optimization": {
+      "enableCompression": true,
+      "enableCDN": true,
+      "bundleOptimization": true,
+      "lazyLoading": true
+    }
+  },
+  "features": {
+    "betaFeatures": {
+      "enabled": false
+    },
+    "advancedSearch": {
+      "enabled": true,
+      "conditions": {
+        "percentage": 100
+      }
+    },
+    "documentAnalysis": {
+      "enabled": true
+    },
+    "auditLogging": {
+      "enabled": true,
+      "metadata": {
+        "description": "Comprehensive audit logging for compliance",
+        "owner": "security-team"
+      }
+    }
+  },
+  "userDefaults": {
+    "theme": "light",
+    "notifications": {
+      "desktop": true,
+      "email": true,
+      "inApp": true,
+      "sound": false
+    },
+    "privacy": {
+      "telemetryEnabled": false,
+      "analyticsEnabled": true,
+      "crashReportingEnabled": true
+    }
+  }
+}

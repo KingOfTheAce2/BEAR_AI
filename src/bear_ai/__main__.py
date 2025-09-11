@@ -13,7 +13,7 @@ from .hw import hw_summary
 from .model_compat import combined_fit
 from .discovery.model_discovery import get_model_discovery
 from .server.openai_server import start_openai_server
-from .gui.desktop_app import main as gui_main
+# GUI module removed - use React web interface instead
 
 
 def _gb(nbytes: int) -> float:
@@ -112,7 +112,7 @@ def main():
         start_openai_server(args.host, args.port)
         return
     elif args.command == 'gui':
-        gui_main()
+        print("GUI module removed. Please use the React web interface by running: npm start")
         return
     elif args.command == 'chat':
         from .chat import main as chat_main
@@ -125,7 +125,7 @@ def main():
     
     # Handle legacy flags
     if args.gui:
-        gui_main()
+        print("GUI module removed. Please use the React web interface by running: npm start")
         return
     
     if args.serve:
@@ -147,7 +147,7 @@ def main():
         # If no model_id and no command, show help and suggest GUI
         print("🐻 Welcome to BEAR AI - Privacy-First, Local-Only AI\n")
         print("Quick start:")
-        print("  bear-ai gui          # Launch desktop interface")
+        print("  npm start            # Launch React web interface")
         print("  bear-ai discover     # Find compatible models")
         print("  bear-ai serve        # Start OpenAI-compatible server\n")
         p.print_help()

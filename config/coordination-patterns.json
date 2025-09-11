@@ -1,0 +1,143 @@
+{
+  "bear_ai_coordination": {
+    "mesh_topology": {
+      "description": "Peer-to-peer mesh network for BEAR AI development",
+      "features": {
+        "decentralized": true,
+        "fault_tolerant": true,
+        "self_healing": true,
+        "load_balanced": true
+      },
+      "node_configuration": {
+        "max_connections_per_node": 5,
+        "heartbeat_interval": "30s",
+        "failure_detection_timeout": "90s",
+        "auto_reconnect": true
+      },
+      "routing": {
+        "algorithm": "gossip_protocol",
+        "message_ttl": 300,
+        "redundancy_factor": 2,
+        "priority_queues": true
+      }
+    },
+    "agent_roles": {
+      "coder": {
+        "capabilities": ["implementation", "refactoring", "optimization"],
+        "coordination_priority": "high",
+        "mesh_connections": ["reviewer", "tester", "architect"]
+      },
+      "reviewer": {
+        "capabilities": ["code_review", "quality_assurance", "security_audit"],
+        "coordination_priority": "high", 
+        "mesh_connections": ["coder", "security-auditor", "architect"]
+      },
+      "tester": {
+        "capabilities": ["unit_testing", "integration_testing", "performance_testing"],
+        "coordination_priority": "medium",
+        "mesh_connections": ["coder", "performance-optimizer", "reviewer"]
+      },
+      "architect": {
+        "capabilities": ["system_design", "architecture_planning", "technical_decisions"],
+        "coordination_priority": "high",
+        "mesh_connections": ["coder", "reviewer", "researcher"]
+      },
+      "researcher": {
+        "capabilities": ["requirement_analysis", "technology_research", "best_practices"],
+        "coordination_priority": "medium",
+        "mesh_connections": ["architect", "documentation-writer", "coder"]
+      },
+      "performance-optimizer": {
+        "capabilities": ["performance_analysis", "optimization", "profiling"],
+        "coordination_priority": "medium",
+        "mesh_connections": ["tester", "coder", "architect"]
+      },
+      "security-auditor": {
+        "capabilities": ["security_review", "vulnerability_assessment", "compliance"],
+        "coordination_priority": "medium",
+        "mesh_connections": ["reviewer", "architect", "coder"]
+      },
+      "documentation-writer": {
+        "capabilities": ["documentation", "user_guides", "api_docs"],
+        "coordination_priority": "low",
+        "mesh_connections": ["researcher", "architect", "reviewer"]
+      }
+    },
+    "communication_flows": {
+      "task_coordination": {
+        "pattern": "publish_subscribe",
+        "channels": ["task_assignments", "status_updates", "completion_notifications"],
+        "persistence": true,
+        "ordering": "causal"
+      },
+      "code_collaboration": {
+        "pattern": "shared_memory",
+        "resources": ["code_repository", "test_results", "performance_metrics"],
+        "consistency": "eventual",
+        "conflict_resolution": "merge_strategy"
+      },
+      "decision_making": {
+        "pattern": "consensus",
+        "algorithm": "raft",
+        "quorum_size": 3,
+        "timeout": "10s"
+      }
+    },
+    "coordination_hooks": {
+      "pre_task": [
+        "load_session_context",
+        "check_agent_availability", 
+        "allocate_resources",
+        "setup_communication_channels"
+      ],
+      "post_task": [
+        "update_shared_state",
+        "notify_dependent_agents",
+        "store_results",
+        "trigger_next_tasks"
+      ],
+      "agent_spawn": [
+        "register_in_mesh",
+        "establish_connections",
+        "sync_initial_state",
+        "announce_capabilities"
+      ],
+      "agent_failure": [
+        "detect_failure",
+        "redistribute_tasks",
+        "update_topology",
+        "spawn_replacement"
+      ]
+    },
+    "bear_ai_specific": {
+      "development_workflows": {
+        "feature_development": {
+          "agents": ["researcher", "architect", "coder", "tester", "reviewer"],
+          "coordination": "sequential_with_feedback",
+          "parallelism": ["coding_and_testing", "review_and_documentation"]
+        },
+        "bug_fixing": {
+          "agents": ["reviewer", "coder", "tester"],
+          "coordination": "collaborative",
+          "priority": "high"
+        },
+        "performance_optimization": {
+          "agents": ["performance-optimizer", "coder", "tester"],
+          "coordination": "iterative",
+          "metrics_driven": true
+        },
+        "security_review": {
+          "agents": ["security-auditor", "reviewer", "architect"],
+          "coordination": "thorough_review",
+          "compliance_checks": true
+        }
+      },
+      "project_context": {
+        "technology_stack": ["React", "TypeScript", "Python", "Tauri"],
+        "development_methodology": "SPARC",
+        "testing_strategy": "TDD",
+        "architecture_pattern": "modular_microservices"
+      }
+    }
+  }
+}

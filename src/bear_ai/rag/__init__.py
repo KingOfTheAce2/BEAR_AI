@@ -19,7 +19,7 @@ from .vector_store import (
     VectorSearchResult,
     EmbeddingModel,
     LocalVectorStore,
-    ChromaVectorStore,
+    LanceVectorStore,
     get_vector_store
 )
 
@@ -61,7 +61,7 @@ __all__ = [
     'VectorSearchResult',
     'EmbeddingModel',
     'LocalVectorStore',
-    'ChromaVectorStore',
+    'LanceVectorStore',
     'get_vector_store',
     'DocumentProcessor',
     'DocumentType',

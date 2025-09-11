@@ -10,15 +10,15 @@
 ## Executive Summary
 
 ### Vision Statement
-BEAR AI is a privacy-first, local-only AI assistant designed specifically for legal professionals, privacy advocates, and organizations requiring complete control over their AI workflows without cloud dependencies or vendor lock-in. The system operates entirely offline, ensuring sensitive information never leaves the user's device while providing enterprise-grade functionality for document analysis, PII scrubbing, and intelligent assistance.
+BEAR AI is a 100% offline, privacy-first AI assistant designed specifically for legal professionals, privacy advocates, and organizations requiring complete control over their AI workflows with zero network dependencies. The system operates entirely offline with LanceDB vector storage, ensuring sensitive information never leaves the user's device while providing enterprise-grade functionality for document analysis, PII scrubbing, and intelligent assistance.
 
 ### Core Value Proposition
 Unlike existing solutions that suffer from vendor lock-in, security vulnerabilities, resource consumption issues, and poor documentation, BEAR AI addresses every major pain point through:
 
-- **True Privacy**: Zero network calls, fully auditable, GDPR-compliant
+- **True Privacy**: Zero network calls, fully auditable, GDPR-compliant with LanceDB storage
 - **Hardware Adaptivity**: Smart model recommendations based on available resources
-- **Model Flexibility**: Support for any GGUF model without restrictions
-- **Professional-Grade Security**: Built-in PII scrubbing with audit trails
+- **Model Flexibility**: Support for any GGUF model without restrictions or external dependencies
+- **Professional-Grade Security**: Built-in PII scrubbing with local audit trails
 - **User Experience**: Simple installation with powerful advanced features
 - **Modular Architecture**: Proprietary license, extensible with permission, distribution restricted
 

@@ -1,0 +1,102 @@
+{
+  "system": {
+    "environment": "development",
+    "debug": true,
+    "resources": {
+      "maxMemoryUsage": 70,
+      "maxCPUUsage": 60,
+      "maxDiskUsage": 80
+    }
+  },
+  "database": {
+    "host": "localhost",
+    "database": "bear_ai_dev",
+    "ssl": false,
+    "poolSize": 5
+  },
+  "api": {
+    "main": {
+      "baseUrl": "http://localhost:3001",
+      "timeout": 10000,
+      "rateLimit": {
+        "requests": 1000,
+        "windowMs": 60000
+      }
+    }
+  },
+  "models": {
+    "gpt4all": {
+      "endpoint": "http://localhost:4891",
+      "parameters": {
+        "temperature": 0.8,
+        "maxTokens": 2048
+      }
+    }
+  },
+  "security": {
+    "sessionTimeout": 7200,
+    "maxLoginAttempts": 10,
+    "requireMFA": false,
+    "allowedOrigins": [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:5173"
+    ]
+  },
+  "logging": {
+    "level": "debug",
+    "format": "text",
+    "outputs": [
+      {
+        "type": "console"
+      }
+    ],
+    "enableMetrics": false
+  },
+  "performance": {
+    "caching": {
+      "enabled": true,
+      "ttl": 1800,
+      "maxSize": 500
+    },
+    "monitoring": {
+      "enableAPM": false,
+      "metricsInterval": 300,
+      "alertThresholds": {
+        "cpu": 70,
+        "memory": 75,
+        "responseTime": 3000
+      }
+    },
+    "optimization": {
+      "enableCompression": false,
+      "bundleOptimization": false
+    }
+  },
+  "features": {
+    "betaFeatures": {
+      "enabled": true,
+      "conditions": {
+        "percentage": 100
+      }
+    },
+    "devTools": {
+      "enabled": true,
+      "metadata": {
+        "description": "Development tools and debugging features",
+        "owner": "dev-team"
+      }
+    }
+  },
+  "userDefaults": {
+    "notifications": {
+      "desktop": false,
+      "email": false
+    },
+    "privacy": {
+      "telemetryEnabled": false,
+      "analyticsEnabled": false,
+      "crashReportingEnabled": true
+    }
+  }
+}

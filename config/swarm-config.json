@@ -1,0 +1,81 @@
+{
+  "swarm": {
+    "topology": "mesh",
+    "maxAgents": 8,
+    "enableMemory": true,
+    "sessionTracking": true,
+    "project": "BEAR_AI_DEVELOPMENT",
+    "sessionId": "bear_ai_mesh_1757612800",
+    "coordination": {
+      "protocols": ["peer-to-peer", "event-driven", "shared-memory"],
+      "communication": {
+        "messageQueue": true,
+        "broadcastChannel": true,
+        "directMessaging": true
+      },
+      "resourceAllocation": {
+        "cpuLimits": "80%",
+        "memoryLimits": "70%",
+        "concurrentTasks": 6,
+        "failover": true
+      }
+    },
+    "memory": {
+      "namespace": "bear_ai_swarm",
+      "persistence": true,
+      "crossSession": true,
+      "backupInterval": "5m",
+      "compression": true
+    },
+    "agents": {
+      "coder": { "priority": "high", "resources": 0.15 },
+      "reviewer": { "priority": "high", "resources": 0.15 },
+      "tester": { "priority": "medium", "resources": 0.12 },
+      "architect": { "priority": "high", "resources": 0.15 },
+      "researcher": { "priority": "medium", "resources": 0.12 },
+      "performance-optimizer": { "priority": "medium", "resources": 0.11 },
+      "security-auditor": { "priority": "medium", "resources": 0.10 },
+      "documentation-writer": { "priority": "low", "resources": 0.10 }
+    },
+    "coordination_patterns": {
+      "mesh_features": {
+        "peer_discovery": true,
+        "load_balancing": true,
+        "fault_tolerance": true,
+        "consensus_mechanisms": ["raft", "gossip"],
+        "data_replication": true
+      },
+      "communication_protocols": {
+        "message_passing": {
+          "async": true,
+          "reliable": true,
+          "ordered": false
+        },
+        "shared_memory": {
+          "concurrent_access": true,
+          "lock_free": true,
+          "namespace_isolation": true
+        },
+        "event_system": {
+          "pub_sub": true,
+          "event_sourcing": true,
+          "real_time": true
+        }
+      }
+    },
+    "performance": {
+      "metrics": {
+        "track_token_usage": true,
+        "track_execution_time": true,
+        "track_success_rate": true,
+        "track_resource_usage": true
+      },
+      "optimization": {
+        "auto_scaling": true,
+        "load_balancing": true,
+        "neural_acceleration": true,
+        "wasm_simd": true
+      }
+    }
+  }
+}

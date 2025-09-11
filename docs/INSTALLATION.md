@@ -1,6 +1,6 @@
 # BEAR AI Installation Guide
 
-This comprehensive guide covers installation procedures for different user types, from complete beginners to advanced developers. Choose the method that best fits your technical comfort level.
+This comprehensive guide covers installation procedures for BEAR AI's new offline-first architecture. All installations are designed for complete privacy with no network dependencies after setup.
 
 ---
 
@@ -13,6 +13,7 @@ This comprehensive guide covers installation procedures for different user types
 | **Technical User** | [Python Package](#-option-3-python-package-installation) | 3-8 minutes | Python familiarity |
 | **Developer** | [Development Setup](#-option-4-development-installation) | 10-15 minutes | Git, Python, virtual environments |
 | **Enterprise** | [Offline Installation](#-option-5-offline-enterprise-installation) | 15-30 minutes | System administration |
+| **Air-Gap Systems** | [Completely Offline](#-option-6-air-gap-installation) | 20-45 minutes | Advanced system administration |
 
 ---
 

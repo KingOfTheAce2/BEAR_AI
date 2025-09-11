@@ -1,0 +1,47 @@
+{
+  "namespace": "bear_ai_swarm",
+  "structure": {
+    "agent_states": {
+      "description": "Individual agent state and context",
+      "retention": "30d",
+      "compression": true
+    },
+    "coordination": {
+      "description": "Inter-agent coordination data",
+      "retention": "7d",
+      "sync": true
+    },
+    "task_history": {
+      "description": "Task execution history and results",
+      "retention": "14d",
+      "searchable": true
+    },
+    "session_data": {
+      "description": "Session-specific data and metrics",
+      "retention": "7d",
+      "exportable": true
+    },
+    "neural_patterns": {
+      "description": "Learned patterns and optimizations",
+      "retention": "90d",
+      "trainable": true
+    },
+    "project_context": {
+      "description": "BEAR AI project-specific context",
+      "retention": "180d",
+      "persistent": true
+    }
+  },
+  "access_patterns": {
+    "read_replicas": 3,
+    "write_consistency": "eventual",
+    "cache_ttl": "1h",
+    "compression_threshold": "1MB"
+  },
+  "backup": {
+    "enabled": true,
+    "interval": "6h",
+    "retention": "30d",
+    "compression": "gzip"
+  }
+}

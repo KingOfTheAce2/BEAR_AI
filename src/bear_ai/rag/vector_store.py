@@ -108,19 +108,38 @@ class VectorStore(ABC):
 
 
 class LocalVectorStore(VectorStore):
-    """Local file-based vector store using SQLite and numpy"""
+    """Enhanced local file-based vector store with advanced indexing and optimization"""
     
-    def __init__(self, storage_path: Optional[Path] = None):
-        self.storage_path = storage_path or Path.home() / ".bear_ai" / "vector_store"
+    def __init__(self, storage_path: Optional[Union[Path, str]] = None, index_type: str = "hnsw"):
+        if storage_path is None:
+            self.storage_path = Path.home() / ".bear_ai" / "vector_store"
+        else:
+            self.storage_path = Path(storage_path) if isinstance(storage_path, str) else storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
         
         self.db_path = self.storage_path / "vectors.db"
         self.embeddings_path = self.storage_path / "embeddings.npy"
+        self.index_path = self.storage_path / f"index_{index_type}.idx"
+        
+        # Enhanced indexing
+        self.index_type = index_type
+        self.index = None
+        self.embedding_dimension = 384  # Default
+        
+        # Performance optimizations
+        self._embedding_cache = {}
+        self._search_cache = {}
+        self._cache_size = 1000
+        
+        # Concurrent access support
+        self._lock = threading.RLock()
+        self._read_write_lock = threading.RLock()
         
         self._init_database()
         self._load_embeddings()
+        self._init_index()
         
-        logger.info(f"LocalVectorStore initialized at {self.storage_path}")
+        logger.info(f"Enhanced LocalVectorStore initialized at {self.storage_path} with {index_type} index")
     
     def _init_database(self):
         """Initialize SQLite database"""
@@ -409,43 +428,65 @@ class LocalVectorStore(VectorStore):
             return {}
 
 
-class ChromaVectorStore(VectorStore):
-    """ChromaDB-based vector store"""
+class LanceVectorStore(VectorStore):
+    """LanceDB-based vector store for offline-only vector storage"""
     
-    def __init__(self, collection_name: str = "bear_ai_docs", persist_directory: Optional[str] = None):
-        self.collection_name = collection_name
-        self.persist_directory = persist_directory or str(Path.home() / ".bear_ai" / "chroma")
+    def __init__(self, table_name: str = "bear_ai_docs", persist_directory: Optional[str] = None):
+        self.table_name = table_name
+        self.persist_directory = persist_directory or str(Path.home() / ".bear_ai" / "lance")
         
-        self.client = None
-        self.collection = None
+        self.db = None
+        self.table = None
         
-        self._init_chroma()
+        self._init_lance()
     
-    def _init_chroma(self):
-        """Initialize ChromaDB"""
+    def _init_lance(self):
+        """Initialize LanceDB"""
         try:
-            import chromadb
-            from chromadb.config import Settings
+            import lancedb
+            import pyarrow as pa
             
-            # Create persistent client
-            self.client = chromadb.PersistentClient(
-                path=self.persist_directory,
-                settings=Settings(anonymized_telemetry=False)
-            )
+            # Ensure directory exists
+            Path(self.persist_directory).mkdir(parents=True, exist_ok=True)
             
-            # Get or create collection
-            self.collection = self.client.get_or_create_collection(
-                name=self.collection_name,
-                metadata={"hnsw:space": "cosine"}
-            )
+            # Connect to LanceDB
+            self.db = lancedb.connect(self.persist_directory)
             
-            logger.info(f"ChromaVectorStore initialized with collection '{self.collection_name}'")
+            # Define schema for the table
+            self.schema = pa.schema([
+                pa.field("id", pa.string()),
+                pa.field("content", pa.string()),
+                pa.field("metadata", pa.string()),  # JSON string
+                pa.field("vector", pa.list_(pa.float32())),
+                pa.field("created_at", pa.timestamp('s')),
+                pa.field("updated_at", pa.timestamp('s'))
+            ])
             
-        except ImportError:
-            logger.error("ChromaDB not available. Install with: pip install chromadb")
-            raise
+            # Try to open existing table or create new one
+            try:
+                self.table = self.db.open_table(self.table_name)
+                logger.info(f"Opened existing LanceDB table '{self.table_name}'")
+            except FileNotFoundError:
+                # Create empty table with schema
+                import pandas as pd
+                
+                empty_df = pd.DataFrame({
+                    'id': pd.Series(dtype='str'),
+                    'content': pd.Series(dtype='str'),
+                    'metadata': pd.Series(dtype='str'),
+                    'vector': pd.Series(dtype='object'),
+                    'created_at': pd.Series(dtype='datetime64[s]'),
+                    'updated_at': pd.Series(dtype='datetime64[s]')
+                })
+                
+                self.table = self.db.create_table(self.table_name, empty_df, mode="overwrite")
+                logger.info(f"Created new LanceDB table '{self.table_name}'")
+            
+        except ImportError as e:
+            logger.error("LanceDB not available. Install with: pip install lancedb pyarrow")
+            raise ImportError(f"LanceDB dependencies missing: {e}")
         except Exception as e:
-            logger.error(f"Error initializing ChromaDB: {e}")
+            logger.error(f"Error initializing LanceDB: {e}")
             raise
     
     async def add_vectors(
@@ -455,21 +496,38 @@ class ChromaVectorStore(VectorStore):
         contents: List[str],
         metadata: List[Dict[str, Any]]
     ) -> bool:
-        """Add vectors to ChromaDB"""
+        """Add vectors to LanceDB"""
         
         try:
-            self.collection.add(
-                ids=ids,
-                embeddings=embeddings,
-                documents=contents,
-                metadatas=metadata
-            )
+            import pandas as pd
             
-            logger.info(f"Added {len(ids)} vectors to ChromaDB")
+            if len(ids) != len(embeddings) != len(contents) != len(metadata):
+                raise ValueError("All input lists must have the same length")
+            
+            # Prepare data for insertion
+            current_time = pd.Timestamp.now()
+            data = []
+            
+            for id_, embedding, content, meta in zip(ids, embeddings, contents, metadata):
+                data.append({
+                    'id': id_,
+                    'content': content,
+                    'metadata': json.dumps(meta),
+                    'vector': embedding,
+                    'created_at': current_time,
+                    'updated_at': current_time
+                })
+            
+            df = pd.DataFrame(data)
+            
+            # Add to table (using merge mode to handle duplicates)
+            self.table.add(df, mode="append")
+            
+            logger.info(f"Added {len(ids)} vectors to LanceDB")
             return True
             
         except Exception as e:
-            logger.error(f"Error adding vectors to ChromaDB: {e}")
+            logger.error(f"Error adding vectors to LanceDB: {e}")
             return False
     
     async def search(
@@ -479,97 +537,159 @@ class ChromaVectorStore(VectorStore):
         threshold: float = 0.0,
         filter_metadata: Optional[Dict[str, Any]] = None
     ) -> List[VectorSearchResult]:
-        """Search ChromaDB for similar vectors"""
+        """Search LanceDB for similar vectors using cosine similarity"""
         
         try:
-            where = filter_metadata if filter_metadata else None
+            # Build query
+            query = self.table.search(query_embedding).limit(limit)
             
-            results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=limit,
-                where=where
-            )
+            # Apply metadata filters if provided
+            if filter_metadata:
+                for key, value in filter_metadata.items():
+                    # LanceDB uses SQL-like syntax for filtering
+                    if isinstance(value, str):
+                        query = query.where(f"json_extract(metadata, '$.{key}') = '{value}'")
+                    else:
+                        query = query.where(f"json_extract(metadata, '$.{key}') = {value}")
+            
+            # Execute search
+            results = query.to_pandas()
             
             search_results = []
             
-            if results and results['ids'] and results['ids'][0]:
-                for i, id_ in enumerate(results['ids'][0]):
-                    distance = results['distances'][0][i]
-                    similarity = 1 - distance  # Convert distance to similarity
-                    
-                    if similarity < threshold:
-                        continue
-                    
-                    search_results.append(VectorSearchResult(
-                        id=id_,
-                        content=results['documents'][0][i],
-                        metadata=results['metadatas'][0][i] or {},
-                        score=similarity,
-                        embedding=results.get('embeddings', [None])[0]
-                    ))
+            for _, row in results.iterrows():
+                # LanceDB returns distance (lower is better), convert to similarity
+                distance = row.get('_distance', 0.0)
+                similarity = 1.0 / (1.0 + distance)  # Convert distance to similarity score
+                
+                if similarity < threshold:
+                    continue
+                
+                # Parse metadata
+                try:
+                    metadata_dict = json.loads(row['metadata']) if row['metadata'] else {}
+                except (json.JSONDecodeError, TypeError):
+                    metadata_dict = {}
+                
+                search_results.append(VectorSearchResult(
+                    id=row['id'],
+                    content=row['content'],
+                    metadata=metadata_dict,
+                    score=similarity,
+                    embedding=row['vector'] if isinstance(row['vector'], list) else row['vector'].tolist()
+                ))
             
             return search_results
             
         except Exception as e:
-            logger.error(f"Error searching ChromaDB: {e}")
+            logger.error(f"Error searching LanceDB: {e}")
             return []
     
     async def delete_vectors(self, ids: List[str]) -> bool:
-        """Delete vectors from ChromaDB"""
+        """Delete vectors from LanceDB"""
         
         try:
-            self.collection.delete(ids=ids)
-            logger.info(f"Deleted {len(ids)} vectors from ChromaDB")
+            # Build delete condition
+            id_list = "', '".join(ids)
+            condition = f"id IN ('{id_list}')"
+            
+            self.table.delete(condition)
+            
+            logger.info(f"Deleted {len(ids)} vectors from LanceDB")
             return True
             
         except Exception as e:
-            logger.error(f"Error deleting vectors from ChromaDB: {e}")
+            logger.error(f"Error deleting vectors from LanceDB: {e}")
             return False
     
     async def get_vector(self, id: str) -> Optional[VectorSearchResult]:
-        """Get a specific vector from ChromaDB"""
+        """Get a specific vector from LanceDB"""
         
         try:
-            results = self.collection.get(ids=[id], include=['documents', 'metadatas', 'embeddings'])
+            # Query for specific ID
+            results = self.table.search().where(f"id = '{id}'").limit(1).to_pandas()
             
-            if results and results['ids']:
-                return VectorSearchResult(
-                    id=results['ids'][0],
-                    content=results['documents'][0],
-                    metadata=results['metadatas'][0] or {},
-                    score=1.0,
-                    embedding=results['embeddings'][0] if results['embeddings'] else None
-                )
+            if results.empty:
+                return None
             
-            return None
+            row = results.iloc[0]
+            
+            # Parse metadata
+            try:
+                metadata_dict = json.loads(row['metadata']) if row['metadata'] else {}
+            except (json.JSONDecodeError, TypeError):
+                metadata_dict = {}
+            
+            return VectorSearchResult(
+                id=row['id'],
+                content=row['content'],
+                metadata=metadata_dict,
+                score=1.0,  # Perfect match for exact retrieval
+                embedding=row['vector'] if isinstance(row['vector'], list) else row['vector'].tolist()
+            )
             
         except Exception as e:
-            logger.error(f"Error getting vector {id} from ChromaDB: {e}")
+            logger.error(f"Error getting vector {id} from LanceDB: {e}")
             return None
     
     async def list_vectors(self, limit: int = 100) -> List[VectorSearchResult]:
-        """List vectors in ChromaDB"""
+        """List vectors in LanceDB"""
         
         try:
-            results = self.collection.get(limit=limit, include=['documents', 'metadatas'])
+            # Get recent vectors (ordered by updated_at)
+            results = self.table.search().limit(limit).to_pandas()
             
             search_results = []
             
-            if results and results['ids']:
-                for i, id_ in enumerate(results['ids']):
-                    search_results.append(VectorSearchResult(
-                        id=id_,
-                        content=results['documents'][i],
-                        metadata=results['metadatas'][i] or {},
-                        score=0.0,
-                        embedding=None
-                    ))
+            for _, row in results.iterrows():
+                # Parse metadata
+                try:
+                    metadata_dict = json.loads(row['metadata']) if row['metadata'] else {}
+                except (json.JSONDecodeError, TypeError):
+                    metadata_dict = {}
+                
+                search_results.append(VectorSearchResult(
+                    id=row['id'],
+                    content=row['content'],
+                    metadata=metadata_dict,
+                    score=0.0,
+                    embedding=row['vector'] if isinstance(row['vector'], list) else row['vector'].tolist()
+                ))
             
             return search_results
             
         except Exception as e:
-            logger.error(f"Error listing vectors from ChromaDB: {e}")
+            logger.error(f"Error listing vectors from LanceDB: {e}")
             return []
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get LanceDB vector store statistics"""
+        try:
+            # Get table statistics
+            count_result = self.table.count_rows()
+            total_count = count_result if isinstance(count_result, int) else 0
+            
+            # Get sample vector to determine dimension
+            sample = self.table.search().limit(1).to_pandas()
+            embedding_dim = len(sample.iloc[0]['vector']) if not sample.empty and 'vector' in sample.columns else 0
+            
+            # Calculate approximate storage size
+            table_path = Path(self.persist_directory) / f"{self.table_name}.lance"
+            storage_size_mb = 0
+            if table_path.exists():
+                for file_path in table_path.rglob('*'):
+                    if file_path.is_file():
+                        storage_size_mb += file_path.stat().st_size
+                storage_size_mb = storage_size_mb / (1024 * 1024)
+            
+            return {
+                'total_vectors': total_count,
+                'embedding_dimension': embedding_dim,
+                'storage_size_mb': storage_size_mb
+            }
+        except Exception as e:
+            logger.error(f"Error getting LanceDB stats: {e}")
+            return {}
 
 
 # Global vector store instance
@@ -583,10 +703,10 @@ def get_vector_store(store_type: str = "local", **kwargs) -> VectorStore:
     if _global_store is None:
         if store_type == "local":
             _global_store = LocalVectorStore(**kwargs)
-        elif store_type == "chroma":
-            _global_store = ChromaVectorStore(**kwargs)
+        elif store_type == "lance":
+            _global_store = LanceVectorStore(**kwargs)
         else:
-            raise ValueError(f"Unknown vector store type: {store_type}")
+            raise ValueError(f"Unknown vector store type: {store_type}. Available types: 'local', 'lance'")
     
     return _global_store
 

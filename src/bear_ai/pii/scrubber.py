@@ -28,6 +28,7 @@ except ImportError:
     RecognizerResult = None
 
 from .dutch_recognizers import DutchBSNRecognizer, DutchRSINRecognizer
+from .legal_recognizers import get_legal_recognizers, create_legal_policy_config
 from .policy import Policy
 
 
@@ -48,17 +49,19 @@ class Scrubber:
     
     Provides comprehensive PII detection and anonymization with support for:
     - Multiple languages (English, Dutch)
-    - Custom entity recognizers
+    - Custom entity recognizers (Dutch BSN/RSIN, Legal entities)
     - Policy-based filtering
     - Audit logging integration
+    - Enhanced legal entity recognition for lawyer-specific privacy protection
     """
     
-    def __init__(self, enable_audit: bool = None):
+    def __init__(self, enable_audit: bool = None, enable_legal_entities: bool = True):
         """
         Initialize the PII scrubber.
         
         Args:
             enable_audit: Whether to enable audit logging. If None, uses PII_AUDIT env var.
+            enable_legal_entities: Whether to enable legal entity recognition for lawyer-specific privacy protection.
         """
         self.logger = logging.getLogger(__name__)
         
@@ -71,8 +74,9 @@ class Scrubber:
             return
         
         # Initialize Presidio engines
-        self._analyzer = self._create_analyzer()
+        self._analyzer = self._create_analyzer(enable_legal_entities)
         self._anonymizer = AnonymizerEngine()
+        self._legal_entities_enabled = enable_legal_entities
         
         # Audit configuration
         if enable_audit is None:
@@ -86,8 +90,8 @@ class Scrubber:
             except Exception as e:
                 self.logger.warning(f"Failed to initialize audit: {e}")
     
-    def _create_analyzer(self) -> Optional[AnalyzerEngine]:
-        """Create and configure the Presidio analyzer engine."""
+    def _create_analyzer(self, enable_legal_entities: bool = True) -> Optional[AnalyzerEngine]:
+        """Create and configure the Presidio analyzer engine with optional legal entity support."""
         if not PRESIDIO_AVAILABLE:
             return None
         
@@ -125,7 +129,20 @@ class Scrubber:
             analyzer.registry.add_recognizer(dutch_bsn)
             analyzer.registry.add_recognizer(dutch_rsin)
             
-            self.logger.info("Presidio analyzer initialized with Dutch support")
+            # Add legal entity recognizers if enabled
+            if enable_legal_entities:
+                try:
+                    legal_recognizers = get_legal_recognizers()
+                    for recognizer in legal_recognizers:
+                        analyzer.registry.add_recognizer(recognizer)
+                    self.logger.info(f"Added {len(legal_recognizers)} legal entity recognizers")
+                except Exception as e:
+                    self.logger.warning(f"Failed to add legal recognizers: {e}")
+            
+            support_msg = "Presidio analyzer initialized with Dutch support"
+            if enable_legal_entities:
+                support_msg += " and legal entity recognition"
+            self.logger.info(support_msg)
             return analyzer
             
         except Exception as e:
@@ -164,6 +181,14 @@ class Scrubber:
             
             if not entities_to_detect:
                 return text
+            
+            # Add legal entities if enabled and not already included
+            if self._legal_entities_enabled:
+                legal_entity_types = {
+                    "LAW_FIRM", "COURT_CASE", "LEGAL_PROFESSIONAL", "BAR_LICENSE",
+                    "LEGAL_CITATION", "CONFIDENTIAL_LEGAL", "OPPOSING_PARTY"
+                }
+                entities_to_detect.extend([e for e in legal_entity_types if e not in entities_to_detect])
             
             # Analyze text for PII
             analysis_results = self._analyzer.analyze(
@@ -276,6 +301,14 @@ class Scrubber:
                     "CREDIT_CARD", "IP_ADDRESS", "BSN", "RSIN", "DATE_TIME",
                     "LOCATION", "URL", "IBAN_CODE"
                 ]
+                
+                # Add legal entities if enabled
+                if self._legal_entities_enabled:
+                    legal_entities = [
+                        "LAW_FIRM", "COURT_CASE", "LEGAL_PROFESSIONAL", "BAR_LICENSE",
+                        "LEGAL_CITATION", "CONFIDENTIAL_LEGAL", "OPPOSING_PARTY"
+                    ]
+                    entities.extend(legal_entities)
             
             # Analyze text
             analysis_results = self._analyzer.analyze(
@@ -320,11 +353,21 @@ class Scrubber:
             return list(self._analyzer.get_supported_entities())
         except Exception:
             # Return common entities as fallback
-            return [
+            base_entities = [
                 "PERSON", "ORGANIZATION", "EMAIL_ADDRESS", "PHONE_NUMBER",
                 "CREDIT_CARD", "IP_ADDRESS", "BSN", "RSIN", "DATE_TIME",
                 "LOCATION", "URL", "IBAN_CODE", "NRP"
             ]
+            
+            # Add legal entities if enabled
+            if hasattr(self, '_legal_entities_enabled') and self._legal_entities_enabled:
+                legal_entities = [
+                    "LAW_FIRM", "COURT_CASE", "LEGAL_PROFESSIONAL", "BAR_LICENSE",
+                    "LEGAL_CITATION", "CONFIDENTIAL_LEGAL", "OPPOSING_PARTY"
+                ]
+                base_entities.extend(legal_entities)
+            
+            return base_entities
     
     def validate_dutch_number(self, number: str, number_type: str) -> bool:
         """
@@ -350,12 +393,28 @@ class Scrubber:
             return False
 
 
-# Factory function for compatibility
-def get_pii_scrubber() -> Scrubber:
+# Factory functions for compatibility
+def get_pii_scrubber(enable_legal_entities: bool = True) -> Scrubber:
     """
     Get a configured PII scrubber instance.
+    
+    Args:
+        enable_legal_entities: Whether to enable legal entity recognition
     
     Returns:
         Configured Scrubber instance
     """
-    return Scrubber()
+    return Scrubber(enable_legal_entities=enable_legal_entities)
+
+
+def get_legal_pii_scrubber() -> Scrubber:
+    """
+    Get a PII scrubber instance optimized for legal document processing.
+    
+    This factory function creates a scrubber with enhanced legal entity
+    recognition specifically designed for lawyer-specific privacy protection.
+    
+    Returns:
+        Scrubber instance with legal entity recognition enabled
+    """
+    return Scrubber(enable_legal_entities=True)
