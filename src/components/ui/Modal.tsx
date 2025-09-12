@@ -1,8 +1,8 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
-import { cn, animations } from '@/utils/cn'
-import { useClickOutside } from '@/hooks/useClickOutside'
-import { ComponentProps } from '@/types'
+import { cn, animations } from '../../utils/cn'
+import { useClickOutside } from '../../hooks/useClickOutside'
+import { ComponentProps } from '../../types'
 import { Button } from './Button'
 import { X } from 'lucide-react'
 

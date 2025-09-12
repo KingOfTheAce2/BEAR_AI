@@ -1,6 +1,6 @@
 import React from 'react'
-import { cn } from '@/utils/cn'
-import { ComponentProps } from '@/types'
+import { cn } from '../../utils/cn'
+import { ComponentProps } from '../../types'
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement>, ComponentProps {
   variant?: 'default' | 'elevated' | 'outline' | 'filled'

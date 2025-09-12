@@ -1,6 +1,6 @@
 import React from 'react'
-import { cn } from '@/utils/cn'
-import { ComponentProps, FormField, ValidationRule } from '@/types'
+import { cn } from '../../utils/cn'
+import { ComponentProps, FormField, ValidationRule } from '../../types'
 
 export interface FormProps extends ComponentProps {
   onSubmit: (data: Record<string, any>) => void | Promise<void>

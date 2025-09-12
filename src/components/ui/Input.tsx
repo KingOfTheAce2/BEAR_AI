@@ -1,6 +1,6 @@
 import React from 'react'
-import { cn } from '@/utils/cn'
-import { ComponentProps } from '@/types'
+import { cn } from '../../utils/cn'
+import { ComponentProps } from '../../types'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>, ComponentProps {
   variant?: 'default' | 'filled' | 'underlined'

@@ -4,9 +4,9 @@
  */
 
 import React, { memo, forwardRef, useMemo, useCallback } from 'react';
-import { logger } from '@/utils/unified/logger';
-import { errorHandler, BearError } from '@/utils/unified/errorHandler';
-import { cn } from '@/utils/unified/classNames';
+import { logger } from '../../utils/unified/logger';
+import { errorHandler, BearError } from '../../utils/unified/errorHandler';
+import { cn } from '../../utils/unified/classNames';
 
 // Base component props that all components should extend
 export interface BaseComponentProps {

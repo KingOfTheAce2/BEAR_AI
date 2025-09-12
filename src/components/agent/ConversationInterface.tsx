@@ -1,6 +1,6 @@
 import React from 'react'
-import { cn } from '@/utils/cn'
-import { Conversation, Message, Agent } from '@/types'
+import { cn } from '../../utils/cn'
+import { Conversation, Message, Agent } from '../../types'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
