@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="BEAR AI Legal Assistant - Professional AI-powered legal document analysis and assistance" />
+    
+    <!-- Security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' tauri: asset: https://asset.localhost; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: https://asset.localhost data: blob:; font-src 'self' data:;" />
+    
+    <!-- Tauri -->
+    <meta name="tauri" content="BEAR AI" />
+    
+    <title>BEAR AI Legal Assistant</title>
+    
+    <!-- Icon and manifest -->
+    <link rel="icon" type="image/png" href="/BEAR_AI_logo.png" />
+    <link rel="apple-touch-icon" href="/BEAR_AI_logo.png" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style" />
+  </head>
+  <body>
+    <noscript>
+      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui; text-align: center; padding: 20px;">
+        <div>
+          <h1>JavaScript Required</h1>
+          <p>BEAR AI Legal Assistant requires JavaScript to function properly.</p>
+          <p>Please enable JavaScript in your browser and refresh the page.</p>
+        </div>
+      </div>
+    </noscript>
+    
+    <div id="root"></div>
+    
+    <!-- Application scripts -->
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>

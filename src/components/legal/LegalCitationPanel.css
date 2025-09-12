@@ -1,0 +1,704 @@
+/* Legal Citation Panel Styles - Professional Research Interface */
+
+.legal-citation-panel {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-right: 1px solid var(--legal-border);
+  height: 100%;
+  overflow: hidden;
+}
+
+.legal-citation-panel.collapsed {
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Collapsed State */
+.collapsed-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 8px;
+  height: 100%;
+  gap: 8px;
+}
+
+.citation-count {
+  background: var(--legal-accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.citation-icon {
+  font-size: 20px;
+  opacity: 0.7;
+}
+
+/* Header */
+.citation-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--legal-border);
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-title h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--legal-primary);
+}
+
+.citation-count-badge {
+  background: var(--legal-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.filters-toggle {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--legal-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.filters-toggle:hover {
+  background: rgba(49, 130, 206, 0.1);
+  color: var(--legal-accent);
+}
+
+/* Filters */
+.citation-filters {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--legal-border);
+  background: #f8fafc;
+}
+
+.search-input-wrapper {
+  margin-bottom: 12px;
+}
+
+.citation-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--legal-border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: var(--legal-secondary);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.citation-search:focus {
+  border-color: var(--legal-accent);
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.1);
+}
+
+.citation-search::placeholder {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.group-filter,
+.sort-filter {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--legal-border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+  color: var(--legal-secondary);
+  outline: none;
+  cursor: pointer;
+}
+
+.group-filter:focus,
+.sort-filter:focus {
+  border-color: var(--legal-accent);
+}
+
+/* Citation Groups */
+.citation-groups {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.citation-groups::-webkit-scrollbar {
+  width: 6px;
+}
+
+.citation-groups::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.citation-groups::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.citation-groups::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.citation-group {
+  margin-bottom: 20px;
+}
+
+.citation-group:last-child {
+  margin-bottom: 0;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-left: 4px solid var(--legal-accent);
+  background: rgba(49, 130, 206, 0.05);
+  margin-bottom: 8px;
+}
+
+.group-icon {
+  font-size: 16px;
+}
+
+.group-title {
+  font-weight: 600;
+  color: var(--legal-primary);
+  font-size: 14px;
+  flex: 1;
+}
+
+.group-count {
+  font-size: 12px;
+  color: var(--legal-secondary);
+  font-weight: 500;
+}
+
+.group-items {
+  padding: 0 8px;
+}
+
+/* Citation Items */
+.citation-item {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--legal-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.citation-item:hover {
+  border-color: var(--legal-accent);
+  box-shadow: var(--legal-shadow);
+  transform: translateY(-1px);
+}
+
+.citation-item.citation {
+  border-left: 4px solid var(--legal-accent);
+}
+
+.citation-item.case {
+  border-left: 4px solid var(--legal-success);
+}
+
+.citation-item.statute {
+  border-left: 4px solid var(--legal-warning);
+}
+
+/* Citation Content */
+.citation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.citation-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.citation-title {
+  font-weight: 600;
+  color: var(--legal-primary);
+  font-size: 14px;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.citation-type-badge {
+  background: var(--legal-secondary);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.citation-text {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--legal-secondary);
+  background: #f8fafc;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.citation-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jurisdiction-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.relevance-score {
+  font-size: 11px;
+  color: var(--legal-secondary);
+  font-weight: 500;
+}
+
+.verified-badge {
+  background: var(--legal-success);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 6px;
+}
+
+.citation-excerpt {
+  font-size: 12px;
+  color: var(--legal-secondary);
+  font-style: italic;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 6px;
+  border-left: 3px solid var(--legal-accent);
+  line-height: 1.5;
+}
+
+.citation-excerpt::before {
+  content: '"';
+  color: var(--legal-accent);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.citation-excerpt::after {
+  content: '"';
+  color: var(--legal-accent);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Case Content */
+.case-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.case-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.case-name {
+  font-weight: 600;
+  color: var(--legal-primary);
+  font-size: 14px;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.precedential-badge {
+  background: var(--legal-success);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.case-citation {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--legal-secondary);
+  background: #f8fafc;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.case-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--legal-secondary);
+}
+
+.case-court {
+  font-weight: 500;
+}
+
+.case-year {
+  font-style: italic;
+}
+
+.case-topics {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.topic-tag {
+  background: rgba(49, 130, 206, 0.1);
+  color: var(--legal-accent);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.topic-more {
+  font-size: 10px;
+  color: var(--legal-secondary);
+  font-style: italic;
+}
+
+.case-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Statute Content */
+.statute-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statute-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.statute-title {
+  font-weight: 600;
+  color: var(--legal-primary);
+  font-size: 14px;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.statute-citation {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--legal-secondary);
+  background: #f8fafc;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.statute-text {
+  font-size: 12px;
+  color: var(--legal-secondary);
+  line-height: 1.5;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 6px;
+  border-left: 3px solid var(--legal-warning);
+}
+
+.statute-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.effective-date {
+  color: var(--legal-secondary);
+  font-style: italic;
+}
+
+/* No Citations State */
+.no-citations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--legal-secondary);
+}
+
+.no-citations-icon {
+  font-size: 48px;
+  opacity: 0.3;
+  margin-bottom: 16px;
+}
+
+.no-citations p {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.no-citations-subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* Footer */
+.citation-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--legal-border);
+  background: #f8fafc;
+}
+
+.export-citations-btn,
+.print-citations-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--legal-border);
+  background: white;
+  color: var(--legal-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.export-citations-btn:hover,
+.print-citations-btn:hover {
+  border-color: var(--legal-accent);
+  color: var(--legal-accent);
+  background: rgba(49, 130, 206, 0.05);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .citation-panel-header {
+    padding: 12px 16px;
+  }
+  
+  .citation-filters {
+    padding: 12px 16px;
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+  }
+  
+  .group-header {
+    padding: 6px 16px;
+  }
+  
+  .group-items {
+    padding: 0 4px;
+  }
+  
+  .citation-item {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .citation-header,
+  .case-header,
+  .statute-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .citation-meta,
+  .case-meta,
+  .statute-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .case-topics {
+    margin-top: 4px;
+  }
+  
+  .citation-panel-footer {
+    padding: 8px 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .export-citations-btn,
+  .print-citations-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .legal-citation-panel {
+    background: #2d3748;
+    border-right-color: #4a5568;
+  }
+  
+  .citation-panel-header {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+    border-bottom-color: #4a5568;
+  }
+  
+  .citation-filters {
+    background: #1a202c;
+    border-bottom-color: #4a5568;
+  }
+  
+  .citation-search,
+  .group-filter,
+  .sort-filter {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .citation-item {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .citation-text,
+  .case-citation,
+  .statute-citation {
+    background: #1a202c;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .citation-excerpt,
+  .statute-text {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+  }
+  
+  .group-header {
+    background: rgba(49, 130, 206, 0.1);
+  }
+  
+  .citation-panel-footer {
+    background: #1a202c;
+    border-top-color: #4a5568;
+  }
+  
+  .export-citations-btn,
+  .print-citations-btn {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .citation-item {
+    border: 2px solid var(--legal-primary);
+  }
+  
+  .citation-item:hover {
+    border-color: var(--legal-accent);
+  }
+  
+  .citation-type-badge,
+  .precedential-badge,
+  .verified-badge {
+    background: var(--legal-primary);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .citation-item {
+    transition: none;
+  }
+  
+  .citation-item:hover {
+    transform: none;
+  }
+  
+  .filters-toggle,
+  .export-citations-btn,
+  .print-citations-btn {
+    transition: none;
+  }
+}

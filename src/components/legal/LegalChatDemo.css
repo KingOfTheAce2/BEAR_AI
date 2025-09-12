@@ -1,0 +1,471 @@
+/* Legal Chat Demo Styles - Showcase Interface */
+
+.legal-chat-demo {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Demo Header */
+.demo-header {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, var(--legal-primary), var(--legal-secondary));
+  color: white;
+  text-align: center;
+}
+
+.demo-title h1 {
+  margin: 0 0 8px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.demo-title p {
+  margin: 0 0 32px 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.demo-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setting-group label {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.setting-group select,
+.setting-group input {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  backdrop-filter: blur(10px);
+}
+
+.setting-group select:focus,
+.setting-group input:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.setting-group select option {
+  background: var(--legal-primary);
+  color: white;
+}
+
+.setting-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Features Overview */
+.features-overview {
+  padding: 60px 20px;
+  background: white;
+  text-align: center;
+}
+
+.features-overview h2 {
+  margin: 0 0 40px 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--legal-primary);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-item {
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 12px;
+  border: 1px solid var(--legal-border);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--legal-shadow-lg);
+  border-color: var(--legal-accent);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.feature-item h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--legal-primary);
+}
+
+.feature-item p {
+  margin: 0;
+  color: var(--legal-secondary);
+  line-height: 1.6;
+}
+
+/* Sample Queries */
+.sample-queries {
+  padding: 60px 20px;
+  background: #f8fafc;
+}
+
+.sample-queries h2 {
+  margin: 0 0 40px 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--legal-primary);
+  text-align: center;
+}
+
+.queries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.query-card {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid var(--legal-accent);
+  box-shadow: var(--legal-shadow);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.query-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--legal-shadow-lg);
+}
+
+.query-card.litigation {
+  border-left-color: #3182ce;
+}
+
+.query-card.corporate {
+  border-left-color: #38a169;
+}
+
+.query-card.employment {
+  border-left-color: #d69e2e;
+}
+
+.query-card.ip {
+  border-left-color: #805ad5;
+}
+
+.query-card h4 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--legal-primary);
+}
+
+.query-card p {
+  margin: 0;
+  color: var(--legal-secondary);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* Main Chat Container */
+.demo-chat-container {
+  flex: 1;
+  min-height: 600px;
+  margin: 0 20px 40px 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--legal-shadow-lg);
+  background: white;
+}
+
+.demo-chat {
+  height: 600px;
+  border-radius: 12px;
+}
+
+/* Demo Footer */
+.demo-footer {
+  background: var(--legal-primary);
+  color: white;
+  padding: 40px 20px 20px 20px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+}
+
+.footer-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+}
+
+.footer-section p {
+  margin: 0 0 12px 0;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.footer-section ul {
+  margin: 0;
+  padding-left: 20px;
+  opacity: 0.9;
+}
+
+.footer-section li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.session-info {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.session-info p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.session-info p:last-child {
+  margin-bottom: 0;
+}
+
+.footer-disclaimer {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  opacity: 0.8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-disclaimer p {
+  margin: 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .demo-header {
+    padding: 30px 16px;
+  }
+  
+  .demo-title h1 {
+    font-size: 2rem;
+  }
+  
+  .demo-title p {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+  }
+  
+  .demo-settings {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .features-overview {
+    padding: 40px 16px;
+  }
+  
+  .features-overview h2 {
+    font-size: 1.6rem;
+    margin-bottom: 30px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .feature-item {
+    padding: 24px 16px;
+  }
+  
+  .feature-icon {
+    font-size: 2.5rem;
+  }
+  
+  .sample-queries {
+    padding: 40px 16px;
+  }
+  
+  .sample-queries h2 {
+    font-size: 1.6rem;
+  }
+  
+  .queries-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .query-card {
+    padding: 20px;
+  }
+  
+  .demo-chat-container {
+    margin: 0 16px 30px 16px;
+    min-height: 500px;
+  }
+  
+  .demo-chat {
+    height: 500px;
+  }
+  
+  .demo-footer {
+    padding: 30px 16px 16px 16px;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .demo-title h1 {
+    font-size: 1.8rem;
+  }
+  
+  .demo-title p {
+    font-size: 1rem;
+  }
+  
+  .features-overview h2,
+  .sample-queries h2 {
+    font-size: 1.4rem;
+  }
+  
+  .feature-item {
+    padding: 20px 12px;
+  }
+  
+  .feature-icon {
+    font-size: 2rem;
+  }
+  
+  .query-card {
+    padding: 16px;
+  }
+  
+  .demo-chat-container {
+    margin: 0 12px 20px 12px;
+    min-height: 450px;
+  }
+  
+  .demo-chat {
+    height: 450px;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .legal-chat-demo {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+  
+  .features-overview {
+    background: #2d3748;
+  }
+  
+  .feature-item {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+    border-color: #4a5568;
+  }
+  
+  .sample-queries {
+    background: #1a202c;
+  }
+  
+  .query-card {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  
+  .demo-chat-container {
+    background: #2d3748;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .feature-item,
+  .query-card {
+    border: 2px solid var(--legal-primary);
+  }
+  
+  .query-card.litigation {
+    border-left: 6px solid #3182ce;
+  }
+  
+  .query-card.corporate {
+    border-left: 6px solid #38a169;
+  }
+  
+  .query-card.employment {
+    border-left: 6px solid #d69e2e;
+  }
+  
+  .query-card.ip {
+    border-left: 6px solid #805ad5;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .feature-item,
+  .query-card {
+    transition: none;
+  }
+  
+  .feature-item:hover,
+  .query-card:hover {
+    transform: none;
+  }
+}

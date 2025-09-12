@@ -1,0 +1,602 @@
+/* Legal Toolbar Styles - Professional Header Interface */
+
+.legal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-bottom: 1px solid var(--legal-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 12px 20px;
+  min-height: 60px;
+  position: relative;
+  z-index: 100;
+}
+
+/* Left Section */
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--legal-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(49, 130, 206, 0.1);
+  color: var(--legal-accent);
+}
+
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-icon {
+  font-size: 20px;
+  color: var(--legal-accent);
+}
+
+.brand-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--legal-primary);
+  letter-spacing: -0.5px;
+}
+
+/* Center Section */
+.toolbar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.context-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.practice-area-badge,
+.jurisdiction-badge,
+.confidentiality-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.practice-area-badge {
+  background: linear-gradient(135deg, var(--legal-primary), var(--legal-secondary));
+  color: white;
+}
+
+.jurisdiction-badge {
+  background: linear-gradient(135deg, var(--legal-accent), #4299e1);
+  color: white;
+}
+
+.confidentiality-badge.attorney-client {
+  background: linear-gradient(135deg, #553c9a, #805ad5);
+  color: white;
+}
+
+.confidentiality-badge.work-product {
+  background: linear-gradient(135deg, #744210, #d69e2e);
+  color: white;
+}
+
+.confidentiality-badge.confidential {
+  background: linear-gradient(135deg, #c53030, #fc8181);
+  color: white;
+}
+
+.confidentiality-badge.public {
+  background: linear-gradient(135deg, #2f855a, #68d391);
+  color: white;
+}
+
+.badge-icon {
+  font-size: 14px;
+}
+
+.badge-text {
+  font-size: 11px;
+}
+
+/* Right Section */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Metrics Display */
+.metrics-display {
+  position: relative;
+  padding: 8px 12px;
+  background: rgba(49, 130, 206, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.metrics-display:hover {
+  background: rgba(49, 130, 206, 0.1);
+}
+
+.metrics-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-icon {
+  font-size: 14px;
+  color: var(--legal-accent);
+}
+
+.metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--legal-primary);
+}
+
+.metrics-detail {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--legal-border);
+  border-radius: 8px;
+  box-shadow: var(--legal-shadow-lg);
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: var(--legal-secondary);
+}
+
+.detail-value {
+  font-weight: 600;
+  color: var(--legal-primary);
+}
+
+.detail-value.complexity-basic {
+  color: var(--legal-success);
+}
+
+.detail-value.complexity-intermediate {
+  color: var(--legal-warning);
+}
+
+.detail-value.complexity-advanced {
+  color: var(--legal-error);
+}
+
+.detail-value.complexity-expert {
+  color: var(--legal-primary);
+}
+
+/* Panel Toggles */
+.panel-toggles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--legal-border);
+  background: white;
+  color: var(--legal-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.panel-toggle-btn:hover {
+  border-color: var(--legal-accent);
+  color: var(--legal-accent);
+  background: rgba(49, 130, 206, 0.05);
+}
+
+.panel-toggle-btn.active {
+  background: var(--legal-accent);
+  color: white;
+  border-color: var(--legal-accent);
+}
+
+.toggle-icon {
+  font-size: 14px;
+}
+
+.toggle-text {
+  font-size: 12px;
+}
+
+/* Settings Button */
+.settings-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--legal-border);
+  background: white;
+  color: var(--legal-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  border-color: var(--legal-accent);
+  color: var(--legal-accent);
+  background: rgba(49, 130, 206, 0.05);
+}
+
+.settings-btn.active {
+  background: var(--legal-accent);
+  color: white;
+  border-color: var(--legal-accent);
+}
+
+.settings-icon {
+  font-size: 14px;
+}
+
+.settings-text {
+  font-size: 12px;
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a0aec0;
+}
+
+.status-dot.online {
+  background: var(--legal-success);
+  animation: pulse-green 2s infinite;
+}
+
+.status-dot.offline {
+  background: var(--legal-error);
+}
+
+.status-dot.connecting {
+  background: var(--legal-warning);
+  animation: pulse-yellow 1s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse-yellow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.status-text {
+  font-size: 11px;
+  color: var(--legal-secondary);
+  font-weight: 500;
+}
+
+/* Mobile Context Bar */
+.mobile-context-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--legal-border);
+}
+
+.mobile-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mobile-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.mobile-badge.practice-area {
+  background: linear-gradient(135deg, var(--legal-primary), var(--legal-secondary));
+  color: white;
+}
+
+.mobile-badge.jurisdiction {
+  background: linear-gradient(135deg, var(--legal-accent), #4299e1);
+  color: white;
+}
+
+.mobile-badge.confidentiality.attorney-client {
+  background: linear-gradient(135deg, #553c9a, #805ad5);
+  color: white;
+}
+
+.mobile-badge.confidentiality.work-product {
+  background: linear-gradient(135deg, #744210, #d69e2e);
+  color: white;
+}
+
+.mobile-badge.confidentiality.confidential {
+  background: linear-gradient(135deg, #c53030, #fc8181);
+  color: white;
+}
+
+.mobile-badge.confidentiality.public {
+  background: linear-gradient(135deg, #2f855a, #68d391);
+  color: white;
+}
+
+.mobile-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+
+.mobile-metric {
+  font-size: 11px;
+  color: var(--legal-secondary);
+  font-weight: 500;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .legal-toolbar {
+    padding: 8px 16px;
+    min-height: 56px;
+  }
+  
+  .toolbar-left {
+    gap: 12px;
+  }
+  
+  .brand-text {
+    font-size: 16px;
+  }
+  
+  .toolbar-center {
+    display: none;
+  }
+  
+  .toolbar-right {
+    gap: 8px;
+  }
+  
+  .metrics-display {
+    display: none;
+  }
+  
+  .panel-toggle-btn,
+  .settings-btn {
+    padding: 6px 8px;
+  }
+  
+  .toggle-text,
+  .settings-text {
+    display: none;
+  }
+  
+  .status-indicator {
+    display: none;
+  }
+  
+  .mobile-context-bar {
+    display: flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-context-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .legal-toolbar {
+    padding: 6px 12px;
+    min-height: 52px;
+  }
+  
+  .brand-text {
+    display: none;
+  }
+  
+  .toolbar-right {
+    gap: 6px;
+  }
+  
+  .panel-toggle-btn,
+  .settings-btn {
+    padding: 6px;
+    min-width: 32px;
+  }
+  
+  .mobile-badges {
+    gap: 6px;
+  }
+  
+  .mobile-badge {
+    padding: 3px 6px;
+    font-size: 9px;
+  }
+  
+  .mobile-metrics {
+    gap: 8px;
+  }
+  
+  .mobile-metric {
+    font-size: 10px;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .legal-toolbar {
+    background: #2d3748;
+    border-bottom-color: #4a5568;
+  }
+  
+  .sidebar-toggle-btn,
+  .panel-toggle-btn,
+  .settings-btn {
+    background: #1a202c;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .sidebar-toggle-btn:hover,
+  .panel-toggle-btn:hover,
+  .settings-btn:hover {
+    background: rgba(49, 130, 206, 0.2);
+    color: #e2e8f0;
+  }
+  
+  .metrics-display {
+    background: rgba(49, 130, 206, 0.1);
+  }
+  
+  .metrics-display:hover {
+    background: rgba(49, 130, 206, 0.2);
+  }
+  
+  .metrics-detail {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .mobile-context-bar {
+    background: #1a202c;
+    border-bottom-color: #4a5568;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .legal-toolbar {
+    border-bottom: 2px solid var(--legal-primary);
+  }
+  
+  .panel-toggle-btn,
+  .settings-btn,
+  .sidebar-toggle-btn {
+    border: 2px solid var(--legal-primary);
+  }
+  
+  .panel-toggle-btn.active,
+  .settings-btn.active {
+    background: var(--legal-primary);
+    border-color: var(--legal-primary);
+  }
+  
+  .status-dot.online {
+    background: #000;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-toggle-btn,
+  .panel-toggle-btn,
+  .settings-btn,
+  .metrics-display {
+    transition: none;
+  }
+  
+  .status-dot.online,
+  .status-dot.connecting {
+    animation: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .legal-toolbar {
+    display: none;
+  }
+}

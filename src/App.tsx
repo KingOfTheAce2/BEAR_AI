@@ -1,23 +1,51 @@
 import React from 'react';
-import { AppLayout } from './components/layout/AppLayout';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AppProvider } from './contexts/AppContext';
+import { UnifiedLayout } from './components/layout/UnifiedLayout';
+import { LoginPage } from './components/auth/LoginPage';
+import { NotificationCenter } from './components/common/NotificationCenter';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { PublicRoute } from './components/auth/PublicRoute';
 import { User } from './types';
-import './styles/globals.css';
+import './styles/unified.css';
 
-// Mock user data for development
-const mockUser: User = {
-  id: '1',
-  name: 'Sarah Johnson',
-  email: 'sarah.johnson@lawfirm.com',
-  role: 'attorney',
-  firm: 'Johnson & Associates Law Firm',
-  avatar: undefined // Will use default avatar
-};
+// User data should be provided by authentication system
 
 function App() {
   return (
-    <div className="App">
-      <AppLayout initialUser={mockUser} />
-    </div>
+    <ThemeProvider initialTheme="professional" initialColorMode="light">
+      <AppProvider initialUser={undefined}>
+        <Router>
+          <div className="App min-h-screen bg-background text-text-primary font-primary">
+            <Routes>
+              {/* Public routes */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
+
+              {/* Protected routes */}
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <UnifiedLayout />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+            
+            {/* Global notification center */}
+            <NotificationCenter />
+          </div>
+        </Router>
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 

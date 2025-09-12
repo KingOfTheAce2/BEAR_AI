@@ -1,0 +1,436 @@
+/* Legal Chat Interface Styles - Apple-grade UX */
+
+.legal-chat-interface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --legal-primary: #1a365d;
+  --legal-secondary: #2d3748;
+  --legal-accent: #3182ce;
+  --legal-warning: #d69e2e;
+  --legal-error: #e53e3e;
+  --legal-success: #38a169;
+  --legal-confidential: #744210;
+  --legal-privileged: #553c9a;
+  --legal-border: #e2e8f0;
+  --legal-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --legal-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.legal-chat-interface.mobile {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.legal-chat-interface.sidebar-collapsed .legal-chat-sidebar {
+  transform: translateX(-100%);
+}
+
+/* Legal Toolbar */
+.legal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: white;
+  border-bottom: 1px solid var(--legal-border);
+  box-shadow: var(--legal-shadow);
+  z-index: 100;
+}
+
+.legal-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.legal-toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+}
+
+.legal-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.practice-area-badge,
+.jurisdiction-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.practice-area-badge {
+  background: linear-gradient(135deg, var(--legal-primary), var(--legal-secondary));
+  color: white;
+}
+
+.jurisdiction-badge {
+  background: linear-gradient(135deg, var(--legal-accent), #4299e1);
+  color: white;
+}
+
+.confidentiality-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.confidentiality-badge.attorney-client {
+  background: linear-gradient(135deg, var(--legal-privileged), #805ad5);
+  color: white;
+}
+
+.confidentiality-badge.work-product {
+  background: linear-gradient(135deg, var(--legal-confidential), #d69e2e);
+  color: white;
+}
+
+.confidentiality-badge.confidential {
+  background: linear-gradient(135deg, var(--legal-error), #fc8181);
+  color: white;
+}
+
+.confidentiality-badge.public {
+  background: linear-gradient(135deg, var(--legal-success), #68d391);
+  color: white;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--legal-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-button:hover {
+  background: rgba(49, 130, 206, 0.1);
+  color: var(--legal-accent);
+}
+
+.toolbar-button.active {
+  background: var(--legal-accent);
+  color: white;
+}
+
+.metrics-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--legal-secondary);
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--legal-accent);
+}
+
+/* Main Chat Layout */
+.legal-chat-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.legal-chat-sidebar {
+  width: 320px;
+  background: white;
+  border-right: 1px solid var(--legal-border);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  box-shadow: var(--legal-shadow);
+}
+
+.legal-chat-sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+.legal-chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.legal-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scroll-behavior: smooth;
+}
+
+.legal-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legal-chat-messages::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.legal-chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.legal-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Typing Indicator */
+.legal-typing-indicator {
+  margin: 16px 0;
+}
+
+.legal-typing-indicator .typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: var(--legal-shadow);
+  width: fit-content;
+}
+
+.legal-typing-indicator .typing-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--legal-accent);
+  border-radius: 50%;
+  animation: typing-pulse 1.4s infinite;
+}
+
+.legal-typing-indicator .typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.legal-typing-indicator .typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing-pulse {
+  0%, 60%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  30% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Loading State */
+.legal-chat-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid var(--legal-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.legal-chat-loading p {
+  color: var(--legal-secondary);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* Confidentiality Notice */
+.legal-confidentiality-notice {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.confidentiality-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: var(--legal-shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+.confidentiality-icon {
+  font-size: 14px;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .legal-chat-interface.mobile .legal-toolbar {
+    padding: 8px 16px;
+  }
+  
+  .legal-toolbar-center {
+    display: none;
+  }
+  
+  .legal-chat-sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 280px;
+  }
+  
+  .legal-chat-messages {
+    padding: 12px;
+  }
+  
+  .metrics-display {
+    display: none;
+  }
+  
+  .toolbar-button {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .practice-area-badge,
+  .jurisdiction-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .legal-chat-sidebar {
+    width: calc(100vw - 40px);
+  }
+  
+  .confidentiality-badge {
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+  
+  .legal-confidentiality-notice {
+    bottom: 10px;
+    right: 10px;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .legal-chat-interface {
+    --legal-border: #000;
+    --legal-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+  
+  .toolbar-button {
+    border: 1px solid var(--legal-border);
+  }
+  
+  .legal-chat-sidebar {
+    border-right: 2px solid var(--legal-border);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .legal-chat-sidebar {
+    transition: none;
+  }
+  
+  .mobile-overlay {
+    backdrop-filter: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .legal-chat-interface {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    color: #e2e8f0;
+  }
+  
+  .legal-toolbar,
+  .legal-chat-sidebar {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .toolbar-button {
+    color: #e2e8f0;
+  }
+  
+  .toolbar-button:hover {
+    background: rgba(66, 153, 225, 0.2);
+  }
+  
+  .legal-chat-messages::-webkit-scrollbar-track {
+    background: #2d3748;
+  }
+  
+  .legal-chat-messages::-webkit-scrollbar-thumb {
+    background: #4a5568;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-09-11T19:01:56.905Z",
+  "duration": 0.01,
+  "results": {
+    "passed": 28,
+    "failed": 1,
+    "warnings": 3,
+    "details": []
+  },
+  "successRate": "87.5",
+  "recommendation": "NEEDS_FIXES"
+}

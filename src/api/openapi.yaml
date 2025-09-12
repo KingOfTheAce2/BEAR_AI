@@ -1,0 +1,1169 @@
+openapi: 3.0.3
+info:
+  title: BEAR AI Legal Assistant API
+  version: 1.0.0
+  description: |
+    Comprehensive RESTful API for BEAR AI Legal Assistant platform providing 
+    AI-powered legal document analysis, research, and assistance capabilities.
+    
+    ## Features
+    - Document analysis and processing
+    - AI-powered legal research
+    - Chat-based legal assistance
+    - Case law and statute search
+    - Document management
+    - User authentication and authorization
+    
+    ## Authentication
+    This API uses JWT Bearer tokens for authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+  contact:
+    name: BEAR AI Support
+    email: support@bear-ai.com
+  license:
+    name: PROPRIETARY
+    url: https://bear-ai.com/license
+  termsOfService: https://bear-ai.com/terms
+
+servers:
+  - url: https://api.bear-ai.com/v1
+    description: Production server
+  - url: https://staging-api.bear-ai.com/v1
+    description: Staging server
+  - url: http://localhost:3001/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Chat
+    description: AI chat conversations and sessions
+  - name: Documents
+    description: Document upload, processing, and management
+  - name: Research
+    description: Legal research and case law search
+  - name: Analysis
+    description: Document analysis and AI insights
+  - name: Users
+    description: User management and profiles
+  - name: System
+    description: System health and monitoring
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: attorney@lawfirm.com
+              password: securePassword123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                user:
+                  id: user_123
+                  name: John Attorney
+                  email: attorney@lawfirm.com
+                  role: attorney
+                  firm: Smith & Associates
+                expiresIn: 86400
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh JWT token
+      description: Get a new JWT token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+              required: [refreshToken]
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      description: Invalidate current JWT token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  # Chat Endpoints
+  /chat/sessions:
+    get:
+      tags: [Chat]
+      summary: Get chat sessions
+      description: Retrieve all chat sessions for the authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [research, analysis, drafting, review]
+      responses:
+        '200':
+          description: Chat sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatSession'
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      tags: [Chat]
+      summary: Create new chat session
+      description: Start a new conversation with the AI assistant
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRequest'
+      responses:
+        '201':
+          description: Chat session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSession'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /chat/sessions/{sessionId}:
+    get:
+      tags: [Chat]
+      summary: Get chat session
+      description: Retrieve a specific chat session with all messages
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chat session retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSession'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags: [Chat]
+      summary: Delete chat session
+      description: Delete a chat session and all its messages
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chat session deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /chat/sessions/{sessionId}/messages:
+    post:
+      tags: [Chat]
+      summary: Send message
+      description: Send a message to the AI assistant in a chat session
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Message sent and AI response received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userMessage:
+                    $ref: '#/components/schemas/Message'
+                  aiResponse:
+                    $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # Documents Endpoints
+  /documents:
+    get:
+      tags: [Documents]
+      summary: List documents
+      description: Get all documents for the authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [contract, brief, research, evidence, correspondence, other]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [uploading, processing, ready, error]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      tags: [Documents]
+      summary: Upload document
+      description: Upload a new document for processing
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                category:
+                  type: string
+                  enum: [contract, brief, research, evidence, correspondence, other]
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required: [file, category]
+      responses:
+        '201':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaTypeError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Get document
+      description: Retrieve a specific document with metadata
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags: [Documents]
+      summary: Update document
+      description: Update document metadata
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Document updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Documents]
+      summary: Delete document
+      description: Delete a document and all its versions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /documents/{documentId}/download:
+    get:
+      tags: [Documents]
+      summary: Download document
+      description: Download the original document file
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # Research Endpoints
+  /research/search:
+    post:
+      tags: [Research]
+      summary: Search legal resources
+      description: Search case law, statutes, and regulations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SearchResult'
+                  total:
+                    type: integer
+                  query:
+                    type: string
+                  filters:
+                    type: object
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # Analysis Endpoints
+  /analysis/documents/{documentId}:
+    post:
+      tags: [Analysis]
+      summary: Analyze document
+      description: Perform AI analysis on a document
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResult'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # Users Endpoints
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Get user profile
+      description: Get the authenticated user's profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    put:
+      tags: [Users]
+      summary: Update user profile
+      description: Update the authenticated user's profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # System Endpoints
+  /system/health:
+    get:
+      tags: [System]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/status:
+    get:
+      tags: [System]
+      summary: System status
+      description: Get detailed system status and metrics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: System status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: attorney@lawfirm.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: securePassword123
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token
+        refreshToken:
+          type: string
+          description: JWT refresh token
+        user:
+          $ref: '#/components/schemas/User'
+        expiresIn:
+          type: integer
+          description: Token expiration time in seconds
+
+    # User Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user_123
+        name:
+          type: string
+          example: John Attorney
+        email:
+          type: string
+          format: email
+          example: attorney@lawfirm.com
+        role:
+          type: string
+          enum: [attorney, paralegal, admin]
+          example: attorney
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        firm:
+          type: string
+          nullable: true
+          example: Smith & Associates
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        avatar:
+          type: string
+          format: uri
+        firm:
+          type: string
+
+    # Chat Schemas
+    ChatSession:
+      type: object
+      properties:
+        id:
+          type: string
+          example: session_123
+        title:
+          type: string
+          example: Contract Analysis Discussion
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [research, analysis, drafting, review]
+
+    CreateChatRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        category:
+          type: string
+          enum: [research, analysis, drafting, review]
+        tags:
+          type: array
+          items:
+            type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          example: msg_123
+        content:
+          type: string
+        sender:
+          type: string
+          enum: [user, ai]
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [sending, sent, delivered, error]
+        type:
+          type: string
+          enum: [text, document, analysis, citation]
+        metadata:
+          type: object
+          properties:
+            confidence:
+              type: number
+              minimum: 0
+              maximum: 1
+            sources:
+              type: array
+              items:
+                type: string
+            documentRefs:
+              type: array
+              items:
+                type: string
+
+    SendMessageRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          maxLength: 10000
+        type:
+          type: string
+          enum: [text, document, analysis, citation]
+          default: text
+        documentRefs:
+          type: array
+          items:
+            type: string
+
+    # Document Schemas
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          example: doc_123
+        name:
+          type: string
+          example: Employment_Contract_2024.pdf
+        type:
+          type: string
+          enum: [pdf, docx, txt, legal]
+        size:
+          type: integer
+          description: File size in bytes
+        uploadDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [uploading, processing, ready, error]
+        preview:
+          type: string
+          nullable: true
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [contract, brief, research, evidence, correspondence, other]
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentVersion'
+
+    DocumentVersion:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: integer
+        modifiedDate:
+          type: string
+          format: date-time
+        modifiedBy:
+          type: string
+        changes:
+          type: string
+
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [contract, brief, research, evidence, correspondence, other]
+
+    # Search Schemas
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          maxLength: 500
+        filters:
+          type: object
+          properties:
+            type:
+              type: array
+              items:
+                type: string
+                enum: [document, case, statute, regulation]
+            jurisdiction:
+              type: string
+            dateRange:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date
+                to:
+                  type: string
+                  format: date
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [document, case, statute, regulation, conversation]
+        title:
+          type: string
+        content:
+          type: string
+        relevance:
+          type: number
+          minimum: 0
+          maximum: 1
+        source:
+          type: string
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        preview:
+          type: string
+        category:
+          type: string
+
+    # Analysis Schemas
+    AnalysisRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [summary, risk_assessment, clause_extraction, compliance_check]
+        options:
+          type: object
+          properties:
+            includeConfidence:
+              type: boolean
+              default: true
+            detailLevel:
+              type: string
+              enum: [brief, standard, detailed]
+              default: standard
+
+    AnalysisResult:
+      type: object
+      properties:
+        id:
+          type: string
+        documentId:
+          type: string
+        type:
+          type: string
+        result:
+          type: object
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        createdAt:
+          type: string
+          format: date-time
+        processingTime:
+          type: number
+          description: Processing time in milliseconds
+
+    # System Schemas
+    SystemStatus:
+      type: object
+      properties:
+        connection:
+          type: string
+          enum: [online, offline, connecting]
+        security:
+          type: string
+          enum: [secure, warning, error]
+        operations:
+          type: object
+          properties:
+            active:
+              type: integer
+            queued:
+              type: integer
+        version:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+          properties:
+            database:
+              type: string
+              enum: [healthy, unhealthy]
+            ai_service:
+              type: string
+              enum: [healthy, unhealthy]
+            storage:
+              type: string
+              enum: [healthy, unhealthy]
+        version:
+          type: string
+
+    # Error Schemas
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+            timestamp:
+              type: string
+              format: date-time
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Validation failed
+            details:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        type: string
+                      message:
+                        type: string
+            timestamp:
+              type: string
+              format: date-time
+
+  responses:
+    # Error Responses
+    UnauthorizedError:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required
+              timestamp: "2024-01-15T10:30:00Z"
+
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: FORBIDDEN
+              message: Insufficient permissions
+              timestamp: "2024-01-15T10:30:00Z"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+              timestamp: "2024-01-15T10:30:00Z"
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+    PayloadTooLargeError:
+      description: File too large
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: PAYLOAD_TOO_LARGE
+              message: File size exceeds maximum limit of 50MB
+              timestamp: "2024-01-15T10:30:00Z"
+
+    UnsupportedMediaTypeError:
+      description: Unsupported file type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: UNSUPPORTED_MEDIA_TYPE
+              message: File type not supported. Allowed types: pdf, docx, txt
+              timestamp: "2024-01-15T10:30:00Z"
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Please try again later.
+              timestamp: "2024-01-15T10:30:00Z"
+      headers:
+        X-RateLimit-Limit:
+          description: The rate limit ceiling for this endpoint
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          description: The number of requests left for the time window
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          description: The time when the rate limit resets
+          schema:
+            type: integer

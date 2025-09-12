@@ -1,0 +1,450 @@
+/* Message Thread Styles */
+.message-thread {
+  background: var(--thread-bg, #f8f9fa);
+  border: 1px solid var(--thread-border, #e0e0e0);
+  border-radius: 12px;
+  margin: 8px 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.message-thread.collapsed {
+  margin: 4px 0;
+}
+
+.message-thread.expanded {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.message-thread.overlay {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--background-color, #ffffff);
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Thread Header */
+.thread-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--thread-header-bg, #e9ecef);
+  border-bottom: 1px solid var(--thread-border, #e0e0e0);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.thread-header:hover {
+  background: var(--thread-header-hover, #dee2e6);
+}
+
+.message-thread.expanded .thread-header {
+  background: var(--thread-header-expanded, #ffffff);
+  border-bottom-color: var(--thread-border, #e0e0e0);
+}
+
+.message-thread.overlay .thread-header {
+  cursor: default;
+  background: var(--header-bg, #ffffff);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.thread-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.thread-icon {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.thread-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+.thread-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.expand-toggle:hover {
+  background: var(--hover-bg, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+/* Thread Messages */
+.thread-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  max-height: 400px;
+}
+
+.message-thread.collapsed .thread-messages {
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.message-thread.overlay .thread-messages {
+  max-height: none;
+  padding: 16px;
+}
+
+.thread-message {
+  margin-bottom: 8px;
+  padding-left: 16px;
+  border-left: 3px solid var(--thread-line-color, #e0e0e0);
+  position: relative;
+}
+
+.thread-message::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  background: var(--thread-dot-color, #c0c0c0);
+  border-radius: 50%;
+}
+
+.thread-message:first-child::before {
+  background: var(--primary-color, #2196F3);
+}
+
+.thread-message:last-child {
+  border-left-color: transparent;
+}
+
+.thread-message:last-child::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid var(--thread-line-color, #e0e0e0);
+  border-bottom: 8px solid transparent;
+}
+
+/* Show More Button */
+.show-more-replies {
+  width: 100%;
+  background: none;
+  border: 1px dashed var(--thread-border, #e0e0e0);
+  color: var(--primary-color, #2196F3);
+  padding: 8px 16px;
+  margin: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.show-more-replies:hover {
+  background: var(--primary-light, #e3f2fd);
+  border-color: var(--primary-color, #2196F3);
+}
+
+/* Thread Reply */
+.thread-reply {
+  border-top: 1px solid var(--thread-border, #e0e0e0);
+  padding: 12px 16px;
+  background: var(--reply-bg, #ffffff);
+}
+
+.reply-trigger {
+  width: 100%;
+  background: var(--reply-trigger-bg, #f8f9fa);
+  border: 1px solid var(--thread-border, #e0e0e0);
+  color: var(--text-secondary, #666);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reply-trigger:hover {
+  background: var(--reply-trigger-hover, #e9ecef);
+  border-color: var(--primary-color, #2196F3);
+  color: var(--primary-color, #2196F3);
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reply-input {
+  width: 100%;
+  border: 1px solid var(--thread-border, #e0e0e0);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 60px;
+  background: var(--input-bg, #ffffff);
+  color: var(--text-primary, #333);
+  transition: border-color 0.2s ease;
+}
+
+.reply-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #2196F3);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.reply-input::placeholder {
+  color: var(--text-secondary, #666);
+}
+
+.reply-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.reply-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.reply-actions button[type="submit"] {
+  background: var(--primary-color, #2196F3);
+  color: white;
+}
+
+.reply-actions button[type="submit"]:hover:not(:disabled) {
+  background: var(--primary-dark, #1976D2);
+}
+
+.reply-actions button[type="submit"]:disabled {
+  background: var(--disabled-bg, #e0e0e0);
+  color: var(--disabled-text, #999);
+  cursor: not-allowed;
+}
+
+.reply-actions button[type="button"] {
+  background: var(--cancel-bg, #f5f5f5);
+  color: var(--text-primary, #333);
+}
+
+.reply-actions button[type="button"]:hover {
+  background: var(--cancel-hover, #e0e0e0);
+}
+
+/* Thread Animations */
+.message-thread.collapsed .thread-messages {
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.message-thread.expanded .thread-messages {
+  animation: threadExpand 0.3s ease;
+}
+
+@keyframes threadExpand {
+  from {
+    max-height: 200px;
+    opacity: 0.7;
+  }
+  to {
+    max-height: 400px;
+    opacity: 1;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .thread-header {
+    padding: 10px 12px;
+  }
+
+  .thread-count {
+    font-size: 12px;
+  }
+
+  .thread-messages {
+    padding: 6px;
+  }
+
+  .thread-message {
+    padding-left: 12px;
+    margin-bottom: 6px;
+  }
+
+  .thread-reply {
+    padding: 10px 12px;
+  }
+
+  .reply-input {
+    min-height: 50px;
+    font-size: 14px;
+  }
+
+  .show-more-replies {
+    margin: 6px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .thread-header {
+    padding: 8px 10px;
+  }
+
+  .thread-icon {
+    font-size: 14px;
+  }
+
+  .thread-count {
+    font-size: 11px;
+  }
+
+  .thread-messages {
+    padding: 4px;
+    max-height: 300px;
+  }
+
+  .message-thread.collapsed .thread-messages {
+    max-height: 150px;
+  }
+
+  .thread-message {
+    padding-left: 10px;
+  }
+
+  .thread-reply {
+    padding: 8px 10px;
+  }
+
+  .reply-trigger {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .reply-actions button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .message-thread {
+    transition: none;
+  }
+  
+  .thread-header {
+    transition: none;
+  }
+  
+  .thread-messages {
+    transition: none;
+    animation: none;
+  }
+  
+  .expand-toggle {
+    transition: none;
+  }
+  
+  .reply-trigger,
+  .reply-actions button {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .message-thread {
+    border: 2px solid #000000;
+  }
+  
+  .thread-header {
+    border-bottom: 2px solid #000000;
+  }
+  
+  .thread-message {
+    border-left: 4px solid #000000;
+  }
+  
+  .thread-message::before {
+    background: #000000;
+    border: 1px solid #ffffff;
+  }
+  
+  .show-more-replies {
+    border: 2px dashed #000000;
+  }
+  
+  .reply-input {
+    border: 2px solid #000000;
+  }
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  .message-thread {
+    --thread-bg: #2d2d2d;
+    --thread-border: #404040;
+    --thread-header-bg: #404040;
+    --thread-header-hover: #4a4a4a;
+    --thread-header-expanded: #3d3d3d;
+    --thread-line-color: #505050;
+    --thread-dot-color: #606060;
+    --reply-bg: #2d2d2d;
+    --reply-trigger-bg: #404040;
+    --reply-trigger-hover: #4a4a4a;
+    --input-bg: #404040;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --hover-bg: #4a4a4a;
+    --cancel-bg: #404040;
+    --cancel-hover: #4a4a4a;
+    --disabled-bg: #404040;
+    --disabled-text: #666666;
+  }
+
+  .message-thread.overlay {
+    background: #1a1a1a;
+  }
+}

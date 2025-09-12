@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "timestamp": "2025-09-11T17:02:49.416Z",
+  "duration": 7888.6866,
+  "features": {
+    "unifiedInferenceEngine": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "initializationTime": 508.1848,
+        "averageInferenceLatency": 227.9436333333333,
+        "batchEfficiency": 3.3482107385698403
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "localParallelInference": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "workerInitTime": 304.1536000000001,
+        "concurrentProcessingTime": 588.7915000000003,
+        "concurrentRequestsHandled": 10,
+        "parallelizationSpeedup": 3.39678816694874,
+        "memoryEfficiency": 0.9989954651914287
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "gpuAcceleration": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "availableBackends": 3,
+        "gpuSupported": 1,
+        "webglSupported": 1,
+        "matrixMultiplicationTime": 625.596,
+        "vectorOperationTime": 399.0681999999997,
+        "gpuUtilization": 0.10540767403349581
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "requestQueue": {
+      "status": "PASS",
+      "score": 85,
+      "metrics": {
+        "queueProcessingTime": 256.66420000000016,
+        "requestsProcessed": 20,
+        "throughputRequestsPerSecond": 77.92282679080287,
+        "scalingEfficiency": 0.6196287114795898
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "memoryManagement": {
+      "status": "PASS",
+      "score": 90,
+      "metrics": {
+        "initialMemoryMB": 4.272331237792969,
+        "peakMemoryMB": 4.283477783203125,
+        "finalMemoryMB": 4.285392761230469,
+        "memoryRecoveryRate": -0.17180013689253937,
+        "memoryEfficiency": 0.999994557350874
+      },
+      "issues": [],
+      "recommendations": [
+        "Improve memory cleanup and garbage collection"
+      ]
+    },
+    "streaming": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "averageStreamingLatency": 289.62938000000014,
+        "connectionRecoveryTime": 1187.0887292696243,
+        "fallbackSuccessRate": 1
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "offlineOperation": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "offlineCapability": 1,
+        "networkCallsAttempted": 0,
+        "localResourcesUsed": 1
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "zeroDependencies": {
+      "status": "PASS",
+      "score": 100,
+      "metrics": {
+        "externalDependencies": 0,
+        "bundleSizeKB": 3322.9065645699943,
+        "localDependencies": 22,
+        "totalEndpoints": 3,
+        "localhostEndpoints": 3,
+        "localhostCompliance": 1
+      },
+      "issues": [],
+      "recommendations": []
+    }
+  },
+  "performance": {
+    "averageInferenceTime": 227.9436333333333,
+    "throughputTokensPerSecond": 77.92282679080287,
+    "memoryUsage": 4.283477783203125,
+    "gpuUtilization": 0.10540767403349581,
+    "concurrentRequestsHandled": 10,
+    "batchProcessingSpeedup": 3.3482107385698403
+  },
+  "summary": {
+    "totalTests": 8,
+    "passed": 8,
+    "failed": 0,
+    "warnings": 0,
+    "skipped": 0
+  },
+  "recommendations": [
+    "Improve memory cleanup and garbage collection"
+  ],
+  "issues": []
+}

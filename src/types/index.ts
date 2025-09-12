@@ -103,3 +103,21 @@ export interface AppState {
   searchQuery: string;
   activeChat: ChatSession | null;
 }
+
+// Memory monitoring types
+export interface MemoryStatus {
+  usage: number;
+  status: 'normal' | 'warning' | 'critical';
+  available: number;
+  total: number;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  lastUpdated: Date;
+}
+
+// Component Props interface for consistent prop handling
+export interface ComponentProps {
+  className?: string;
+  children?: React.ReactNode;
+  id?: string;
+  testId?: string;
+}

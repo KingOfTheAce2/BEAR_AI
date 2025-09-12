@@ -1,0 +1,82 @@
+{
+  "default": [
+    {
+      "key": "design/ui-enhancements",
+      "value": "Enhanced UI/UX component specifications completed for BEAR AI. Created comprehensive component library including: ModelSelector for advanced model management, StreamingChatInterface for real-time chat, PerformanceDashboard for system monitoring, ErrorBoundary for graceful error handling, and NotificationSystem for user feedback. All components follow modern design patterns inspired by Ollama interface, with full TypeScript support, accessibility compliance, and responsive design. Documentation includes implementation guidelines, testing strategies, and migration plans.",
+      "namespace": "default",
+      "timestamp": 1757566991100
+    },
+    {
+      "key": "comparison/local-features-gaps",
+      "value": "Starting local features gap analysis between BEAR AI and LM Studio JS",
+      "namespace": "default",
+      "timestamp": 1757569587798
+    },
+    {
+      "key": "comparison/local-features-complete",
+      "value": "Comprehensive local-first features gap analysis completed with 8 critical areas identified and prioritized implementation roadmap provided",
+      "namespace": "default",
+      "timestamp": 1757569654253
+    },
+    {
+      "key": "design/local-inference-engine",
+      "value": "Enhanced Local Inference Engine Design - vLLM-inspired high-performance architecture with batch processing, GPU optimization, streaming responses, intelligent caching, and multi-model support. Components: VLLMLocalEngine (core inference), StreamingEngine (async responses), OptimizationEngine (caching/memory), UnifiedInferenceEngine (integration layer). Features: Request queuing, backpressure handling, KV cache optimization, memory pooling, hardware-specific optimizations, real-time metrics, fault tolerance. Frontend integration via TypeScript client with WebSocket streaming.",
+      "namespace": "default",
+      "timestamp": 1757609314552
+    },
+    {
+      "key": "bear-ai/master-plan/overview",
+      "value": "BEAR AI Legal Assistant - 8-week development plan with 4 phases: Foundation, Core Features, Advanced Features, Testing/Deployment. Hybrid React/Tauri desktop app with Python AI backend.",
+      "namespace": "default",
+      "timestamp": 1757612914543
+    },
+    {
+      "key": "bear-ai/architecture/current-state",
+      "value": "React TypeScript frontend with Tauri desktop framework, Python backend with CLI and model management, partial chat interface, testing infrastructure setup, CI/CD workflows configured",
+      "namespace": "default",
+      "timestamp": 1757612929003
+    },
+    {
+      "key": "bear-ai/phases/phase1",
+      "value": "Foundation & Integration: Tauri-React IPC, Python backend API, file system access, secure communication",
+      "namespace": "default",
+      "timestamp": 1757612938188
+    },
+    {
+      "key": "bear-ai/phases/phase2",
+      "value": "Core Features: Legal document processing, PII detection, RAG system, chat interface, document management UI",
+      "namespace": "default",
+      "timestamp": 1757612947126
+    },
+    {
+      "key": "bear-ai/phases/phase3",
+      "value": "Advanced Features: Security audit logging, encryption, RBAC, performance monitoring, memory optimization",
+      "namespace": "default",
+      "timestamp": 1757612957176
+    },
+    {
+      "key": "bear-ai/phases/phase4",
+      "value": "Testing & Deployment: 90% test coverage, integration tests, E2E scenarios, CI/CD, installers, production monitoring",
+      "namespace": "default",
+      "timestamp": 1757612968593
+    },
+    {
+      "key": "bear-ai/coordination/agents",
+      "value": "system-architect,backend-dev,ml-developer,coder,security-manager,perf-analyzer,tester,cicd-engineer,reviewer,api-docs,production-validator,task-orchestrator,memory-coordinator",
+      "namespace": "default",
+      "timestamp": 1757613046109
+    },
+    {
+      "key": "bear-ai/coordination/dependencies",
+      "value": "Phase1:none->Phase2:80%->Phase3:70%->Phase4:90%. Critical path: Tauri Integration -> Legal Processing -> Testing -> Deployment",
+      "namespace": "default",
+      "timestamp": 1757613055106
+    },
+    {
+      "key": "bear-ai/success-metrics",
+      "value": "Phase1:Desktop app launches with API. Phase2:Process legal documents end-to-end. Phase3:Production security and performance. Phase4:Automated deployment and monitoring",
+      "namespace": "default",
+      "timestamp": 1757613063605
+    }
+  ]
+}

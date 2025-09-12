@@ -1,0 +1,295 @@
+/* Message List Styles */
+.message-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.message-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color, #c0c0c0);
+  border-radius: 3px;
+}
+
+/* Date Separator */
+.date-separator {
+  margin: 24px 0 16px 0;
+  position: relative;
+  text-align: center;
+}
+
+.date-line {
+  position: relative;
+  display: inline-block;
+}
+
+.date-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -200px;
+  right: -200px;
+  height: 1px;
+  background: var(--border-color, #e0e0e0);
+  z-index: 0;
+}
+
+.date-text {
+  background: var(--messages-bg, #fafbfc);
+  padding: 4px 16px;
+  color: var(--text-secondary, #666);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  position: relative;
+  z-index: 1;
+}
+
+/* Scroll to Bottom Button */
+.scroll-to-bottom {
+  position: fixed;
+  bottom: 100px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  background: var(--primary-color, #2196F3);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 10;
+  transition: all 0.2s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.scroll-to-bottom.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.scroll-to-bottom:hover {
+  background: var(--primary-dark, #1976D2);
+  transform: scale(1.1);
+}
+
+/* Thread Overlay for Mobile */
+.thread-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--background-color, #ffffff);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: slideInFromRight 0.3s ease;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.thread-overlay-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  background: var(--header-bg, #ffffff);
+  gap: 16px;
+}
+
+.thread-overlay-header button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--primary-color, #2196F3);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.thread-overlay-header button:hover {
+  background: var(--hover-bg, #f0f0f0);
+}
+
+.thread-overlay-header span {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+/* Message Highlighting */
+.message.highlighted {
+  background: var(--highlight-bg, #fff3cd) !important;
+  border-left: 4px solid var(--warning-color, #ffc107) !important;
+  animation: highlightFade 2s ease-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background: var(--warning-light, #fff8e1);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* Virtual Scrolling Optimization */
+.message-list .virtual-item {
+  transition: opacity 0.2s ease;
+}
+
+.message-list .virtual-item.loading {
+  opacity: 0.5;
+}
+
+/* Performance Optimizations */
+.message-list {
+  contain: layout style;
+  will-change: scroll-position;
+}
+
+.message-list > * {
+  contain: layout style;
+}
+
+/* Loading States */
+.message-list .loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.message-list .loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color, #2196F3);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .date-separator {
+    margin: 16px 0 12px 0;
+  }
+
+  .date-text {
+    font-size: 11px;
+    padding: 3px 12px;
+  }
+
+  .scroll-to-bottom {
+    bottom: 80px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .date-separator {
+    margin: 12px 0 8px 0;
+  }
+
+  .scroll-to-bottom {
+    bottom: 70px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .message-list {
+    scroll-behavior: auto;
+  }
+  
+  .thread-overlay {
+    animation: none;
+  }
+  
+  .message.highlighted {
+    animation: none;
+  }
+  
+  .scroll-to-bottom {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .date-line::before {
+    background: #000000;
+    height: 2px;
+  }
+  
+  .date-text {
+    border: 2px solid #000000;
+    color: #000000;
+  }
+  
+  .scroll-to-bottom {
+    border: 2px solid white;
+  }
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  .message-list {
+    --messages-bg: #1a1a1a;
+    --background-color: #1a1a1a;
+    --header-bg: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --border-color: #404040;
+    --hover-bg: #404040;
+    --highlight-bg: #3d2f00;
+    --warning-color: #ffa000;
+    --warning-light: #4d3800;
+  }
+
+  .date-text {
+    background: #1a1a1a;
+    border-color: #404040;
+  }
+
+  .thread-overlay {
+    background: #1a1a1a;
+  }
+
+  .thread-overlay-header {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+}
