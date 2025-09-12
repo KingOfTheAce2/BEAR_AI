@@ -58,36 +58,38 @@ echo set PYTHONPATH=%%CD%%\\src;%%PYTHONPATH%% >> bear_ai_launcher.bat
 echo cd /d "%%~dp0" >> bear_ai_launcher.bat
 echo python -m bear_ai %%* >> bear_ai_launcher.bat
 
-REM Create GUI launcher
-echo @echo off > bear_ai_gui.bat
-echo echo Starting BEAR AI Web Interface... >> bear_ai_gui.bat  
-echo cd /d "%%~dp0" >> bear_ai_gui.bat
-echo start http://localhost:3000 >> bear_ai_gui.bat
-echo npm start >> bear_ai_gui.bat
-
-REM Create desktop shortcut
+REM Create single unified desktop shortcut
 echo Creating desktop shortcut...
 set DESKTOP=%USERPROFILE%\\Desktop
 echo @echo off > "%DESKTOP%\\BEAR AI.bat"
+echo echo Starting BEAR AI Legal Assistant... >> "%DESKTOP%\\BEAR AI.bat"
 echo cd /d "%INSTALL_DIR%" >> "%DESKTOP%\\BEAR AI.bat"
+echo echo Choose interface: 1) Web GUI 2) Command Line >> "%DESKTOP%\\BEAR AI.bat"
+echo set /p choice="Enter choice (1 or 2, default 1): " >> "%DESKTOP%\\BEAR AI.bat"
+echo if "%%choice%%"=="2" goto cli >> "%DESKTOP%\\BEAR AI.bat"
+echo echo Starting BEAR AI Web Interface... >> "%DESKTOP%\\BEAR AI.bat"
+echo start http://localhost:3000 >> "%DESKTOP%\\BEAR AI.bat"
+echo npm start >> "%DESKTOP%\\BEAR AI.bat"
+echo goto end >> "%DESKTOP%\\BEAR AI.bat"
+echo :cli >> "%DESKTOP%\\BEAR AI.bat"
 echo call bear_ai_launcher.bat %%* >> "%DESKTOP%\\BEAR AI.bat"
+echo :end >> "%DESKTOP%\\BEAR AI.bat"
 
-REM Create GUI desktop shortcut  
-echo @echo off > "%DESKTOP%\\BEAR AI GUI.bat"
-echo cd /d "%INSTALL_DIR%" >> "%DESKTOP%\\BEAR AI GUI.bat"
-echo call bear_ai_gui.bat >> "%DESKTOP%\\BEAR AI GUI.bat"
-
-REM Create Start Menu shortcuts
+REM Create single Start Menu shortcut
 set START_MENU=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs
-if not exist "%START_MENU%\\BEAR AI" mkdir "%START_MENU%\\BEAR AI"
-
-echo @echo off > "%START_MENU%\\BEAR AI\\BEAR AI.bat"
-echo cd /d "%INSTALL_DIR%" >> "%START_MENU%\\BEAR AI\\BEAR AI.bat"
-echo call bear_ai_launcher.bat %%* >> "%START_MENU%\\BEAR AI\\BEAR AI.bat"
-
-echo @echo off > "%START_MENU%\\BEAR AI\\BEAR AI GUI.bat"
-echo cd /d "%INSTALL_DIR%" >> "%START_MENU%\\BEAR AI\\BEAR AI GUI.bat"
-echo call bear_ai_gui.bat >> "%START_MENU%\\BEAR AI\\BEAR AI GUI.bat"
+echo @echo off > "%START_MENU%\\BEAR AI.bat"
+echo echo Starting BEAR AI Legal Assistant... >> "%START_MENU%\\BEAR AI.bat"
+echo cd /d "%INSTALL_DIR%" >> "%START_MENU%\\BEAR AI.bat"
+echo echo Choose interface: 1) Web GUI 2) Command Line >> "%START_MENU%\\BEAR AI.bat"
+echo set /p choice="Enter choice (1 or 2, default 1): " >> "%START_MENU%\\BEAR AI.bat"
+echo if "%%choice%%"=="2" goto cli >> "%START_MENU%\\BEAR AI.bat"
+echo echo Starting BEAR AI Web Interface... >> "%START_MENU%\\BEAR AI.bat"
+echo start http://localhost:3000 >> "%START_MENU%\\BEAR AI.bat"
+echo npm start >> "%START_MENU%\\BEAR AI.bat"
+echo goto end >> "%START_MENU%\\BEAR AI.bat"
+echo :cli >> "%START_MENU%\\BEAR AI.bat"
+echo call bear_ai_launcher.bat %%* >> "%START_MENU%\\BEAR AI.bat"
+echo :end >> "%START_MENU%\\BEAR AI.bat"
 
 REM Test installation
 echo Testing installation...
@@ -104,9 +106,9 @@ echo Installation completed successfully!
 echo ================================================
 echo.
 echo You can now run BEAR AI using:
-echo   - Desktop shortcut: "BEAR AI"
+echo   - Desktop shortcut: "BEAR AI" (offers GUI/CLI choice)
 echo   - Command line: cd "%INSTALL_DIR%" ^&^& bear_ai_launcher.bat
-echo   - GUI: Desktop shortcut "BEAR AI GUI"
+echo   - Web GUI: Desktop shortcut selects GUI by default
 echo.
 echo For help: bear_ai_launcher.bat --help
 echo For model discovery: bear_ai_launcher.bat discover
@@ -196,14 +198,34 @@ python -m bear_ai %*
 pause
 ''')
         
-        gui_script = portable_dir / "run_gui.bat"
-        with open(gui_script, 'w') as f:
+        # Single unified launcher for portable
+        unified_script = portable_dir / "BEAR_AI.bat"
+        with open(unified_script, 'w') as f:
             f.write('''@echo off
+echo BEAR AI Legal Assistant - Portable Version
+echo.
+echo Choose interface:
+echo 1) Web GUI (default)
+echo 2) Command Line
+echo.
+set /p choice="Enter choice (1 or 2): "
+
+if "%choice%"=="2" goto cli
 echo Starting BEAR AI Web Interface...
 echo Opening browser at http://localhost:3000
 cd /d "%~dp0"
 start http://localhost:3000
 npm start
+goto end
+
+:cli
+echo Starting BEAR AI Command Line...
+set PYTHONPATH=%CD%\\src;%PYTHONPATH%
+cd /d "%~dp0"
+python -m bear_ai %*
+pause
+
+:end
 ''')
         
         # Create installation test script
@@ -252,9 +274,8 @@ OPTION 1: Automated Installer (RECOMMENDED)
 OPTION 2: Portable Version
 1. Extract BEAR_AI_Portable folder anywhere
 2. Install Python dependencies: pip install -r requirements.txt
-3. Run: run_bear_ai.bat
-4. For GUI: run_gui.bat
-5. Test: test_installation.bat
+3. Run: BEAR_AI.bat (offers GUI/CLI choice)
+4. Or run specific scripts: run_bear_ai.bat, test_installation.bat
 
 OPTION 3: Manual Installation
 1. Extract bear_ai_package.zip

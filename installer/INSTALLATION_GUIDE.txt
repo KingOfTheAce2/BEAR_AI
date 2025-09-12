@@ -22,9 +22,8 @@ OPTION 1: Automated Installer (RECOMMENDED)
 OPTION 2: Portable Version
 1. Extract BEAR_AI_Portable folder anywhere
 2. Install Python dependencies: pip install -r requirements.txt
-3. Run: run_bear_ai.bat
-4. For GUI: run_gui.bat
-5. Test: test_installation.bat
+3. Run: BEAR_AI.bat (offers GUI/CLI choice)
+4. Or run specific scripts: run_bear_ai.bat, test_installation.bat
 
 OPTION 3: Manual Installation
 1. Extract bear_ai_package.zip
