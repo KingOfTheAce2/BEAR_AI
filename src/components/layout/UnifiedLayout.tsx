@@ -18,4 +18,74 @@ export const UnifiedLayout: React.FC = () => {
   const { config } = useTheme();
 
   return (
-    <div className=\"flex h-screen bg-surface font-primary overflow-hidden\">\n      {/* Sidebar */}\n      <aside\n        className={cn(\n          'bg-surface border-r border-border shadow-lg transition-all duration-300 ease-in-out flex-shrink-0',\n          state.sidebarCollapsed ? 'w-16' : 'w-64'\n        )}\n        style={{\n          backgroundColor: `var(--color-surface)`,\n          borderColor: `var(--color-border)`\n        }}\n      >\n        <UnifiedSidebar\n          collapsed={state.sidebarCollapsed}\n          activeView={state.currentView}\n          onViewChange={setCurrentView}\n        />\n      </aside>\n\n      {/* Main Content Area */}\n      <div className=\"flex-1 flex flex-col min-w-0\">\n        {/* Top Bar */}\n        <header \n          className=\"h-16 bg-background border-b border-border shadow-sm flex-shrink-0\"\n          style={{\n            backgroundColor: `var(--color-background)`,\n            borderColor: `var(--color-border)`\n          }}\n        >\n          <UnifiedTopBar\n            user={state.user}\n            onToggleSidebar={toggleSidebar}\n            searchQuery={state.searchQuery}\n            sidebarCollapsed={state.sidebarCollapsed}\n          />\n        </header>\n\n        {/* Main Content */}\n        <main className=\"flex-1 overflow-hidden\">\n          <div className=\"h-full\">\n            <Routes>\n              <Route path=\"/\" element={<ChatInterface />} />\n              <Route path=\"/chat\" element={<ChatInterface />} />\n              <Route path=\"/documents\" element={<DocumentGrid />} />\n              <Route path=\"/research\" element={<ResearchPage />} />\n              <Route path=\"/history\" element={<HistoryPage />} />\n              <Route path=\"/search\" element={<SearchPage />} />\n              <Route path=\"/settings\" element={<SettingsPage />} />\n              {/* Placeholder routes for future pages */}\n              <Route path=\"/cases\" element={<div className=\"p-6\">Cases Page (Coming Soon)</div>} />\n              <Route path=\"/clients\" element={<div className=\"p-6\">Clients Page (Coming Soon)</div>} />\n              <Route path=\"/calendar\" element={<div className=\"p-6\">Calendar Page (Coming Soon)</div>} />\n              <Route path=\"/reports\" element={<div className=\"p-6\">Reports Page (Coming Soon)</div>} />\n              <Route path=\"/help\" element={<div className=\"p-6\">Help Page (Coming Soon)</div>} />\n            </Routes>\n          </div>\n        </main>\n\n        {/* Status Bar */}\n        <footer \n          className=\"h-8 bg-surface border-t border-border flex-shrink-0\"\n          style={{\n            backgroundColor: `var(--color-surface)`,\n            borderColor: `var(--color-border)`\n          }}\n        >\n          <UnifiedStatusBar systemStatus={state.systemStatus} />\n        </footer>\n      </div>\n    </div>\n  );\n};
+    <div className="flex h-screen bg-surface font-primary overflow-hidden">
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          'bg-surface border-r border-border shadow-lg transition-all duration-300 ease-in-out flex-shrink-0',
+          state.sidebarCollapsed ? 'w-16' : 'w-64'
+        )}
+        style={{
+          backgroundColor: `var(--color-surface)`,
+          borderColor: `var(--color-border)`
+        }}
+      >
+        <UnifiedSidebar
+          collapsed={state.sidebarCollapsed}
+          activeView={state.currentView}
+          onViewChange={setCurrentView}
+        />
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar */}
+        <header 
+          className="h-16 bg-background border-b border-border shadow-sm flex-shrink-0"
+          style={{
+            backgroundColor: `var(--color-background)`,
+            borderColor: `var(--color-border)`
+          }}
+        >
+          <UnifiedTopBar
+            user={state.user}
+            onToggleSidebar={toggleSidebar}
+            searchQuery={state.searchQuery}
+            sidebarCollapsed={state.sidebarCollapsed}
+          />
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">
+          <div className="h-full">
+            <Routes>
+              <Route path="/" element={<ChatInterface />} />
+              <Route path="/chat" element={<ChatInterface />} />
+              <Route path="/documents" element={<DocumentGrid />} />
+              <Route path="/research" element={<ResearchPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              {/* Placeholder routes for future pages */}
+              <Route path="/cases" element={<div className="p-6">Cases Page (Coming Soon)</div>} />
+              <Route path="/clients" element={<div className="p-6">Clients Page (Coming Soon)</div>} />
+              <Route path="/calendar" element={<div className="p-6">Calendar Page (Coming Soon)</div>} />
+              <Route path="/reports" element={<div className="p-6">Reports Page (Coming Soon)</div>} />
+              <Route path="/help" element={<div className="p-6">Help Page (Coming Soon)</div>} />
+            </Routes>
+          </div>
+        </main>
+
+        {/* Status Bar */}
+        <footer 
+          className="h-8 bg-surface border-t border-border flex-shrink-0"
+          style={{
+            backgroundColor: `var(--color-surface)`,
+            borderColor: `var(--color-border)`
+          }}
+        >
+          <UnifiedStatusBar systemStatus={state.systemStatus} />
+        </footer>
+      </div>
+    </div>
+  );\n};
