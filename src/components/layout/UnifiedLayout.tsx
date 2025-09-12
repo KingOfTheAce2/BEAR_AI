@@ -88,4 +88,5 @@ export const UnifiedLayout: React.FC = () => {
         </footer>
       </div>
     </div>
-  );\n};
+  );
+};
