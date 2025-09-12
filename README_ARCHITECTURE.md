@@ -5,7 +5,7 @@
 **BEAR AI is a DESKTOP APPLICATION built with:**
 
 - **Frontend**: React 18.2 + TypeScript 4.9 + TailwindCSS
-- **Backend**: Rust/Tauri 1.5 (Desktop Framework)
+- **Backend**: Rust/Tauri 1.8 (Desktop Framework)
 - **Features**: System tray, auto-updater, local SQLite database
 - **Platform**: Cross-platform desktop app (Windows, macOS, Linux)
 
@@ -35,15 +35,15 @@ npm install                    # Install Node.js dependencies
 
 ### Development
 ```bash
-npm start                      # Start React development server
-npm run dev:api               # Start Express API server
+npm start                      # Start React development server (localhost:3000)
+tauri dev                     # Start Tauri desktop app (development)
 npm run dev:full              # Start both frontend and API
 ```
 
 ### Build for Production
 ```bash
 npm run build                 # Build React application
-tauri build                   # Build desktop application + installer
+tauri build                   # Build desktop application + Windows installer
 ```
 
 ### Testing
@@ -66,11 +66,22 @@ BEAR_AI/
 └── package.json            # Node.js dependencies & scripts
 ```
 
-## 🚀 Installation Flow
+## 🚀 Installation & Usage
 
-1. **Development**: `npm install` → `npm start`
-2. **Production**: `tauri build` → Creates Windows installer
-3. **Distribution**: Users install via `.exe` installer
+### For Users
+1. Download Windows installer from [GitHub Releases](https://github.com/KingOfTheAce2/BEAR_AI/releases)
+2. Run the `.exe` installer
+3. Launch from desktop shortcut or Start Menu
+
+### For Developers
+1. **Setup**: `npm install` → Install Rust toolchain
+2. **Development**: `npm start` (React dev server) + `tauri dev` (desktop app)
+3. **Build**: `tauri build` → Creates Windows installer
+
+### MCP/Claude Code Integration
+- **Development Server**: `npm start` runs on `http://localhost:3000`
+- **MCP Connection**: Claude Code connects to localhost:3000 for development
+- **Desktop App**: Production app runs natively (no localhost needed)
 
 ## 🔧 Key Configuration Files
 

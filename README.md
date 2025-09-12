@@ -2,365 +2,275 @@
 
 **B**ridge for **E**xpertise, **A**udit and **R**esearch - **Version 2.0.0**
 
-> 🚀 **Professional AI-powered desktop application** for legal document analysis and assistance with advanced React/Tauri hybrid architecture
+> 🚀 **Professional AI-powered desktop application** for legal document analysis and assistance built with React/TypeScript and Rust/Tauri
 
-[![Build Status](https://github.com/KingOfTheAce2/BEAR_AI/workflows/Build%20and%20Deploy%20BEAR%20AI/badge.svg)](https://github.com/KingOfTheAce2/BEAR_AI/actions)
-[![Windows Installer](https://github.com/KingOfTheAce2/BEAR_AI/workflows/Windows%20Installer/badge.svg)](https://github.com/KingOfTheAce2/BEAR_AI/actions)
-[![License: PROPRIETARY](https://img.shields.io/badge/License-PROPRIETARY-red.svg)](LICENSE)
+[![Build Status](https://github.com/KingOfTheAce2/BEAR_AI/workflows/Build%20BEAR%20AI%20Desktop%20App/badge.svg)](https://github.com/KingOfTheAce2/BEAR_AI/actions)
 [![Desktop App](https://img.shields.io/badge/Desktop-Tauri-blue.svg)](https://tauri.app/)
 [![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/KingOfTheAce2/BEAR_AI)
+[![License: PROPRIETARY](https://img.shields.io/badge/License-PROPRIETARY-red.svg)](LICENSE)
 
-**BEAR AI Legal Assistant** combines cutting-edge artificial intelligence with professional legal workflows in a modern desktop application. Built with **Tauri** for native performance and **React with TypeScript** for a beautiful, responsive interface, it provides secure, offline-capable legal document analysis with advanced memory management, streaming capabilities, and comprehensive plugin architecture.
-
-## 🚀 Key Features
-
-### 🔒 Privacy-First Design
-- **100% Offline Operation**: Zero network dependencies, complete air-gap capability
-- **No Telemetry**: Your data never leaves your device
-- **GDPR Compliant**: Built for privacy regulations from the ground up
-- **Complete Audit Trail**: Full logging for compliance requirements
-- **Enterprise Security**: Role-based access with multi-factor authentication
-
-### 🛡️ Professional Security
-- **PII Detection & Scrubbing**: Automatically identify and remove sensitive information
-- **Document Security**: Secure processing with version control
-- **Multi-format Support**: PDF, DOCX, TXT, legal templates, and more
-- **Encryption Ready**: AES-256 secure storage and transmission
-- **Secure Sandboxing**: Tauri-based security model
-
-### ⚡ Intelligent Performance
-- **Hardware Adaptive**: Automatic model recommendations based on your system capabilities
-- **Memory Optimized**: Advanced memory monitoring with LanceDB vector storage
-- **GPU Acceleration**: Full NVIDIA GPU support with CPU fallback options
-- **Model Flexibility**: Support for any GGUF model with hot-swapping and local storage
-- **Streaming Processing**: Real-time inference with offline-first graceful degradation
-
-### 🎯 Built for Professionals
-- **Legal Document Analysis**: Specialized AI for legal workflows with offline processing
-- **Multi-modal Support**: Text, images, audio, and document processing without external APIs
-- **Local RAG Integration**: Advanced document retrieval and analysis using LanceDB
-- **Batch Processing**: Handle multiple documents with progress tracking and local storage
-- **Apple-Grade Interface**: Modern React-based UI with native desktop integration
-
-### 🏗️ Modern Architecture
-- **React + TypeScript**: Type-safe frontend with modern UI components
-- **Tauri Backend**: Rust-powered native desktop integration
-- **Plugin System**: Extensible architecture for custom functionality
-- **Memory Safety**: Rust-based memory management with monitoring
-- **Cross-Platform**: Windows, macOS, and Linux support
+**BEAR AI Legal Assistant** is a modern desktop application that combines cutting-edge artificial intelligence with professional legal workflows. Built with **Tauri** for native performance and security, and **React with TypeScript** for a beautiful, responsive interface.
 
 ## 🏗️ Architecture
 
-BEAR AI is built with a modular, extensible architecture:
+BEAR AI is a **desktop application** with a hybrid architecture:
 
 ```
-src/bear_ai/
-├── __main__.py          # Main entry point
-├── chat.py             # Interactive chat interface  
-├── gui.py              # Tkinter-based GUI
-├── scrub.py            # PII detection and scrubbing
-├── inference.py        # AI model inference engine
-├── download.py         # Model download and management
-├── security.py         # Security and privacy features
-├── rag.py              # Retrieval-Augmented Generation
-├── hardware_profiles.py # Hardware optimization
-└── plugins/            # Extensible plugin system
+BEAR_AI/
+├── src/                     # React TypeScript frontend
+│   ├── components/          # UI components
+│   ├── pages/              # Application pages  
+│   └── styles/             # CSS and styling
+├── src-tauri/              # Rust/Tauri backend
+│   ├── src/main.rs         # Main Rust entry point
+│   ├── Cargo.toml          # Rust dependencies
+│   └── tauri.conf.json     # Desktop app configuration
+├── dist/                   # Built frontend assets
+├── package.json            # Node.js dependencies & scripts
+└── scripts/                # Installation & build scripts
 ```
+
+### 🖥️ Desktop Application Features
+- **Native Desktop Integration**: System tray, auto-updater, file system access
+- **Cross-Platform**: Windows, macOS, and Linux support
+- **Professional UI**: Modern React-based interface with native look and feel
+- **Secure by Design**: Tauri's security model with sandboxed operations
+- **Offline Capable**: Full functionality without internet connection
 
 ## 📦 Installation
 
-### 🚀 One-Command Install (Simple & Fast)
+### 🎯 Option 1: Download Windows Installer (Recommended)
 
-**The easiest way to install BEAR AI:**
+**The easiest way to get BEAR AI:**
+
+1. **Visit**: [GitHub Releases](https://github.com/KingOfTheAce2/BEAR_AI/releases)
+2. **Download**: Latest `.exe` installer for Windows
+3. **Install**: Double-click to install with desktop shortcut
+4. **Launch**: Click desktop shortcut or find in Start Menu
+
+### 🛠️ Option 2: Build from Source
+
+**For developers or advanced users:**
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/KingOfTheAce2/BEAR_AI.git
 cd BEAR_AI
 
-# Run the unified installer
-npm run setup
+# 2. Install Node.js dependencies
+npm install
+
+# 3. Install Rust and Tauri CLI (if not installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+npm install -g @tauri-apps/cli
+
+# 4. Build and run the desktop app
+npm run build
+tauri build
 ```
 
-**✨ What it does automatically:**
-- ✅ Installs all dependencies intelligently  
-- ✅ Sets up cross-platform environment
-- ✅ Creates shortcuts and launchers
-- ✅ Verifies everything works perfectly
-- ✅ Shows beautiful progress indicators
-- ✅ Handles errors gracefully with recovery
-- ✅ Works on Windows, macOS, and Linux
+### 📋 System Requirements
 
-### 🎛️ Alternative Installation Methods
+**Minimum:**
+- **OS**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
+- **Node.js**: 16.0.0+
+- **RAM**: 4GB (8GB recommended)
+- **Storage**: 2GB free space
 
-**For different use cases:**
+**For Development:**
+- **Rust**: Latest stable toolchain
+- **Visual Studio Build Tools** (Windows only)
 
-```bash
-# Standard installation
-npm run install:bear-ai
+## 🚀 Usage
 
-# Verbose output (see what's happening)
-npm run install:bear-ai:verbose
+### 🖥️ Desktop Application
 
-# Development installation (includes dev tools)
-npm run install:bear-ai:dev
-```
+**After installation:**
+1. **Launch** BEAR AI from desktop shortcut or applications menu
+2. **Interface** opens as native desktop application
+3. **System Tray** integration for background operation
+4. **No browser required** - fully native experience
 
-## 🚀 Quick Start
+### 🌐 Development Mode
 
-### ⚡ Instant Launch (After One-Command Install)
-
-**It's this simple:**
+**For developers working on the code:**
 
 ```bash
-# 1. Navigate to BEAR AI (if not already there)
-cd BEAR_AI
-
-# 2. Start the application  
-npm start
-
-# 3. Open in browser (automatic)
-# http://localhost:3000
-```
-
-**Or use the shortcuts created for you:**
-- **Windows**: Desktop shortcut or Start Menu → "BEAR AI Legal Assistant"
-- **macOS**: Applications folder → "BEAR AI Legal Assistant"  
-- **Linux**: Applications menu → "BEAR AI Legal Assistant"
-
-### 🎛️ Alternative Launch Methods
-
-```bash
-# Development mode with live reload
-npm run dev
-
-# Full stack (frontend + API)
+# Start React development server + Tauri desktop app
 npm run dev:full
 
-# Production build and serve
-npm run build && npm run preview
-
-# Direct script execution
-./start-bear-ai.sh    # Unix
-start-bear-ai.bat     # Windows
+# Or separately:
+npm start        # React dev server (http://localhost:3000)
+tauri dev        # Tauri desktop app with dev server
 ```
 
-### ✅ Verify Installation
+### 🔧 MCP Integration & Claude Code Support
 
-**Quick health check:**
+**BEAR AI integrates with Claude Code and MCP (Model Context Protocol):**
+
+- **Localhost Usage**: The React development server (`npm start`) runs on `http://localhost:3000` for development and MCP integration
+- **MCP Connection**: Claude Code can connect to the development server for real-time collaboration
+- **Desktop App**: The production desktop app runs natively without needing localhost
+- **Hybrid Architecture**: Best of both worlds - native performance with web-based development flexibility
+
+**For Claude Code/MCP workflows:**
 ```bash
-# Check if everything is working
-npm test
+# 1. Start development server (for MCP)
+npm start
 
-# Verify TypeScript compilation
-npm run typecheck
+# 2. In another terminal, start desktop app (for testing)
+tauri dev
 
-# Check build process
-npm run build
-```
-
-**Expected output:**
-```
-✅ Package structure valid
-✅ Dependencies installed  
-✅ TypeScript compilation successful
-✅ Build process completed
-✅ BEAR AI is ready to use!
-```
-
-### 🆘 Quick Troubleshooting
-
-**If something goes wrong:**
-
-1. **Re-run the installer:**
-   ```bash
-   npm run install:bear-ai:verbose
-   ```
-
-2. **Check Node.js version:**
-   ```bash
-   node --version  # Should be 16.0.0+
-   npm --version   # Should be 8.0.0+
-   ```
-
-3. **Clean install:**
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
-
-**Need more help?** Check the installation report: `installation-report.txt`
-
-## 💻 Usage Examples
-
-### Interactive Chat
-```python
-from bear_ai import BearChat
-
-# Initialize chat with privacy settings
-chat = BearChat(
-    model_path="models/llama-2-7b-chat.gguf",
-    privacy_mode=True,
-    pii_scrubbing=True
-)
-
-# Start conversation
-response = chat.ask("Analyze this contract for key terms")
-```
-
-### Document Analysis
-```python
-from bear_ai import DocumentAnalyzer
-
-# Analyze legal document
-analyzer = DocumentAnalyzer()
-result = analyzer.analyze_document(
-    "contract.pdf",
-    analysis_type="legal_terms",
-    scrub_pii=True
-)
-```
-
-### PII Scrubbing
-```python
-from bear_ai import PIIScrubber
-
-# Scrub sensitive information
-scrubber = PIIScrubber()
-cleaned_text = scrubber.scrub_text(
-    "John Doe's SSN is 123-45-6789",
-    preserve_structure=True
-)
+# 3. Claude Code can now connect to localhost:3000 for development
 ```
 
 ## 🔧 Configuration
 
-### Hardware Profiles
-BEAR AI automatically detects your hardware and recommends optimal settings:
+### 📁 Application Data
 
-- **Laptop/Low-end**: 1-3B parameter models
-- **Desktop/Mid-range**: 7-13B parameter models  
-- **Workstation/High-end**: 30B+ parameter models
-- **GPU Acceleration**: Automatic CUDA detection and optimization
+**BEAR AI stores configuration and data in:**
+- **Windows**: `%APPDATA%\BEAR AI Legal Assistant\`
+- **macOS**: `~/Library/Application Support/BEAR AI Legal Assistant/`
+- **Linux**: `~/.config/BEAR AI Legal Assistant/`
 
-### Privacy Settings
-Configure privacy and security settings:
+### ⚙️ Desktop App Settings
 
-```python
-# Configuration in ~/.bear_ai/config.yaml
-privacy:
-  pii_detection: true
-  audit_logging: true
-  secure_deletion: true
-  encryption: true
+**Configuration via:**
+- **Settings Panel**: In-app settings interface
+- **System Tray**: Right-click for quick options
+- **Config Files**: JSON configuration in app data folder
 
-performance:
-  auto_model_selection: true
-  gpu_acceleration: true
-  memory_limit: "8GB"
+## 🛠️ Development
+
+### 🔧 Available Scripts
+
+```bash
+# Frontend Development
+npm start                 # Start React dev server
+npm run build            # Build React for production
+npm run test             # Run Jest tests
+npm run typecheck        # TypeScript type checking
+npm run lint             # ESLint code quality
+
+# Desktop App Development  
+tauri dev                # Launch desktop app (development)
+tauri build              # Build desktop app + installer
+tauri info               # Show Tauri environment info
+
+# Full Stack Development
+npm run dev:full         # Start both React + API servers
+npm run install:bear-ai  # Run installation script
 ```
+
+### 🧪 Testing
+
+```bash
+# Unit Tests
+npm run test:unit
+
+# Integration Tests  
+npm run test:integration
+
+# End-to-End Tests
+npm run test:e2e
+
+# All Tests
+npm test
+```
+
+## 🔒 Security & Privacy
+
+**Built with security as a core principle:**
+
+- **Native Security**: Tauri's Rust-based security model
+- **Sandboxed Operations**: Limited system access by design
+- **No Telemetry**: Your data stays on your device
+- **Local Processing**: No external API dependencies
+- **Secure Updates**: Cryptographically signed auto-updates
 
 ## 📚 Documentation
 
-### 📋 Professional Documentation (v2.0)
-- [**🎨 UI Improvements Guide**](docs/UI_IMPROVEMENTS.md) - Complete overview of all interface enhancements
-- [**🎯 Interface Selection Guide**](docs/INTERFACE_SELECTION_GUIDE.md) - Choose the best interface for your needs
-- [**🤖 Model Management Guide**](docs/MODEL_MANAGEMENT_GUIDE.md) - AI model selection and hardware optimization
-- [**🆘 Enhanced Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for interface and system issues
-- [**📝 Changelog**](CHANGELOG.md) - Complete record of v2.0 improvements
+### 📋 Current Documentation
+- [**🏗️ Architecture Guide**](README_ARCHITECTURE.md) - Technical architecture overview
+- [**📝 Changelog**](CHANGELOG.md) - Version history and changes
+- [**🤝 Contributing**](CONTRIBUTING.md) - Development contribution guide
+- [**📋 Release Notes**](RELEASE_NOTES.md) - Latest release information
 
-### 📚 Core Documentation  
-- [Installation Guide](docs/INSTALLATION.md) - Complete setup instructions
-- [User Manual](docs/USER_GUIDE.md) - How to use BEAR AI
-- [PII Setup Guide](docs/PII_SETUP_GUIDE.md) - Privacy and security settings
-- [Hardware Guide](docs/HARDWARE_GUIDE.md) - Hardware optimization
-- [API Documentation](docs/API.md) - Developer reference
+### 📖 Additional Resources
+- [Tauri Documentation](https://tauri.app/) - Desktop app framework
+- [React Documentation](https://react.dev/) - Frontend framework
+- [TypeScript Documentation](https://www.typescriptlang.org/) - Type system
 
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development Setup
+### 🛠️ Development Setup
+
 ```bash
-# Clone and setup development environment
-git clone https://github.com/KingOfTheAce2/BEAR_AI.git
+# 1. Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/BEAR_AI.git
 cd BEAR_AI
 
-# Install in development mode with all features
-pip install -e ".[dev,all]"
+# 2. Install dependencies
+npm install
 
-# Run tests
-pytest tests/
+# 3. Install Rust toolchain (if needed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Format code
-black src/
-isort src/
+# 4. Start development environment
+npm run dev:full
+
+# 5. Make changes and test
+npm test
+npm run typecheck
+npm run lint
+
+# 6. Build to verify
+npm run build
+tauri build
 ```
-
-## 🛡️ Security & Privacy
-
-BEAR AI is designed with security and privacy as core principles:
-
-- **Local Processing**: No data sent to external servers
-- **Audit Trails**: Complete logging for compliance requirements
-- **PII Protection**: Automatic detection and scrubbing of sensitive information
-- **Secure Storage**: Encrypted local storage options
-- **Regular Security Audits**: Ongoing security assessments
-
-## 📋 System Requirements
-
-### Minimum Requirements
-- **OS**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
-- **Python**: 3.9+
-- **RAM**: 8GB (16GB recommended)
-- **Storage**: 10GB free space
-- **CPU**: x64 processor with AVX2 support
-
-### Recommended
-- **RAM**: 32GB+ for large models
-- **GPU**: NVIDIA GPU with 8GB+ VRAM for acceleration
-- **Storage**: SSD with 50GB+ free space
-- **CPU**: Modern multi-core processor (8+ cores)
 
 ## 🗺️ Roadmap
 
-### Phase 1 (Current) - Core Features ✅
-- [x] Basic AI inference engine
-- [x] PII detection and scrubbing
-- [x] GUI interface
-- [x] Hardware optimization
+### ✅ Phase 1 - Core Desktop App (Current)
+- [x] React/TypeScript frontend
+- [x] Tauri/Rust backend  
+- [x] Windows installer via GitHub Actions
+- [x] System tray integration
+- [x] Auto-updater support
 
-### Phase 2 - Advanced Features 🚧
-- [ ] Advanced RAG implementation
-- [ ] Multi-modal document analysis
-- [ ] Plugin ecosystem
+### 🚧 Phase 2 - Enhanced Features
+- [ ] Advanced legal document analysis
+- [ ] Local AI model integration
+- [ ] Plugin system architecture
+- [ ] Enhanced MCP integration
+
+### 📋 Phase 3 - Professional Features
+- [ ] Multi-user support (local network)
 - [ ] Advanced security features
-
-### Phase 3 - Enterprise Features 📋
-- [ ] Team collaboration features (offline-first)
-- [ ] Advanced audit and compliance
-- [ ] Local network integration APIs
 - [ ] Enterprise deployment options
+- [ ] Professional workflow integration
 
 ## 📜 License
 
-This project is licensed under a proprietary license; see the [LICENSE](LICENSE) file for details.
+This project is licensed under a proprietary license. See the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-BEAR AI builds upon the work of the open-source AI community:
+BEAR AI builds upon excellent open-source technologies:
 
-- [llama.cpp](https://github.com/ggerganov/llama.cpp) for efficient inference
-- [Hugging Face](https://huggingface.co/) for model ecosystem
-- [Presidio](https://github.com/microsoft/presidio) for PII detection
-- [LanceDB](https://github.com/lancedb/lancedb) for offline vector storage and retrieval
+- [**Tauri**](https://tauri.app/) - Secure, fast desktop app framework
+- [**React**](https://react.dev/) - Modern UI library
+- [**TypeScript**](https://www.typescriptlang.org/) - Type-safe JavaScript
+- [**Rust**](https://www.rust-lang.org/) - Systems programming language
 
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](https://github.com/KingOfTheAce2/BEAR_AI/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/KingOfTheAce2/BEAR_AI/discussions)
-- **Documentation**: [docs/](docs/)
+- **Actions**: [Build Status](https://github.com/KingOfTheAce2/BEAR_AI/actions)
 
 ---
 
-**BEAR AI** - Privacy-First AI for Professionals 🐻✨
+**BEAR AI Legal Assistant** - Professional Desktop Application for Legal Professionals 🐻⚖️💻

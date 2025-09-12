@@ -1,99 +1,244 @@
 # BEAR AI Legal Assistant - Installation Guide
 
-## Quick Start (Recommended)
+## 🚨 CRITICAL: Application Type
 
-### One-Command Installation
-```bash
-# For all platforms:
-npm run setup
+**BEAR AI is a DESKTOP APPLICATION** built with:
+- **Frontend**: React 18.2 + TypeScript 4.9 + TailwindCSS
+- **Backend**: Rust/Tauri 1.8 (Desktop Framework)
+- **Platform**: Cross-platform desktop app (Windows, macOS, Linux)
 
-# Or directly:
-node scripts/install-bear-ai.js
-```
+## 🎯 Quick Start (Recommended for End Users)
 
-## Manual Installation
+### Option 1: Windows Installer (Easiest)
+
+1. **Visit**: [GitHub Releases](https://github.com/KingOfTheAce2/BEAR_AI/releases)
+2. **Download**: Latest `.exe` installer for Windows
+3. **Install**: Double-click to install with desktop shortcut
+4. **Launch**: Click desktop shortcut or find in Start Menu
+
+**What you get:**
+- Professional desktop application
+- System tray integration
+- Automatic updates
+- Desktop shortcut and Start Menu entry
+
+---
+
+## 🛠️ Development Installation
 
 ### Prerequisites
-- Node.js 16.0.0 or higher
-- npm 8.0.0 or higher  
-- Python 3.8+ (optional, for AI features)
-- Git (for cloning repository)
 
-### Step-by-Step Installation
+- **Node.js**: 18.0.0 or higher
+- **npm**: 8.0.0 or higher  
+- **Rust**: 1.70.0+ (for building Tauri app)
+- **Visual Studio Build Tools** (Windows only)
+- **Git**: For cloning repository
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/KingOfTheAce2/BEAR_AI.git
-   cd BEAR_AI
-   ```
+### Step-by-Step Development Setup
 
-2. **Install Node.js dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Fix Python dependencies (if needed)**
-   ```bash
-   node scripts/fix-python-deps.js
-   ```
-
-4. **Start the application**
-   ```bash
-   npm start
-   ```
-
-## Platform-Specific Notes
-
-### Windows
-- Use `scripts/start-bear-ai.js` for proper launcher
-- Desktop shortcut will be created automatically
-- If Python dependencies fail, fallback requirements will be created
-
-### macOS
-- May require Xcode command line tools for some dependencies
-- Application bundle will be created in Applications folder
-
-### Linux
-- Desktop entry will be created automatically
-- May require additional system packages for PyQt6
-
-## Troubleshooting
-
-### Common Issues
-
-1. **llama-cpp-python build failure**
-   - Run: `node scripts/fix-python-deps.js`
-   - Use fallback requirements if build fails
-
-2. **Desktop shortcut not working**
-   - Use: `node scripts/start-bear-ai.js`
-   - Or run: `npm start` from project directory
-
-3. **Permission errors**
-   - On Windows: Run as Administrator
-   - On Unix: Check file permissions with `chmod +x`
-
-### Getting Help
-- Check the [Issues](https://github.com/KingOfTheAce2/BEAR_AI/issues) page
-- Review the installation report generated after setup
-
-## Development
-
-### Development Installation
 ```bash
-node scripts/install-bear-ai.js --dev --verbose
+# 1. Clone the repository
+git clone https://github.com/KingOfTheAce2/BEAR_AI.git
+cd BEAR_AI
+
+# 2. Install Node.js dependencies
+npm install
+
+# 3. Install Rust (if not installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+
+# 4. Install Tauri CLI
+npm install -g @tauri-apps/cli
+
+# 5. Start development
+npm start        # React dev server (localhost:3000)
+tauri dev        # Desktop app (development mode)
 ```
 
-### Available Commands
-- `npm start` - Start the application
-- `npm run dev` - Development mode with hot reload
-- `npm run build` - Build for production
-- `npm test` - Run tests
-- `npm run typecheck` - TypeScript type checking
+### Development Commands
 
-## Features
-- ✅ Web interface (React + TypeScript)
-- ✅ API server (Express.js)
-- ✅ Desktop integration (cross-platform)
-- ✅ AI-powered legal document analysis
-- ✅ Automated testing and validation
+```bash
+# Frontend Development
+npm start                 # Start React dev server
+npm run build            # Build React for production  
+npm run test             # Run Jest tests
+npm run typecheck        # TypeScript type checking
+npm run lint             # ESLint code quality
+
+# Desktop App Development
+tauri dev                # Launch desktop app (development)
+tauri build              # Build desktop app + installer
+tauri info               # Show Tauri environment info
+
+# Full Stack Development
+npm run dev:full         # Start both React + API servers
+```
+
+---
+
+## 📦 Build from Source
+
+### For Advanced Users
+
+```bash
+# Install dependencies
+npm install
+
+# Build React application
+npm run build
+
+# Build Tauri desktop app + Windows installer
+tauri build
+```
+
+**Output:**
+- Desktop application executable
+- Windows installer (`.exe`)
+- Application bundles for distribution
+
+---
+
+## 🔧 MCP/Claude Code Integration
+
+### Development Server Integration
+
+BEAR AI supports integration with Claude Code and MCP (Model Context Protocol):
+
+- **Development Server**: `npm start` runs on `http://localhost:3000`
+- **MCP Connection**: Claude Code connects to localhost:3000 for development collaboration
+- **Desktop App**: Production app runs natively (no localhost needed)
+- **Hybrid Architecture**: Web-based development with native deployment
+
+### Usage for Claude Code/MCP
+
+```bash
+# 1. Start development server (for MCP integration)
+npm start
+
+# 2. In another terminal, start desktop app (for testing)
+tauri dev
+
+# 3. Claude Code can now connect to localhost:3000 for development
+```
+
+---
+
+## 📋 System Requirements
+
+### Minimum Requirements
+- **OS**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
+- **RAM**: 4GB (8GB recommended)
+- **Storage**: 2GB free space
+- **Display**: 1024x768 minimum resolution
+
+### Recommended Requirements
+- **OS**: Windows 11, macOS 12+, Linux (Ubuntu 20.04+)
+- **RAM**: 8GB or higher
+- **Storage**: 4GB free space
+- **Display**: 1920x1080 or higher
+
+### For Development
+- **Node.js**: 18.0.0+
+- **Rust**: 1.70.0+
+- **Visual Studio Build Tools** (Windows)
+- **Xcode Command Line Tools** (macOS)
+- **build-essential** (Linux)
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Installation Issues
+
+#### Windows Issues
+| Issue | Solution |
+|-------|----------|
+| Installer won't run | Right-click → "Run as administrator" |
+| Antivirus blocks installer | Add BEAR_AI.exe to antivirus exceptions |
+| Missing Visual C++ libraries | Install Visual Studio Build Tools |
+| Permission errors | Ensure user has write access to Program Files |
+
+#### Development Issues
+| Issue | Solution |
+|-------|----------|
+| `npm install` fails | Clear npm cache: `npm cache clean --force` |
+| Rust not found | Install Rust: https://rustup.rs/ |
+| Tauri build fails | Run `npm run typecheck` to fix TypeScript errors |
+| Port 3000 in use | Kill process or use different port |
+
+#### Runtime Issues
+| Issue | Solution |
+|-------|----------|
+| App won't start | Check Windows Event Viewer for errors |
+| Features not working | Restart app or check system tray |
+| Performance issues | Close other applications, check RAM usage |
+| Updates failing | Check internet connection, restart app |
+
+### Getting Help
+
+1. **Check Documentation**: Review README.md and architecture docs
+2. **Search Issues**: [GitHub Issues](https://github.com/KingOfTheAce2/BEAR_AI/issues)
+3. **Provide Details**: Include system specs, error messages, reproduction steps
+4. **Community**: [GitHub Discussions](https://github.com/KingOfTheAce2/BEAR_AI/discussions)
+
+---
+
+## 🔐 Security Notes
+
+### Installation Security
+- **Signed Installer**: Windows executable is digitally signed
+- **Verified Sources**: Only download from official GitHub Releases
+- **Antivirus**: Some antivirus may flag new executables (false positive)
+- **Permissions**: App requests minimal system permissions
+
+### Runtime Security
+- **Sandboxed Operations**: Tauri security model limits system access
+- **Local Processing**: No data transmitted to external servers
+- **Encrypted Storage**: Local database uses encryption
+- **Auto-Updates**: Cryptographically signed and verified
+
+---
+
+## 🚀 What's Installed
+
+### End User Installation
+- **Desktop Application**: Native BEAR AI desktop app
+- **Desktop Shortcut**: Quick access from desktop
+- **Start Menu Entry**: Launch from Windows Start Menu
+- **System Tray**: Background operation capability
+- **Auto-Updater**: Built-in update system
+
+### Development Installation
+- **Source Code**: Complete React + Tauri source code
+- **Dependencies**: Node.js and Rust dependencies
+- **Build Tools**: Complete toolchain for development
+- **Hot Reload**: Development server with live reload
+- **Testing Suite**: Jest and Playwright test frameworks
+
+---
+
+## 📱 Platform Support
+
+### Windows
+- ✅ **Windows 10**: Full support
+- ✅ **Windows 11**: Optimal experience
+- ✅ **Server 2019/2022**: Basic support
+- ❌ **Windows 7/8**: Not supported
+
+### macOS  
+- ✅ **macOS 10.15+**: Full support
+- ✅ **Intel & Apple Silicon**: Native support
+- ✅ **ARM64 & x64**: Universal binaries
+
+### Linux
+- ✅ **Ubuntu 18.04+**: Full support  
+- ✅ **Debian 10+**: Full support
+- ✅ **CentOS 8+**: Basic support
+- ✅ **Arch Linux**: Community support
+
+---
+
+**Ready to get started?** Choose your installation method above and experience professional legal AI assistance today!
+
+*For technical support, bug reports, or feature requests, visit our [GitHub repository](https://github.com/KingOfTheAce2/BEAR_AI).*
