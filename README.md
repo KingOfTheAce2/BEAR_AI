@@ -69,23 +69,20 @@ src/bear_ai/
 
 ## 📦 Installation
 
-### 🚀 One-Command Install (Apple-Style Simple)
+### 🚀 One-Command Install (Simple & Fast)
 
 **The easiest way to install BEAR AI:**
 
 ```bash
-# Option 1: Direct download and install
-curl -sL https://raw.githubusercontent.com/KingOfTheAce2/BEAR_AI/main/install.js | node
+# Clone the repository
+git clone https://github.com/KingOfTheAce2/BEAR_AI.git
+cd BEAR_AI
 
-# Option 2: From existing project
-node install.js
-
-# Option 3: Using npm
-npm run quick-install
+# Run the unified installer
+npm run setup
 ```
 
 **✨ What it does automatically:**
-- ✅ Downloads latest BEAR AI from GitHub
 - ✅ Installs all dependencies intelligently  
 - ✅ Sets up cross-platform environment
 - ✅ Creates shortcuts and launchers
@@ -96,35 +93,17 @@ npm run quick-install
 
 ### 🎛️ Alternative Installation Methods
 
-**For developers and advanced users:**
+**For different use cases:**
 
 ```bash
-# Git clone method
-git clone https://github.com/KingOfTheAce2/BEAR_AI.git
-cd BEAR_AI
-npm run setup
+# Standard installation
+npm run install:bear-ai
 
-# Platform-specific installers
-npm run install:windows    # PowerShell installer
-npm run install:unix       # Bash installer for macOS/Linux
-
-# Development installation
-npm run install:bear-ai:dev # Includes dev tools
-```
-
-### 🎯 Customized Installation Options
-
-```bash
 # Verbose output (see what's happening)
-node install.js --verbose
+npm run install:bear-ai:verbose
 
-# Skip git clone (use ZIP download)
-node install.js --no-git
-
-# Quick npm commands
-npm run install:bear-ai              # Standard install
-npm run install:bear-ai:verbose      # With detailed output
-npm run install:bear-ai:dev         # Full development setup
+# Development installation (includes dev tools)
+npm run install:bear-ai:dev
 ```
 
 ## 🚀 Quick Start
@@ -195,7 +174,7 @@ npm run build
 
 1. **Re-run the installer:**
    ```bash
-   node install.js --verbose
+   npm run install:bear-ai:verbose
    ```
 
 2. **Check Node.js version:**
@@ -208,15 +187,6 @@ npm run build
    ```bash
    rm -rf node_modules package-lock.json
    npm install
-   ```
-
-4. **Platform-specific help:**
-   ```bash
-   # Windows
-   npm run install:windows
-   
-   # macOS/Linux  
-   npm run install:unix
    ```
 
 **Need more help?** Check the installation report: `installation-report.txt`
@@ -292,20 +262,19 @@ performance:
 
 ## 📚 Documentation
 
-### 📋 New Professional Documentation (v2.0)
+### 📋 Professional Documentation (v2.0)
 - [**🎨 UI Improvements Guide**](docs/UI_IMPROVEMENTS.md) - Complete overview of all interface enhancements
-- [**🛠️ Installation Improvements**](docs/INSTALLATION_IMPROVEMENTS.md) - Enhanced installation process and features  
 - [**🎯 Interface Selection Guide**](docs/INTERFACE_SELECTION_GUIDE.md) - Choose the best interface for your needs
 - [**🤖 Model Management Guide**](docs/MODEL_MANAGEMENT_GUIDE.md) - AI model selection and hardware optimization
-- [**🆘 Enhanced Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for new interface and installation issues
+- [**🆘 Enhanced Troubleshooting**](docs/TROUBLESHOOTING.md) - Solutions for interface and system issues
 - [**📝 Changelog**](CHANGELOG.md) - Complete record of v2.0 improvements
 
-### 📚 Existing Documentation  
-- [Installation Guide](docs/INSTALLATION.md)
-- [User Manual](docs/USER_GUIDE.md)
-- [PII Setup Guide](docs/PII_SETUP_GUIDE.md)
-- [Hardware Guide](docs/HARDWARE_GUIDE.md)
-- [API Documentation](docs/API.md)
+### 📚 Core Documentation  
+- [Installation Guide](docs/INSTALLATION.md) - Complete setup instructions
+- [User Manual](docs/USER_GUIDE.md) - How to use BEAR AI
+- [PII Setup Guide](docs/PII_SETUP_GUIDE.md) - Privacy and security settings
+- [Hardware Guide](docs/HARDWARE_GUIDE.md) - Hardware optimization
+- [API Documentation](docs/API.md) - Developer reference
 
 ## 🤝 Contributing
 

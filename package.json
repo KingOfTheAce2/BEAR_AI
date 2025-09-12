@@ -94,9 +94,6 @@
     "install:bear-ai": "node scripts/install-bear-ai.js",
     "install:bear-ai:verbose": "node scripts/install-bear-ai.js --verbose",
     "install:bear-ai:dev": "node scripts/install-bear-ai.js --verbose --dev",
-    "install:windows": "powershell -ExecutionPolicy Bypass -File scripts/install-bear-ai.ps1",
-    "install:unix": "bash scripts/install-bear-ai.sh",
-    "quick-install": "node scripts/install-bear-ai.js",
     "setup": "node scripts/install-bear-ai.js",
     "postinstall": "node -e \"console.log('\\n🐻 BEAR AI installed! Run: npm start\\n')\""
   },
