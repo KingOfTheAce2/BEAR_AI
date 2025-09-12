@@ -8,6 +8,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.10",
+    "@tauri-apps/api": "^1.6.0",
     "clsx": "^2.0.0",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
@@ -60,8 +61,8 @@
     "cross-env": "^7.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npx react-scripts start",
+    "build": "npx react-scripts build",
     "build:unified": "npm run typecheck && react-scripts build",
     "test": "ts-node tests/scripts/test-runner.ts",
     "test:unit": "jest --config tests/jest.config.js --testPathPattern=tests/unit",
@@ -98,7 +99,11 @@
     "postinstall": "node -e \"console.log('\\n🐻 BEAR AI installed! Run: npm start\\n')\"",
     "fix-python": "node scripts/fix-python-deps.js",
     "cleanup-install": "node scripts/cleanup-installers.js",
-    "windows-launcher": "node scripts/start-bear-ai.js"
+    "windows-launcher": "node scripts/start-bear-ai.js",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:debug": "tauri build --debug"
   },
   "eslintConfig": {
     "extends": [

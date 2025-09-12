@@ -1,5 +1,7 @@
 // Local API client that replaces all HTTP calls with Tauri invokes
-import { invoke } from '@tauri-apps/api/tauri';
+// Uses conditional imports for hybrid web/desktop compatibility
+import { getTauriInvoke } from '../utils/conditionalImports';
+import { isTauriEnvironment, environmentLog } from '../utils/environmentDetection';
 
 // Types for local API
 export interface LocalAuthCredentials {
@@ -66,20 +68,44 @@ export interface LocalApiClientOptions {
 
 /**
  * Local API client that uses Tauri commands exclusively - no external HTTP calls
+ * Now with hybrid web/desktop compatibility
  */
 export class LocalApiClient {
   private sessionId: string | null = null;
   private options: LocalApiClientOptions;
+  private invokeFunction: ((command: string, payload?: any) => Promise<any>) | null = null;
 
   constructor(options: LocalApiClientOptions = {}) {
     this.options = options;
     this.sessionId = options.sessionId || null;
+    this.initializeInvokeFunction();
+  }
+
+  private async initializeInvokeFunction(): Promise<void> {
+    try {
+      this.invokeFunction = await getTauriInvoke();
+      environmentLog.info('LocalApiClient initialized with Tauri invoke');
+    } catch (error) {
+      environmentLog.error('Failed to initialize Tauri invoke:', error);
+      this.invokeFunction = null;
+    }
+  }
+
+  private async ensureInvokeReady(): Promise<void> {
+    if (!this.invokeFunction) {
+      await this.initializeInvokeFunction();
+    }
+    if (!this.invokeFunction) {
+      throw new Error('Tauri invoke not available');
+    }
   }
 
   // Authentication methods
   async login(credentials: LocalAuthCredentials): Promise<LocalAuthResponse> {
+    await this.ensureInvokeReady();
+    
     try {
-      const response = await invoke<LocalAuthResponse>('local_auth_login', {
+      const response = await this.invokeFunction!('local_auth_login', {
         credentials
       });
 
@@ -105,8 +131,10 @@ export class LocalApiClient {
       return false;
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      const result = await invoke<boolean>('local_auth_logout', {
+      const result = await this.invokeFunction!('local_auth_logout', {
         sessionId: this.sessionId
       });
 
@@ -126,8 +154,10 @@ export class LocalApiClient {
       return false;
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      const isValid = await invoke<boolean>('local_auth_validate', {
+      const isValid = await this.invokeFunction!('local_auth_validate', {
         sessionId: this.sessionId
       });
 
@@ -153,8 +183,10 @@ export class LocalApiClient {
       };
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      const response = await invoke<LocalAuthResponse>('local_auth_refresh', {
+      const response = await this.invokeFunction!('local_auth_refresh', {
         sessionId: this.sessionId
       });
 
@@ -181,8 +213,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalChatSession[]>('local_chat_sessions', {
+      return await this.invokeFunction!('local_chat_sessions', {
         sessionId: this.sessionId
       });
     } catch (error) {
@@ -196,8 +230,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalChatSession>('local_chat_create', {
+      return await this.invokeFunction!('local_chat_create', {
         sessionId: this.sessionId,
         title,
         category
@@ -213,8 +249,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalChatMessage>('local_chat_send_message', {
+      return await this.invokeFunction!('local_chat_send_message', {
         sessionId: this.sessionId,
         chatSessionId,
         content,
@@ -235,8 +273,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalChatMessage[]>('local_chat_get_messages', {
+      return await this.invokeFunction!('local_chat_get_messages', {
         sessionId: this.sessionId,
         chatSessionId,
         limit,
@@ -253,8 +293,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<boolean>('local_chat_delete_session', {
+      return await this.invokeFunction!('local_chat_delete_session', {
         sessionId: this.sessionId,
         chatSessionId
       });
@@ -274,8 +316,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalDocument[]>('local_documents_list', {
+      return await this.invokeFunction!('local_documents_list', {
         sessionId: this.sessionId,
         category,
         limit,
@@ -298,8 +342,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalDocument>('local_document_upload', {
+      return await this.invokeFunction!('local_document_upload', {
         sessionId: this.sessionId,
         name,
         category,
@@ -318,8 +364,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalDocument | null>('local_document_get', {
+      return await this.invokeFunction!('local_document_get', {
         sessionId: this.sessionId,
         documentId
       });
@@ -334,8 +382,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<boolean>('local_document_delete', {
+      return await this.invokeFunction!('local_document_delete', {
         sessionId: this.sessionId,
         documentId
       });
@@ -357,8 +407,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<LocalDocument | null>('local_document_update', {
+      return await this.invokeFunction!('local_document_update', {
         sessionId: this.sessionId,
         documentId,
         name: updates.name,
@@ -377,8 +429,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<Record<string, any>>('local_research_search', {
+      return await this.invokeFunction!('local_research_search', {
         sessionId: this.sessionId,
         query
       });
@@ -394,8 +448,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<Record<string, any>>('local_analysis_analyze', {
+      return await this.invokeFunction!('local_analysis_analyze', {
         sessionId: this.sessionId,
         request
       });
@@ -407,8 +463,10 @@ export class LocalApiClient {
 
   // System methods
   async getSystemHealth(): Promise<Record<string, any>> {
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<Record<string, any>>('local_system_health');
+      return await this.invokeFunction!('local_system_health');
     } catch (error) {
       this.handleError(error instanceof Error ? error.message : 'Failed to get system health');
       throw error;
@@ -420,8 +478,10 @@ export class LocalApiClient {
       throw new Error('Not authenticated');
     }
 
+    await this.ensureInvokeReady();
+    
     try {
-      return await invoke<Record<string, any>>('local_system_stats', {
+      return await this.invokeFunction!('local_system_stats', {
         sessionId: this.sessionId
       });
     } catch (error) {

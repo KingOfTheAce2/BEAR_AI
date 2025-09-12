@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "identifier": "com.bearai.legalassistant",
   "build": {
-    "beforeBuildCommand": "",
+    "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm start",
-    "frontendDist": "../dist",
+    "frontendDist": "../build",
     "devUrl": "http://localhost:3000"
   },
   "app": {
