@@ -1,6 +1,6 @@
 // Comprehensive error handling middleware
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../types/api';
+import { ApiError } from '@/api/types/api';
 
 /**
  * HTTP status codes mapping

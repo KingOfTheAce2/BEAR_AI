@@ -1,6 +1,6 @@
 // Request validation middleware
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../types/api';
+import { ApiError } from '@/api/types/api';
 
 interface ValidationRule {
   field: string;

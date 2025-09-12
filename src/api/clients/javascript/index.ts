@@ -14,7 +14,7 @@ import {
   RequestConfig,
   StreamOptions,
   StreamMessage
-} from '../types/api';
+} from '@/api/types/api';
 
 export class BearAiApiClient {
   private baseUrl: string;
@@ -465,7 +465,7 @@ export class BearAiApiClient {
 }
 
 // Export additional utilities
-export { ApiResponse, ApiError, AuthTokens } from '../types/api';
+export { ApiResponse, ApiError, AuthTokens } from '@/api/types/api';
 
 // Default client instance
 export const bearAiApi = new BearAiApiClient();
