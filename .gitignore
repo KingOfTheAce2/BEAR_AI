@@ -95,5 +95,5 @@ yarn-error.log*
 .yarn-integrity
 
 # Package lock files
-package-lock.json
+# package-lock.json # Uncommented for GitHub Actions cache
 yarn.lock
