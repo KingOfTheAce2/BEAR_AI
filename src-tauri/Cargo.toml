@@ -8,42 +8,32 @@ repository = "https://github.com/KingOfTheAce2/BEAR_AI"
 edition = "2021"
 rust-version = "1.70"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5", features = ["api-all", "system-tray", "updater"] }
+tauri = { version = "1.8.3", features = ["system-tray", "api-all", "updater"] }
 tokio = { version = "1.0", features = ["full"] }
-# REMOVED: reqwest = { version = "0.11", features = ["json"] } # External HTTP dependency removed for localhost-only operation
 anyhow = "1.0"
 log = "0.4"
 env_logger = "0.10"
 dirs = "5.0"
 chrono = { version = "0.4", features = ["serde"] }
-# Local database and storage
 sqlite = "0.32"
-# Security and hashing for local auth
 sha2 = "0.10"
 bcrypt = "0.15"
-# Local file system operations
 walkdir = "2.4"
 mime_guess = "2.0"
 
 [features]
-# by default Tauri runs in production mode
-# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is a URL
 default = ["custom-protocol"]
-# this feature is used used for production builds where `devPath` points to the filesystem
-# DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 
 [profile.release]
-panic = "abort"   # Strip expensive panic clean-up logic
-codegen-units = 1 # Compile crates one after another for better optimization
-lto = true        # Enables link to optimizations
-opt-level = "s"   # Optimize for binary size
-strip = true      # Remove debug symbols
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

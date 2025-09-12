@@ -95,7 +95,10 @@
     "install:bear-ai:verbose": "node scripts/install-bear-ai.js --verbose",
     "install:bear-ai:dev": "node scripts/install-bear-ai.js --verbose --dev",
     "setup": "node scripts/install-bear-ai.js",
-    "postinstall": "node -e \"console.log('\\n🐻 BEAR AI installed! Run: npm start\\n')\""
+    "postinstall": "node -e \"console.log('\\n🐻 BEAR AI installed! Run: npm start\\n')\"",
+    "fix-python": "node scripts/fix-python-deps.js",
+    "cleanup-install": "node scripts/cleanup-installers.js",
+    "windows-launcher": "node scripts/start-bear-ai.js"
   },
   "eslintConfig": {
     "extends": [

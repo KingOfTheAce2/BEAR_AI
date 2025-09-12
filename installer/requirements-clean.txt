@@ -1,0 +1,40 @@
+# BEAR AI Legal Assistant - Clean Production Dependencies
+# NO BUILD DEPENDENCIES - WHEELS ONLY
+
+# Core dependencies (guaranteed wheels)
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+tqdm>=4.66.0
+requests>=2.31.0
+click>=8.0.0
+rich>=13.0.0
+
+# File processing (wheel-only)
+pypdf>=3.0.0
+python-docx>=1.0.0
+Pillow>=10.0.0
+
+# Web framework (production-ready)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# GUI (wheel-only)
+customtkinter>=5.2.0
+tkinter-tooltip>=2.0.0
+
+# Hardware monitoring (wheel-only)
+psutil>=5.9.0
+
+# Testing (wheel-only)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Audio processing (lightweight, wheel-only)
+mutagen>=1.47.0
+
+# No build dependencies included:
+# - NO llama-cpp-python (requires C++ compilation)
+# - NO torch (too large, use CPU inference)
+# - NO opencv-python (optional for basic use)  
+# - NO spacy models (download separately if needed)
+# - NO transformers (optional advanced features)

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * BEAR AI Legal Assistant - Unified Installation Script
  * Apple-style simple, one-command installation for all platforms
@@ -477,9 +475,10 @@ Installation Status: ${this.errors.length === 0 ? 'SUCCESS' : 'COMPLETED WITH IS
         const vbsScript = `
 Set WshShell = CreateObject("WScript.Shell")
 Set Shortcut = WshShell.CreateShortcut("${path.join(targetDir, 'BEAR AI Legal Assistant.lnk')}")
-Shortcut.TargetPath = "cmd.exe"
-Shortcut.Arguments = "/c cd /d ""${this.projectRoot}"" && npm start"
+Shortcut.TargetPath = "node.exe"
+Shortcut.Arguments = """${path.join(this.projectRoot, 'scripts', 'start-bear-ai.js')}"""
 Shortcut.WorkingDirectory = "${this.projectRoot}"
+Shortcut.WindowStyle = 1
 Shortcut.Description = "BEAR AI Legal Assistant"
 Shortcut.Save
         `.trim();
@@ -548,8 +547,12 @@ Categories=Office;Legal;
             `@echo off
 cd /d "%~dp0"
 echo Starting BEAR AI Legal Assistant...
-npm start
-pause` :
+start "BEAR AI" cmd /k "npm start"
+echo.
+echo BEAR AI is starting in a new window...
+echo You can close this window.
+timeout /t 3 >nul
+exit` :
             `#!/bin/bash
 cd "$(dirname "$0")"
 echo "Starting BEAR AI Legal Assistant..."
