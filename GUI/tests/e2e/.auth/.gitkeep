@@ -1,2 +1,0 @@
-# This directory stores authentication states for Playwright tests
-# The actual auth files are generated during test runs
