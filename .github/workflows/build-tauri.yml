@@ -44,9 +44,9 @@ jobs:
         cache-dependency-path: 'package-lock.json'
 
     - name: Install frontend dependencies
-      run: npm install
+      run: npm ci
 
-    - name: Build frontend
+    - name: Build frontend for production
       run: npm run build
 
     - name: Build Tauri app
