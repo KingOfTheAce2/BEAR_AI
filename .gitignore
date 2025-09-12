@@ -85,3 +85,15 @@ tokenizer*.json
 config.json
 pytorch_model.bin
 tf_model.h5
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Package lock files
+package-lock.json
+yarn.lock
