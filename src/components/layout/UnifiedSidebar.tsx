@@ -2,4 +2,187 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import {\n  ChatBubbleLeftIcon,\n  DocumentIcon,\n  MagnifyingGlassIcon,\n  ClockIcon,\n  BookOpenIcon,\n  CogIcon,\n  ScaleIcon,\n  FolderIcon,\n  UserGroupIcon,\n  CalendarIcon,\n  ChartBarIcon,\n  QuestionMarkCircleIcon,\n  Bars3Icon,\n  XMarkIcon\n} from '@heroicons/react/24/outline';\nimport { cn } from '../../utils/cn';\n\ninterface UnifiedSidebarProps {\n  collapsed: boolean;\n  activeView: string;\n  onViewChange: (view: string) => void;\n}\n\ninterface NavItem {\n  id: string;\n  label: string;\n  icon: React.ComponentType<{ className?: string }>;\n  path: string;\n  badge?: string | number;\n  section?: 'main' | 'secondary' | 'settings';\n}\n\nconst navItems: NavItem[] = [\n  // Main features (always visible)\n  { id: 'chat', label: 'AI Chat', icon: ChatBubbleLeftIcon, path: '/chat', section: 'main' },\n  { id: 'documents', label: 'Documents', icon: DocumentIcon, path: '/documents', section: 'main' },\n  { id: 'research', label: 'Research', icon: BookOpenIcon, path: '/research', section: 'main' },\n  { id: 'search', label: 'Search', icon: MagnifyingGlassIcon, path: '/search', section: 'main' },\n  { id: 'history', label: 'History', icon: ClockIcon, path: '/history', section: 'main' },\n  \n  // Secondary features\n  { id: 'cases', label: 'Cases', icon: FolderIcon, path: '/cases', section: 'secondary' },\n  { id: 'clients', label: 'Clients', icon: UserGroupIcon, path: '/clients', section: 'secondary' },\n  { id: 'calendar', label: 'Calendar', icon: CalendarIcon, path: '/calendar', section: 'secondary' },\n  { id: 'reports', label: 'Reports', icon: ChartBarIcon, path: '/reports', section: 'secondary' },\n  \n  // Settings\n  { id: 'settings', label: 'Settings', icon: CogIcon, path: '/settings', section: 'settings' },\n  { id: 'help', label: 'Help', icon: QuestionMarkCircleIcon, path: '/help', section: 'settings' }\n];\n\nexport const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({\n  collapsed,\n  activeView,\n  onViewChange\n}) => {\n  const navigate = useNavigate();\n  const location = useLocation();\n  const { state } = useApp();\n  const { config } = useTheme();\n\n  const handleNavClick = (item: NavItem) => {\n    onViewChange(item.id);\n    navigate(item.path);\n  };\n\n  const isActive = (item: NavItem) => {\n    return location.pathname === item.path || \n           (location.pathname === '/' && item.path === '/chat');\n  };\n\n  const renderNavSection = (items: NavItem[], title?: string) => {\n    if (items.length === 0) return null;\n\n    return (\n      <div className=\"space-y-1\">\n        {title && !collapsed && (\n          <h3 className=\"px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted\">\n            {title}\n          </h3>\n        )}\n        {items.map((item) => {\n          const Icon = item.icon;\n          const active = isActive(item);\n          \n          return (\n            <button\n              key={item.id}\n              onClick={() => handleNavClick(item)}\n              className={cn(\n                'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group',\n                active\n                  ? 'bg-primary text-white shadow-sm'\n                  : 'text-text-secondary hover:bg-surface hover:text-text-primary',\n                collapsed ? 'justify-center px-2' : 'justify-start'\n              )}\n              style={active ? { backgroundColor: `var(--color-primary)` } : {}}\n              title={collapsed ? item.label : undefined}\n            >\n              <Icon \n                className={cn(\n                  'flex-shrink-0 transition-colors',\n                  collapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3',\n                  active ? 'text-white' : 'text-current'\n                )} \n              />\n              {!collapsed && (\n                <>\n                  <span className=\"flex-1 text-left\">{item.label}</span>\n                  {item.badge && (\n                    <span className=\"ml-2 px-2 py-0.5 text-xs font-medium bg-accent text-white rounded-full\">\n                      {item.badge}\n                    </span>\n                  )}\n                </>\n              )}\n            </button>\n          );\n        })}\n      </div>\n    );\n  };\n\n  const mainItems = navItems.filter(item => item.section === 'main');\n  const secondaryItems = navItems.filter(item => item.section === 'secondary');\n  const settingsItems = navItems.filter(item => item.section === 'settings');\n\n  return (\n    <div className=\"flex flex-col h-full\">\n      {/* Logo/Brand */}\n      <div className={cn(\n        'flex items-center border-b border-border',\n        collapsed ? 'justify-center h-16 px-2' : 'h-16 px-4'\n      )}>\n        <div className=\"flex items-center space-x-2\">\n          <div className=\"flex items-center justify-center w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex-shrink-0\">\n            <ScaleIcon className=\"w-5 h-5 text-white\" />\n          </div>\n          {!collapsed && (\n            <div className=\"flex flex-col\">\n              <h1 className=\"text-lg font-bold text-text-primary\">BEAR AI</h1>\n              <p className=\"text-xs text-text-muted\">Legal Assistant</p>\n            </div>\n          )}\n        </div>\n      </div>\n\n      {/* Navigation */}\n      <nav className=\"flex-1 px-3 py-6 space-y-8 overflow-y-auto\">\n        {renderNavSection(mainItems)}\n        {renderNavSection(secondaryItems, collapsed ? undefined : 'Management')}\n      </nav>\n\n      {/* User info and settings */}\n      <div className=\"border-t border-border px-3 py-4 space-y-2\">\n        {renderNavSection(settingsItems)}\n        \n        {!collapsed && state.user && (\n          <div className=\"mt-4 p-3 bg-surface rounded-lg\">\n            <div className=\"flex items-center space-x-3\">\n              <div className=\"w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white text-sm font-semibold\">\n                {state.user.name.charAt(0)}\n              </div>\n              <div className=\"flex-1 min-w-0\">\n                <p className=\"text-sm font-medium text-text-primary truncate\">\n                  {state.user.name}\n                </p>\n                <p className=\"text-xs text-text-muted truncate\">\n                  {state.user.role}\n                </p>\n              </div>\n            </div>\n            {state.user.firm && (\n              <p className=\"mt-2 text-xs text-text-muted truncate\">\n                {state.user.firm}\n              </p>\n            )}\n          </div>\n        )}\n      </div>\n    </div>\n  );\n};
+import {
+  ChatBubbleLeftIcon,
+  DocumentIcon,
+  MagnifyingGlassIcon,
+  ClockIcon,
+  BookOpenIcon,
+  CogIcon,
+  ScaleIcon,
+  FolderIcon,
+  UserGroupIcon,
+  CalendarIcon,
+  ChartBarIcon,
+  QuestionMarkCircleIcon,
+  Bars3Icon,
+  XMarkIcon
+} from '@heroicons/react/24/outline';
+import { cn } from '../../utils/cn';
+
+interface UnifiedSidebarProps {
+  collapsed: boolean;
+  activeView: string;
+  onViewChange: (view: string) => void;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  badge?: string | number;
+  section?: 'main' | 'secondary' | 'settings';
+}
+
+const navItems: NavItem[] = [
+  // Main features (always visible)
+  { id: 'chat', label: 'AI Chat', icon: ChatBubbleLeftIcon, path: '/chat', section: 'main' },
+  { id: 'documents', label: 'Documents', icon: DocumentIcon, path: '/documents', section: 'main' },
+  { id: 'research', label: 'Research', icon: BookOpenIcon, path: '/research', section: 'main' },
+  { id: 'search', label: 'Search', icon: MagnifyingGlassIcon, path: '/search', section: 'main' },
+  { id: 'history', label: 'History', icon: ClockIcon, path: '/history', section: 'main' },
+  
+  // Secondary features
+  { id: 'cases', label: 'Cases', icon: FolderIcon, path: '/cases', section: 'secondary' },
+  { id: 'clients', label: 'Clients', icon: UserGroupIcon, path: '/clients', section: 'secondary' },
+  { id: 'calendar', label: 'Calendar', icon: CalendarIcon, path: '/calendar', section: 'secondary' },
+  { id: 'reports', label: 'Reports', icon: ChartBarIcon, path: '/reports', section: 'secondary' },
+  
+  // Settings
+  { id: 'settings', label: 'Settings', icon: CogIcon, path: '/settings', section: 'settings' },
+  { id: 'help', label: 'Help', icon: QuestionMarkCircleIcon, path: '/help', section: 'settings' }
+];
+
+export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
+  collapsed,
+  activeView,
+  onViewChange
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = useApp();
+  const { config } = useTheme();
+
+  const handleNavClick = (item: NavItem) => {
+    onViewChange(item.id);
+    navigate(item.path);
+  };
+
+  const isActive = (item: NavItem) => {
+    return location.pathname === item.path || 
+           (location.pathname === '/' && item.path === '/chat');
+  };
+
+  const renderNavSection = (items: NavItem[], title?: string) => {
+    if (items.length === 0) return null;
+
+    return (
+      <div className="space-y-1">
+        {title && !collapsed && (
+          <h3 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+            {title}
+          </h3>
+        )}
+        {items.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item);
+          
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item)}
+              className={cn(
+                'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group',
+                active
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-text-secondary hover:bg-surface hover:text-text-primary',
+                collapsed ? 'justify-center px-2' : 'justify-start'
+              )}
+              style={active ? { backgroundColor: `var(--color-primary)` } : {}}
+              title={collapsed ? item.label : undefined}
+            >
+              <Icon 
+                className={cn(
+                  'flex-shrink-0 transition-colors',
+                  collapsed ? 'w-6 h-6' : 'w-5 h-5 mr-3',
+                  active ? 'text-white' : 'text-current'
+                )} 
+              />
+              {!collapsed && (
+                <>
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.badge && (
+                    <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-accent text-white rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const mainItems = navItems.filter(item => item.section === 'main');
+  const secondaryItems = navItems.filter(item => item.section === 'secondary');
+  const settingsItems = navItems.filter(item => item.section === 'settings');
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Logo/Brand */}
+      <div className={cn(
+        'flex items-center border-b border-border',
+        collapsed ? 'justify-center h-16 px-2' : 'h-16 px-4'
+      )}>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex-shrink-0">
+            <ScaleIcon className="w-5 h-5 text-white" />
+          </div>
+          {!collapsed && (
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold text-text-primary">BEAR AI</h1>
+              <p className="text-xs text-text-muted">Legal Assistant</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-6 space-y-8 overflow-y-auto">
+        {renderNavSection(mainItems)}
+        {renderNavSection(secondaryItems, collapsed ? undefined : 'Management')}
+      </nav>
+
+      {/* User info and settings */}
+      <div className="border-t border-border px-3 py-4 space-y-2">
+        {renderNavSection(settingsItems)}
+        
+        {!collapsed && state.user && (
+          <div className="mt-4 p-3 bg-surface rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                {state.user.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-text-primary truncate">
+                  {state.user.name}
+                </p>
+                <p className="text-xs text-text-muted truncate">
+                  {state.user.role}
+                </p>
+              </div>
+            </div>
+            {state.user.firm && (
+              <p className="mt-2 text-xs text-text-muted truncate">
+                {state.user.firm}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

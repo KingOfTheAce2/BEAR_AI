@@ -1,1 +1,52 @@
-import React from 'react';\nimport { cn } from '../../utils/cn';\n\ninterface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {\n  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';\n  size?: 'sm' | 'md' | 'lg';\n  fullWidth?: boolean;\n  loading?: boolean;\n  children: React.ReactNode;\n}\n\nconst sizeClasses = {\n  sm: 'px-3 py-1.5 text-xs',\n  md: 'px-4 py-2 text-sm',\n  lg: 'px-6 py-3 text-base'\n};\n\nexport const Button: React.FC<ButtonProps> = ({\n  variant = 'primary',\n  size = 'md',\n  fullWidth = false,\n  loading = false,\n  className,\n  disabled,\n  children,\n  ...props\n}) => {\n  const baseClasses = 'btn-base';\n  const variantClasses = `btn-${variant}`;\n  const sizeClasses_ = sizeClasses[size];\n  const widthClass = fullWidth ? 'w-full' : '';\n  const isDisabled = disabled || loading;\n\n  return (\n    <button\n      {...props}\n      disabled={isDisabled}\n      className={cn(\n        baseClasses,\n        variantClasses,\n        sizeClasses_,\n        widthClass,\n        className\n      )}\n    >\n      {loading && (\n        <div className=\"mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin\" />\n      )}\n      {children}\n    </button>\n  );\n};
+import React from 'react';
+import { cn } from '../../utils/cn';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
+  loading?: boolean;
+  children: React.ReactNode;
+}
+
+const sizeClasses = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base'
+};
+
+export const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  loading = false,
+  className,
+  disabled,
+  children,
+  ...props
+}) => {
+  const baseClasses = 'btn-base';
+  const variantClasses = `btn-${variant}`;
+  const sizeClasses_ = sizeClasses[size];
+  const widthClass = fullWidth ? 'w-full' : '';
+  const isDisabled = disabled || loading;
+
+  return (
+    <button
+      {...props}
+      disabled={isDisabled}
+      className={cn(
+        baseClasses,
+        variantClasses,
+        sizeClasses_,
+        widthClass,
+        className
+      )}
+    >
+      {loading && (
+        <div className="mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+      )}
+      {children}
+    </button>
+  );
+};
