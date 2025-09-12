@@ -1,42 +1,35 @@
-// JavaScript/TypeScript SDK for BEAR AI API
-import { 
-  ApiResponse, 
-  ApiError, 
-  AuthTokens, 
-  LoginCredentials,
-  CreateChatSessionRequest,
-  SendMessageRequest,
-  UploadDocumentRequest,
-  UpdateDocumentRequest,
-  SearchRequest,
-  AnalysisRequest,
-  ClientOptions,
-  RequestConfig,
-  StreamOptions,
-  StreamMessage
-} from '@/api/types/api';
+import { ApiError, AuthTokens, ApiResponse, RequestConfig, RateLimit } from '../../types/api';
 
-export class BearAiApiClient {
+export interface ApiClientConfig {
+  baseUrl: string;
+  version?: string;
+  timeout?: number;
+  retries?: number;
+}
+
+export interface RateLimitInfo {
+  limit: number;
+  remaining: number;
+  reset: number;
+  retryAfter?: number;
+}
+
+export class ApiClient {
   private baseUrl: string;
   private version: string;
   private timeout: number;
   private retries: number;
   private accessToken?: string;
   private refreshToken?: string;
-  private onRateLimit?: (retryAfter: number) => void;
-  private onError?: (error: ApiError) => void;
+  
+  public onError?: (error: ApiError) => void;
+  public onRateLimit?: (retryAfter: number) => void;
 
-  constructor(options: ClientOptions = {}) {
-    this.baseUrl = options.baseUrl || 'https://api.bear-ai.com';
-    this.version = options.version || 'v1';
-    this.timeout = options.timeout || 30000;
-    this.retries = options.retries || 3;
-    this.onRateLimit = options.onRateLimit;
-    this.onError = options.onError;
-
-    if (options.apiKey) {
-      this.setApiKey(options.apiKey);
-    }
+  constructor(config: ApiClientConfig) {
+    this.baseUrl = config.baseUrl.replace(/\/+$/, '');
+    this.version = config.version || 'v1';
+    this.timeout = config.timeout || 30000;
+    this.retries = config.retries || 3;
   }
 
   /**
@@ -69,7 +62,7 @@ export class BearAiApiClient {
       headers['Authorization'] = `Bearer ${this.accessToken}`;
     }
 
-    let lastError: Error;
+    let lastError: Error | null = null;
     
     for (let attempt = 0; attempt <= this.retries; attempt++) {
       try {
@@ -144,9 +137,10 @@ export class BearAiApiClient {
       }
     }
 
+    // Ensure lastError is not null before using it
     const apiError: ApiError = {
       code: 'REQUEST_FAILED',
-      message: lastError.message,
+      message: lastError?.message || 'Request failed after maximum retries',
       timestamp: new Date().toISOString()
     };
 
@@ -160,7 +154,7 @@ export class BearAiApiClient {
   /**
    * Extract rate limit information from response headers
    */
-  private extractRateLimit(response: Response) {
+  private extractRateLimit(response: Response): RateLimitInfo | undefined {
     const limit = response.headers.get('X-RateLimit-Limit');
     const remaining = response.headers.get('X-RateLimit-Remaining');
     const reset = response.headers.get('X-RateLimit-Reset');
@@ -174,6 +168,8 @@ export class BearAiApiClient {
         retryAfter: retryAfter ? parseInt(retryAfter) : undefined
       };
     }
+
+    return undefined;
   }
 
   /**
@@ -184,293 +180,64 @@ export class BearAiApiClient {
   }
 
   /**
-   * Refresh access token
+   * Refresh access token using refresh token
    */
   private async refreshAccessToken(): Promise<void> {
     if (!this.refreshToken) {
       throw new Error('No refresh token available');
     }
 
-    const response = await this.makeRequest<AuthTokens>({
-      url: '/auth/refresh',
+    const response = await fetch(`${this.baseUrl}/api/${this.version}/auth/refresh`, {
       method: 'POST',
-      data: { refreshToken: this.refreshToken }
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.refreshToken}`
+      }
     });
 
-    if (response.error) {
-      throw new Error('Failed to refresh token');
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
     }
-
-    if (response.data) {
-      this.setTokens(response.data);
-    }
-  }
-
-  // Authentication methods
-  async login(credentials: LoginCredentials): Promise<ApiResponse<AuthTokens>> {
-    const response = await this.makeRequest<AuthTokens>({
-      url: '/auth/login',
-      method: 'POST',
-      data: credentials
-    });
-
-    if (response.data) {
-      this.setTokens(response.data);
-    }
-
-    return response;
-  }
-
-  async logout(): Promise<ApiResponse<{ message: string }>> {
-    const response = await this.makeRequest<{ message: string }>({
-      url: '/auth/logout',
-      method: 'POST'
-    });
-
-    if (!response.error) {
-      this.accessToken = undefined;
-      this.refreshToken = undefined;
-    }
-
-    return response;
-  }
-
-  // Chat methods
-  async getChatSessions(params?: {
-    limit?: number;
-    offset?: number;
-    category?: string;
-  }): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/chat/sessions',
-      method: 'GET',
-      params
-    });
-  }
-
-  async createChatSession(request: CreateChatSessionRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/chat/sessions',
-      method: 'POST',
-      data: request
-    });
-  }
-
-  async getChatSession(sessionId: string): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: `/chat/sessions/${sessionId}`,
-      method: 'GET'
-    });
-  }
-
-  async sendMessage(sessionId: string, request: SendMessageRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: `/chat/sessions/${sessionId}/messages`,
-      method: 'POST',
-      data: request
-    });
-  }
-
-  async deleteChatSession(sessionId: string): Promise<ApiResponse<void>> {
-    return this.makeRequest({
-      url: `/chat/sessions/${sessionId}`,
-      method: 'DELETE'
-    });
-  }
-
-  // Document methods
-  async getDocuments(params?: {
-    limit?: number;
-    offset?: number;
-    category?: string;
-    status?: string;
-    search?: string;
-  }): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/documents',
-      method: 'GET',
-      params
-    });
-  }
-
-  async uploadDocument(file: File, metadata: {
-    category: string;
-    tags?: string[];
-  }): Promise<ApiResponse<any>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('category', metadata.category);
-    
-    if (metadata.tags) {
-      metadata.tags.forEach(tag => formData.append('tags', tag));
-    }
-
-    const url = `${this.baseUrl}/api/${this.version}/documents`;
-    const headers: Record<string, string> = {};
-    
-    if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
-    }
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: formData
-    });
 
     const result = await response.json();
-
-    if (!response.ok) {
-      return { error: result.error };
-    }
-
-    return { data: result };
+    this.accessToken = result.accessToken;
+    this.refreshToken = result.refreshToken;
   }
 
-  async getDocument(documentId: string): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: `/documents/${documentId}`,
-      method: 'GET'
-    });
+  /**
+   * GET request
+   */
+  async get<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>({ method: 'GET', url, headers });
   }
 
-  async updateDocument(documentId: string, request: UpdateDocumentRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: `/documents/${documentId}`,
-      method: 'PUT',
-      data: request
-    });
+  /**
+   * POST request
+   */
+  async post<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>({ method: 'POST', url, data, headers });
   }
 
-  async deleteDocument(documentId: string): Promise<ApiResponse<void>> {
-    return this.makeRequest({
-      url: `/documents/${documentId}`,
-      method: 'DELETE'
-    });
+  /**
+   * PUT request
+   */
+  async put<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>({ method: 'PUT', url, data, headers });
   }
 
-  async downloadDocument(documentId: string): Promise<Blob> {
-    const url = `${this.baseUrl}/api/${this.version}/documents/${documentId}/download`;
-    const headers: Record<string, string> = {};
-    
-    if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
-    }
-
-    const response = await fetch(url, { headers });
-    
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.status}`);
-    }
-
-    return response.blob();
+  /**
+   * DELETE request
+   */
+  async delete<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>({ method: 'DELETE', url, headers });
   }
 
-  // Search methods
-  async search(request: SearchRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/research/search',
-      method: 'POST',
-      data: request
-    });
-  }
-
-  // Analysis methods
-  async analyzeDocument(documentId: string, request: AnalysisRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: `/analysis/documents/${documentId}`,
-      method: 'POST',
-      data: request
-    });
-  }
-
-  // User methods
-  async getUserProfile(): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/users/profile',
-      method: 'GET'
-    });
-  }
-
-  async updateUserProfile(updates: any): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/users/profile',
-      method: 'PUT',
-      data: updates
-    });
-  }
-
-  // System methods
-  async getSystemHealth(): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/system/health',
-      method: 'GET'
-    });
-  }
-
-  async getSystemStatus(): Promise<ApiResponse<any>> {
-    return this.makeRequest({
-      url: '/system/status',
-      method: 'GET'
-    });
-  }
-
-  // Streaming methods
-  createStreamConnection(endpoint: string, options: StreamOptions = {}): EventSource {
-    const url = `${this.baseUrl}/api/${this.version}${endpoint}`;
-    const eventSource = new EventSource(url);
-
-    eventSource.onmessage = (event) => {
-      try {
-        const message: StreamMessage = JSON.parse(event.data);
-        this.handleStreamMessage(message);
-      } catch (error) {
-        console.error('Failed to parse stream message:', error);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error('Stream connection error:', error);
-      
-      if (options.reconnect && options.maxReconnectAttempts) {
-        // Implement reconnection logic
-        setTimeout(() => {
-          if (options.maxReconnectAttempts! > 0) {
-            this.createStreamConnection(endpoint, {
-              ...options,
-              maxReconnectAttempts: options.maxReconnectAttempts! - 1
-            });
-          }
-        }, options.reconnectInterval || 5000);
-      }
-    };
-
-    return eventSource;
-  }
-
-  private handleStreamMessage(message: StreamMessage): void {
-    // Handle different types of stream messages
-    switch (message.type) {
-      case 'data':
-        // Process data message
-        break;
-      case 'error':
-        console.error('Stream error:', message.payload);
-        break;
-      case 'complete':
-        console.log('Stream completed');
-        break;
-    }
+  /**
+   * PATCH request
+   */
+  async patch<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>({ method: 'PATCH', url, data, headers });
   }
 }
 
-// Export additional utilities
-export { ApiResponse, ApiError, AuthTokens } from '@/api/types/api';
-
-// Default client instance
-export const bearAiApi = new BearAiApiClient();
-
-// React hook for client
-export function useBearAiApi(options?: ClientOptions): BearAiApiClient {
-  return new BearAiApiClient(options);
-}
+export default ApiClient;
