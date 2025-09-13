@@ -18,11 +18,21 @@ if (isTauriEnvironment()) {
   apiExports = import('./localClient.hybrid');
 }
 
-// Re-export everything from the appropriate client
+// Re-export everything from the hybrid client (main API)
 export * from './localClient.hybrid';
 
-// Also provide the registry and server exports
-export * from './localApiRegistry';
+// Export specific registry services to avoid naming conflicts
+export { 
+  localApiRegistry, 
+  localApiClient,
+  localApiServer,
+  localAuthService,
+  localChatService,
+  localDocumentService,
+  localResearchService,
+  localAnalysisService,
+  api
+} from './localApiRegistry';
 
 // Default export
 export { hybridLocalApiClient as default } from './localClient.hybrid';
