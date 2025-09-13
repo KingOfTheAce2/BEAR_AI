@@ -1,6 +1,6 @@
 // Rate limiting middleware
 import { Request, Response, NextFunction } from 'express';
-import { ApiError, RateLimit } from '@/api/types/api';
+import { ApiError, RateLimit } from '../types/api';
 
 interface RateLimitStore {
   [key: string]: {

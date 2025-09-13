@@ -1,7 +1,7 @@
 // Authentication and authorization middleware
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { ApiError } from '@/api/types/api';
+import { ApiError } from '../types/api';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

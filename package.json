@@ -4,6 +4,8 @@
   "description": "BEAR AI Legal Assistant - Unified Professional React application for legal document analysis and AI-powered assistance with comprehensive API",
   "private": true,
   "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2",
     "@heroicons/react": "^2.0.18",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.4.4",
