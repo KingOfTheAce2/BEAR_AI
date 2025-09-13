@@ -139,22 +139,24 @@ export const optionalAuth = (
 
 /**
  * Generate JWT token
+ * FIXED: Added proper type assertion for SignOptions to resolve TS2769
  */
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string => {
   const secret = process.env.JWT_SECRET || 'your-secret-key';
   const expiresIn = process.env.JWT_EXPIRES_IN || '24h';
   
-  return jwt.sign(payload, secret, { expiresIn });
+  return jwt.sign(payload, secret, { expiresIn } as jwt.SignOptions);
 };
 
 /**
  * Generate refresh token
+ * FIXED: Added proper type assertion for SignOptions to resolve TS2769
  */
 export const generateRefreshToken = (userId: string): string => {
   const secret = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
   const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
   
-  return jwt.sign({ userId }, secret, { expiresIn });
+  return jwt.sign({ userId }, secret, { expiresIn } as jwt.SignOptions);
 };
 
 /**
