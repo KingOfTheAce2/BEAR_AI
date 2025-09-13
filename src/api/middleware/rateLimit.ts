@@ -87,7 +87,7 @@ export const createRateLimit = (config: RateLimitConfig) => {
   } = config;
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    const key = keyGenerator(req);
+    const key = keyGenerator(req) || req.socket.remoteAddress || 'unknown';
     const now = Date.now();
     const resetTime = now + windowMs;
 
