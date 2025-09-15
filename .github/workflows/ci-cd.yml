@@ -37,7 +37,14 @@ jobs:
           workspaces: './src-tauri -> target'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Try npm ci first, fallback to npm install if package-lock.json is corrupted
+          npm ci || {
+            echo "npm ci failed, falling back to npm install..."
+            rm -f package-lock.json
+            npm install --package-lock-only
+            npm ci
+          }
 
       - name: TypeScript type checking
         run: npm run typecheck
@@ -104,7 +111,14 @@ jobs:
           workspaces: './src-tauri -> target'
 
       - name: Install frontend dependencies
-        run: npm ci
+        run: |
+          # Try npm ci first, fallback to npm install if package-lock.json is corrupted
+          npm ci || {
+            echo "npm ci failed, falling back to npm install..."
+            rm -f package-lock.json
+            npm install --package-lock-only
+            npm ci
+          }
 
       - name: Build frontend
         run: npm run build
