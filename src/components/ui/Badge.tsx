@@ -1,1 +1,27 @@
-import React from 'react'\nimport { cn } from '../../utils/cn'\nimport { ComponentProps } from '../../types'\n\nexport interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, ComponentProps {\n  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning'\n}\n\nconst Badge = React.forwardRef<HTMLDivElement, BadgeProps>(\n  ({ className, variant = 'default', ...props }, ref) => {\n    const variants = {\n      default: 'bg-primary text-primary-foreground hover:bg-primary/80',\n      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',\n      destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/80',\n      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',\n      success: 'bg-green-500 text-white hover:bg-green-600',\n      warning: 'bg-yellow-500 text-white hover:bg-yellow-600',\n    }\n\n    return (\n      <div\n        ref={ref}\n        className={cn(\n          'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',\n          variants[variant],\n          className\n        )}\n        {...props}\n      />\n    )\n  }\n)\n\nBadge.displayName = 'Badge'\n\nexport { Badge }"
+import React from 'react';
+import { cn } from '../../utils/cn';
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'warning';
+}
+
+function Badge({ className, variant = 'default', ...props }: BadgeProps) {
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        {
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80": variant === 'default',
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80": variant === 'secondary',
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80": variant === 'destructive',
+          "text-foreground": variant === 'outline',
+          "border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200": variant === 'warning',
+        },
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Badge };

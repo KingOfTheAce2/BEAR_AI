@@ -1,0 +1,102 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "KingOfTheAce2"
+    assignees:
+      - "KingOfTheAce2"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    ignore:
+      - dependency-name: "@types/*"
+        update-types: ["version-update:semver-patch"]
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      testing-tools:
+        patterns:
+          - "jest*"
+          - "@testing-library/*"
+          - "playwright*"
+      build-tools:
+        patterns:
+          - "webpack*"
+          - "babel*"
+          - "eslint*"
+          - "prettier*"
+      tauri-ecosystem:
+        patterns:
+          - "@tauri-apps/*"
+          - "tauri*"
+
+  # Enable version updates for Cargo
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "KingOfTheAce2"
+    assignees:
+      - "KingOfTheAce2"
+    commit-message:
+      prefix: "deps(cargo)"
+      include: "scope"
+    groups:
+      tauri-core:
+        patterns:
+          - "tauri*"
+      serialization:
+        patterns:
+          - "serde*"
+          - "serde_json"
+      async-runtime:
+        patterns:
+          - "tokio*"
+      crypto-security:
+        patterns:
+          - "sha2"
+          - "bcrypt"
+          - "crypto*"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "monthly"
+      day: "first-monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "KingOfTheAce2"
+    assignees:
+      - "KingOfTheAce2"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      setup-actions:
+        patterns:
+          - "actions/setup-*"
+          - "actions/checkout*"
+          - "actions/upload-*"
+          - "actions/download-*"
+      rust-actions:
+        patterns:
+          - "dtolnay/rust-toolchain*"
+          - "swatinem/rust-cache*"
+      tauri-actions:
+        patterns:
+          - "tauri-apps/*"

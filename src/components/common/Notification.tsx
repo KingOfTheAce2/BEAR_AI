@@ -1,1 +1,279 @@
-import React from 'react'\nimport { createPortal } from 'react-dom'\nimport { cn, animations } from '../../utils/cn'\nimport { NotificationConfig, NotificationAction } from '../../types'\nimport { Card, CardContent } from '../ui/Card'\nimport { Button } from '../ui/Button'\nimport { Badge } from '../ui/Badge'\nimport {\n  CheckCircle,\n  XCircle,\n  AlertTriangle,\n  Info,\n  X,\n  Clock\n} from 'lucide-react'\n\nexport interface NotificationProps extends NotificationConfig {\n  id: string\n  onClose: (id: string) => void\n  onAction?: (action: NotificationAction) => void\n  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center'\n  showProgress?: boolean\n}\n\nconst Notification: React.FC<NotificationProps> = ({\n  id,\n  type,\n  title,\n  message,\n  duration = 5000,\n  persistent = false,\n  actions = [],\n  onClose,\n  onAction,\n  position = 'top-right',\n  showProgress = true,\n}) => {\n  const [progress, setProgress] = React.useState(100)\n  const [isVisible, setIsVisible] = React.useState(false)\n  const [isExiting, setIsExiting] = React.useState(false)\n  const progressRef = React.useRef<number>(100)\n  const intervalRef = React.useRef<NodeJS.Timeout>()\n  const timeoutRef = React.useRef<NodeJS.Timeout>()\n\n  // Entrance animation\n  React.useEffect(() => {\n    const timer = setTimeout(() => setIsVisible(true), 10)\n    return () => clearTimeout(timer)\n  }, [])\n\n  // Auto-dismiss timer\n  React.useEffect(() => {\n    if (persistent) return\n\n    const startTime = Date.now()\n    \n    intervalRef.current = setInterval(() => {\n      const elapsed = Date.now() - startTime\n      const remaining = Math.max(0, duration - elapsed)\n      const newProgress = (remaining / duration) * 100\n      \n      progressRef.current = newProgress\n      setProgress(newProgress)\n      \n      if (remaining <= 0) {\n        handleClose()\n      }\n    }, 50)\n\n    return () => {\n      if (intervalRef.current) clearInterval(intervalRef.current)\n      if (timeoutRef.current) clearTimeout(timeoutRef.current)\n    }\n  }, [duration, persistent])\n\n  const handleClose = () => {\n    setIsExiting(true)\n    timeoutRef.current = setTimeout(() => {\n      onClose(id)\n    }, 200)\n  }\n\n  const handleAction = (action: NotificationAction) => {\n    onAction?.(action)\n    action.action()\n    handleClose()\n  }\n\n  const getIcon = () => {\n    const iconProps = { className: 'h-5 w-5' }\n    switch (type) {\n      case 'success':\n        return <CheckCircle {...iconProps} className=\"h-5 w-5 text-green-500\" />\n      case 'error':\n        return <XCircle {...iconProps} className=\"h-5 w-5 text-red-500\" />\n      case 'warning':\n        return <AlertTriangle {...iconProps} className=\"h-5 w-5 text-yellow-500\" />\n      case 'info':\n        return <Info {...iconProps} className=\"h-5 w-5 text-blue-500\" />\n    }\n  }\n\n  const getTypeStyles = () => {\n    switch (type) {\n      case 'success':\n        return 'border-l-green-500 bg-green-50 dark:bg-green-950/20'\n      case 'error':\n        return 'border-l-red-500 bg-red-50 dark:bg-red-950/20'\n      case 'warning':\n        return 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'\n      case 'info':\n        return 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20'\n    }\n  }\n\n  const positionStyles = {\n    'top-right': 'top-4 right-4',\n    'top-left': 'top-4 left-4',\n    'bottom-right': 'bottom-4 right-4',\n    'bottom-left': 'bottom-4 left-4',\n    'top-center': 'top-4 left-1/2 -translate-x-1/2',\n  }\n\n  return (\n    <div\n      className={cn(\n        'fixed z-50 w-96 max-w-[calc(100vw-2rem)] transition-all duration-200',\n        positionStyles[position],\n        isVisible && !isExiting && animations.slideIn,\n        isExiting && animations.slideOut\n      )}\n    >\n      <Card className={cn(\n        'border-l-4 shadow-lg',\n        getTypeStyles()\n      )}>\n        <CardContent className=\"p-4\">\n          <div className=\"flex items-start gap-3\">\n            <div className=\"shrink-0 mt-0.5\">\n              {getIcon()}\n            </div>\n            \n            <div className=\"flex-1 min-w-0\">\n              <div className=\"flex items-start justify-between gap-2\">\n                <div className=\"flex-1 min-w-0\">\n                  <h4 className=\"font-medium text-foreground\">{title}</h4>\n                  <p className=\"text-sm text-muted-foreground mt-1 leading-relaxed\">\n                    {message}\n                  </p>\n                </div>\n                \n                {!persistent && (\n                  <Button\n                    variant=\"ghost\"\n                    size=\"icon\"\n                    onClick={handleClose}\n                    className=\"shrink-0 h-6 w-6 -mt-1 -mr-2\"\n                  >\n                    <X className=\"h-3 w-3\" />\n                  </Button>\n                )}\n              </div>\n              \n              {/* Actions */}\n              {actions.length > 0 && (\n                <div className=\"flex items-center gap-2 mt-3\">\n                  {actions.map((action, index) => (\n                    <Button\n                      key={index}\n                      variant={action.variant === 'primary' ? 'default' : 'outline'}\n                      size=\"xs\"\n                      onClick={() => handleAction(action)}\n                    >\n                      {action.label}\n                    </Button>\n                  ))}\n                </div>\n              )}\n            </div>\n          </div>\n          \n          {/* Progress bar */}\n          {!persistent && showProgress && (\n            <div className=\"mt-3 -mb-1\">\n              <div className=\"h-1 bg-muted rounded-full overflow-hidden\">\n                <div \n                  className=\"h-full bg-current opacity-30 transition-all duration-100 ease-linear\"\n                  style={{ width: `${progress}%` }}\n                />\n              </div>\n            </div>\n          )}\n        </CardContent>\n      </Card>\n    </div>\n  )\n}\n\n// Notification Manager Hook\ntype NotificationItem = NotificationProps & { id: string }\n\ninterface NotificationManager {\n  notifications: NotificationItem[]\n  show: (config: Omit<NotificationConfig, 'id'>) => string\n  hide: (id: string) => void\n  clear: () => void\n  success: (title: string, message: string, options?: Partial<NotificationConfig>) => string\n  error: (title: string, message: string, options?: Partial<NotificationConfig>) => string\n  warning: (title: string, message: string, options?: Partial<NotificationConfig>) => string\n  info: (title: string, message: string, options?: Partial<NotificationConfig>) => string\n}\n\nconst useNotifications = (): NotificationManager => {\n  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])\n\n  const show = React.useCallback((config: Omit<NotificationConfig, 'id'>) => {\n    const id = Date.now().toString() + Math.random().toString(36)\n    const notification: NotificationItem = {\n      ...config,\n      id,\n      onClose: (notificationId: string) => {\n        setNotifications(prev => prev.filter(n => n.id !== notificationId))\n      }\n    }\n    \n    setNotifications(prev => [...prev, notification])\n    return id\n  }, [])\n\n  const hide = React.useCallback((id: string) => {\n    setNotifications(prev => prev.filter(n => n.id !== id))\n  }, [])\n\n  const clear = React.useCallback(() => {\n    setNotifications([])\n  }, [])\n\n  const success = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {\n    return show({ type: 'success', title, message, ...options })\n  }, [show])\n\n  const error = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {\n    return show({ type: 'error', title, message, persistent: true, ...options })\n  }, [show])\n\n  const warning = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {\n    return show({ type: 'warning', title, message, ...options })\n  }, [show])\n\n  const info = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {\n    return show({ type: 'info', title, message, ...options })\n  }, [show])\n\n  return { notifications, show, hide, clear, success, error, warning, info }\n}\n\n// Notification Container Component\nconst NotificationContainer: React.FC<{\n  position?: NotificationProps['position']\n}> = ({ position = 'top-right' }) => {\n  const { notifications } = useNotifications()\n  \n  if (notifications.length === 0) return null\n\n  return createPortal(\n    <div className=\"fixed inset-0 pointer-events-none z-50\">\n      {notifications.map(notification => (\n        <Notification\n          key={notification.id}\n          {...notification}\n          position={position}\n        />\n      ))}\n    </div>,\n    document.body\n  )\n}\n\nexport { Notification, useNotifications, NotificationContainer }"
+import React from 'react'
+import { createPortal } from 'react-dom'
+import { cn, animations } from '../../utils/cn'
+import { NotificationConfig, NotificationAction } from '../../types'
+import { Card, CardContent } from '../ui/Card'
+import { Button } from '../ui/Button'
+import { Badge } from '../ui/Badge'
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Info,
+  X,
+  Clock
+} from 'lucide-react'
+
+export interface NotificationProps extends NotificationConfig {
+  id: string
+  onClose: (id: string) => void
+  onAction?: (action: NotificationAction) => void
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center'
+  showProgress?: boolean
+}
+
+const Notification: React.FC<NotificationProps> = ({
+  id,
+  type,
+  title,
+  message,
+  duration = 5000,
+  persistent = false,
+  actions = [],
+  onClose,
+  onAction,
+  position = 'top-right',
+  showProgress = true,
+}) => {
+  const [progress, setProgress] = React.useState(100)
+  const [isVisible, setIsVisible] = React.useState(false)
+  const [isExiting, setIsExiting] = React.useState(false)
+  const progressRef = React.useRef<number>(100)
+  const intervalRef = React.useRef<NodeJS.Timeout>()
+  const timeoutRef = React.useRef<NodeJS.Timeout>()
+
+  // Entrance animation
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Auto-dismiss timer
+  React.useEffect(() => {
+    if (persistent) return
+
+    const startTime = Date.now()
+    
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime
+      const remaining = Math.max(0, duration - elapsed)
+      const newProgress = (remaining / duration) * 100
+      
+      progressRef.current = newProgress
+      setProgress(newProgress)
+      
+      if (remaining <= 0) {
+        handleClose()
+      }
+    }, 50)
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [duration, persistent])
+
+  const handleClose = () => {
+    setIsExiting(true)
+    timeoutRef.current = setTimeout(() => {
+      onClose(id)
+    }, 200)
+  }
+
+  const handleAction = (action: NotificationAction) => {
+    onAction?.(action)
+    action.action()
+    handleClose()
+  }
+
+  const getIcon = () => {
+    const iconProps = { className: 'h-5 w-5' }
+    switch (type) {
+      case 'success':
+        return <CheckCircle {...iconProps} className="h-5 w-5 text-green-500" />
+      case 'error':
+        return <XCircle {...iconProps} className="h-5 w-5 text-red-500" />
+      case 'warning':
+        return <AlertTriangle {...iconProps} className="h-5 w-5 text-yellow-500" />
+      case 'info':
+        return <Info {...iconProps} className="h-5 w-5 text-blue-500" />
+    }
+  }
+
+  const getTypeStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'border-l-green-500 bg-green-50 dark:bg-green-950/20'
+      case 'error':
+        return 'border-l-red-500 bg-red-50 dark:bg-red-950/20'
+      case 'warning':
+        return 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
+      case 'info':
+        return 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20'
+    }
+  }
+
+  const positionStyles = {
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
+    'top-center': 'top-4 left-1/2 -translate-x-1/2',
+  }
+
+  return (
+    <div
+      className={cn(
+        'fixed z-50 w-96 max-w-[calc(100vw-2rem)] transition-all duration-200',
+        positionStyles[position],
+        isVisible && !isExiting && animations.slideIn,
+        isExiting && animations.slideOut
+      )}
+    >
+      <Card className={cn(
+        'border-l-4 shadow-lg',
+        getTypeStyles()
+      )}>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 mt-0.5">
+              {getIcon()}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-foreground">{title}</h4>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                    {message}
+                  </p>
+                </div>
+                
+                {!persistent && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    className="shrink-0 h-6 w-6 -mt-1 -mr-2"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              
+              {/* Actions */}
+              {actions.length > 0 && (
+                <div className="flex items-center gap-2 mt-3">
+                  {actions.map((action, index) => (
+                    <Button
+                      key={index}
+                      variant={action.variant === 'primary' ? 'default' : 'outline'}
+                      size="xs"
+                      onClick={() => handleAction(action)}
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Progress bar */}
+          {!persistent && showProgress && (
+            <div className="mt-3 -mb-1">
+              <div className="h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-current opacity-30 transition-all duration-100 ease-linear"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+// Notification Manager Hook
+type NotificationItem = NotificationProps & { id: string }
+
+interface NotificationManager {
+  notifications: NotificationItem[]
+  show: (config: Omit<NotificationConfig, 'id'>) => string
+  hide: (id: string) => void
+  clear: () => void
+  success: (title: string, message: string, options?: Partial<NotificationConfig>) => string
+  error: (title: string, message: string, options?: Partial<NotificationConfig>) => string
+  warning: (title: string, message: string, options?: Partial<NotificationConfig>) => string
+  info: (title: string, message: string, options?: Partial<NotificationConfig>) => string
+}
+
+const useNotifications = (): NotificationManager => {
+  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
+
+  const show = React.useCallback((config: Omit<NotificationConfig, 'id'>) => {
+    const id = Date.now().toString() + Math.random().toString(36)
+    const notification: NotificationItem = {
+      ...config,
+      id,
+      onClose: (notificationId: string) => {
+        setNotifications(prev => prev.filter(n => n.id !== notificationId))
+      }
+    }
+    
+    setNotifications(prev => [...prev, notification])
+    return id
+  }, [])
+
+  const hide = React.useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }, [])
+
+  const clear = React.useCallback(() => {
+    setNotifications([])
+  }, [])
+
+  const success = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {
+    return show({ type: 'success', title, message, ...options })
+  }, [show])
+
+  const error = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {
+    return show({ type: 'error', title, message, persistent: true, ...options })
+  }, [show])
+
+  const warning = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {
+    return show({ type: 'warning', title, message, ...options })
+  }, [show])
+
+  const info = React.useCallback((title: string, message: string, options: Partial<NotificationConfig> = {}) => {
+    return show({ type: 'info', title, message, ...options })
+  }, [show])
+
+  return { notifications, show, hide, clear, success, error, warning, info }
+}
+
+// Notification Container Component
+const NotificationContainer: React.FC<{
+  position?: NotificationProps['position']
+}> = ({ position = 'top-right' }) => {
+  const { notifications } = useNotifications()
+  
+  if (notifications.length === 0) return null
+
+  return createPortal(
+    <div className="fixed inset-0 pointer-events-none z-50">
+      {notifications.map(notification => (
+        <Notification
+          key={notification.id}
+          {...notification}
+          position={position}
+        />
+      ))}
+    </div>,
+    document.body
+  )
+}
+
+export { Notification, useNotifications, NotificationContainer }"

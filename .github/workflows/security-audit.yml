@@ -1,0 +1,111 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'package*.json'
+      - 'src-tauri/Cargo.toml'
+      - 'src-tauri/Cargo.lock'
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm security audit
+        id: npm-audit
+        continue-on-error: true
+        run: |
+          npm audit --audit-level high --json > npm-audit-results.json
+          npm audit --audit-level high
+
+      - name: Run Rust security audit
+        id: cargo-audit
+        continue-on-error: true
+        working-directory: src-tauri
+        run: |
+          cargo audit --json > ../cargo-audit-results.json
+          cargo audit
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: HEAD~1
+          head: HEAD
+
+      - name: Generate security report
+        if: always()
+        run: |
+          echo "# 🛡️ Security Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # NPM Audit Results
+          if [[ "${{ steps.npm-audit.outcome }}" == "success" ]]; then
+            echo "✅ **NPM Audit:** No high/critical vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **NPM Audit:** Vulnerabilities detected - check logs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Cargo Audit Results
+          if [[ "${{ steps.cargo-audit.outcome }}" == "success" ]]; then
+            echo "✅ **Cargo Audit:** No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Cargo Audit:** Vulnerabilities detected - check logs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "✅ **Trivy Scan:** Results uploaded to Security tab" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Secret Scan:** Completed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-results
+          path: |
+            npm-audit-results.json
+            cargo-audit-results.json
+            trivy-results.sarif
+          retention-days: 30

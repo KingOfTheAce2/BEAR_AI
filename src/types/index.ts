@@ -121,3 +121,62 @@ export interface ComponentProps {
   id?: string;
   testId?: string;
 }
+
+// Agent and Task Management Types (Required for ConfigurationPanel and StatusDashboard)
+export interface Agent {
+  id: string;
+  name: string;
+  type: 'researcher' | 'coder' | 'analyst' | 'optimizer' | 'coordinator' | 'tester' | 'reviewer';
+  status: 'active' | 'idle' | 'busy' | 'error';
+  capabilities: string[];
+  metrics?: {
+    averageResponseTime: number;
+    tasksCompleted: number;
+    successRate: number;
+  };
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  priority: 'low' | 'medium' | 'high';
+  progress: number;
+  updatedAt: string;
+  assignedAgent?: string;
+  description?: string;
+}
+
+export interface DashboardConfig {
+  layout: 'grid' | 'list';
+  widgets: WidgetConfig[];
+  autoRefresh: boolean;
+  refreshInterval: number;
+  theme?: 'light' | 'dark' | 'auto';
+}
+
+export interface WidgetConfig {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  config: Record<string, any>;
+  enabled: boolean;
+}
+
+// Notification System Types
+export interface NotificationConfig {
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  duration?: number;
+  persistent?: boolean;
+  actions?: NotificationAction[];
+  id?: string;
+}
+
+export interface NotificationAction {
+  label: string;
+  variant: 'primary' | 'secondary';
+  action: () => void;
+}

@@ -1,61 +1,31 @@
-name: Build BEAR AI Desktop App
+# Legacy Workflow - Replaced by ci-cd.yml
+# This workflow is kept for reference and will be removed in future versions
+# Please use the comprehensive ci-cd.yml workflow instead
+
+name: "[DEPRECATED] Build BEAR AI Desktop App"
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  release:
-    types: [ published ]
+  # Disabled - use ci-cd.yml instead
+  workflow_dispatch:
+    inputs:
+      legacy_build:
+        description: 'Run legacy build (use ci-cd.yml instead)'
+        required: true
+        default: 'false'
 
 jobs:
-  build:
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [windows-latest]
-
-    runs-on: ${{ matrix.platform }}
+  deprecation-notice:
+    name: Deprecation Notice
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Install dependencies (ubuntu only)
-      if: matrix.platform == 'ubuntu-20.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-
-    - name: Rust setup
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: Rust cache
-      uses: swatinem/rust-cache@v2
-      with:
-        workspaces: './src-tauri -> target'
-
-    - name: Sync node version and setup cache
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-
-    - name: Install frontend dependencies
-      run: |
-        npm cache clean --force
-        npm install
-
-    - name: Build frontend for production
-      run: npm run build
-
-    - name: Build Tauri app
-      uses: tauri-apps/tauri-action@v0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tagName: v__VERSION__
-        releaseName: 'BEAR AI Legal Assistant v__VERSION__'
-        releaseBody: 'Professional AI-powered legal document analysis and assistance desktop application.'
-        releaseDraft: true
-        prerelease: false
+      - name: Deprecation Warning
+        run: |
+          echo "⚠️ This workflow is deprecated!"
+          echo "Please use the comprehensive ci-cd.yml workflow instead."
+          echo "The new workflow provides:"
+          echo "- Cross-platform builds (Windows, macOS, Linux)"
+          echo "- Automated testing"
+          echo "- Security scanning"
+          echo "- Better caching"
+          echo "- Release automation"
+          exit 1

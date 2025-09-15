@@ -1,0 +1,268 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Quick validation checks
+  validate:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check TypeScript types
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Rust formatting
+        working-directory: src-tauri
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        working-directory: src-tauri
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Build frontend (quick check)
+        run: npm run build
+
+      - name: Check Rust compilation
+        working-directory: src-tauri
+        run: cargo check --all-targets --all-features
+
+  # Test suite for PR
+  test-pr:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Cache dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Run API tests
+        run: npm run test:api
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test --verbose
+
+      - name: Generate test coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+
+  # Security check for PR
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level high
+
+      - name: Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # Build validation (lightweight)
+  build-check:
+    name: Build Check
+    runs-on: ${{ matrix.os }}
+    needs: [validate, test-pr, security-check]
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Cache dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri (debug mode for speed)
+        working-directory: src-tauri
+        run: cargo build
+
+  # PR Size and Complexity Check
+  pr-analysis:
+    name: PR Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze PR size
+        id: pr-size
+        run: |
+          files_changed=$(git diff --name-only origin/main..HEAD | wc -l)
+          lines_added=$(git diff --numstat origin/main..HEAD | awk '{sum += $1} END {print sum}')
+          lines_deleted=$(git diff --numstat origin/main..HEAD | awk '{sum += $2} END {print sum}')
+
+          echo "files_changed=$files_changed" >> $GITHUB_OUTPUT
+          echo "lines_added=$lines_added" >> $GITHUB_OUTPUT
+          echo "lines_deleted=$lines_deleted" >> $GITHUB_OUTPUT
+
+          if [ $files_changed -gt 20 ]; then
+            echo "large_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "large_pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR size
+        if: steps.pr-size.outputs.large_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const filesChanged = ${{ steps.pr-size.outputs.files_changed }};
+            const linesAdded = ${{ steps.pr-size.outputs.lines_added }};
+            const linesDeleted = ${{ steps.pr-size.outputs.lines_deleted }};
+
+            const comment = `## 📊 PR Size Analysis
+
+            This is a large pull request:
+            - **Files changed:** ${filesChanged}
+            - **Lines added:** ${linesAdded}
+            - **Lines deleted:** ${linesDeleted}
+
+            Consider breaking this into smaller, more focused PRs for easier review.
+
+            ### Checklist for large PRs:
+            - [ ] All tests pass
+            - [ ] Documentation is updated
+            - [ ] Breaking changes are documented
+            - [ ] Migration guide provided (if needed)
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Final status check
+  pr-ready:
+    name: PR Ready for Review
+    runs-on: ubuntu-latest
+    needs: [validate, test-pr, security-check, build-check, pr-analysis]
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          if [[ "${{ needs.validate.result }}" == "success" &&
+                "${{ needs.test-pr.result }}" == "success" &&
+                "${{ needs.security-check.result }}" == "success" &&
+                "${{ needs.build-check.result }}" == "success" ]]; then
+            echo "✅ All PR validation checks passed!"
+            echo "🚀 This PR is ready for review"
+          else
+            echo "❌ Some PR validation checks failed"
+            echo "🔧 Please fix the issues before requesting review"
+            exit 1
+          fi
