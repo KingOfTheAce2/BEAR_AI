@@ -24,10 +24,10 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
   const [showMetadata, setShowMetadata] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  
+
   const isUser = message.sender === 'user';
   const isAI = message.sender === 'ai';
-  
+
   // Extract legal metadata
   const citations = message.metadata?.citations as LegalCitation[] || [];
   const caseReferences = message.metadata?.caseReferences as CaseReference[] || [];
@@ -54,7 +54,7 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
   const renderCitationInline = (citation: LegalCitation, index: number) => (
     <button
       key={`cite-${index}`}
-      className=\"inline-citation\"
+      className="inline-citation"
       onClick={() => onCitationClick?.(citation)}
       title={citation.title}
     >
@@ -65,13 +65,13 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
   // Enhanced content rendering with legal formatting
   const renderEnhancedContent = (content: string) => {
     let enhancedContent = content;
-    
+
     // Highlight legal concepts
     legalConcepts.forEach((concept, index) => {
       const regex = new RegExp(`\\b${concept}\\b`, 'gi');
       enhancedContent = enhancedContent.replace(
-        regex, 
-        `<span class=\"legal-concept\" title=\"Legal concept: ${concept}\">$&</span>`
+        regex,
+        `<span class="legal-concept" title="Legal concept: ${concept}">$&</span>`
       );
     });
 
@@ -82,7 +82,7 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
       const regex = new RegExp(`\\b${keywords}\\b`, 'gi');
       enhancedContent = enhancedContent.replace(
         regex,
-        `$&<sup class=\"citation-marker\" data-citation-index=\"${index}\">[${index + 1}]</sup>`
+        `$&<sup class="citation-marker" data-citation-index="${index}">[${index + 1}]</sup>`
       );
     });
 
@@ -112,26 +112,26 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
   return (
     <div className={`legal-message-bubble ${isUser ? 'user' : 'ai'} ${isStreaming ? 'streaming' : ''} ${className}`}>
       {/* Message header */}
-      <div className=\"message-header\">
-        <div className=\"sender-info\">
-          <div className=\"sender-avatar\">
+      <div className="message-header">
+        <div className="sender-info">
+          <div className="sender-avatar">
             {isUser ? '👤' : '⚖️'}
           </div>
-          <div className=\"sender-details\">
-            <span className=\"sender-name\">
+          <div className="sender-details">
+            <span className="sender-name">
               {isUser ? 'You' : 'BEAR AI Legal'}
             </span>
             {showTimestamp && (
-              <span className=\"message-timestamp\">
+              <span className="message-timestamp">
                 {formatTimestamp(message.timestamp)}
               </span>
             )}
           </div>
         </div>
-        
+
         {/* Message type indicator */}
         {message.type !== 'text' && (
-          <div className=\"message-type-badge\">
+          <div className="message-type-badge">
             {message.type === 'legal-query' && '📋 Legal Query'}
             {message.type === 'case-law' && '📚 Case Law'}
             {message.type === 'statute' && '📜 Statute'}
@@ -142,21 +142,21 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
       </div>
 
       {/* Message content */}
-      <div className=\"message-content-wrapper\">
-        <div 
+      <div className="message-content-wrapper">
+        <div
           ref={contentRef}
           className={`message-content ${shouldShowExpand ? 'collapsed' : ''}`}
           dangerouslySetInnerHTML={
-            isAI && legalConcepts.length > 0 
+            isAI && legalConcepts.length > 0
               ? renderEnhancedContent(message.content)
-              : { __html: message.content.replace(/\\n/g, '<br>') }
+              : { __html: message.content.replace(/\n/g, '<br>') }
           }
         />
-        
+
         {/* Expand/Collapse button for long content */}
         {isLongContent && (
-          <button 
-            className=\"expand-toggle\"
+          <button
+            className="expand-toggle"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? 'Show Less' : 'Show More'}
@@ -165,8 +165,8 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
 
         {/* Streaming indicator */}
         {isStreaming && (
-          <div className=\"streaming-indicator\">
-            <div className=\"typing-dots\">
+          <div className="streaming-indicator">
+            <div className="typing-dots">
               <span></span>
               <span></span>
               <span></span>
@@ -177,40 +177,40 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
 
       {/* Legal metadata panel */}
       {isAI && (confidence || practiceArea || jurisdiction) && (
-        <div className=\"legal-metadata\">
-          <button 
-            className=\"metadata-toggle\"
+        <div className="legal-metadata">
+          <button
+            className="metadata-toggle"
             onClick={() => setShowMetadata(!showMetadata)}
           >
             Legal Details {showMetadata ? '▼' : '▶'}
           </button>
-          
+
           {showMetadata && (
-            <div className=\"metadata-content\">
+            <div className="metadata-content">
               {confidence && (
-                <div className=\"metadata-item\">
-                  <span className=\"metadata-label\">Confidence:</span>
-                  <div className=\"confidence-bar\">
-                    <div 
-                      className=\"confidence-fill\" 
+                <div className="metadata-item">
+                  <span className="metadata-label">Confidence:</span>
+                  <div className="confidence-bar">
+                    <div
+                      className="confidence-fill"
                       style={{ width: `${confidence * 100}%` }}
                     />
-                    <span className=\"confidence-text\">{Math.round(confidence * 100)}%</span>
+                    <span className="confidence-text">{Math.round(confidence * 100)}%</span>
                   </div>
                 </div>
               )}
-              
+
               {practiceArea && (
-                <div className=\"metadata-item\">
-                  <span className=\"metadata-label\">Practice Area:</span>
-                  <span className=\"metadata-value practice-area\">{practiceArea}</span>
+                <div className="metadata-item">
+                  <span className="metadata-label">Practice Area:</span>
+                  <span className="metadata-value practice-area">{practiceArea}</span>
                 </div>
               )}
-              
+
               {jurisdiction && (
-                <div className=\"metadata-item\">
-                  <span className=\"metadata-label\">Jurisdiction:</span>
-                  <span className=\"metadata-value jurisdiction\">{jurisdiction}</span>
+                <div className="metadata-item">
+                  <span className="metadata-label">Jurisdiction:</span>
+                  <span className="metadata-value jurisdiction">{jurisdiction}</span>
                 </div>
               )}
             </div>
@@ -220,52 +220,52 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
 
       {/* Citations panel */}
       {(citations.length > 0 || caseReferences.length > 0 || statutes.length > 0) && (
-        <div className=\"citations-section\">
-          <button 
-            className=\"citations-toggle\"
+        <div className="citations-section">
+          <button
+            className="citations-toggle"
             onClick={() => setShowCitations(!showCitations)}
           >
-            Sources & Citations ({citations.length + caseReferences.length + statutes.length}) 
+            Sources & Citations ({citations.length + caseReferences.length + statutes.length})
             {showCitations ? '▼' : '▶'}
           </button>
-          
+
           {showCitations && (
-            <div className=\"citations-content\">
+            <div className="citations-content">
               {/* Legal Citations */}
               {citations.length > 0 && (
-                <div className=\"citation-group\">
-                  <h4 className=\"citation-group-title\">Legal Citations</h4>
+                <div className="citation-group">
+                  <h4 className="citation-group-title">Legal Citations</h4>
                   {citations.map((citation, index) => (
-                    <div 
+                    <div
                       key={citation.id}
-                      className=\"citation-item\"
+                      className="citation-item"
                       onClick={() => onCitationClick?.(citation)}
                     >
-                      <div className=\"citation-header\">
-                        <span className=\"citation-number\">[{index + 1}]</span>
-                        <span className=\"citation-title\">{citation.title}</span>
-                        <span className=\"citation-type\">{citation.type}</span>
+                      <div className="citation-header">
+                        <span className="citation-number">[{index + 1}]</span>
+                        <span className="citation-title">{citation.title}</span>
+                        <span className="citation-type">{citation.type}</span>
                       </div>
-                      <div className=\"citation-details\">
-                        <span className=\"citation-text\">{citation.citation}</span>
+                      <div className="citation-details">
+                        <span className="citation-text">{citation.citation}</span>
                         {citation.jurisdiction && (
-                          <span className=\"citation-jurisdiction\">({citation.jurisdiction})</span>
+                          <span className="citation-jurisdiction">({citation.jurisdiction})</span>
                         )}
                         {citation.year && (
-                          <span className=\"citation-year\">{citation.year}</span>
+                          <span className="citation-year">{citation.year}</span>
                         )}
                       </div>
                       {citation.excerpt && (
-                        <div className=\"citation-excerpt\">
-                          \"{citation.excerpt}\"
+                        <div className="citation-excerpt">
+                          "{citation.excerpt}"
                         </div>
                       )}
-                      <div className=\"citation-meta\">
-                        <span className=\"relevance-score\">
+                      <div className="citation-meta">
+                        <span className="relevance-score">
                           Relevance: {Math.round(citation.relevance * 100)}%
                         </span>
                         {citation.verified && (
-                          <span className=\"verified-badge\">✓ Verified</span>
+                          <span className="verified-badge">✓ Verified</span>
                         )}
                       </div>
                     </div>
@@ -275,28 +275,28 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
 
               {/* Case References */}
               {caseReferences.length > 0 && (
-                <div className=\"citation-group\">
-                  <h4 className=\"citation-group-title\">Case Law</h4>
+                <div className="citation-group">
+                  <h4 className="citation-group-title">Case Law</h4>
                   {caseReferences.map((caseRef, index) => (
-                    <div key={caseRef.id} className=\"citation-item case-reference\">
-                      <div className=\"citation-header\">
-                        <span className=\"citation-number\">[C{index + 1}]</span>
-                        <span className=\"citation-title\">{caseRef.name}</span>
+                    <div key={caseRef.id} className="citation-item case-reference">
+                      <div className="citation-header">
+                        <span className="citation-number">[C{index + 1}]</span>
+                        <span className="citation-title">{caseRef.name}</span>
                         {caseRef.precedential && (
-                          <span className=\"precedential-badge\">Precedential</span>
+                          <span className="precedential-badge">Precedential</span>
                         )}
                       </div>
-                      <div className=\"citation-details\">
-                        <span className=\"citation-text\">{caseRef.citation}</span>
-                        <span className=\"citation-court\">({caseRef.court}, {caseRef.year})</span>
+                      <div className="citation-details">
+                        <span className="citation-text">{caseRef.citation}</span>
+                        <span className="citation-court">({caseRef.court}, {caseRef.year})</span>
                       </div>
                       {caseRef.topics.length > 0 && (
-                        <div className=\"case-topics\">
+                        <div className="case-topics">
                           Topics: {caseRef.topics.join(', ')}
                         </div>
                       )}
-                      <div className=\"citation-meta\">
-                        <span className=\"relevance-score\">
+                      <div className="citation-meta">
+                        <span className="relevance-score">
                           Relevance: {Math.round(caseRef.relevance * 100)}%
                         </span>
                       </div>
@@ -307,32 +307,32 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
 
               {/* Statute References */}
               {statutes.length > 0 && (
-                <div className=\"citation-group\">
-                  <h4 className=\"citation-group-title\">Statutes & Regulations</h4>
+                <div className="citation-group">
+                  <h4 className="citation-group-title">Statutes & Regulations</h4>
                   {statutes.map((statute, index) => (
-                    <div key={statute.id} className=\"citation-item statute-reference\">
-                      <div className=\"citation-header\">
-                        <span className=\"citation-number\">[S{index + 1}]</span>
-                        <span className=\"citation-title\">{statute.title}</span>
+                    <div key={statute.id} className="citation-item statute-reference">
+                      <div className="citation-header">
+                        <span className="citation-number">[S{index + 1}]</span>
+                        <span className="citation-title">{statute.title}</span>
                       </div>
-                      <div className=\"citation-details\">
-                        <span className=\"citation-text\">{statute.code} § {statute.section}</span>
-                        <span className=\"citation-jurisdiction\">({statute.jurisdiction})</span>
+                      <div className="citation-details">
+                        <span className="citation-text">{statute.code} § {statute.section}</span>
+                        <span className="citation-jurisdiction">({statute.jurisdiction})</span>
                       </div>
                       {statute.text && (
-                        <div className=\"statute-text\">
-                          {statute.text.length > 200 
-                            ? `${statute.text.substring(0, 200)}...` 
+                        <div className="statute-text">
+                          {statute.text.length > 200
+                            ? `${statute.text.substring(0, 200)}...`
                             : statute.text
                           }
                         </div>
                       )}
-                      <div className=\"citation-meta\">
-                        <span className=\"relevance-score\">
+                      <div className="citation-meta">
+                        <span className="relevance-score">
                           Relevance: {Math.round(statute.relevance * 100)}%
                         </span>
                         {statute.effectiveDate && (
-                          <span className=\"effective-date\">
+                          <span className="effective-date">
                             Effective: {statute.effectiveDate.toLocaleDateString()}
                           </span>
                         )}
@@ -347,26 +347,26 @@ export const LegalMessageBubble: React.FC<LegalMessageBubbleProps> = ({
       )}
 
       {/* Message status */}
-      <div className=\"message-status\">
+      <div className="message-status">
         {message.status === 'sending' && (
-          <span className=\"status-indicator sending\">Sending...</span>
+          <span className="status-indicator sending">Sending...</span>
         )}
         {message.status === 'sent' && (
-          <span className=\"status-indicator sent\">✓</span>
+          <span className="status-indicator sent">✓</span>
         )}
         {message.status === 'delivered' && (
-          <span className=\"status-indicator delivered\">✓✓</span>
+          <span className="status-indicator delivered">✓✓</span>
         )}
         {message.status === 'error' && (
-          <span className=\"status-indicator error\">⚠ Error</span>
+          <span className="status-indicator error">⚠ Error</span>
         )}
       </div>
 
       {/* Confidentiality marker */}
       {confidentialityLevel !== 'public' && (
-        <div className=\"confidentiality-marker\">
-          <span className=\"confidentiality-icon\">🔒</span>
-          <span className=\"confidentiality-text\">
+        <div className="confidentiality-marker">
+          <span className="confidentiality-icon">🔒</span>
+          <span className="confidentiality-text">
             {confidentialityLevel === 'attorney-client' && 'Privileged'}
             {confidentialityLevel === 'work-product' && 'Work Product'}
             {confidentialityLevel === 'confidential' && 'Confidential'}

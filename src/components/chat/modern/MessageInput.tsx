@@ -334,7 +334,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
       <div className="input-footer">
         <div className="format-hints">
-          <span>**bold** *italic* `code` ~~strike~~ > quote</span>
+          <span>**bold** *italic* `code` ~~strike~~ {`>`} quote</span>
         </div>
         
         {isTyping && (

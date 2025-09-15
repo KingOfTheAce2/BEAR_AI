@@ -88,13 +88,13 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           'fixed inset-0 z-50 flex items-center justify-center',
           animations.fadeIn
         )}
-        role=\"dialog\"
-        aria-modal=\"true\"
+        role="dialog"
+        aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         aria-describedby={description ? 'modal-description' : undefined}
       >
         {/* Backdrop */}
-        <div className=\"absolute inset-0 bg-black/50 backdrop-blur-sm\" />
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
         
         {/* Modal */}
         <div
@@ -109,20 +109,20 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className=\"flex items-center justify-between p-4 border-b border-border\">
-              <div className=\"flex-1 min-w-0\">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex-1 min-w-0">
                 {title && (
-                  <h2 
-                    id=\"modal-title\"
-                    className=\"text-lg font-semibold text-foreground truncate\"
+                  <h2
+                    id="modal-title"
+                    className="text-lg font-semibold text-foreground truncate"
                   >
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p 
-                    id=\"modal-description\"
-                    className=\"text-sm text-muted-foreground mt-1\"
+                  <p
+                    id="modal-description"
+                    className="text-sm text-muted-foreground mt-1"
                   >
                     {description}
                   </p>
@@ -130,20 +130,20 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
               </div>
               {showCloseButton && !preventClose && (
                 <Button
-                  variant=\"ghost\"
-                  size=\"icon\"
+                  variant="ghost"
+                  size="icon"
                   onClick={onClose}
-                  className=\"shrink-0 ml-2\"
-                  aria-label=\"Close modal\"
+                  className="shrink-0 ml-2"
+                  aria-label="Close modal"
                 >
-                  <X className=\"h-4 w-4\" />
+                  <X className="h-4 w-4" />
                 </Button>
               )}
             </div>
           )}
           
           {/* Content */}
-          <div className=\"overflow-y-auto max-h-[calc(90vh-120px)]\">
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             {children}
           </div>
         </div>

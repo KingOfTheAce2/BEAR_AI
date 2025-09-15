@@ -94,7 +94,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   isStreaming,
   practiceArea,
   jurisdiction,
-  placeholder = \"Ask a legal question or describe your legal issue...\",
+  placeholder = "Ask a legal question or describe your legal issue...",
   confidentialityLevel,
   disabled = false,
   className = ''
@@ -104,7 +104,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   const [selectedQuickAction, setSelectedQuickAction] = useState<LegalQuickAction | null>(null);
   const [inputMode, setInputMode] = useState<'text' | 'voice' | 'document'>('text');
   const [isRecording, setIsRecording] = useState(false);
-  
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -122,7 +122,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   }, [inputValue]);
 
   // Filter quick actions by practice area
-  const relevantQuickActions = legalQuickActions.filter(action => 
+  const relevantQuickActions = legalQuickActions.filter(action =>
     action.practiceAreas.includes(practiceArea) || action.practiceAreas.includes('general')
   );
 
@@ -131,7 +131,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
     if (!inputValue.trim() || isStreaming || disabled) return;
 
     const messageType = selectedQuickAction ? selectedQuickAction.category : 'legal-query';
-    const content = selectedQuickAction 
+    const content = selectedQuickAction
       ? `${selectedQuickAction.prompt}\n\n${inputValue}`
       : inputValue;
 
@@ -208,9 +208,9 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
     <div className={`legal-input-area ${className}`}>
       {/* Confidentiality warning */}
       {confidentialityLevel !== 'public' && (
-        <div className=\"confidentiality-warning\">
-          <span className=\"warning-icon\">🔒</span>
-          <span className=\"warning-text\">
+        <div className="confidentiality-warning">
+          <span className="warning-icon">🔒</span>
+          <span className="warning-text">
             {confidentialityLevel === 'attorney-client' && 'This conversation is protected by attorney-client privilege'}
             {confidentialityLevel === 'work-product' && 'This conversation contains attorney work product'}
             {confidentialityLevel === 'confidential' && 'This conversation contains confidential information'}
@@ -220,26 +220,26 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
 
       {/* Quick Actions Bar */}
       {showQuickActions && (
-        <div className=\"quick-actions-panel\">
-          <div className=\"quick-actions-header\">
+        <div className="quick-actions-panel">
+          <div className="quick-actions-header">
             <h4>Legal Quick Actions</h4>
-            <button 
-              className=\"close-quick-actions\"
+            <button
+              className="close-quick-actions"
               onClick={() => setShowQuickActions(false)}
             >
               ✕
             </button>
           </div>
-          <div className=\"quick-actions-grid\">
+          <div className="quick-actions-grid">
             {relevantQuickActions.map((action) => (
               <button
                 key={action.id}
-                className=\"quick-action-button\"
+                className="quick-action-button"
                 onClick={() => handleQuickActionSelect(action)}
               >
-                <span className=\"action-icon\">{action.icon}</span>
-                <span className=\"action-label\">{action.label}</span>
-                <span className=\"action-category\">{action.category}</span>
+                <span className="action-icon">{action.icon}</span>
+                <span className="action-label">{action.label}</span>
+                <span className="action-category">{action.category}</span>
               </button>
             ))}
           </div>
@@ -248,11 +248,11 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
 
       {/* Selected Quick Action Indicator */}
       {selectedQuickAction && (
-        <div className=\"selected-action-indicator\">
-          <span className=\"action-icon\">{selectedQuickAction.icon}</span>
-          <span className=\"action-text\">Using: {selectedQuickAction.label}</span>
-          <button 
-            className=\"clear-action\"
+        <div className="selected-action-indicator">
+          <span className="action-icon">{selectedQuickAction.icon}</span>
+          <span className="action-text">Using: {selectedQuickAction.label}</span>
+          <button
+            className="clear-action"
             onClick={() => {
               setSelectedQuickAction(null);
               setInputValue('');
@@ -264,7 +264,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       )}
 
       {/* Input Mode Selector */}
-      <div className=\"input-mode-selector\">
+      <div className="input-mode-selector">
         <button
           className={`mode-button ${inputMode === 'text' ? 'active' : ''}`}
           onClick={() => setInputMode('text')}
@@ -286,10 +286,10 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       </div>
 
       {/* Main Input Area */}
-      <div className=\"input-container\">
+      <div className="input-container">
         {/* Text Input */}
         {inputMode === 'text' && (
-          <div className=\"text-input-wrapper\">
+          <div className="text-input-wrapper">
             <textarea
               ref={textareaRef}
               value={inputValue}
@@ -297,7 +297,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
               onKeyPress={handleKeyPress}
               placeholder={placeholder}
               disabled={disabled || isStreaming}
-              className=\"legal-textarea\"
+              className="legal-textarea"
               rows={1}
             />
           </div>
@@ -305,7 +305,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
 
         {/* Voice Input */}
         {inputMode === 'voice' && (
-          <div className=\"voice-input-wrapper\">
+          <div className="voice-input-wrapper">
             <button
               className={`voice-record-button ${isRecording ? 'recording' : ''}`}
               onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
@@ -313,19 +313,19 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
             >
               {isRecording ? (
                 <>
-                  <span className=\"recording-icon\">⏹️</span>
+                  <span className="recording-icon">⏹️</span>
                   <span>Stop Recording</span>
                 </>
               ) : (
                 <>
-                  <span className=\"mic-icon\">🎤</span>
+                  <span className="mic-icon">🎤</span>
                   <span>Start Voice Input</span>
                 </>
               )}
             </button>
             {isRecording && (
-              <div className=\"recording-indicator\">
-                <div className=\"recording-animation\"></div>
+              <div className="recording-indicator">
+                <div className="recording-animation"></div>
                 <span>Recording... Click to stop</span>
               </div>
             )}
@@ -334,52 +334,52 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
 
         {/* Document Input */}
         {inputMode === 'document' && (
-          <div className=\"document-input-wrapper\">
+          <div className="document-input-wrapper">
             <input
               ref={fileInputRef}
-              type=\"file\"
+              type="file"
               onChange={handleFileUpload}
-              accept=\".pdf,.doc,.docx,.txt\"
-              className=\"hidden-file-input\"
+              accept=".pdf,.doc,.docx,.txt"
+              className="hidden-file-input"
             />
             <button
-              className=\"document-upload-button\"
+              className="document-upload-button"
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled || isStreaming}
             >
-              <span className=\"upload-icon\">📎</span>
+              <span className="upload-icon">📎</span>
               <span>Upload Legal Document</span>
             </button>
-            <div className=\"supported-formats\">
+            <div className="supported-formats">
               Supported: PDF, DOC, DOCX, TXT
             </div>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className=\"input-actions\">
+        <div className="input-actions">
           <button
-            className=\"quick-actions-toggle\"
+            className="quick-actions-toggle"
             onClick={() => setShowQuickActions(!showQuickActions)}
             disabled={disabled || isStreaming}
-            title=\"Show quick actions\"
+            title="Show quick actions"
           >
             ⚡
           </button>
 
           <button
-            className=\"send-button\"
+            className="send-button"
             onClick={handleSend}
             disabled={!inputValue.trim() || disabled || isStreaming}
           >
             {isStreaming ? (
               <>
-                <span className=\"loading-spinner\"></span>
+                <span className="loading-spinner"></span>
                 <span>Processing...</span>
               </>
             ) : (
               <>
-                <span className=\"send-icon\">➤</span>
+                <span className="send-icon">➤</span>
                 <span>Send</span>
               </>
             )}
@@ -388,14 +388,14 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       </div>
 
       {/* Context Info */}
-      <div className=\"input-context-info\">
-        <span className=\"practice-area-indicator\">
+      <div className="input-context-info">
+        <span className="practice-area-indicator">
           {practiceArea.charAt(0).toUpperCase() + practiceArea.slice(1)} Law
         </span>
-        <span className=\"jurisdiction-indicator\">
+        <span className="jurisdiction-indicator">
           {jurisdiction.charAt(0).toUpperCase() + jurisdiction.slice(1)}
         </span>
-        <span className=\"character-count\">
+        <span className="character-count">
           {inputValue.length}/2000
         </span>
       </div>
@@ -403,10 +403,10 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
-        type=\"file\"
-        className=\"hidden\"
+        type="file"
+        className="hidden"
         onChange={handleFileUpload}
-        accept=\".pdf,.doc,.docx,.txt,.rtf\"
+        accept=".pdf,.doc,.docx,.txt,.rtf"
         multiple
       />
     </div>

@@ -244,8 +244,8 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
   // Render loading state
   if (!sessionId) {
     return (
-      <div className=\"legal-chat-loading\">
-        <div className=\"loading-spinner\"></div>
+      <div className="legal-chat-loading">
+        <div className="loading-spinner"></div>
         <p>Initializing legal consultation session...</p>
       </div>
     );
@@ -269,7 +269,7 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
         isMobile={isMobile}
       />
 
-      <div className=\"legal-chat-main\">
+      <div className="legal-chat-main">
         {/* Sidebar */}
         <div className={`legal-chat-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           {/* Legal Context Panel */}
@@ -294,8 +294,8 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
         </div>
 
         {/* Chat Area */}
-        <div className=\"legal-chat-content\">
-          <div className=\"legal-chat-messages\">
+        <div className="legal-chat-content">
+          <div className="legal-chat-messages">
             {messages.map((message) => (
               <LegalMessageBubble
                 key={message.id}
@@ -331,8 +331,8 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
             {isStreaming && !streamingContent && (
               <TypingIndicator 
                 show={true} 
-                userName=\"BEAR AI Legal\" 
-                className=\"legal-typing-indicator\"
+                userName="BEAR AI Legal"
+                className="legal-typing-indicator"
               />
             )}
 
@@ -347,9 +347,9 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
             practiceArea={legalContext?.practiceArea || initialPracticeArea}
             jurisdiction={legalContext?.jurisdiction || initialJurisdiction}
             placeholder={
-              isStreaming 
-                ? \"BEAR AI is analyzing your legal query...\" 
-                : \"Ask a legal question or describe your legal issue...\"
+              isStreaming
+                ? "BEAR AI is analyzing your legal query..."
+                : "Ask a legal question or describe your legal issue..."
             }
             confidentialityLevel={confidentialityLevel}
             disabled={isStreaming}
@@ -371,16 +371,16 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
       {/* Mobile overlay */}
       {isMobile && !sidebarCollapsed && (
         <div 
-          className=\"mobile-overlay\"
+          className="mobile-overlay"
           onClick={() => setSidebarCollapsed(true)}
         />
       )}
 
       {/* Confidentiality notice */}
-      <div className=\"legal-confidentiality-notice\">
-        <div className=\"confidentiality-badge ${confidentialityLevel}\">
-          <span className=\"confidentiality-icon\">🔒</span>
-          <span className=\"confidentiality-text\">
+      <div className="legal-confidentiality-notice">
+        <div className="confidentiality-badge ${confidentialityLevel}">
+          <span className="confidentiality-icon">🔒</span>
+          <span className="confidentiality-text">
             {confidentialityLevel === 'attorney-client' && 'Attorney-Client Privileged'}
             {confidentialityLevel === 'work-product' && 'Work Product Protected'}
             {confidentialityLevel === 'confidential' && 'Confidential Information'}
