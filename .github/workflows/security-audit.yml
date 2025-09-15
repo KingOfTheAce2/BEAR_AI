@@ -44,12 +44,25 @@ jobs:
             exit 1
           }
 
-          # Try npm ci first, fallback to npm install if package-lock.json is corrupted
+          # Handle npm ci failures with multiple fallback strategies
           npm ci || {
-            echo "npm ci failed, falling back to npm install..."
-            rm -f package-lock.json
-            npm install --package-lock-only
-            npm ci
+            echo "npm ci failed, trying fallback strategies..."
+
+            # Strategy 1: Clean cache and retry
+            npm cache clean --force
+            npm ci || {
+              echo "npm ci with clean cache failed, trying npm install..."
+
+              # Strategy 2: Use npm install instead of ci
+              npm install || {
+                echo "npm install failed, regenerating package-lock.json..."
+
+                # Strategy 3: Regenerate package-lock.json
+                rm -f package-lock.json
+                npm install --package-lock-only
+                npm install
+              }
+            }
           }
 
       - name: Run npm security audit
