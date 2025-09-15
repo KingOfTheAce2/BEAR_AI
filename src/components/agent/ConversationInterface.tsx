@@ -6,9 +6,303 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
-import { 
-  Send, 
-  Paperclip, 
-  Smile,\n  MoreVertical,\n  Play,\n  Pause,\n  Square,\n  Settings,\n  Users\n} from 'lucide-react'
+import {
+  Send,
+  Paperclip,
+  Smile,
+  MoreVertical,
+  Play,
+  Pause,
+  Square,
+  Settings,
+  Users
+} from 'lucide-react'
 
-export interface ConversationInterfaceProps {\n  conversation: Conversation\n  currentUser?: Agent\n  onSendMessage: (content: string, type?: Message['type']) => void\n  onPauseConversation?: () => void\n  onResumeConversation?: () => void\n  onEndConversation?: () => void\n  onAddParticipant?: () => void\n  onConfigureConversation?: () => void\n  className?: string\n}\n\nconst ConversationInterface: React.FC<ConversationInterfaceProps> = ({\n  conversation,\n  currentUser,\n  onSendMessage,\n  onPauseConversation,\n  onResumeConversation,\n  onEndConversation,\n  onAddParticipant,\n  onConfigureConversation,\n  className,\n}) => {\n  const [message, setMessage] = React.useState('')\n  const [isTyping, setIsTyping] = React.useState(false)\n  const messagesEndRef = React.useRef<HTMLDivElement>(null)\n  const inputRef = React.useRef<HTMLInputElement>(null)\n\n  // Auto-scroll to bottom when new messages arrive\n  React.useEffect(() => {\n    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })\n  }, [conversation.messages])\n\n  // Focus input on mount\n  React.useEffect(() => {\n    inputRef.current?.focus()\n  }, [])\n\n  const handleSendMessage = () => {\n    if (!message.trim()) return\n    \n    onSendMessage(message.trim())\n    setMessage('')\n    setIsTyping(false)\n  }\n\n  const handleKeyPress = (e: React.KeyboardEvent) => {\n    if (e.key === 'Enter' && !e.shiftKey) {\n      e.preventDefault()\n      handleSendMessage()\n    }\n  }\n\n  const getParticipantById = (agentId: string): Agent | undefined => {\n    return conversation.participants.find(p => p.id === agentId)\n  }\n\n  const formatTimestamp = (timestamp: Date): string => {\n    return new Date(timestamp).toLocaleTimeString([], { \n      hour: '2-digit', \n      minute: '2-digit' \n    })\n  }\n\n  const getMessageTypeIcon = (type: Message['type']) => {\n    switch (type) {\n      case 'code':\n        return '💻'\n      case 'file':\n        return '📎'\n      case 'image':\n        return '🖼️'\n      case 'system':\n        return '⚙️'\n      default:\n        return '💬'\n    }\n  }\n\n  const renderMessage = (message: Message) => {\n    const participant = getParticipantById(message.agentId)\n    const isCurrentUser = currentUser && message.agentId === currentUser.id\n    \n    return (\n      <div\n        key={message.id}\n        className={cn(\n          'flex gap-3 mb-4',\n          isCurrentUser && 'flex-row-reverse'\n        )}\n      >\n        <Avatar\n          src={participant?.avatar}\n          alt={participant?.name}\n          fallback={participant?.name?.charAt(0)}\n          size=\"sm\"\n          showStatus\n          status={participant?.status === 'active' ? 'online' : 'offline'}\n        />\n        \n        <div className={cn(\n          'flex-1 min-w-0',\n          isCurrentUser && 'text-right'\n        )}>\n          <div className={cn(\n            'flex items-center gap-2 mb-1',\n            isCurrentUser && 'justify-end'\n          )}>\n            <span className=\"text-sm font-medium text-foreground\">\n              {participant?.name || 'Unknown Agent'}\n            </span>\n            <span className=\"text-xs text-muted-foreground\">\n              {formatTimestamp(message.timestamp)}\n            </span>\n            {message.type !== 'text' && (\n              <span className=\"text-xs\">\n                {getMessageTypeIcon(message.type)}\n              </span>\n            )}\n          </div>\n          \n          <div className={cn(\n            'inline-block max-w-[80%] p-3 rounded-lg text-sm',\n            isCurrentUser \n              ? 'bg-primary text-primary-foreground ml-auto'\n              : 'bg-muted text-muted-foreground',\n            message.type === 'code' && 'font-mono text-xs bg-gray-900 text-green-400',\n            message.type === 'system' && 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100'\n          )}>\n            {message.type === 'code' ? (\n              <pre className=\"whitespace-pre-wrap\">{message.content}</pre>\n            ) : (\n              <p className=\"whitespace-pre-wrap\">{message.content}</p>\n            )}\n            \n            {message.metadata && Object.keys(message.metadata).length > 0 && (\n              <div className=\"mt-2 pt-2 border-t border-current/20 text-xs opacity-75\">\n                {Object.entries(message.metadata).map(([key, value]) => (\n                  <div key={key} className=\"flex justify-between\">\n                    <span>{key}:</span>\n                    <span>{String(value)}</span>\n                  </div>\n                ))}\n              </div>\n            )}\n          </div>\n        </div>\n      </div>\n    )\n  }\n\n  return (\n    <Card className={cn('h-full flex flex-col', className)}>\n      {/* Header */}\n      <CardHeader className=\"shrink-0 border-b border-border\">\n        <div className=\"flex items-center justify-between\">\n          <div className=\"flex items-center gap-3\">\n            <div className=\"relative\">\n              <Users className=\"h-5 w-5 text-muted-foreground\" />\n              <Badge \n                variant=\"outline\" \n                className=\"absolute -top-2 -right-2 text-xs px-1 min-w-[20px] h-5\"\n              >\n                {conversation.participants.length}\n              </Badge>\n            </div>\n            <div className=\"flex-1 min-w-0\">\n              <CardTitle className=\"truncate text-base\">\n                {conversation.title}\n              </CardTitle>\n              <div className=\"flex items-center gap-2 mt-1\">\n                <Badge \n                  variant={conversation.status === 'active' ? 'default' : 'secondary'}\n                  className=\"text-xs\"\n                >\n                  {conversation.status}\n                </Badge>\n                <span className=\"text-xs text-muted-foreground\">\n                  {conversation.messages.length} messages\n                </span>\n              </div>\n            </div>\n          </div>\n          \n          {/* Actions */}\n          <div className=\"flex items-center gap-1\">\n            {conversation.status === 'active' && onPauseConversation && (\n              <Button variant=\"ghost\" size=\"icon\" onClick={onPauseConversation}>\n                <Pause className=\"h-4 w-4\" />\n              </Button>\n            )}\n            {conversation.status === 'paused' && onResumeConversation && (\n              <Button variant=\"ghost\" size=\"icon\" onClick={onResumeConversation}>\n                <Play className=\"h-4 w-4\" />\n              </Button>\n            )}\n            {onEndConversation && (\n              <Button variant=\"ghost\" size=\"icon\" onClick={onEndConversation}>\n                <Square className=\"h-4 w-4\" />\n              </Button>\n            )}\n            {onAddParticipant && (\n              <Button variant=\"ghost\" size=\"icon\" onClick={onAddParticipant}>\n                <Users className=\"h-4 w-4\" />\n              </Button>\n            )}\n            {onConfigureConversation && (\n              <Button variant=\"ghost\" size=\"icon\" onClick={onConfigureConversation}>\n                <Settings className=\"h-4 w-4\" />\n              </Button>\n            )}\n          </div>\n        </div>\n      </CardHeader>\n\n      {/* Messages */}\n      <CardContent className=\"flex-1 overflow-y-auto p-4\">\n        {conversation.messages.length === 0 ? (\n          <div className=\"flex items-center justify-center h-full text-muted-foreground\">\n            <div className=\"text-center\">\n              <Users className=\"h-12 w-12 mx-auto mb-4 opacity-50\" />\n              <p>No messages yet. Start the conversation!</p>\n            </div>\n          </div>\n        ) : (\n          <div className=\"space-y-4\">\n            {conversation.messages.map(renderMessage)}\n            {isTyping && (\n              <div className=\"flex gap-3 mb-4 opacity-75\">\n                <Avatar\n                  fallback=\"...\"\n                  size=\"sm\"\n                />\n                <div className=\"flex-1\">\n                  <div className=\"inline-block bg-muted p-3 rounded-lg\">\n                    <div className=\"flex gap-1\">\n                      <div className=\"w-2 h-2 bg-current rounded-full animate-bounce\" />\n                      <div className=\"w-2 h-2 bg-current rounded-full animate-bounce\" style={{ animationDelay: '0.1s' }} />\n                      <div className=\"w-2 h-2 bg-current rounded-full animate-bounce\" style={{ animationDelay: '0.2s' }} />\n                    </div>\n                  </div>\n                </div>\n              </div>\n            )}\n            <div ref={messagesEndRef} />\n          </div>\n        )}\n      </CardContent>\n\n      {/* Input */}\n      {conversation.status === 'active' && (\n        <div className=\"shrink-0 border-t border-border p-4\">\n          <div className=\"flex items-center gap-2\">\n            <Button variant=\"ghost\" size=\"icon\">\n              <Paperclip className=\"h-4 w-4\" />\n            </Button>\n            <Button variant=\"ghost\" size=\"icon\">\n              <Smile className=\"h-4 w-4\" />\n            </Button>\n            \n            <Input\n              ref={inputRef}\n              value={message}\n              onChange={(e) => {\n                setMessage(e.target.value)\n                setIsTyping(e.target.value.length > 0)\n              }}\n              onKeyPress={handleKeyPress}\n              placeholder=\"Type your message...\"\n              className=\"flex-1\"\n              disabled={conversation.status !== 'active'}\n            />\n            \n            <Button \n              onClick={handleSendMessage}\n              disabled={!message.trim() || conversation.status !== 'active'}\n              size=\"icon\"\n            >\n              <Send className=\"h-4 w-4\" />\n            </Button>\n          </div>\n        </div>\n      )}\n    </Card>\n  )\n}\n\nexport { ConversationInterface }"
+export interface ConversationInterfaceProps {
+  conversation: Conversation
+  currentUser?: Agent
+  onSendMessage: (content: string, type?: Message['type']) => void
+  onPauseConversation?: () => void
+  onResumeConversation?: () => void
+  onEndConversation?: () => void
+  onAddParticipant?: () => void
+  onConfigureConversation?: () => void
+  className?: string
+}
+
+const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
+  conversation,
+  currentUser,
+  onSendMessage,
+  onPauseConversation,
+  onResumeConversation,
+  onEndConversation,
+  onAddParticipant,
+  onConfigureConversation,
+  className,
+}) => {
+  const [message, setMessage] = React.useState('')
+  const [isTyping, setIsTyping] = React.useState(false)
+  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  // Auto-scroll to bottom when new messages arrive
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [conversation.messages])
+
+  // Focus input on mount
+  React.useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return
+
+    onSendMessage(message.trim())
+    setMessage('')
+    setIsTyping(false)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  const getParticipantById = (agentId: string): Agent | undefined => {
+    return conversation.participants.find(p => p.id === agentId)
+  }
+
+  const formatTimestamp = (timestamp: Date): string => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getMessageTypeIcon = (type: Message['type']) => {
+    switch (type) {
+      case 'code':
+        return '💻'
+      case 'file':
+        return '📎'
+      case 'image':
+        return '🖼️'
+      case 'system':
+        return '⚙️'
+      default:
+        return '💬'
+    }
+  }
+
+  const renderMessage = (message: Message) => {
+    const participant = getParticipantById(message.agentId)
+    const isCurrentUser = currentUser && message.agentId === currentUser.id
+
+    return (
+      <div
+        key={message.id}
+        className={cn(
+          'flex gap-3 mb-4',
+          isCurrentUser && 'flex-row-reverse'
+        )}
+      >
+        <Avatar
+          src={participant?.avatar}
+          alt={participant?.name}
+          fallback={participant?.name?.charAt(0)}
+          size="sm"
+          showStatus
+          status={participant?.status === 'active' ? 'online' : 'offline'}
+        />
+
+        <div className={cn(
+          'flex-1 min-w-0',
+          isCurrentUser && 'text-right'
+        )}>
+          <div className={cn(
+            'flex items-center gap-2 mb-1',
+            isCurrentUser && 'justify-end'
+          )}>
+            <span className="text-sm font-medium text-foreground">
+              {participant?.name || 'Unknown Agent'}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {formatTimestamp(message.timestamp)}
+            </span>
+            {message.type !== 'text' && (
+              <span className="text-xs">
+                {getMessageTypeIcon(message.type)}
+              </span>
+            )}
+          </div>
+
+          <div className={cn(
+            'inline-block max-w-[80%] p-3 rounded-lg text-sm',
+            isCurrentUser
+              ? 'bg-primary text-primary-foreground ml-auto'
+              : 'bg-muted text-muted-foreground',
+            message.type === 'code' && 'font-mono text-xs bg-gray-900 text-green-400',
+            message.type === 'system' && 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100'
+          )}>
+            {message.type === 'code' ? (
+              <pre className="whitespace-pre-wrap">{message.content}</pre>
+            ) : (
+              <p className="whitespace-pre-wrap">{message.content}</p>
+            )}
+
+            {message.metadata && Object.keys(message.metadata).length > 0 && (
+              <div className="mt-2 pt-2 border-t border-current/20 text-xs opacity-75">
+                {Object.entries(message.metadata).map(([key, value]) => (
+                  <div key={key} className="flex justify-between">
+                    <span>{key}:</span>
+                    <span>{String(value)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Card className={cn('h-full flex flex-col', className)}>
+      {/* Header */}
+      <CardHeader className="shrink-0 border-b border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <Badge
+                variant="outline"
+                className="absolute -top-2 -right-2 text-xs px-1 min-w-[20px] h-5"
+              >
+                {conversation.participants.length}
+              </Badge>
+            </div>
+            <div className="flex-1 min-w-0">
+              <CardTitle className="truncate text-base">
+                {conversation.title}
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge
+                  variant={conversation.status === 'active' ? 'default' : 'secondary'}
+                  className="text-xs"
+                >
+                  {conversation.status}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {conversation.messages.length} messages
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1">
+            {conversation.status === 'active' && onPauseConversation && (
+              <Button variant="ghost" size="icon" onClick={onPauseConversation}>
+                <Pause className="h-4 w-4" />
+              </Button>
+            )}
+            {conversation.status === 'paused' && onResumeConversation && (
+              <Button variant="ghost" size="icon" onClick={onResumeConversation}>
+                <Play className="h-4 w-4" />
+              </Button>
+            )}
+            {onEndConversation && (
+              <Button variant="ghost" size="icon" onClick={onEndConversation}>
+                <Square className="h-4 w-4" />
+              </Button>
+            )}
+            {onAddParticipant && (
+              <Button variant="ghost" size="icon" onClick={onAddParticipant}>
+                <Users className="h-4 w-4" />
+              </Button>
+            )}
+            {onConfigureConversation && (
+              <Button variant="ghost" size="icon" onClick={onConfigureConversation}>
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      {/* Messages */}
+      <CardContent className="flex-1 overflow-y-auto p-4">
+        {conversation.messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            <div className="text-center">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No messages yet. Start the conversation!</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {conversation.messages.map(renderMessage)}
+            {isTyping && (
+              <div className="flex gap-3 mb-4 opacity-75">
+                <Avatar
+                  fallback="..."
+                  size="sm"
+                />
+                <div className="flex-1">
+                  <div className="inline-block bg-muted p-3 rounded-lg">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </CardContent>
+
+      {/* Input */}
+      {conversation.status === 'active' && (
+        <div className="shrink-0 border-t border-border p-4">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon">
+              <Paperclip className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Smile className="h-4 w-4" />
+            </Button>
+
+            <Input
+              ref={inputRef}
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value)
+                setIsTyping(e.target.value.length > 0)
+              }}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="flex-1"
+              disabled={conversation.status !== 'active'}
+            />
+
+            <Button
+              onClick={handleSendMessage}
+              disabled={!message.trim() || conversation.status !== 'active'}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+export { ConversationInterface }

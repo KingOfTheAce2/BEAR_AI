@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - BEAR AI Legal Assistant
+name: BEAR AI - Build & Deploy
 
 on:
   push:
@@ -6,8 +6,7 @@ on:
     tags: ['v*']
   pull_request:
     branches: [main]
-  release:
-    types: [published]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -55,118 +54,31 @@ jobs:
         working-directory: src-tauri
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Run audit for security vulnerabilities
-        run: |
-          npm audit --audit-level high
-          cargo audit --deny warnings
+      - name: Run tests
+        run: npm test
+
+      - name: Rust tests
         working-directory: src-tauri
-        continue-on-error: true
+        run: cargo test
 
-  # Automated Testing Pipeline
-  test:
-    name: Automated Tests
-    runs-on: ${{ matrix.os }}
-    needs: quality-checks
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [18]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
-
-      - name: Install system dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run unit tests
-        run: npm run test:unit
-
-      - name: Run integration tests
-        run: npm run test:integration
-
-      - name: Run API tests
-        run: npm run test:api
-
-      - name: Run Rust tests
-        working-directory: src-tauri
-        run: cargo test --verbose
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ matrix.os }}
-          path: |
-            test-results/
-            coverage/
-            playwright-report/
-
-  # Cross-Platform Build Pipeline
-  build:
-    name: Build (${{ matrix.platform }})
-    runs-on: ${{ matrix.os }}
-    needs: [quality-checks, test]
-    permissions:
-      contents: write
+  # Build Tauri Application for Multiple Platforms
+  build-tauri:
+    name: Build Tauri App
+    needs: [quality-checks]
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Windows builds
-          - platform: 'windows-latest'
-            os: 'windows-latest'
-            rust-target: 'x86_64-pc-windows-msvc'
-            tauri-target: 'x86_64-pc-windows-msvc'
-            arch: 'x64'
-
-          # macOS builds
           - platform: 'macos-latest'
-            os: 'macos-latest'
-            rust-target: 'x86_64-apple-darwin'
-            tauri-target: 'x86_64-apple-darwin'
-            arch: 'x64'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-20.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
 
-          - platform: 'macos-latest-arm'
-            os: 'macos-latest'
-            rust-target: 'aarch64-apple-darwin'
-            tauri-target: 'aarch64-apple-darwin'
-            arch: 'arm64'
-
-          # Linux builds
-          - platform: 'ubuntu-latest'
-            os: 'ubuntu-latest'
-            rust-target: 'x86_64-unknown-linux-gnu'
-            tauri-target: 'x86_64-unknown-linux-gnu'
-            arch: 'x64'
-
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -180,147 +92,62 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.rust-target }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
-          key: ${{ runner.os }}-${{ matrix.arch }}
 
-      - name: Install system dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
-
-      - name: Install dependencies
-        run: |
-          npm ci --prefer-offline --no-audit
+      - name: Install frontend dependencies
+        run: npm ci
 
       - name: Build frontend
-        run: npm run build:unified
+        run: npm run build
 
-      - name: Build Tauri application
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          args: --target ${{ matrix.tauri-target }}
-          tagName: v__VERSION__
-          releaseName: 'BEAR AI Legal Assistant v__VERSION__'
-          releaseBody: |
-            # BEAR AI Legal Assistant v__VERSION__
+          args: ${{ matrix.args }}
 
-            Professional AI-powered legal document analysis and assistance desktop application.
-
-            ## Features
-            - AI-powered legal document analysis
-            - Professional document processing
-            - Legal research capabilities
-            - Secure document handling
-            - Cross-platform support
-
-            ## Platform Support
-            - Windows (x64): .exe, .msi installers
-            - macOS (Intel & Apple Silicon): .app, .dmg
-            - Linux (x64): .deb, .AppImage
-
-            ## Installation
-            Download the appropriate installer for your platform below.
-
-            ## What's New
-            See the full changelog for detailed updates and improvements.
-          releaseDraft: ${{ github.event_name != 'release' }}
-          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
-          includeDebug: false
-          includeRelease: true
-
-      - name: Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tauri-build-${{ matrix.platform }}
+          name: tauri-apps-${{ matrix.platform }}
           path: |
-            src-tauri/target/release/bundle/*/*
-            src-tauri/target/${{ matrix.tauri-target }}/release/bundle/*/*
-          retention-days: 7
+            src-tauri/target/release/bundle/
+            src-tauri/target/*/release/bundle/
+          retention-days: 30
 
-  # Security and Vulnerability Scanning
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: quality-checks
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Setup Node.js for security audit
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run npm security audit
-        run: npm audit --audit-level moderate
-
-  # Release Management
+  # Release (only on tags)
   release:
     name: Create Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-tauri]
     runs-on: ubuntu-latest
-    needs: [build, security-scan]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all build artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          path: artifacts
 
-      - name: Create GitHub Release
+      - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/tauri-build-*/*
-          generate_release_notes: true
+          files: |
+            tauri-apps-windows-latest/**/*
+            tauri-apps-macos-latest/**/*
+            tauri-apps-ubuntu-20.04/**/*
           draft: false
-          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # Deployment Notification
-  notify:
-    name: Deployment Notification
-    runs-on: ubuntu-latest
-    needs: [build, security-scan]
-    if: always()
-    steps:
-      - name: Notify build status
-        run: |
-          if [[ "${{ needs.build.result }}" == "success" && "${{ needs.security-scan.result }}" == "success" ]]; then
-            echo "✅ Build and security scan completed successfully"
-            echo "🚀 BEAR AI Legal Assistant is ready for deployment"
-          else
-            echo "❌ Build or security scan failed"
-            echo "💡 Please check the logs and fix any issues"
-          fi

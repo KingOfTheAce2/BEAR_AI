@@ -13,13 +13,15 @@ export interface Message {
   id: string;
   content: string;
   sender: 'user' | 'ai';
+  agentId: string;
   timestamp: Date;
   status: 'sending' | 'sent' | 'delivered' | 'error';
-  type: 'text' | 'document' | 'analysis' | 'citation';
+  type: 'text' | 'document' | 'analysis' | 'citation' | 'code' | 'file' | 'image' | 'system';
   metadata?: {
     confidence?: number;
     sources?: string[];
     documentRefs?: string[];
+    [key: string]: any;
   };
 }
 
@@ -179,4 +181,16 @@ export interface NotificationAction {
   label: string;
   variant: 'primary' | 'secondary';
   action: () => void;
+}
+
+// Conversation Management Types
+export interface Conversation {
+  id: string;
+  title: string;
+  status: 'active' | 'paused' | 'ended';
+  participants: Agent[];
+  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
+  metadata?: Record<string, any>;
 }
