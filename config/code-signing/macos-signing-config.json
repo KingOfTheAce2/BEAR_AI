@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json.schemastore.org/tauri.json",
+  "description": "macOS Code Signing Configuration Template for BEAR AI",
+  "version": "1.0.0",
+  "macos": {
+    "developer_id": {
+      "description": "Developer ID Application certificate for distribution outside App Store",
+      "signing_identity": "Developer ID Application: Your Name (TEAM_ID)",
+      "entitlements": "entitlements.plist",
+      "notarization_required": true,
+      "distribution": "outside_app_store"
+    },
+    "app_store": {
+      "description": "Mac App Store distribution certificate",
+      "signing_identity": "3rd Party Mac Developer Application: Your Name (TEAM_ID)",
+      "entitlements": "entitlements.mas.plist",
+      "notarization_required": false,
+      "distribution": "app_store"
+    },
+    "development": {
+      "description": "Development certificate for testing",
+      "signing_identity": "Mac Developer: Your Name (TEAM_ID)",
+      "entitlements": "entitlements.dev.plist",
+      "notarization_required": false,
+      "distribution": "development"
+    },
+    "adhoc": {
+      "description": "Ad-hoc signing for ARM Macs without Apple Developer Account",
+      "signing_identity": "-",
+      "entitlements": null,
+      "notarization_required": false,
+      "distribution": "local_testing",
+      "note": "Only works on ARM Macs, useful for development without Apple Developer Account"
+    }
+  },
+  "environment_variables": {
+    "required": {
+      "APPLE_SIGNING_IDENTITY": "Developer ID Application: Your Name (TEAM_ID)",
+      "APPLE_CERTIFICATE": "base64-encoded-p12-certificate",
+      "APPLE_CERTIFICATE_PASSWORD": "certificate-password"
+    },
+    "notarization": {
+      "APPLE_ID": "your-apple-id@example.com",
+      "APPLE_PASSWORD": "app-specific-password",
+      "APPLE_TEAM_ID": "your-10-character-team-id"
+    },
+    "api_key_auth": {
+      "APPLE_API_ISSUER": "api-key-issuer-id",
+      "APPLE_API_KEY": "api-key-id",
+      "APPLE_API_KEY_PATH": "path/to/AuthKey_KEYID.p8"
+    }
+  },
+  "entitlements": {
+    "basic": {
+      "filename": "entitlements.plist",
+      "content": {
+        "com.apple.security.app-sandbox": true,
+        "com.apple.security.files.user-selected.read-only": true,
+        "com.apple.security.files.user-selected.read-write": true,
+        "com.apple.security.network.client": true,
+        "com.apple.security.print": true
+      }
+    },
+    "advanced": {
+      "filename": "entitlements.plist",
+      "content": {
+        "com.apple.security.app-sandbox": true,
+        "com.apple.security.files.user-selected.read-only": true,
+        "com.apple.security.files.user-selected.read-write": true,
+        "com.apple.security.files.bookmarks.app-scope": true,
+        "com.apple.security.network.client": true,
+        "com.apple.security.network.server": true,
+        "com.apple.security.print": true,
+        "com.apple.security.device.camera": true,
+        "com.apple.security.device.microphone": true,
+        "com.apple.security.personal-information.location": true
+      }
+    },
+    "development": {
+      "filename": "entitlements.dev.plist",
+      "content": {
+        "com.apple.security.get-task-allow": true,
+        "com.apple.security.files.user-selected.read-only": true,
+        "com.apple.security.files.user-selected.read-write": true,
+        "com.apple.security.network.client": true
+      }
+    }
+  },
+  "certificate_setup": {
+    "steps": [
+      "1. Enroll in Apple Developer Program ($99/year)",
+      "2. Create Developer ID Application certificate in Apple Developer Portal",
+      "3. Download certificate and import into Keychain Access",
+      "4. Export certificate as .p12 file with password",
+      "5. Convert .p12 to base64: base64 -i certificate.p12 -o certificate.txt",
+      "6. Set environment variables for signing and notarization"
+    ],
+    "keychain_commands": [
+      "security find-identity -v -p codesigning",
+      "security import certificate.p12 -k ~/Library/Keychains/login.keychain",
+      "security unlock-keychain -p password ~/Library/Keychains/login.keychain"
+    ]
+  },
+  "notarization": {
+    "description": "Required for Developer ID certificates to avoid Gatekeeper warnings",
+    "process": [
+      "1. Build and sign application",
+      "2. Create zip archive of signed app",
+      "3. Submit to Apple notarization service",
+      "4. Wait for notarization completion",
+      "5. Staple notarization ticket to app"
+    ],
+    "commands": [
+      "xcrun notarytool submit app.zip --apple-id \"$APPLE_ID\" --password \"$APPLE_PASSWORD\" --team-id \"$TEAM_ID\" --wait",
+      "xcrun stapler staple \"MyApp.app\""
+    ]
+  },
+  "github_actions": {
+    "secrets_required": [
+      "APPLE_SIGNING_IDENTITY",
+      "APPLE_CERTIFICATE",
+      "APPLE_CERTIFICATE_PASSWORD",
+      "APPLE_ID",
+      "APPLE_PASSWORD",
+      "APPLE_TEAM_ID"
+    ],
+    "example_workflow_step": {
+      "name": "Setup macOS Code Signing",
+      "if": "matrix.platform == 'macos-latest'",
+      "run": [
+        "# Create temporary keychain",
+        "security create-keychain -p temp_password temp.keychain",
+        "security default-keychain -s temp.keychain",
+        "security unlock-keychain -p temp_password temp.keychain",
+        "# Import certificate",
+        "echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12",
+        "security import certificate.p12 -k temp.keychain -P $APPLE_CERTIFICATE_PASSWORD -T /usr/bin/codesign",
+        "security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp_password temp.keychain",
+        "# Clean up",
+        "rm certificate.p12"
+      ]
+    }
+  },
+  "troubleshooting": {
+    "common_issues": [
+      {
+        "issue": "Certificate not found in keychain",
+        "solution": "Verify certificate is imported and keychain is unlocked"
+      },
+      {
+        "issue": "Notarization fails",
+        "solution": "Check entitlements and ensure all binaries are signed"
+      },
+      {
+        "issue": "Gatekeeper blocks app",
+        "solution": "Ensure notarization is complete and ticket is stapled"
+      },
+      {
+        "issue": "Ad-hoc signing fails",
+        "solution": "Only available on ARM Macs, use proper certificate on Intel Macs"
+      }
+    ]
+  }
+}

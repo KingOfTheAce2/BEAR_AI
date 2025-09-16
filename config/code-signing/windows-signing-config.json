@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json.schemastore.org/tauri.json",
+  "description": "Windows Code Signing Configuration Template for BEAR AI",
+  "version": "1.0.0",
+  "windows": {
+    "traditional": {
+      "description": "Traditional certificate signing (deprecated for new OV/EV certificates)",
+      "certificateThumbprint": "${WINDOWS_CERTIFICATE_THUMBPRINT}",
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.sectigo.com",
+      "tsp": false,
+      "note": "This method only works for OV certificates issued before June 1st, 2023"
+    },
+    "azure": {
+      "description": "Azure Key Vault signing (recommended for production)",
+      "signCommand": "azuresigntool sign -kvu \"${AZURE_KEY_VAULT_URL}\" -kvi \"${AZURE_CLIENT_ID}\" -kvs \"${AZURE_CLIENT_SECRET}\" -kvc \"${AZURE_CERTIFICATE_NAME}\" -tr http://timestamp.sectigo.com -td sha256 \"{{path}}\"",
+      "environment_variables": {
+        "AZURE_KEY_VAULT_URL": "https://your-vault.vault.azure.net/",
+        "AZURE_CLIENT_ID": "your-azure-app-registration-client-id",
+        "AZURE_CLIENT_SECRET": "your-azure-app-registration-client-secret",
+        "AZURE_CERTIFICATE_NAME": "your-certificate-name-in-key-vault",
+        "AZURE_TENANT_ID": "your-azure-tenant-id"
+      }
+    },
+    "hsm": {
+      "description": "Hardware Security Module signing (required for new certificates)",
+      "signCommand": "signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /csp \"eToken Base Cryptographic Provider\" /k \"[{{container_name}}]={{key_name}}\" \"{{path}}\"",
+      "environment_variables": {
+        "WINDOWS_HSM_CONTAINER": "your-hsm-container-name",
+        "WINDOWS_HSM_KEY": "your-hsm-key-name",
+        "WINDOWS_HSM_PIN": "your-hsm-pin"
+      },
+      "notes": [
+        "HSM must be FIPS 140-2 Level 2 compliant",
+        "Requires physical HSM device or cloud HSM service",
+        "EV certificates and OV certificates after June 2023 require HSM storage"
+      ]
+    },
+    "custom": {
+      "description": "Custom signing command for specialized setups",
+      "signCommand": "your-custom-sign-tool --sign --certificate \"${WINDOWS_CERTIFICATE_PATH}\" --password \"${WINDOWS_CERTIFICATE_PASSWORD}\" --timestamp-server http://timestamp.sectigo.com \"{{path}}\"",
+      "environment_variables": {
+        "WINDOWS_CERTIFICATE_PATH": "path-to-your-certificate-file",
+        "WINDOWS_CERTIFICATE_PASSWORD": "your-certificate-password"
+      }
+    }
+  },
+  "certificate_authorities": {
+    "timestamp_servers": [
+      "http://timestamp.sectigo.com",
+      "http://timestamp.comodoca.com",
+      "http://timestamp.digicert.com",
+      "http://sha256timestamp.ws.symantec.com/sha256/timestamp",
+      "http://timestamp.globalsign.com/scripts/timstamp.dll"
+    ],
+    "recommended_providers": [
+      {
+        "name": "Sectigo",
+        "type": "OV/EV",
+        "notes": "Popular choice for Windows code signing"
+      },
+      {
+        "name": "DigiCert",
+        "type": "OV/EV",
+        "notes": "Premium provider with excellent reputation"
+      },
+      {
+        "name": "GlobalSign",
+        "type": "OV/EV",
+        "notes": "Good alternative with competitive pricing"
+      },
+      {
+        "name": "Certum",
+        "type": "OV/EV",
+        "notes": "Cost-effective option with HSM support"
+      }
+    ]
+  },
+  "github_actions": {
+    "secrets_required": [
+      "WINDOWS_CERTIFICATE_THUMBPRINT",
+      "WINDOWS_CERTIFICATE_BASE64",
+      "WINDOWS_CERTIFICATE_PASSWORD",
+      "AZURE_CLIENT_ID",
+      "AZURE_CLIENT_SECRET",
+      "AZURE_TENANT_ID",
+      "AZURE_KEY_VAULT_URL",
+      "AZURE_CERTIFICATE_NAME"
+    ],
+    "example_workflow_step": {
+      "name": "Setup Windows Code Signing",
+      "if": "matrix.platform == 'windows-latest'",
+      "shell": "powershell",
+      "run": [
+        "# Decode certificate from base64",
+        "$cert = [Convert]::FromBase64String('${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}')",
+        "[IO.File]::WriteAllBytes('certificate.pfx', $cert)",
+        "# Import certificate to local machine store",
+        "Import-PfxCertificate -FilePath certificate.pfx -CertStoreLocation Cert:\\LocalMachine\\My -Password (ConvertTo-SecureString '${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}' -AsPlainText -Force)",
+        "# Clean up certificate file",
+        "Remove-Item certificate.pfx"
+      ]
+    }
+  },
+  "troubleshooting": {
+    "common_issues": [
+      {
+        "issue": "Certificate not found",
+        "solution": "Verify certificate is properly installed in Windows Certificate Store"
+      },
+      {
+        "issue": "Timestamp server unreachable",
+        "solution": "Try alternative timestamp servers or check network connectivity"
+      },
+      {
+        "issue": "HSM not detected",
+        "solution": "Ensure HSM drivers are installed and device is properly connected"
+      },
+      {
+        "issue": "Azure Key Vault authentication failed",
+        "solution": "Verify Azure credentials and Key Vault access permissions"
+      }
+    ]
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json.schemastore.org/tauri.json",
+  "description": "Linux Package Signing Configuration Template for BEAR AI",
+  "version": "1.0.0",
+  "linux": {
+    "appimage": {
+      "description": "AppImage signing for portable Linux applications",
+      "signing_method": "gpg",
+      "key_format": "GPG private key",
+      "verification": "AppImage validation tool",
+      "distribution": "portable"
+    },
+    "deb": {
+      "description": "Debian package signing",
+      "signing_method": "dpkg-sig",
+      "key_format": "GPG private key",
+      "verification": "apt package verification",
+      "distribution": "debian_based"
+    },
+    "rpm": {
+      "description": "RPM package signing",
+      "signing_method": "rpm --addsign",
+      "key_format": "GPG private key",
+      "verification": "rpm --checksig",
+      "distribution": "redhat_based"
+    },
+    "flatpak": {
+      "description": "Flatpak application signing",
+      "signing_method": "flatpak build-finish",
+      "key_format": "GPG private key",
+      "verification": "flatpak install --user",
+      "distribution": "universal"
+    }
+  },
+  "gpg_setup": {
+    "key_generation": {
+      "command": "gpg --full-generate-key",
+      "key_type": "RSA",
+      "key_size": "4096",
+      "expiration": "2y",
+      "real_name": "BEAR AI Team",
+      "email": "releases@bearai.com",
+      "comment": "Code signing key for BEAR AI releases"
+    },
+    "key_management": {
+      "export_public": "gpg --armor --export your-email@domain.com > public.key",
+      "export_private": "gpg --armor --export-secret-keys your-email@domain.com > private.key",
+      "import_key": "gpg --import private.key",
+      "list_keys": "gpg --list-secret-keys --keyid-format LONG",
+      "delete_key": "gpg --delete-secret-keys your-email@domain.com"
+    }
+  },
+  "signing_methods": {
+    "appimage": {
+      "setup": [
+        "1. Generate GPG key pair",
+        "2. Export public key for distribution",
+        "3. Configure build environment with private key",
+        "4. Sign AppImage during build process"
+      ],
+      "commands": {
+        "sign": "gpg --detach-sign --armor MyApp.AppImage",
+        "verify": "./validate-linux.AppImage MyApp.AppImage"
+      },
+      "environment_variables": {
+        "GPG_PRIVATE_KEY": "base64-encoded-private-key",
+        "GPG_PASSPHRASE": "private-key-passphrase",
+        "GPG_KEY_ID": "gpg-key-id"
+      }
+    },
+    "deb": {
+      "setup": [
+        "1. Generate GPG key for package signing",
+        "2. Configure dpkg-sig with signing key",
+        "3. Sign .deb packages after build",
+        "4. Distribute public key for verification"
+      ],
+      "commands": {
+        "sign": "dpkg-sig --sign builder MyApp.deb",
+        "verify": "dpkg-sig --verify MyApp.deb"
+      },
+      "debian_repository": {
+        "setup": "reprepro",
+        "config": "distributions file with SignWith directive",
+        "upload": "reprepro includedeb stable MyApp.deb"
+      }
+    },
+    "rpm": {
+      "setup": [
+        "1. Generate GPG key for RPM signing",
+        "2. Configure ~/.rpmmacros with signing settings",
+        "3. Sign RPM packages after build",
+        "4. Import public key to target systems"
+      ],
+      "commands": {
+        "sign": "rpm --addsign MyApp.rpm",
+        "verify": "rpm --checksig MyApp.rpm"
+      },
+      "rpm_macros": {
+        "file": "~/.rpmmacros",
+        "content": [
+          "%_signature gpg",
+          "%_gpg_path ~/.gnupg",
+          "%_gpg_name Your Name <your-email@domain.com>",
+          "%_gpgbin /usr/bin/gpg"
+        ]
+      }
+    }
+  },
+  "distribution": {
+    "public_key_distribution": {
+      "methods": [
+        "Include in software documentation",
+        "Publish on key servers",
+        "Host on official website",
+        "Include in package repositories"
+      ],
+      "key_servers": [
+        "keyserver.ubuntu.com",
+        "keys.openpgp.org",
+        "pgp.mit.edu"
+      ],
+      "upload_command": "gpg --send-keys --keyserver keyserver.ubuntu.com KEY_ID"
+    },
+    "verification_instructions": {
+      "appimage": [
+        "1. Download public key from official source",
+        "2. Import key: gpg --import public.key",
+        "3. Verify signature: gpg --verify MyApp.AppImage.sig MyApp.AppImage"
+      ],
+      "deb": [
+        "1. Add public key: wget -qO - https://yoursite.com/public.key | sudo apt-key add -",
+        "2. Update package list: sudo apt update",
+        "3. Install package: sudo apt install myapp"
+      ],
+      "rpm": [
+        "1. Import public key: sudo rpm --import public.key",
+        "2. Verify signature: rpm --checksig MyApp.rpm",
+        "3. Install package: sudo rpm -ivh MyApp.rpm"
+      ]
+    }
+  },
+  "github_actions": {
+    "secrets_required": [
+      "GPG_PRIVATE_KEY",
+      "GPG_PASSPHRASE",
+      "GPG_KEY_ID"
+    ],
+    "example_workflow_step": {
+      "name": "Setup Linux Package Signing",
+      "if": "matrix.platform == 'ubuntu-latest'",
+      "run": [
+        "# Import GPG private key",
+        "echo \"$GPG_PRIVATE_KEY\" | base64 --decode | gpg --batch --import",
+        "# Configure git with GPG key",
+        "git config --global user.signingkey $GPG_KEY_ID",
+        "git config --global commit.gpgsign true",
+        "# Set GPG TTY for non-interactive signing",
+        "export GPG_TTY=$(tty)"
+      ]
+    }
+  },
+  "automated_signing": {
+    "tauri_hooks": {
+      "post_build": {
+        "appimage": "gpg --batch --yes --detach-sign --armor --local-user $GPG_KEY_ID $APPIMAGE_PATH",
+        "deb": "dpkg-sig --sign builder $DEB_PATH",
+        "rpm": "rpm --addsign $RPM_PATH"
+      }
+    },
+    "custom_scripts": {
+      "sign_all_packages": {
+        "description": "Script to sign all generated Linux packages",
+        "path": "scripts/sign-linux-packages.sh",
+        "permissions": "chmod +x"
+      }
+    }
+  },
+  "security_considerations": {
+    "best_practices": [
+      "Use separate signing keys for different environments (dev/staging/prod)",
+      "Store private keys securely with strong passphrases",
+      "Regularly rotate signing keys (every 1-2 years)",
+      "Use hardware security modules for production keys",
+      "Audit key usage and maintain key revocation procedures"
+    ],
+    "key_storage": {
+      "development": "Local GPG keyring with strong passphrase",
+      "ci_cd": "Encrypted secrets in GitHub Actions/GitLab CI",
+      "production": "Hardware Security Module (HSM) or cloud KMS"
+    }
+  },
+  "troubleshooting": {
+    "common_issues": [
+      {
+        "issue": "GPG key not found",
+        "solution": "Verify key is imported and GPG_KEY_ID matches actual key ID"
+      },
+      {
+        "issue": "Permission denied during signing",
+        "solution": "Check file permissions and GPG agent configuration"
+      },
+      {
+        "issue": "Signature verification fails",
+        "solution": "Ensure public key is correctly distributed and imported"
+      },
+      {
+        "issue": "AppImage validation unsuccessful",
+        "solution": "Check AppImage format and signature attachment"
+      }
+    ]
+  }
+}

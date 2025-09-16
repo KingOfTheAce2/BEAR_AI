@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- App Sandbox entitlements for macOS distribution -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+
+    <!-- File access entitlements -->
+    <key>com.apple.security.files.user-selected.read-only</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    <key>com.apple.security.files.bookmarks.app-scope</key>
+    <true/>
+
+    <!-- Network access entitlements -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+
+    <!-- Print entitlement for document processing -->
+    <key>com.apple.security.print</key>
+    <true/>
+
+    <!-- Hardened Runtime entitlements -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+
+    <!-- Additional entitlements for AI/ML functionality -->
+    <key>com.apple.security.device.camera</key>
+    <false/>
+    <key>com.apple.security.device.microphone</key>
+    <false/>
+    <key>com.apple.security.personal-information.location</key>
+    <false/>
+
+    <!-- Temporary exception networks for development -->
+    <key>com.apple.security.temporary-exception.networks</key>
+    <dict>
+        <key>com.apple.security.temporary-exception.allow-insecure-loads</key>
+        <false/>
+    </dict>
+</dict>
+</plist>

@@ -108,7 +108,14 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "tauri:build:debug": "tauri build --debug"
+    "tauri:build:debug": "tauri build --debug",
+    "tauri:build:production": "node scripts/build-production.js",
+    "tauri:build:platform": "node scripts/build-production.js --platform",
+    "tauri:build:optimize": "./scripts/optimize-build.sh",
+    "tauri:build:fast": "tauri build --config src-tauri/tauri.conf.json --profile release-fast",
+    "build:complete": "npm run build:unified && npm run tauri:build:production && npm run tauri:build:optimize",
+    "build:verify": "node scripts/verify-build-config.js",
+    "build:validate": "npm run build:verify && npm run typecheck && npm run lint"
   },
   "eslintConfig": {
     "extends": [
