@@ -1,0 +1,189 @@
+name: Security Audit (Local Testing)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'package*.json'
+      - 'src-tauri/Cargo.toml'
+      - 'src-tauri/Cargo.lock'
+
+env:
+  LOCAL_TESTING: true
+  SKIP_EXTERNAL_CALLS: true
+
+jobs:
+  security-audit-local:
+    name: Local Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install security tools
+        run: |
+          echo "🔧 Installing security audit tools..."
+          # Install cargo-audit for Rust security scanning
+          cargo install cargo-audit --features=fix --quiet || echo "cargo-audit already installed"
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies for audit..."
+          npm ci --prefer-offline --no-audit || {
+            echo "⚠️  npm ci failed, using npm install"
+            npm install --no-audit
+          }
+
+      - name: Run npm security audit (local mode)
+        id: npm-audit
+        continue-on-error: true
+        run: |
+          echo "🔍 Running npm security audit..."
+
+          # Run audit and save results
+          npm audit --audit-level moderate --json > npm-audit-results.json || echo "NPM audit completed with findings"
+
+          # Show summary
+          echo "📊 NPM Audit Summary:"
+          npm audit --audit-level moderate || echo "Vulnerabilities found - check output above"
+
+          # Check for high/critical vulnerabilities
+          HIGH_VULNS=$(npm audit --json 2>/dev/null | jq -r '.metadata.vulnerabilities.high // 0')
+          CRITICAL_VULNS=$(npm audit --json 2>/dev/null | jq -r '.metadata.vulnerabilities.critical // 0')
+
+          echo "HIGH_VULNS=$HIGH_VULNS" >> $GITHUB_OUTPUT
+          echo "CRITICAL_VULNS=$CRITICAL_VULNS" >> $GITHUB_OUTPUT
+
+      - name: Run Rust security audit (local mode)
+        id: cargo-audit
+        continue-on-error: true
+        working-directory: src-tauri
+        run: |
+          echo "🦀 Running Rust security audit..."
+
+          # Run cargo audit and save results
+          cargo audit --json > ../cargo-audit-results.json || echo "Cargo audit completed with findings"
+
+          # Show summary
+          echo "📊 Cargo Audit Summary:"
+          cargo audit || echo "Vulnerabilities found - check output above"
+
+      - name: Check for common security patterns
+        id: pattern-check
+        run: |
+          echo "🔍 Checking for common security anti-patterns..."
+
+          ISSUES_FOUND=0
+
+          # Check for hardcoded secrets patterns
+          echo "Checking for potential hardcoded secrets..."
+          if grep -r -i "password\|secret\|token\|key" --include="*.js" --include="*.ts" --include="*.jsx" --include="*.tsx" src/ || true; then
+            echo "⚠️  Potential hardcoded secrets found - review manually"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          fi
+
+          # Check for eval usage
+          echo "Checking for eval() usage..."
+          if grep -r "eval\s*(" --include="*.js" --include="*.ts" src/ || true; then
+            echo "⚠️  eval() usage found - security risk"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          fi
+
+          # Check for dangerouslySetInnerHTML
+          echo "Checking for dangerouslySetInnerHTML..."
+          if grep -r "dangerouslySetInnerHTML" --include="*.jsx" --include="*.tsx" src/ || true; then
+            echo "⚠️  dangerouslySetInnerHTML found - XSS risk"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          fi
+
+          echo "PATTERN_ISSUES=$ISSUES_FOUND" >> $GITHUB_OUTPUT
+
+      - name: Validate dependencies for known issues
+        run: |
+          echo "🔍 Checking for problematic dependencies..."
+
+          # Check for packages with known issues
+          PROBLEMATIC_PACKAGES=(
+            "node-sass"
+            "request"
+            "bower"
+            "gulp"
+          )
+
+          for package in "${PROBLEMATIC_PACKAGES[@]}"; do
+            if npm list "$package" &>/dev/null; then
+              echo "⚠️  Found potentially problematic package: $package"
+            fi
+          done
+
+      - name: Generate security report
+        if: always()
+        run: |
+          echo "# 🛡️ Local Security Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** Local Testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # NPM Audit Results
+          if [[ "${{ steps.npm-audit.outcome }}" == "success" ]]; then
+            echo "✅ **NPM Audit:** Completed successfully" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ steps.npm-audit.outputs.HIGH_VULNS }}" != "0" ]] || [[ "${{ steps.npm-audit.outputs.CRITICAL_VULNS }}" != "0" ]]; then
+              echo "⚠️  High/Critical vulnerabilities found: ${{ steps.npm-audit.outputs.HIGH_VULNS }} high, ${{ steps.npm-audit.outputs.CRITICAL_VULNS }} critical" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ **NPM Audit:** Failed to complete" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Cargo Audit Results
+          if [[ "${{ steps.cargo-audit.outcome }}" == "success" ]]; then
+            echo "✅ **Cargo Audit:** Completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Cargo Audit:** Issues found or failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Pattern Check Results
+          if [[ "${{ steps.pattern-check.outputs.PATTERN_ISSUES }}" == "0" ]]; then
+            echo "✅ **Pattern Check:** No common anti-patterns found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  **Pattern Check:** ${{ steps.pattern-check.outputs.PATTERN_ISSUES }} potential issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📁 Generated Files" >> $GITHUB_STEP_SUMMARY
+          if [[ -f "npm-audit-results.json" ]]; then
+            echo "✅ npm-audit-results.json ($(stat -f%z npm-audit-results.json 2>/dev/null || stat -c%s npm-audit-results.json) bytes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [[ -f "cargo-audit-results.json" ]]; then
+            echo "✅ cargo-audit-results.json ($(stat -f%z cargo-audit-results.json 2>/dev/null || stat -c%s cargo-audit-results.json) bytes)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any high/critical npm vulnerabilities before production" >> $GITHUB_STEP_SUMMARY
+          echo "- Address any Rust security advisories" >> $GITHUB_STEP_SUMMARY
+          echo "- Run full security scan with Trivy before deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- Consider implementing additional security headers" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-security-audit-results
+          path: |
+            npm-audit-results.json
+            cargo-audit-results.json
+          retention-days: 7
+          if-no-files-found: ignore

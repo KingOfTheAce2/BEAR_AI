@@ -1,0 +1,36 @@
+{
+  "platform": "windows-latest",
+  "image": "mcr.microsoft.com/windows/servercore:ltsc2022",
+  "config": {
+    "architecture": "x64",
+    "environment": {
+      "CARGO_TERM_COLOR": "always",
+      "RUST_BACKTRACE": "1",
+      "RUSTFLAGS": "-D warnings"
+    },
+    "setup_commands": [
+      "# Install Chocolatey",
+      "Set-ExecutionPolicy Bypass -Scope Process -Force",
+      "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072",
+      "iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))",
+      "# Install required packages",
+      "choco install nodejs --version=18.19.0 -y",
+      "choco install rust -y",
+      "choco install git -y",
+      "choco install 7zip -y",
+      "# Refresh environment",
+      "refreshenv"
+    ]
+  },
+  "limitations": [
+    "Windows containers require Windows host or Windows Server",
+    "Some features may not work in containerized environment",
+    "Build times are typically longer than Linux",
+    "Windows Defender may slow down builds"
+  ],
+  "performance": {
+    "expected_build_time": "15-25 minutes",
+    "memory_requirements": "6GB minimum, 12GB recommended",
+    "disk_space": "15GB free space required"
+  }
+}

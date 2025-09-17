@@ -1,0 +1,37 @@
+{
+  "platform": "ubuntu-latest",
+  "image": "ubuntu:22.04",
+  "config": {
+    "architecture": "x64",
+    "environment": {
+      "DEBIAN_FRONTEND": "noninteractive",
+      "APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE": "1",
+      "TZ": "UTC"
+    },
+    "packages": [
+      "curl",
+      "git",
+      "build-essential",
+      "pkg-config",
+      "libssl-dev",
+      "libgtk-3-dev",
+      "libwebkit2gtk-4.0-dev",
+      "librsvg2-dev",
+      "libayatana-appindicator3-dev",
+      "libxdo-dev"
+    ],
+    "setup_commands": [
+      "apt-get update",
+      "apt-get install -y ${packages[@]}",
+      "curl -fsSL https://deb.nodesource.com/setup_18.x | bash -",
+      "apt-get install -y nodejs",
+      "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
+      "source ~/.cargo/env"
+    ]
+  },
+  "performance": {
+    "expected_build_time": "10-15 minutes",
+    "memory_requirements": "4GB minimum, 8GB recommended",
+    "disk_space": "10GB free space required"
+  }
+}

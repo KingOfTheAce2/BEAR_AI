@@ -1,0 +1,37 @@
+# Act Configuration for BEAR AI Local Testing
+
+# Default platform mappings
+-P ubuntu-latest=ubuntu:22.04
+-P ubuntu-20.04=ubuntu:20.04
+-P windows-latest=mcr.microsoft.com/windows/servercore:ltsc2022
+-P macos-latest=macos-12
+
+# Default secrets file
+--secret-file .github/local-testing/secrets/.secrets
+
+# Default environment file
+--env-file .github/local-testing/.env
+
+# Use .platforms file for platform definitions
+--platform-file .github/local-testing/platforms/.platforms
+
+# Enable verbose logging for debugging
+--verbose
+
+# Reuse containers for faster testing
+--reuse
+
+# Use host networking for better performance
+--use-gitignore
+
+# Container options for better performance
+--container-options "--rm --privileged"
+
+# Bind mount for caching
+--bind
+
+# Default artifact path
+--artifact-server-path .github/local-testing/artifacts
+
+# Job timeout (30 minutes)
+--job-timeout 1800

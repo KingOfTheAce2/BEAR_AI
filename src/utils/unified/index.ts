@@ -3,13 +3,15 @@
  * Centralized utilities, error handling, logging, and common patterns
  */
 
+import React from 'react';
+
 // Core utilities
 export { cn, type ClassValue } from './classNames';
 export { logger, type Logger, type LogLevel } from './logger';
 export { ErrorHandler, BearError, type ErrorContext } from './errorHandler';
 export { PerformanceMonitor, type PerformanceMetric } from './performance';
 export { ApiClient, type ApiResponse, type ApiError } from './apiClient';
-export { StateManager, type StateUpdate } from './stateManager';
+export { StateManager, type StateUpdate } from '../../state/unified/stateManager';
 export { ComponentFactory, type ComponentProps } from './componentFactory';
 export { ValidationService, type ValidationRule, type ValidationResult } from './validation';
 export { ConfigService } from './config';

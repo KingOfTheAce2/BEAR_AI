@@ -1,3 +1,0 @@
-# Modern GUI Requirements for BEAR AI
-customtkinter>=5.2.0
-Pillow>=9.0.0  # Required for customtkinter image handling

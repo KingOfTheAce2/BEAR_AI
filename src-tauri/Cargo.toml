@@ -14,7 +14,7 @@ tauri-build = { version = "1.5", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.8.3", features = ["system-tray", "api-all", "updater", "window-all", "fs-all", "path-all", "protocol-all", "process-all", "shell-all", "http-all", "notification-all", "global-shortcut-all", "os-all", "dialog-all", "cli", "macos-private-api"] }
+tauri = { version = "1.6.0", features = ["system-tray", "api-all", "updater", "window-all", "fs-all", "path-all", "protocol-all", "process-all", "shell-all", "http-all", "notification-all", "global-shortcut-all", "os-all", "dialog-all", "cli", "macos-private-api"] }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 log = "0.4"
@@ -26,22 +26,65 @@ sha2 = "0.10"
 bcrypt = "0.15"
 walkdir = "2.4"
 mime_guess = "2.0"
+tokio-stream = "0.1"
+reqwest = { version = "0.12", features = ["json", "stream"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+regex = "1.0"
+sys-info = "0.9"
+aes-gcm = "0.10"
+ring = "0.17"
+base64 = "0.22"
+rsa = "0.9"
+x509-parser = "0.16"
+jsonwebtoken = "9.0"
+hardware-id = "0.3"
+hex = "0.4"
 # Performance optimization dependencies
 flate2 = "1.0"
 lz4 = "1.24"
 rayon = "1.8"
 # Security dependencies
 rand = "0.8"
-ring = "0.17"
 webpki = "0.22"
 # System integration
 windows = { version = "0.48", features = ["Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell"] }
 cocoa = "0.25"
 objc = "0.2"
+# LLM Management dependencies (optional, complex to compile)
+# llama-cpp-sys = { version = "0.1.0", optional = true }
+# llama-cpp = { version = "0.1.0", optional = true }
+# huggingface-hub = "0.3"  # May not exist, use reqwest for API calls
+futures = "0.3"
+bytes = "1.0"
+md5 = "0.7"
+zip = "0.6"
+tar = "0.4"
+once_cell = "1.19"
+parking_lot = "0.12"
+num_cpus = "1.16"
+sysinfo = "0.30"
+# GPU acceleration (optional)
+# tch = { version = "0.13", optional = true, features = ["cuda", "download-libtorch"] }
+# candle-core = { version = "0.4", optional = true }
+# ort = { version = "1.16", optional = true, features = ["cuda"] }
+# Document format support
+calamine = "0.24"  # Excel/CSV reading
+xml-rs = "0.8"     # XML parsing for Office formats
+csv = "1.3"        # CSV processing
+# PDF generation and export
+printpdf = "0.7"   # PDF generation
+# Model format support
+safetensors = "0.4"
+bincode = "1.3"
+postcard = "1.0"
 
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
+# llm-management = ["llama-cpp", "llama-cpp-sys"]
+# gpu-cuda = ["tch", "ort"]
+# gpu-metal = ["candle-core"]
+# all-gpu = ["gpu-cuda", "gpu-metal"]
 
 [profile.release]
 panic = "abort"

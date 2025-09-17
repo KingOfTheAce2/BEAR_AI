@@ -4,14 +4,12 @@
   "version": "1.0.0",
   "identifier": "com.bearai.legalassistant",
   "build": {
-    "beforeBuildCommand": "npm run build:unified",
-    "beforeDevCommand": "npm start",
-    "frontendDist": "../build",
-    "devUrl": "http://localhost:3000",
-    "withGlobalTauri": false
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "frontendDist": "../tests/build",
+    "devUrl": "http://localhost:3000"
   },
   "app": {
-    "withGlobalTauri": false,
     "macOSPrivateApi": true,
     "windows": [
       {
@@ -29,7 +27,6 @@
         "minimizable": true,
         "closable": true,
         "fullscreen": false,
-        "focused": true,
         "decorations": true,
         "transparent": false,
         "alwaysOnTop": false,
@@ -88,38 +85,7 @@
       "webviewInstallMode": {
         "type": "downloadBootstrapper"
       },
-      "webviewFixedRuntimePath": null,
       "allowDowngrades": false,
-      "wix": {
-        "language": "en-US",
-        "template": "main.wxs",
-        "fragmentPaths": [],
-        "componentGroupRefs": [],
-        "componentRefs": [],
-        "featureGroupRefs": [],
-        "featureRefs": [],
-        "mergeRefs": [],
-        "skipWebviewInstall": false,
-        "license": "LICENSE.rtf",
-        "enableElevatedUpdateTask": true,
-        "bannerPath": "assets/banner.bmp",
-        "dialogImagePath": "assets/dialog.bmp"
-      },
-      "nsis": {
-        "displayLanguageSelector": false,
-        "languages": ["English"],
-        "customLanguageFiles": {},
-        "template": null,
-        "installerIcon": "icons/icon.ico",
-        "headerImage": "assets/header.bmp",
-        "sidebarImage": "assets/sidebar.bmp",
-        "installerHooks": "installer-hooks",
-        "deleteAppDataOnUninstall": false,
-        "startMenuFolder": "BEAR AI Legal Assistant",
-        "installMode": "perMachine",
-        "allowDowngrades": false,
-        "minimumWebviewVersion": "95.0.1020.44"
-      }
     },
     "macOS": {
       "frameworks": [
@@ -136,7 +102,6 @@
       "hardenedRuntime": true,
       "entitlements": "entitlements.plist",
       "providerShortName": null,
-      "license": "LICENSE",
       "dmg": {
         "background": "assets/dmg-background.png",
         "windowSize": {
@@ -159,45 +124,7 @@
           "libwebkit2gtk-4.0-37",
           "libgtk-3-0",
           "libayatana-appindicator3-1"
-        ],
-        "conflicts": [],
-        "replaces": [],
-        "provides": [],
-        "recommends": [],
-        "suggests": [],
-        "enhances": [],
-        "preDepends": [],
-        "priority": "optional",
-        "section": "utils",
-        "changelog": "CHANGELOG.md",
-        "description": "Professional AI-powered legal document analysis and assistance application for legal professionals.",
-        "homepage": "https://bear-ai.com",
-        "license": "LICENSE",
-        "maintainer": "BEAR AI Team <support@bear-ai.com>",
-        "package": "bear-ai-legal-assistant"
-      },
-      "rpm": {
-        "epoch": 0,
-        "files": {},
-        "release": "1",
-        "requires": [
-          "webkit2gtk3",
-          "gtk3",
-          "libappindicator-gtk3"
-        ],
-        "obsoletes": [],
-        "conflicts": [],
-        "provides": [],
-        "suggests": [],
-        "enhances": [],
-        "recommends": [],
-        "description": "Professional AI-powered legal document analysis and assistance application.",
-        "homepage": "https://bear-ai.com",
-        "license": "PROPRIETARY",
-        "group": "Applications/Productivity"
-      },
-      "appimage": {
-        "bundleMediaFramework": true
+        ]
       }
     }
   },

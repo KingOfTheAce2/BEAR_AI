@@ -1,0 +1,22 @@
+# Platform definitions for act local testing
+# Format: platform=image
+
+# Ubuntu platforms
+ubuntu-latest=ubuntu:22.04
+ubuntu-22.04=ubuntu:22.04
+ubuntu-20.04=ubuntu:20.04
+
+# Windows platforms (requires Windows containers)
+windows-latest=mcr.microsoft.com/windows/servercore:ltsc2022
+windows-2022=mcr.microsoft.com/windows/servercore:ltsc2022
+windows-2019=mcr.microsoft.com/windows/servercore:ltsc2019
+
+# macOS platforms (requires macOS runner or approximation)
+macos-latest=macos-12
+macos-12=macos-12
+macos-11=macos-11
+
+# Custom BEAR AI optimized images (if available)
+# bear-ai-ubuntu=your-registry/bear-ai-ubuntu:latest
+# bear-ai-windows=your-registry/bear-ai-windows:latest
+# bear-ai-macos=your-registry/bear-ai-macos:latest

@@ -1,0 +1,48 @@
+{
+  "platform": "macos-latest",
+  "image": "macos-12",
+  "config": {
+    "architecture": "x64",
+    "environment": {
+      "CARGO_TERM_COLOR": "always",
+      "RUST_BACKTRACE": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.15"
+    },
+    "setup_commands": [
+      "# Install Homebrew",
+      "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
+      "# Install required packages",
+      "brew install node@18",
+      "brew install rust",
+      "brew install git",
+      "# Link Node.js",
+      "brew link node@18",
+      "# Verify installations",
+      "node --version",
+      "npm --version",
+      "rustc --version",
+      "cargo --version"
+    ]
+  },
+  "targets": [
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin"
+  ],
+  "limitations": [
+    "macOS containers are not widely supported",
+    "May require actual macOS hardware or virtualization",
+    "Cross-compilation testing recommended instead",
+    "Some system APIs may not work in containerized environment"
+  ],
+  "alternatives": [
+    "Use cross-compilation from Linux",
+    "Use macOS virtualization solutions",
+    "Test on actual macOS hardware",
+    "Use GitHub-hosted macOS runners for integration testing"
+  ],
+  "performance": {
+    "expected_build_time": "12-20 minutes",
+    "memory_requirements": "8GB minimum, 16GB recommended",
+    "disk_space": "20GB free space required"
+  }
+}
