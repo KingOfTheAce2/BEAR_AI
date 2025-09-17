@@ -356,7 +356,12 @@ export const documents = {
       };
     } else {
       // Auto-detect category
-      return await localDocumentService.processFileUpload(file);
+      const uploadResult = await localDocumentService.processFileUpload(file);
+
+      return {
+        data: uploadResult.document,
+        localPath: uploadResult.localPath
+      };
     }
   },
 

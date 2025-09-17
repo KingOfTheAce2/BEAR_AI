@@ -3,7 +3,7 @@
  * Manages model configurations locally without external dependencies
  */
 
-import { ModelConfig, ModelType } from '../types/modelTypes';
+import { ModelConfig, ModelPriority, ModelType } from '../types/modelTypes';
 
 export interface ModelConfigSchema {
   $schema: string;
@@ -116,6 +116,7 @@ export class LocalConfigManager {
       name: baseConfig.name || this.extractModelName(modelPath),
       path: modelPath,
       type: baseConfig.type || ModelType.GPT4ALL,
+      priority: baseConfig.priority ?? ModelPriority.MEDIUM,
       version: baseConfig.version || '1.0.0',
       description: baseConfig.description || '',
       author: baseConfig.author || 'Unknown',
@@ -335,6 +336,7 @@ export class LocalConfigManager {
     const config: LocalModelConfig = {
       ...template.template,
       ...overrides,
+      priority: overrides.priority ?? template.template.priority ?? ModelPriority.MEDIUM,
       configVersion: this.schemaVersion,
       lastModified: new Date(),
       isValid: true,
@@ -540,6 +542,7 @@ export class LocalConfigManager {
       modelType: ModelType.GPT4ALL,
       template: {
         type: ModelType.GPT4ALL,
+        priority: ModelPriority.MEDIUM,
         version: '1.0.0',
         architecture: 'transformer',
         format: 'gguf',
@@ -604,6 +607,10 @@ export class LocalConfigManager {
       isValid: true,
       validationErrors: []
     };
+
+    if (typeof config.priority === 'undefined') {
+      config.priority = ModelPriority.MEDIUM;
+    }
 
     // Ensure local settings exist
     if (!config.localSettings) {

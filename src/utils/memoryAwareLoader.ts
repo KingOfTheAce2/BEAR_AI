@@ -71,7 +71,7 @@ export class MemoryAwareLoader {
    */
   public async canLoadModel(modelConfig: ModelConfig): Promise<boolean> {
     const memStats = await this.getMemoryStats();
-    const requiredMemory = modelConfig.memoryRequirement;
+    const requiredMemory = modelConfig.memoryRequirement ?? modelConfig.size ?? 0;
     const availableMemory = memStats.available;
 
     // Reserve 20% of available memory as buffer

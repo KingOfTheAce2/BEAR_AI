@@ -14,7 +14,8 @@ import {
   ModelType,
   ModelError,
   ModelErrorCode,
-  ModelCapabilities
+  ModelCapabilities,
+  ModelMetadata
 } from '../types/modelTypes';
 
 export class GPT4ALLIntegration implements GPT4ALLModel {
@@ -25,9 +26,13 @@ export class GPT4ALLIntegration implements GPT4ALLModel {
   private gpt4all: any = null;
 
   constructor(config: GPT4ALLConfig, modelConfig?: ModelConfig) {
-    this.config = config;
+    this.config = this.applyMetadataOverrides(config, modelConfig?.metadata);
     this.modelConfig = modelConfig;
     this.initializeGPT4ALL();
+  }
+
+  public getConfig(): GPT4ALLConfig {
+    return { ...this.config };
   }
 
   /**
@@ -78,6 +83,49 @@ export class GPT4ALLIntegration implements GPT4ALLModel {
     }
 
     throw new Error(`Failed to load GPT4ALL library. Last error: ${lastError?.message}`);
+  }
+
+  private applyMetadataOverrides(
+    baseConfig: GPT4ALLConfig,
+    metadata?: ModelMetadata
+  ): GPT4ALLConfig {
+    if (!metadata) {
+      return baseConfig;
+    }
+
+    const overrides: Partial<GPT4ALLConfig> = {};
+    const directKeys: Array<keyof GPT4ALLConfig> = [
+      'nThreads',
+      'nPredict',
+      'temp',
+      'topK',
+      'topP',
+      'repeatPenalty',
+      'repeatLastN',
+      'seed',
+      'nBatch',
+      'nCtx',
+      'libraryPath',
+      'modelPath',
+      'promptTemplate'
+    ];
+
+    for (const key of directKeys) {
+      const value = (metadata as any)[key];
+      if (typeof value !== 'undefined' && value !== null) {
+        (overrides as any)[key] = value;
+      }
+    }
+
+    if (typeof metadata.temp === 'number') {
+      overrides.temp = metadata.temp;
+    }
+
+    if (metadata.runtime && typeof metadata.runtime === 'object') {
+      Object.assign(overrides, metadata.runtime);
+    }
+
+    return { ...baseConfig, ...overrides };
   }
 
   /**
@@ -414,7 +462,7 @@ export class GPT4ALLIntegration implements GPT4ALLModel {
       type: ModelType.GPT4ALL,
       size: stats.size,
       memoryRequirement: Math.ceil(stats.size * 1.5), // Estimate 1.5x file size
-      priority: options.priority || 3,
+      priority: options.priority ?? ModelPriority.MEDIUM,
       capabilities: {
         textGeneration: true,
         chatCompletion: true,

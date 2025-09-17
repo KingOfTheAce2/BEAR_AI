@@ -411,7 +411,7 @@ export class ModelConfigManager {
     );
 
     // Adjust based on model size
-    const modelSizeGB = modelConfig.size / (1024 * 1024 * 1024);
+    const modelSizeGB = (modelConfig.size ?? 0) / (1024 * 1024 * 1024);
     if (modelSizeGB > 10) {
       // Large model adjustments
       config.autoUnload = true;
@@ -425,7 +425,16 @@ export class ModelConfigManager {
     }
 
     // Adjust based on capabilities
-    if (modelConfig.capabilities.codeGeneration) {
+    const capabilityData = Array.isArray(modelConfig.capabilities)
+      ? modelConfig.capabilities
+      : modelConfig.capabilities?.features ||
+        (modelConfig.capabilities ? Object.keys(modelConfig.capabilities).filter(key => key) : [])
+
+    const supportsCodeGeneration = Array.isArray(modelConfig.capabilities)
+      ? modelConfig.capabilities.some(cap => cap.toLowerCase().includes('code'))
+      : !!(modelConfig.capabilities?.codeGeneration)
+
+    if (supportsCodeGeneration || capabilityData.some(cap => cap.toLowerCase().includes('code'))) {
       config.cacheEnabled = true;
       config.streamingEnabled = true;
       config.priority = ModelPriority.HIGH;
