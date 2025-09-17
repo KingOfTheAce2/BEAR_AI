@@ -238,7 +238,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Unified Engine Initialization',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -289,7 +289,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Single Inference Request',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -343,7 +343,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Batch Inference Processing',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -380,7 +380,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Performance Optimizations',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -447,7 +447,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'GPU Service Initialization',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -504,7 +504,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Matrix Multiplication Acceleration',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -554,7 +554,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Vector Addition Acceleration',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -595,7 +595,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Multi-Backend Benchmarking',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -656,7 +656,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Queue Manager Initialization',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -709,7 +709,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Concurrent Request Processing',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -758,7 +758,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Dynamic Scaling',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -824,7 +824,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Streaming Service Initialization',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -919,7 +919,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Async Processing Capabilities',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -996,7 +996,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Memory Usage Monitoring',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -1050,7 +1050,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Memory-Constrained Scenarios',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -1130,7 +1130,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Zero External Dependencies',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -1172,7 +1172,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
           name: 'Localhost-Only Operation',
           status: 'FAIL',
           duration,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -1202,6 +1202,21 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
   });
 
   // Helper functions
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      const message = (error as { message?: unknown }).message;
+      if (typeof message === 'string') {
+        return message;
+      }
+    }
+
+    return String(error);
+  }
+
   function createEmptyFeatureValidation(): FeatureValidation {
     return {
       status: 'SKIP',
@@ -1226,7 +1241,7 @@ describe('vLLM-Inspired Features Comprehensive Validation', () => {
       }
     });
     
-    return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    return scores.reduce<number>((sum, score) => sum + score, 0) / scores.length;
   }
 
   function aggregateTestMetrics(testResults: TestResult[]): Record<string, number> {
