@@ -1,12 +1,69 @@
 // Enhanced Model Types for BEAR AI
 // Based on Ollama patterns and enhanced functionality
 
+export const ModelType = {
+  GPT4ALL: 'gpt4all',
+  LLAMA: 'llama',
+  MISTRAL: 'mistral',
+  CODEGEN: 'codegen',
+  GENERIC: 'generic',
+  CUSTOM: 'custom'
+} as const
+
+export type ModelType = typeof ModelType[keyof typeof ModelType]
+
+export const ModelStatus = {
+  AVAILABLE: 'available',
+  DOWNLOADING: 'downloading',
+  INSTALLED: 'installed',
+  LOADING: 'loading',
+  LOADED: 'loaded',
+  ACTIVE: 'active',
+  ERROR: 'error',
+  UPDATING: 'updating',
+  UNLOADING: 'unloading',
+  UNLOADED: 'unloaded'
+} as const
+
+export type ModelStatus = typeof ModelStatus[keyof typeof ModelStatus]
+
+export const ModelPriority = {
+  CRITICAL: 0,
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3
+} as const
+
+export type ModelPriority = number
+
+export const ModelErrorCode = {
+  MODEL_NOT_FOUND: 'MODEL_NOT_FOUND',
+  LOADING_FAILED: 'LOADING_FAILED',
+  INSUFFICIENT_MEMORY: 'INSUFFICIENT_MEMORY',
+  TIMEOUT: 'TIMEOUT',
+  INFERENCE_FAILED: 'INFERENCE_FAILED',
+  UNSUPPORTED_FORMAT: 'UNSUPPORTED_FORMAT',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type ModelErrorCode = typeof ModelErrorCode[keyof typeof ModelErrorCode]
+
+export const MemoryPressure = {
+  LOW: 'low',
+  MODERATE: 'moderate',
+  HIGH: 'high',
+  CRITICAL: 'critical'
+} as const
+
+export type MemoryPressure = typeof MemoryPressure[keyof typeof MemoryPressure]
+
 export interface Model {
   id: string
   name: string
   description: string
   size: string
   status: ModelStatus
+  type?: ModelType
   downloadProgress?: number
   capabilities: ModelCapability[]
   family: ModelFamily
@@ -67,20 +124,30 @@ export interface ModelPerformance {
 }
 
 export interface ModelMetadata {
-  version: string
-  license: string
-  source: string
-  author: string
+  name?: string
+  version?: string
+  description?: string
+  license?: string
+  source?: string
+  author?: string
   homepage?: string
   repository?: string
   paperUrl?: string
-  downloadUrl: string
-  checksum: string
-  createdAt: Date
-  updatedAt: Date
+  downloadUrl?: string
+  checksum?: string
+  createdAt?: Date
+  updatedAt?: Date
+  tags?: string[]
+  languages?: string[]
+  architecture?: string
+  parameters?: number
   downloadCount?: number
   rating?: number
   reviews?: number
+  usageCount?: number
+  averageInferenceTime?: number
+  supportedTokens?: number
+  [key: string]: any
 }
 
 export interface ModelCompatibility {
@@ -96,6 +163,237 @@ export interface ModelCompatibility {
 export type Platform = 'windows' | 'macos' | 'linux' | 'docker'
 export type Architecture = 'x64' | 'arm64' | 'x86'
 export type Framework = 'pytorch' | 'tensorflow' | 'onnx' | 'llamacpp' | 'transformers'
+
+export interface ModelCapabilities {
+  textGeneration?: boolean
+  chatCompletion?: boolean
+  codeGeneration?: boolean
+  embedding?: boolean
+  reasoning?: boolean
+  streaming?: boolean
+  multiModal?: boolean
+  contextLength?: number
+  features?: string[]
+  languages?: string[]
+  modelSize?: number
+  architecture?: string
+  specializations?: string[]
+  supportedFormats?: string[]
+  maxContextLength?: number
+  performance?: Record<string, any>
+  safety?: Record<string, any>
+  [key: string]: any
+}
+
+export interface ModelConfig {
+  id: string
+  name: string
+  path: string
+  type: ModelType
+  priority: ModelPriority
+  size?: number
+  fileSize?: number
+  quantization?: string
+  format?: string
+  version?: string
+  description?: string
+  author?: string
+  license?: string
+  provider?: string
+  tags?: string[]
+  languages?: string[]
+  parameters?: number
+  architecture?: string
+  checksum?: string
+  contextLength?: number
+  memoryRequirement?: number
+  streaming?: boolean
+  gpu?: boolean
+  local?: boolean
+  localPath?: string
+  configPath?: string
+  baseModel?: string
+  metadata?: ModelMetadata
+  capabilities?: ModelCapabilities | string[]
+  lastUpdated?: Date
+  createdAt?: Date
+  [key: string]: any
+}
+
+export interface ModelLoadOptions {
+  forceLoad?: boolean
+  priority?: ModelPriority
+  timeout?: number
+  preload?: boolean
+}
+
+export interface ModelInferenceOptions {
+  maxTokens?: number
+  temperature?: number
+  topP?: number
+  topK?: number
+  repeatPenalty?: number
+  presencePenalty?: number
+  frequencyPenalty?: number
+  timeout?: number
+  streaming?: boolean
+  context?: string
+  stopSequences?: string[]
+  nBatch?: number
+}
+
+export interface ModelInferenceResult {
+  text: string
+  tokens: number
+  inferenceTime: number
+  memoryUsed: number
+  model: string
+  timestamp: Date
+  context?: string
+}
+
+export interface MemoryStats {
+  total: number
+  available: number
+  used: number
+  percentage: number
+  pressure: MemoryPressure
+}
+
+export interface LoadedModel {
+  config: ModelConfig
+  instance: any
+  status: ModelStatus
+  loadedAt?: Date
+  lastUsed: Date
+  memoryUsage: number
+  inferenceCount: number
+  averageResponseTime: number
+}
+
+export interface ModelManagerConfig {
+  maxConcurrentModels: number
+  memoryThreshold: number
+  cacheSize: number
+  autoUnloadTimeout: number
+  compressionEnabled: boolean
+  fallbackModel?: string
+  memoryCheckInterval: number
+  enableTelemetry: boolean
+}
+
+export interface ModelManagerStats {
+  loadedModels: number
+  totalMemoryUsed: number
+  cacheSize: number
+  totalInferences: number
+  averageLoadTime: number
+  memoryPressure: MemoryPressure
+  uptime: number
+}
+
+export const ModelEventType = {
+  MODEL_DISCOVERED: 'model.discovered',
+  MODEL_LOADED: 'model.loaded',
+  MODEL_UNLOADED: 'model.unloaded',
+  MODEL_ERROR: 'model.error',
+  MODEL_SWITCHED: 'model.switched',
+  STREAM_TOKEN: 'model.stream_token',
+  INFERENCE_COMPLETED: 'inference.completed',
+  CACHE_CLEARED: 'cache.cleared',
+  MEMORY_PRESSURE: 'memory.pressure',
+  METRICS_COLLECTED: 'metrics.collected'
+} as const
+
+export type ModelEventType = typeof ModelEventType[keyof typeof ModelEventType]
+
+export interface ModelEvent {
+  type: ModelEventType
+  timestamp: Date
+  modelId?: string
+  data?: Record<string, any>
+}
+
+export type ModelEventListener = (event: ModelEvent) => void
+
+export class ModelError extends Error {
+  public code: ModelErrorCode
+  public recoverable: boolean
+  public suggestions: string[]
+  public metadata?: Record<string, any>
+
+  constructor(
+    message: string,
+    code: ModelErrorCode,
+    options: { recoverable?: boolean; suggestions?: string[]; metadata?: Record<string, any> } = {}
+  ) {
+    super(message)
+    this.name = 'ModelError'
+    this.code = code
+    this.recoverable = options.recoverable ?? false
+    this.suggestions = options.suggestions ?? []
+    this.metadata = options.metadata
+  }
+}
+
+export interface ModelManager {
+  registerModel(config: ModelConfig): void
+  unregisterModel(modelId: string): void
+  getRegisteredModels(): ModelConfig[]
+  discoverModels(directories: string[]): Promise<ModelConfig[]>
+  loadModel(modelId: string, options?: ModelLoadOptions): Promise<LoadedModel>
+  unloadModel(modelId: string): Promise<void>
+  switchModel(fromModelId: string, toModelId: string): Promise<void>
+  generateText(
+    modelId: string,
+    prompt: string,
+    options?: ModelInferenceOptions
+  ): Promise<ModelInferenceResult>
+  generateTextStream(
+    modelId: string,
+    prompt: string,
+    options?: ModelInferenceOptions,
+    onToken?: (token: string) => void
+  ): Promise<ModelInferenceResult>
+  getModel(modelId: string): LoadedModel | null
+  getModelMetrics(modelId?: string): any
+  getLoadedModels(): LoadedModel[]
+  getStats(): ModelManagerStats
+  getMemoryStats(): Promise<MemoryStats>
+  optimizeMemory(): Promise<void>
+  addEventListener(type: ModelEventType, listener: ModelEventListener): void
+  removeEventListener(type: ModelEventType, listener: ModelEventListener): void
+  dispose(): Promise<void>
+}
+
+export interface GPT4ALLConfig {
+  modelPath: string
+  libraryPath?: string
+  nThreads?: number
+  nPredict?: number
+  temp?: number
+  topK?: number
+  topP?: number
+  repeatPenalty?: number
+  repeatLastN?: number
+  seed?: number
+  nBatch?: number
+  nCtx?: number
+  promptTemplate?: string
+  [key: string]: any
+}
+
+export interface GPT4ALLModel {
+  loadModel(): Promise<any>
+  unloadModel?(): Promise<any>
+  dispose?(): Promise<any>
+  close?(): Promise<any>
+  generate?(prompt: string, options?: any): Promise<any>
+  createCompletion?(options: any): Promise<any>
+  chat?(messages: Array<{ role: string; content: string }>, options?: any): Promise<any>
+  getMemoryUsage?(): number
+  [key: string]: any
+}
 
 // Streaming response types
 export interface StreamingResponse {
@@ -130,7 +428,7 @@ export interface StreamingError {
 
 // Configuration types
 export interface SystemConfiguration {
-  model: ModelConfig
+  model: ModelGenerationSettings
   inference: InferenceConfig
   ui: UIConfig
   security: SecurityConfig
@@ -139,7 +437,7 @@ export interface SystemConfiguration {
   advanced: AdvancedConfig
 }
 
-export interface ModelConfig {
+export interface ModelGenerationSettings {
   defaultModel: string
   temperature: number
   topP: number

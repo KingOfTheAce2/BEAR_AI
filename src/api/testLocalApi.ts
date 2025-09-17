@@ -28,7 +28,7 @@ async function validateLocalhostOnlyOperation(): Promise<void> {
     const authResponse = await api.auth.login('admin', 'admin123');
     if (authResponse.success) {
       console.log('✅ Local authentication successful');
-      console.log(`   Session ID: ${authResponse.session_id?.substring(0, 20)}...`);
+      console.log(`   Session ID: ${authResponse.user?.id?.substring(0, 20)}...`);
     } else {
       throw new Error(`Authentication failed: ${authResponse.error}`);
     }

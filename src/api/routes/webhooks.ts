@@ -16,5 +16,3 @@ webhookRoutes.get('/', asyncHandler(async (req, res) => {
 webhookRoutes.post('/', asyncHandler(async (req, res) => {
   successResponse(res, { message: 'Webhook creation not implemented' });
 }));
-
-export { webhookRoutes };

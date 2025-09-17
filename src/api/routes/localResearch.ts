@@ -376,7 +376,7 @@ class LocalLegalDatabase {
           citation: r.citation,
           title: r.title,
           court: caseData?.court || 'Unknown Court',
-          date: r.date,
+          date: r.date ?? 'Unknown Date',
           relevance: r.relevance
         };
       });
@@ -402,7 +402,7 @@ class LocalLegalDatabase {
           citation: r.citation,
           title: r.title,
           section: statuteData?.section || 'Unknown Section',
-          jurisdiction: r.jurisdiction,
+          jurisdiction: r.jurisdiction ?? 'Unknown Jurisdiction',
           relevance: r.relevance
         };
       });

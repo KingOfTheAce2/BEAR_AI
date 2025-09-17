@@ -348,7 +348,7 @@ async function generateAiResponse(
   
   let content: string;
   let responseType = 'text';
-  let metadata = { confidence: 0.95 };
+  let metadata: { confidence: number; [key: string]: any } = { confidence: 0.95 };
   
   // Generate contextual responses based on message type and content
   if (messageType === 'document' && documentRefs.length > 0) {
