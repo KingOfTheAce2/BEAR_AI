@@ -1,5 +1,5 @@
 // Document analysis routes
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { analysisValidation } from '../middleware/validation';
 import { analysisRateLimit } from '../middleware/rateLimit';
@@ -17,6 +17,20 @@ analysisRoutes.use(analysisRateLimit);
 
 // Mock analysis results store
 const analysisResults = new Map();
+
+const CLAUSE_TYPES = ['Compensation', 'Termination', 'Non-Compete', 'Confidentiality'] as const;
+type ClauseType = typeof CLAUSE_TYPES[number];
+
+interface Clause {
+  type: ClauseType;
+  content: string;
+  section: string;
+  importance: 'High' | 'Medium' | 'Low';
+}
+
+function isClauseType(value: string): value is ClauseType {
+  return (CLAUSE_TYPES as readonly string[]).includes(value);
+}
 
 /**
  * @swagger
@@ -66,7 +80,7 @@ const analysisResults = new Map();
  */
 analysisRoutes.post('/documents/:documentId',
   analysisValidation,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
     const { documentId } = req.params;
     const { type, options = {} } = req.body;
@@ -126,7 +140,7 @@ analysisRoutes.post('/documents/:documentId',
  *         $ref: '#/components/responses/NotFoundError'
  */
 analysisRoutes.get('/:analysisId',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { analysisId } = req.params;
     
     const analysis = analysisResults.get(analysisId);
@@ -159,7 +173,7 @@ analysisRoutes.get('/:analysisId',
  *         description: Analysis history retrieved successfully
  */
 analysisRoutes.get('/documents/:documentId/history',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
     const { documentId } = req.params;
     
@@ -315,7 +329,7 @@ function generateRiskAssessment(detailLevel: string) {
 }
 
 function generateClauseExtraction(detailLevel: string) {
-  const baseExtraction = {
+  const baseExtraction: { clauses: Clause[]; confidence: number } = {
     clauses: [
       {
         type: 'Compensation',
@@ -410,32 +424,47 @@ function generateComplianceCheck(detailLevel: string) {
   return baseCompliance;
 }
 
+const clauseLegalEffects: Record<ClauseType, string> = {
+  Compensation: 'Creates binding obligation for employer to pay specified amount',
+  Termination: 'Establishes notice requirements and termination procedures',
+  'Non-Compete': 'Restricts employee business activities post-employment',
+  Confidentiality: 'Creates ongoing obligation to protect proprietary information'
+};
+
 function getClauseLegalEffect(clauseType: string): string {
-  const effects = {
-    'Compensation': 'Creates binding obligation for employer to pay specified amount',
-    'Termination': 'Establishes notice requirements and termination procedures',
-    'Non-Compete': 'Restricts employee business activities post-employment',
-    'Confidentiality': 'Creates ongoing obligation to protect proprietary information'
-  };
-  return effects[clauseType] || 'Standard contractual obligation';
+  if (!isClauseType(clauseType)) {
+    return 'Standard contractual obligation';
+  }
+
+  return clauseLegalEffects[clauseType];
 }
+
+const clauseEnforceability: Record<ClauseType, string> = {
+  Compensation: 'Highly Enforceable',
+  Termination: 'Enforceable',
+  'Non-Compete': 'Jurisdiction Dependent',
+  Confidentiality: 'Highly Enforceable'
+};
 
 function getClauseEnforceability(clauseType: string): string {
-  const enforceability = {
-    'Compensation': 'Highly Enforceable',
-    'Termination': 'Enforceable',
-    'Non-Compete': 'Jurisdiction Dependent',
-    'Confidentiality': 'Highly Enforceable'
-  };
-  return enforceability[clauseType] || 'Generally Enforceable';
+  if (!isClauseType(clauseType)) {
+    return 'Generally Enforceable';
+  }
+
+  return clauseEnforceability[clauseType];
 }
 
+const clauseRecommendations: Record<ClauseType, string[]> = {
+  Compensation: ['Consider adding performance bonus structure', 'Include benefit package details'],
+  Termination: ['Add severance payment provisions', 'Include post-termination benefit continuation'],
+  'Non-Compete': ['Review enforceability in applicable jurisdictions', 'Consider geographic limitations'],
+  Confidentiality: ['Define proprietary information more specifically', 'Add return of materials clause']
+};
+
 function getClauseRecommendations(clauseType: string): string[] {
-  const recommendations = {
-    'Compensation': ['Consider adding performance bonus structure', 'Include benefit package details'],
-    'Termination': ['Add severance payment provisions', 'Include post-termination benefit continuation'],
-    'Non-Compete': ['Review enforceability in applicable jurisdictions', 'Consider geographic limitations'],
-    'Confidentiality': ['Define proprietary information more specifically', 'Add return of materials clause']
-  };
-  return recommendations[clauseType] || ['No specific recommendations'];
+  if (!isClauseType(clauseType)) {
+    return ['No specific recommendations'];
+  }
+
+  return clauseRecommendations[clauseType];
 }

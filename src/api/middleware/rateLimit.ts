@@ -274,7 +274,15 @@ export const bypassRateLimit = (condition: (req: Request) => boolean) => {
  * IP whitelist rate limit bypass
  */
 export const ipWhitelistBypass = (whitelist: string[]) => {
-  return bypassRateLimit((req: Request) => whitelist.includes(req.ip));
+  return bypassRateLimit((req: Request) => {
+    const ip = req.ip ?? req.socket.remoteAddress;
+
+    if (!ip) {
+      return false;
+    }
+
+    return whitelist.includes(ip);
+  });
 };
 
 /**
