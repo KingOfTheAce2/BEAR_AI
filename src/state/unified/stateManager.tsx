@@ -41,7 +41,7 @@ export interface StateManagerConfig {
 // Middleware interface
 export interface StateMiddleware {
   name: string;
-  execute: <T>(state: T, update: StateUpdate, next: (state: T) => T) => T;
+  execute: <T,>(state: T, update: StateUpdate, next: (state: T) => T) => T;
 }
 
 // State manager class
@@ -169,7 +169,7 @@ export class StateManager<T extends BaseState> {
   /**
    * Create selector for specific state slice
    */
-  createSelector = <R>(selector: (state: T) => R): (() => R) => {
+  createSelector = <R,>(selector: (state: T) => R): (() => R) => {
     return () => selector(this.state);
   };
 
@@ -179,7 +179,7 @@ export class StateManager<T extends BaseState> {
   createAsyncAction = <P, R>(
     type: string,
     asyncFn: (payload: P) => Promise<R>
-  ) => {
+  ): ((payload: P) => Promise<R>) => {
     return async (payload: P): Promise<R> => {
       // Dispatch loading state
       this.dispatch({
@@ -451,7 +451,7 @@ export function createStateProvider<T extends BaseState>(
     return context;
   };
 
-  const useStateSelector = <R>(selector: (state: T) => R): R => {
+  const useStateSelector = <R,>(selector: (state: T) => R): R => {
     const { state } = useStateManager();
     return useMemo(() => selector(state), [state, selector]);
   };
@@ -459,7 +459,7 @@ export function createStateProvider<T extends BaseState>(
   const useAsyncAction = <P, R>(
     type: string,
     asyncFn: (payload: P) => Promise<R>
-  ) => {
+  ): ((payload: P) => Promise<R>) => {
     const { dispatch } = useStateManager();
     
     return useCallback(async (payload: P): Promise<R> => {
@@ -521,7 +521,7 @@ export const stateUtils = {
   }),
 
   // Create data update
-  setData: <T>(data: Partial<T>): StateUpdate => ({
+  setData: <T,>(data: Partial<T>): StateUpdate => ({
     type: 'SET_DATA',
     payload: data,
     meta: { timestamp: new Date(), source: 'util' }
