@@ -64,7 +64,7 @@ export class LocalApiServer extends EventEmitter {
 
           console.log(`Local client connected: ${clientId}`);
 
-          ws.on('message', async (data: Buffer) => {
+          ws.on('message', async (data: any) => {
             try {
               const request: LocalApiRequest = JSON.parse(data.toString());
               const response = await this.handleRequest(clientId, request);

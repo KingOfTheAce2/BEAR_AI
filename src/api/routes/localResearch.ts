@@ -366,7 +366,7 @@ class LocalLegalDatabase {
     date: string;
     relevance: number;
   }>> {
-    const results = await this.search(query, { type: 'case', jurisdiction });
+    const results = await this.search(query, { type: 'case', jurisdiction: jurisdiction || 'all' });
     
     return results
       .filter(r => r.type === 'case')
@@ -392,7 +392,7 @@ class LocalLegalDatabase {
     jurisdiction: string;
     relevance: number;
   }>> {
-    const results = await this.search(query, { type: 'statute', jurisdiction });
+    const results = await this.search(query, { type: 'statute', jurisdiction: jurisdiction || 'all' });
     
     return results
       .filter(r => r.type === 'statute')

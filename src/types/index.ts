@@ -131,10 +131,13 @@ export interface Agent {
   type: 'researcher' | 'coder' | 'analyst' | 'optimizer' | 'coordinator' | 'tester' | 'reviewer';
   status: 'active' | 'idle' | 'busy' | 'error';
   capabilities: string[];
+  avatar?: string;
+  lastActivity?: Date;
   metrics?: {
     averageResponseTime: number;
     tasksCompleted: number;
     successRate: number;
+    memoryUsage?: number;
   };
 }
 

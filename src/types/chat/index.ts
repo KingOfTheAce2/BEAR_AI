@@ -123,7 +123,7 @@ export interface ExportOptions {
 export type MessageType = 'text' | 'code' | 'file' | 'image' | 'voice' | 'system';
 export type AttachmentType = 'image' | 'file' | 'video' | 'audio' | 'code';
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline';
-export type WebSocketMessageType = 'message' | 'typing' | 'presence' | 'reaction' | 'edit' | 'delete';
+export type WebSocketMessageType = 'message' | 'typing' | 'presence' | 'reaction' | 'edit' | 'delete' | 'join_thread' | 'leave_thread';
 export type ExportFormat = 'json' | 'csv' | 'html' | 'markdown' | 'pdf';
 
 export interface AttachmentMetadata {
