@@ -1,6 +1,12 @@
 // Hybrid Local API client with environment detection and fallbacks
-import { getTauriInvoke } from '../utils/conditionalImports';
-import { isTauriEnvironment, environmentLog } from '../utils/environmentDetection';
+// Simple fallbacks for removed utilities
+const getTauriInvoke = () => null;
+const isTauriEnvironment = () => false;
+const environmentLog = {
+  info: (message: string, ...args: any[]) => console.log(message, ...args),
+  error: (message: string, ...args: any[]) => console.error(message, ...args),
+  warn: (message: string, ...args: any[]) => console.warn(message, ...args)
+};
 
 // Re-export all types from the original localClient
 export type {

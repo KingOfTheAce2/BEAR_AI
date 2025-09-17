@@ -292,7 +292,7 @@ export class LocalConfigManager {
     }
 
     // Validate context length
-    if (config.contextLength > 32768) {
+    if (config.contextLength && config.contextLength > 32768) {
       warnings.push({
         field: 'contextLength',
         message: 'Very large context length may impact performance',

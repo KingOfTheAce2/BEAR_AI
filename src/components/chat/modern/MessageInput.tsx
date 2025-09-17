@@ -27,7 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [showFormatting, setShowFormatting] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<number | null>(null);
   const commandsRef = useRef<HTMLDivElement>(null);
 
   const commands = [

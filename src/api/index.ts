@@ -3,7 +3,14 @@
  * Automatically detects environment and provides appropriate API implementation
  */
 
-import { isTauriEnvironment, getCurrentEnvironment, environmentLog } from '../utils/environmentDetection';
+// Simple fallbacks for removed utilities
+const isTauriEnvironment = () => false;
+const getCurrentEnvironment = () => 'web';
+const environmentLog = {
+  info: (message: string, ...args: any[]) => console.log(message, ...args),
+  error: (message: string, ...args: any[]) => console.error(message, ...args),
+  warn: (message: string, ...args: any[]) => console.warn(message, ...args)
+};
 
 // Conditional exports based on environment
 let apiExports: any;

@@ -373,6 +373,7 @@ export interface HuggingFaceError {
   details?: any;
   retryable: boolean;
   suggestion?: string;
+  stack?: string;
 }
 
 // Configuration

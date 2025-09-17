@@ -16,6 +16,7 @@ interface MessageThreadProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
   isOverlay?: boolean;
+  key?: string;
 }
 
 const MessageThread: React.FC<MessageThreadProps> = ({

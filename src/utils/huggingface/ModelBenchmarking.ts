@@ -308,7 +308,14 @@ export class ModelBenchmarking {
 
     try {
       // Run each test case
-      const testResults = [];
+      const testResults: Array<{
+        testCaseId: string;
+        passed: boolean;
+        score: number;
+        executionTime: number;
+        output?: string;
+        error?: string;
+      }> = [];
       let totalErrors = 0;
       let totalExecutionTime = 0;
       let totalTokens = 0;
@@ -594,7 +601,7 @@ export class ModelBenchmarking {
   }
 
   private identifyStrengths(results: BenchmarkResult[]): string[] {
-    const strengths = [];
+    const strengths: string[] = [];
     const avgAccuracy = results.reduce((sum, r) => sum + r.metrics.accuracy, 0) / results.length;
     
     if (avgAccuracy > 0.8) strengths.push('High accuracy');
@@ -605,7 +612,7 @@ export class ModelBenchmarking {
   }
 
   private identifyWeaknesses(results: BenchmarkResult[]): string[] {
-    const weaknesses = [];
+    const weaknesses: string[] = [];
     const avgAccuracy = results.reduce((sum, r) => sum + r.metrics.accuracy, 0) / results.length;
     
     if (avgAccuracy < 0.6) weaknesses.push('Low accuracy');
@@ -616,7 +623,7 @@ export class ModelBenchmarking {
   }
 
   private generateComparisonRecommendations(comparison: any[]): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
     const bestModel = comparison.reduce((best, current) => 
       current.overallScore > best.overallScore ? current : best
     );

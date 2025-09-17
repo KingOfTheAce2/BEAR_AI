@@ -1,7 +1,14 @@
 // Local API client that replaces all HTTP calls with Tauri invokes
 // Uses conditional imports for hybrid web/desktop compatibility
-import { getTauriInvoke } from '../utils/conditionalImports';
-import { isTauriEnvironment, environmentLog } from '../utils/environmentDetection';
+
+// Simple fallbacks for removed utilities
+const getTauriInvoke = async () => null;
+const isTauriEnvironment = () => false;
+const environmentLog = {
+  info: (message: string, ...args: any[]) => console.log(message, ...args),
+  error: (message: string, ...args: any[]) => console.error(message, ...args),
+  warn: (message: string, ...args: any[]) => console.warn(message, ...args)
+};
 
 // Types for local API
 export interface LocalAuthCredentials {

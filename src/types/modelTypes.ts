@@ -25,7 +25,7 @@ export const ModelStatus = {
   UNLOADED: 'unloaded'
 } as const
 
-export type ModelStatus = typeof ModelStatus[keyof typeof ModelStatus]
+export type ModelStatusType = typeof ModelStatus[keyof typeof ModelStatus]
 
 export const ModelPriority = {
   CRITICAL: 0,
@@ -62,7 +62,7 @@ export interface Model {
   name: string
   description: string
   size: string
-  status: ModelStatus
+  status: ModelStatusType
   type?: ModelType
   downloadProgress?: number
   capabilities: ModelCapability[]
@@ -75,16 +75,6 @@ export interface Model {
   metadata: ModelMetadata
   compatibility: ModelCompatibility
 }
-
-export type ModelStatus = 
-  | 'available'     // Available for download
-  | 'downloading'   // Currently downloading
-  | 'installed'     // Installed and ready
-  | 'loading'       // Loading into memory
-  | 'loaded'        // Loaded and active
-  | 'error'         // Error state
-  | 'updating'      // Being updated
-  | 'uninstalling'  // Being removed
 
 export type ModelFamily = 
   | 'llama'
@@ -250,6 +240,10 @@ export interface ModelInferenceResult {
   model: string
   timestamp: Date
   context?: string
+  cached?: boolean
+  optimized?: boolean
+  optimizations?: string[]
+  modelId?: string
 }
 
 export interface MemoryStats {
@@ -263,7 +257,7 @@ export interface MemoryStats {
 export interface LoadedModel {
   config: ModelConfig
   instance: any
-  status: ModelStatus
+  status: ModelStatusType
   loadedAt?: Date
   lastUsed: Date
   memoryUsage: number
@@ -554,7 +548,7 @@ export interface SystemMetrics {
 
 export interface ModelMetrics {
   modelId: string
-  status: ModelStatus
+  status: ModelStatusType
   memoryFootprint: number
   tokensPerSecond: number
   averageLatency: number

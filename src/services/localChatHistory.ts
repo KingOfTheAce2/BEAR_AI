@@ -16,6 +16,8 @@ export interface ChatMessage {
     model?: string;
     temperature?: number;
     attachments?: string[];
+    error?: boolean;
+    offline?: boolean;
   };
   isEncrypted: boolean;
 }

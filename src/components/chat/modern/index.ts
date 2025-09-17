@@ -40,5 +40,6 @@ export { useChat } from '../../../hooks/chat/useChat';
 // Export services
 export { chatStorage } from '../../../services/chat/storage';
 export { default as ChatWebSocketService } from '../../../services/chat/websocket';
-export { default as VoiceService } from '../../../services/chat/voice';
+// VoiceService temporarily removed - will be implemented later
+// export { default as VoiceService } from '../../../services/chat/voice';
 export { default as CodeExecutionService } from '../../../utils/chat/codeExecution';

@@ -3,7 +3,7 @@
  * Provides privacy-focused local-first model management without external dependencies
  */
 
-import { ModelConfig, ModelMetadata, ModelCapabilities } from '../types/modelTypes';
+import { ModelConfig, ModelMetadata, ModelCapabilities, ModelType } from '../types/modelTypes';
 
 export interface LocalModelData {
   id: string;
@@ -443,7 +443,7 @@ export class LocalModelStorage {
     // Detect model capabilities based on file analysis
     return {
       textGeneration: true,
-      chatCompletion: model.type === 'chat',
+      chatCompletion: model.type !== ModelType.CODEGEN,
       streaming: true,
       contextLength: model.contextLength || 2048,
       features: ['text-generation'],

@@ -148,7 +148,7 @@ export class LocalStorageBackupService {
       return backupData.metadata;
     } catch (error) {
       console.error('Failed to create backup:', error);
-      throw new Error(`Backup creation failed: ${error.message}`);
+      throw new Error(`Backup creation failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

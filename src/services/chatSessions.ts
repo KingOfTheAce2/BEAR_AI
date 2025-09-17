@@ -6,6 +6,9 @@
 import { localChatHistoryService, ChatSession, ChatMessage } from './localChatHistory';
 import { encryptionService } from './encryption';
 
+// Re-export for easier imports
+export { ChatSession, ChatMessage } from './localChatHistory';
+
 export interface SessionState {
   id: string;
   isActive: boolean;

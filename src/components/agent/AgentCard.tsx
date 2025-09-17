@@ -29,6 +29,7 @@ export interface AgentCardProps {
   showMetrics?: boolean
   compact?: boolean
   className?: string
+  key?: string
 }
 
 const AgentCard: React.FC<AgentCardProps> = ({

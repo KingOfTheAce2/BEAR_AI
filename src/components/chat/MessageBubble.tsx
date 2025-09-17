@@ -12,6 +12,7 @@ import {
 
 interface MessageBubbleProps {
   message: Message;
+  key?: string;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {

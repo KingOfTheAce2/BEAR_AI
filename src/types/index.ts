@@ -13,7 +13,7 @@ export interface Message {
   id: string;
   content: string;
   sender: 'user' | 'ai';
-  agentId: string;
+  agentId?: string;
   timestamp: Date;
   status: 'sending' | 'sent' | 'delivered' | 'error';
   type: 'text' | 'document' | 'analysis' | 'citation' | 'code' | 'file' | 'image' | 'system';

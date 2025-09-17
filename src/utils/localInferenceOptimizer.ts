@@ -502,7 +502,7 @@ export class LocalInferenceOptimizer {
     // Model family specific optimizations
     if (modelId.includes('llama')) {
       optimizations.topP = 0.95;
-      optimizations.repetitionPenalty = 1.1;
+      optimizations.repeatPenalty = 1.1;
     } else if (modelId.includes('gpt')) {
       optimizations.topP = 0.9;
       optimizations.presencePenalty = 0.1;

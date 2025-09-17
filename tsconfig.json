@@ -36,14 +36,18 @@
   "include": [
     "src/**/*"
   ],
-  "typeRoots": [
-    "node_modules/@types",
-    "src/types"
-  ],
   "exclude": [
     "node_modules",
     "build",
     "dist",
-    "**/*.js"
-  ]
+    "**/*.js",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "src-tauri/**/*"
+  ],
+  "typeRoots": [
+    "node_modules/@types",
+    "src/types"
+  ],
+  "types": []
 }
