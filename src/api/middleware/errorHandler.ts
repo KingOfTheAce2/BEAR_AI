@@ -1,5 +1,5 @@
 // Comprehensive error handling middleware
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ApiError } from '@/api/types/api';
 
 /**
@@ -296,8 +296,16 @@ export function notFoundHandler(req: Request, res: Response): void {
 /**
  * Async error wrapper for route handlers
  */
-export function asyncHandler(fn: Function) {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function asyncHandler<
+  P = Request['params'],
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = Request['query'],
+  Locals extends Record<string, any> = Record<string, any>
+>(
+  fn: (req: Request<P, ResBody, ReqBody, ReqQuery, Locals>, res: Response<ResBody, Locals>, next: NextFunction) => Promise<unknown> | unknown
+): RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals> {
+  return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
