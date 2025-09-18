@@ -4,113 +4,63 @@ Run npm run typecheck
 > bear-ai-gui@1.0.0 typecheck
 > tsc --noEmit
 
-Error: src/components/agent/ConversationInterface.tsx(101,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-Error: src/components/chat/ChatInput.tsx(144,15): error TS2322: Type '(e: React.KeyboardEvent) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'KeyboardEvent<Element>'.
-      Types of property 'target' are incompatible.
-        Type 'EventTarget' is missing the following properties from type 'Element': attributes, classList, className, clientHeight, and 161 more.
-Error: src/components/chat/LocalChatHistory.tsx(440,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-Error: src/components/chat/OfflineChatInterface.tsx(319,17): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'import("react").KeyboardEvent<HTMLTextAreaElement>'.
-Error: src/components/chat/OfflineChatInterface.tsx(355,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-Error: src/components/chat/modern/FileUpload.tsx(188,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/chat/modern/FileUpload.tsx(189,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/chat/modern/FileUpload.tsx(190,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/chat/modern/FileUpload.tsx(191,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/chat/modern/MessageComponent.tsx(115,13): error TS2322: Type '(e: React.KeyboardEvent) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'KeyboardEvent<Element>'.
-Error: src/components/chat/modern/MessageInput.tsx(85,5): error TS2322: Type 'Timeout' is not assignable to type 'number'.
-Error: src/components/chat/modern/MessageInput.tsx(318,11): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+Error: src/components/chat/ChatInput.tsx(146,15): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
   Types of parameters 'e' and 'event' are incompatible.
     Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'import("react").KeyboardEvent<HTMLTextAreaElement>'.
       Types of property 'target' are incompatible.
         Type 'EventTarget' is missing the following properties from type 'HTMLTextAreaElement': autocomplete, cols, defaultValue, dirName, and 311 more.
+Error: src/components/chat/OfflineChatInterface.tsx(319,17): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'import("react").KeyboardEvent<HTMLTextAreaElement>'.
+Error: src/components/chat/modern/FileUpload.tsx(188,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/chat/modern/FileUpload.tsx(189,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/chat/modern/FileUpload.tsx(190,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/chat/modern/FileUpload.tsx(191,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/chat/modern/MessageComponent.tsx(115,13): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'import("react").KeyboardEvent<HTMLTextAreaElement>'.
+Error: src/components/chat/modern/MessageInput.tsx(342,11): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'import("react").KeyboardEvent<HTMLTextAreaElement>'.
 Error: src/components/chat/modern/MessageList.tsx(226,13): error TS2322: Type '(el: any) => void' is not assignable to type 'Ref<HTMLDivElement>'.
-Error: src/components/common/Notification.tsx(3,14): error TS2305: Module '"../../utils/cn"' has no exported member 'animations'.
-Error: src/components/common/NotificationCenter.tsx(5,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
-Error: src/components/dashboard/PerformanceMetrics.tsx(8,8): error TS2307: Cannot find module '../../services/performanceMonitor' or its corresponding type declarations.
-Error: src/components/documents/DocumentCard.tsx(6,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ArrowDownTrayIcon'. Did you mean 'ArrowDownIcon'?
-Error: src/components/documents/DocumentUpload.tsx(180,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Error: src/components/documents/DocumentUpload.tsx(180,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
   Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
       Types of property 'relatedTarget' are incompatible.
-        Type 'EventTarget | null' is not assignable to type 'Element | undefined'.
-          Type 'null' is not assignable to type 'Element | undefined'.
-Error: src/components/documents/DocumentUpload.tsx(181,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+        Type 'EventTarget | null' is not assignable to type 'HTMLDivElement | undefined'.
+          Type 'null' is not assignable to type 'HTMLDivElement | undefined'.
+Error: src/components/documents/DocumentUpload.tsx(181,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
   Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/documents/DocumentUpload.tsx(182,9): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/documents/DocumentUpload.tsx(182,9): error TS2322: Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
   Types of parameters 'e' and 'event' are incompatible.
-    Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
-Error: src/components/enhanced/EnhancedButton.tsx(100,39): error TS2694: Namespace 'React' has no exported member 'RefObject'.
+    Type 'import("/home/runner/work/BEAR_AI/BEAR_AI/node_modules/@types/react/ts5.0/index").DragEvent<HTMLDivElement>' is not assignable to type 'import("react").DragEvent<HTMLDivElement>'.
+Error: src/components/enhanced/EnhancedButton.tsx(100,33): error TS2552: Cannot find name 'RefObject'. Did you mean 'Object'?
 Error: src/components/enhanced/EnhancedButton.tsx(174,51): error TS2724: 'React' has no exported member named 'FocusEvent'. Did you mean 'MouseEvent'?
 Error: src/components/enhanced/EnhancedButton.tsx(179,50): error TS2724: 'React' has no exported member named 'FocusEvent'. Did you mean 'MouseEvent'?
-Error: src/components/enhanced/EnhancedButton.tsx(300,20): error TS2741: Property 'children' is missing in type '{ ref: Ref<HTMLButtonElement>; variant: "primary"; }' but required in type 'EnhancedButtonProps'.
-Error: src/components/enhanced/EnhancedButton.tsx(304,20): error TS2741: Property 'children' is missing in type '{ ref: Ref<HTMLButtonElement>; variant: "secondary"; }' but required in type 'EnhancedButtonProps'.
-Error: src/components/enhanced/EnhancedButton.tsx(308,20): error TS2741: Property 'children' is missing in type '{ ref: Ref<HTMLButtonElement>; variant: "outline"; }' but required in type 'EnhancedButtonProps'.
-Error: src/components/enhanced/EnhancedButton.tsx(312,20): error TS2741: Property 'children' is missing in type '{ ref: Ref<HTMLButtonElement>; variant: "ghost"; }' but required in type 'EnhancedButtonProps'.
-Error: src/components/enhanced/EnhancedButton.tsx(316,20): error TS2741: Property 'children' is missing in type '{ ref: Ref<HTMLButtonElement>; variant: "danger"; }' but required in type 'EnhancedButtonProps'.
-Error: src/components/enhanced/EnhancedNavigation.tsx(10,23): error TS2305: Module '"react-router-dom"' has no exported member 'useLocation'.
-Error: src/components/enhanced/EnhancedNavigation.tsx(14,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ChatBubbleLeftIcon'. Did you mean 'ChatBubbleOvalLeftIcon'?
-Error: src/components/enhanced/EnhancedNavigation.tsx(22,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'UserGroupIcon'.
-Error: src/components/enhanced/EnhancedNavigation.tsx(25,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'QuestionMarkCircleIcon'.
-Error: src/components/enhanced/EnhancedNavigation.tsx(35,15): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/enhanced/EnhancedNavigation.tsx(43,17): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/enhanced/EnhancedNavigation.tsx(57,16): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/enhanced/EnhancedNavigation.tsx(546,24): error TS2339: Property 'Fragment' does not exist on type 'typeof React'.
-Error: src/components/enhanced/EnhancedNavigation.tsx(557,25): error TS2339: Property 'Fragment' does not exist on type 'typeof React'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(9,28): error TS2305: Module '"react"' has no exported member 'ErrorInfo'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(28,20): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/error/ErrorBoundaryWrapper.tsx(58,43): error TS2689: Cannot extend an interface 'Component'. Did you mean 'implements'?
-Error: src/components/error/ErrorBoundaryWrapper.tsx(64,10): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(81,63): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(85,20): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(100,28): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(108,12): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(114,12): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(122,26): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(127,16): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(141,52): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(142,31): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(152,71): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(170,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(179,10): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(180,23): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(185,37): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(186,49): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(189,12): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(197,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(202,10): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(216,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(220,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(224,29): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(227,12): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(256,12): error TS2339: Property 'setState' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(298,93): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(299,87): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(361,20): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/error/ErrorBoundaryWrapper.tsx(365,27): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/error/ErrorBoundaryWrapper.tsx(372,7): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
-Error: src/components/error/ErrorBoundaryWrapper.tsx(372,8): error TS2786: 'ErrorBoundaryWrapper' cannot be used as a JSX component.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(30,43): error TS2689: Cannot extend an interface 'Component'. Did you mean 'implements'?
+Error: src/components/error/ErrorBoundaryWrapper.tsx(33,10): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(48,10): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(52,14): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(52,37): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(53,16): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(54,21): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(54,41): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(61,19): error TS2339: Property 'state' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(67,17): error TS2339: Property 'props' does not exist on type 'ErrorBoundaryWrapper'.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(75,27): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
+Error: src/components/error/ErrorBoundaryWrapper.tsx(79,5): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+Error: src/components/error/ErrorBoundaryWrapper.tsx(79,6): error TS2786: 'ErrorBoundaryWrapper' cannot be used as a JSX component.
   Its instance type 'ErrorBoundaryWrapper' is not a valid JSX element.
     Type 'ErrorBoundaryWrapper' is missing the following properties from type 'ElementClass': context, setState, forceUpdate, props, and 2 more.
-Error: src/components/error/ErrorFallbackComponent.tsx(10,42): error TS2305: Module '"lucide-react"' has no exported member 'Bug'.
-Error: src/components/error/ErrorFallbackComponent.tsx(10,91): error TS2305: Module '"lucide-react"' has no exported member 'Mail'.
-Error: src/components/error/index.ts(16,3): error TS2724: '"./ErrorBoundaryWrapper"' has no exported member named 'ErrorBoundaryWrapperProps'. Did you mean 'ErrorBoundaryWrapper'?
 Error: src/components/error/index.ts(17,3): error TS2614: Module '"./ErrorBoundaryWrapper"' has no exported member 'ErrorFallbackProps'. Did you mean to use 'import ErrorFallbackProps from "./ErrorBoundaryWrapper"' instead?
 Error: src/components/error/index.ts(27,111): error TS2307: Cannot find module '../../services/errorAnalytics' or its corresponding type declarations.
 Error: src/components/error/index.ts(53,8): error TS2307: Cannot find module '../../services/errorAnalytics' or its corresponding type declarations.
@@ -139,6 +89,9 @@ Error: src/components/files/FileSearchIndex.tsx(339,14): error TS2322: Type '{ c
 Error: src/components/files/FileUploadProcessor.tsx(261,11): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
   Types of parameters 'e' and 'event' are incompatible.
     Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
+      Types of property 'relatedTarget' are incompatible.
+        Type 'EventTarget | null' is not assignable to type 'Element | undefined'.
+          Type 'null' is not assignable to type 'Element | undefined'.
 Error: src/components/files/FileUploadProcessor.tsx(262,11): error TS2322: Type '(e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
   Types of parameters 'e' and 'event' are incompatible.
     Type 'DragEvent<HTMLDivElement>' is not assignable to type 'DragEvent<Element>'.
@@ -165,18 +118,13 @@ Error: src/components/index.ts(48,3): error TS2305: Module '"../types"' has no e
 Error: src/components/index.ts(49,3): error TS2305: Module '"../types"' has no exported member 'Option'.
 Error: src/components/index.ts(55,3): error TS2305: Module '"../types"' has no exported member 'ResponsiveBreakpoint'.
 Error: src/components/index.ts(79,14): error TS2305: Module '"../utils/cn"' has no exported member 'responsive'.
-Error: src/components/index.ts(79,26): error TS2305: Module '"../utils/cn"' has no exported member 'animations'.
 Error: src/components/index.ts(79,38): error TS2305: Module '"../utils/cn"' has no exported member 'theme'.
 Error: src/components/layout/Sidebar.tsx(10,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ChevronDoubleLeftIcon'. Did you mean 'ChevronLeftIcon'?
 Error: src/components/layout/Sidebar.tsx(11,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ChevronDoubleRightIcon'. Did you mean 'ChevronRightIcon'?
-Error: src/components/layout/StatusBar.tsx(8,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/components/layout/TopBar.tsx(10,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'ArrowRightOnRectangleIcon'.
 Error: src/components/layout/UnifiedLayout.tsx(62,41): error TS2741: Property 'activeChat' is missing in type '{}' but required in type 'ChatInterfaceProps'.
 Error: src/components/layout/UnifiedLayout.tsx(63,45): error TS2741: Property 'activeChat' is missing in type '{}' but required in type 'ChatInterfaceProps'.
 Error: src/components/layout/UnifiedSidebar.tsx(2,23): error TS2305: Module '"react-router-dom"' has no exported member 'useLocation'.
-Error: src/components/layout/UnifiedSidebar.tsx(6,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ChatBubbleLeftIcon'. Did you mean 'ChatBubbleOvalLeftIcon'?
-Error: src/components/layout/UnifiedSidebar.tsx(14,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'UserGroupIcon'.
-Error: src/components/layout/UnifiedSidebar.tsx(17,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'QuestionMarkCircleIcon'.
 Error: src/components/layout/UnifiedSidebar.tsx(32,15): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/layout/UnifiedStatusBar.tsx(38,12): error TS2678: Type '"insecure"' is not comparable to type '"error" | "secure" | "warning"'.
 Error: src/components/layout/UnifiedTopBar.tsx(11,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'ArrowRightOnRectangleIcon'.
@@ -213,6 +161,8 @@ Error: src/components/legal/LegalInputArea.tsx(1,47): error TS2305: Module '"rea
 Error: src/components/legal/LegalInputArea.tsx(297,15): error TS2322: Type '(e: React.KeyboardEvent) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
   Types of parameters 'e' and 'event' are incompatible.
     Type 'KeyboardEvent<HTMLTextAreaElement>' is not assignable to type 'KeyboardEvent<Element>'.
+      Types of property 'target' are incompatible.
+        Type 'EventTarget' is not assignable to type 'Element'.
 Error: src/components/legal/LegalMessageBubble.tsx(135,14): error TS2367: This comparison appears to be unintentional because the types '"system" | "document" | "analysis" | "citation" | "code" | "file" | "image"' and '"legal-query"' have no overlap.
 Error: src/components/legal/LegalMessageBubble.tsx(136,14): error TS2367: This comparison appears to be unintentional because the types '"system" | "document" | "analysis" | "citation" | "code" | "file" | "image"' and '"case-law"' have no overlap.
 Error: src/components/legal/LegalMessageBubble.tsx(137,14): error TS2367: This comparison appears to be unintentional because the types '"system" | "document" | "analysis" | "citation" | "code" | "file" | "image"' and '"statute"' have no overlap.
@@ -332,11 +282,9 @@ Error: src/components/local/index.ts(376,3): error TS18004: No value exists in s
 Error: src/components/local/index.ts(377,3): error TS18004: No value exists in scope for the shorthand property 'OfflineErrorHandler'. Either declare one or provide an initializer.
 Error: src/components/local/index.ts(378,3): error TS18004: No value exists in scope for the shorthand property 'LocalPerformanceDashboard'. Either declare one or provide an initializer.
 Error: src/components/local/index.ts(379,3): error TS18004: No value exists in scope for the shorthand property 'PrivacyIndicators'. Either declare one or provide an initializer.
-Error: src/components/model/ModelManager.tsx(13,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/components/model/ModelManager.tsx(94,34): error TS2749: 'ModelStatus' refers to a value, but is being used as a type here. Did you mean 'typeof ModelStatus'?
 Error: src/components/model/ModelManager.tsx(281,40): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
   Type 'undefined' is not assignable to type 'number'.
-Error: src/components/model/huggingface/FineTuningInterface.tsx(14,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/components/model/huggingface/FineTuningInterface.tsx(16,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ArrowUpTrayIcon'. Did you mean 'ArrowUpIcon'?
 Error: src/components/model/huggingface/FineTuningInterface.tsx(68,11): error TS2339: Property 'type' does not exist on type 'DragEvent<Element>'.
 Error: src/components/model/huggingface/FineTuningInterface.tsx(68,37): error TS2339: Property 'type' does not exist on type 'DragEvent<Element>'.
@@ -355,8 +303,6 @@ Error: src/components/model/huggingface/FineTuningInterface.tsx(245,7): error TS
       Type 'undefined' is not assignable to type 'number'.
 Error: src/components/model/huggingface/FineTuningInterface.tsx(781,9): error TS2322: Type '{ id: string; modelId: string; status: FineTuningStatus.RUNNING; method: FineTuningMethod.LORA; dataset: string; config: FineTuningConfig; progress: number; startTime: Date; retryCount: number; maxRetries: number; }' is not assignable to type 'FineTuningJob'.
   Object literal may only specify known properties, and 'retryCount' does not exist in type 'FineTuningJob'.
-Error: src/components/model/huggingface/HuggingFaceModelSelector.tsx(11,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ArrowDownTrayIcon'. Did you mean 'ArrowDownIcon'?
-Error: src/components/model/huggingface/HuggingFaceModelSelector.tsx(15,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/components/model/huggingface/HuggingFaceModelSelector.tsx(28,3): error TS2305: Module '"../../../types/huggingface"' has no exported member 'CompatibilityResult'.
 Error: src/components/model/huggingface/index.ts(11,47): error TS2307: Cannot find module '../../services/huggingface/HuggingFaceService' or its corresponding type declarations.
 Error: src/components/model/huggingface/index.ts(12,42): error TS2307: Cannot find module '../../services/huggingface/ModelSwitcher' or its corresponding type declarations.
@@ -384,27 +330,9 @@ Error: src/components/streaming/StreamingChat.tsx(216,15): error TS2322: Type '(
   Types of parameters 'e' and 'event' are incompatible.
     Type 'KeyboardEvent<HTMLInputElement>' is not assignable to type 'KeyboardEvent<Element>'.
       Types of property 'target' are incompatible.
-        Type 'EventTarget' is not assignable to type 'Element'.
-Error: src/components/ui/ErrorBoundary.tsx(1,28): error TS2305: Module '"react"' has no exported member 'ErrorInfo'.
-Error: src/components/ui/ErrorBoundary.tsx(11,3): error TS2305: Module '"lucide-react"' has no exported member 'Bug'.
-Error: src/components/ui/ErrorBoundary.tsx(16,3): error TS2305: Module '"lucide-react"' has no exported member 'Mail'.
-Error: src/components/ui/ErrorBoundary.tsx(33,20): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
-Error: src/components/ui/ErrorBoundary.tsx(336,29): error TS2689: Cannot extend an interface 'Component'. Did you mean 'implements'?
-Error: src/components/ui/ErrorBoundary.tsx(341,10): error TS2339: Property 'state' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(359,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(364,10): error TS2339: Property 'props' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(371,52): error TS2339: Property 'props' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(372,31): error TS2339: Property 'state' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(380,71): error TS2339: Property 'props' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(396,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(407,37): error TS2339: Property 'props' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(408,33): error TS2339: Property 'state' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(414,10): error TS2339: Property 'setState' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(427,49): error TS2339: Property 'state' does not exist on type 'ErrorBoundary'.
-Error: src/components/ui/ErrorBoundary.tsx(428,71): error TS2339: Property 'props' does not exist on type 'ErrorBoundary'.
+        Type 'EventTarget' is missing the following properties from type 'Element': attributes, classList, className, clientHeight, and 161 more.
 Error: src/components/ui/MemoryUsageIndicator.tsx(4,69): error TS2305: Module '"lucide-react"' has no exported member 'TrendingDown'.
 Error: src/components/ui/MemoryUsageIndicator.tsx(5,121): error TS2307: Cannot find module '@utils/memoryMonitor' or its corresponding type declarations.
-Error: src/components/ui/Modal.tsx(3,14): error TS2305: Module '"../../utils/cn"' has no exported member 'animations'.
 Error: src/components/ui/ModelSelector.tsx(23,3): error TS2305: Module '"lucide-react"' has no exported member 'HardDrive'.
 Error: src/components/ui/ModelSelector.tsx(25,3): error TS2305: Module '"lucide-react"' has no exported member 'Gauge'.
 Error: src/components/ui/ModelSelector.tsx(30,3): error TS2305: Module '"lucide-react"' has no exported member 'MoreHorizontal'.
@@ -415,9 +343,15 @@ Error: src/components/ui/ModelSelector.tsx(463,68): error TS2749: 'ModelStatus' 
 Error: src/components/ui/ModelSelector.tsx(466,61): error TS2749: 'ModelStatus' refers to a value, but is being used as a type here. Did you mean 'typeof ModelStatus'?
 Error: src/components/ui/NotificationSystem.tsx(26,3): error TS2305: Module '"lucide-react"' has no exported member 'Bell'.
 Error: src/components/ui/NotificationSystem.tsx(27,3): error TS2305: Module '"lucide-react"' has no exported member 'BellOff'.
-Error: src/components/ui/OptimizationSuggestions.tsx(2,40): error TS2307: Cannot find module '../../services/performanceMonitor' or its corresponding type declarations.
+Error: src/components/ui/OptimizationSuggestions.tsx(133,25): error TS2339: Property 'actionable' does not exist on type 'OptimizationSuggestion'.
+Error: src/components/ui/OptimizationSuggestions.tsx(156,25): error TS2339: Property 'metrics' does not exist on type 'OptimizationSuggestion'.
+Error: src/components/ui/OptimizationSuggestions.tsx(156,59): error TS2339: Property 'metrics' does not exist on type 'OptimizationSuggestion'.
+Error: src/components/ui/OptimizationSuggestions.tsx(160,46): error TS2339: Property 'metrics' does not exist on type 'OptimizationSuggestion'.
 Error: src/components/ui/OptimizationSuggestions.tsx(163,51): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
-Error: src/components/ui/PerformanceAlert.tsx(2,43): error TS2307: Cannot find module '../../services/performanceMonitor' or its corresponding type declarations.
+Error: src/components/ui/OptimizationSuggestions.tsx(172,45): error TS2339: Property 'actionable' does not exist on type 'OptimizationSuggestion'.
+Error: src/components/ui/PerformanceAlert.tsx(122,20): error TS2339: Property 'metadata' does not exist on type 'PerformanceAlert'.
+Error: src/components/ui/PerformanceAlert.tsx(122,50): error TS2339: Property 'metadata' does not exist on type 'PerformanceAlert'.
+Error: src/components/ui/PerformanceAlert.tsx(126,41): error TS2339: Property 'metadata' does not exist on type 'PerformanceAlert'.
 Error: src/components/ui/PerformanceDashboard.tsx(19,3): error TS2305: Module '"lucide-react"' has no exported member 'HardDrive'.
 Error: src/components/ui/PerformanceDashboard.tsx(20,3): error TS2305: Module '"lucide-react"' has no exported member 'MemoryStick'.
 Error: src/components/ui/PerformanceDashboard.tsx(25,3): error TS2305: Module '"lucide-react"' has no exported member 'TrendingDown'.
@@ -451,23 +385,29 @@ Error: src/components/ui/VirtualScrollList.tsx(438,12): error TS2339: Property '
 Error: src/components/ui/index.ts(7,39): error TS2305: Module '"./Card"' has no exported member 'CardDescription'.
 Error: src/components/ui/index.ts(7,69): error TS2305: Module '"./Card"' has no exported member 'CardFooter'.
 Error: src/components/unified/ComponentFactory.tsx(6,17): error TS2305: Module '"react"' has no exported member 'memo'.
-Error: src/components/unified/ComponentFactory.tsx(7,24): error TS2307: Cannot find module '../../utils/unified/logger' or its corresponding type declarations.
-Error: src/components/unified/ComponentFactory.tsx(8,41): error TS2307: Cannot find module '../../utils/unified/errorHandler' or its corresponding type declarations.
 Error: src/components/unified/ComponentFactory.tsx(9,20): error TS2307: Cannot find module '../../utils/unified/classNames' or its corresponding type declarations.
 Error: src/components/unified/ComponentFactory.tsx(64,20): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
+Error: src/components/unified/ComponentFactory.tsx(84,16): error TS2339: Property 'child' does not exist on type 'UnifiedLogger'.
 Error: src/components/unified/ComponentFactory.tsx(256,28): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(268,27): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(280,26): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(292,28): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(304,29): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(316,26): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
+Error: src/components/unified/ComponentFactory.tsx(358,31): error TS2339: Property 'child' does not exist on type 'UnifiedLogger'.
 Error: src/components/unified/ComponentFactory.tsx(382,37): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(384,46): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(388,31): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/components/unified/ComponentFactory.tsx(392,31): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
 Error: src/contexts/AppContext.tsx(2,30): error TS2305: Module '"../types"' has no exported member 'Chat'.
-Error: src/contexts/PerformanceContext.tsx(9,8): error TS2307: Cannot find module '../services/performanceMonitor' or its corresponding type declarations.
+Error: src/contexts/PerformanceContext.tsx(6,3): error TS2305: Module '"../services/performanceMonitor"' has no exported member 'UserInteractionMetrics'.
+Error: src/contexts/PerformanceContext.tsx(63,39): error TS2339: Property 'getUserMetrics' does not exist on type 'PerformanceMonitor'.
+Error: src/contexts/PerformanceContext.tsx(140,24): error TS2551: Property 'trackModelInference' does not exist on type 'PerformanceMonitor'. Did you mean 'recordModelInference'?
+Error: src/contexts/PerformanceContext.tsx(144,24): error TS2339: Property 'trackUserInteraction' does not exist on type 'PerformanceMonitor'.
+Error: src/contexts/PerformanceContext.tsx(152,24): error TS2339: Property 'updateThresholds' does not exist on type 'PerformanceMonitor'.
 Error: src/contexts/PerformanceContext.tsx(188,27): error TS2724: 'React' has no exported member named 'ComponentType'. Did you mean 'Component'?
+Error: src/contexts/PerformanceContext.tsx(296,9): error TS2345: Argument of type '{ modelName: string; requestId: string; startTime: number; endTime: number; duration: number; tokensGenerated: number; memoryUsed: number; error: string | undefined; inputTokens: number; outputTokens: number; latency: { ...; }; }' is not assignable to parameter of type 'Omit<ModelInferenceMetrics, "tokensPerSecond">'.
+  Object literal may only specify known properties, and 'modelName' does not exist in type 'Omit<ModelInferenceMetrics, "tokensPerSecond">'.
 Error: src/examples/HuggingFaceIntegrationExample.tsx(19,3): error TS2305: Module '"../components/model/huggingface"' has no exported member 'FineTuningConfig'.
 Error: src/examples/HuggingFaceIntegrationExample.tsx(252,9): error TS1362: 'LegalCategory' cannot be used as a value because it was exported using 'export type'.
 Error: src/examples/HuggingFaceIntegrationExample.tsx(253,9): error TS1362: 'LegalCategory' cannot be used as a value because it was exported using 'export type'.
@@ -494,6 +434,8 @@ Error: src/hooks/useMemoryMonitor.ts(10,8): error TS2307: Cannot find module '@u
 Error: src/hooks/useMemoryMonitor.ts(11,10): error TS2305: Module '"@utils/systemResources"' has no exported member 'getSystemInfo'.
 Error: src/hooks/useMemoryMonitor.ts(11,25): error TS2305: Module '"@utils/systemResources"' has no exported member 'getOptimalConfig'.
 Error: src/hooks/useModelManager.ts(13,3): error TS2724: '"../types/modelTypes"' has no exported member named 'ModelPerformanceMetrics'. Did you mean 'PerformanceMetrics'?
+Error: src/hooks/usePerformanceTracking.ts(247,9): error TS2345: Argument of type '{ modelName: string; requestId: string; startTime: number; endTime: number; duration: number; tokensGenerated: number; memoryUsed: number; error: string | undefined; inputTokens: number; outputTokens: number; latency: { ...; }; }' is not assignable to parameter of type 'Omit<ModelInferenceMetrics, "tokensPerSecond">'.
+  Object literal may only specify known properties, and 'modelName' does not exist in type 'Omit<ModelInferenceMetrics, "tokensPerSecond">'.
 Error: src/hooks/useStreamingRecovery.ts(3,40): error TS2307: Cannot find module '../services/errorRecovery' or its corresponding type declarations.
 Error: src/index.tsx(12,10): error TS2339: Property 'StrictMode' does not exist on type 'typeof React'.
 Error: src/index.tsx(14,11): error TS2339: Property 'StrictMode' does not exist on type 'typeof React'.
@@ -533,9 +475,7 @@ Error: src/licensing/crypto/license.crypto.ts(143,21): error TS2345: Argument of
 Error: src/licensing/crypto/license.crypto.ts(197,27): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
 Error: src/licensing/crypto/license.crypto.ts(208,30): error TS2554: Expected 0 arguments, but got 1.
 Error: src/licensing/crypto/license.crypto.ts(221,31): error TS2551: Property 'createDecipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createDecipheriv'?
-Error: src/licensing/frontend/components/LicenseActivation.tsx(11,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/licensing/frontend/components/LicenseActivation.tsx(13,3): error TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'DocumentDuplicateIcon'.
-Error: src/licensing/frontend/components/LicenseStatus.tsx(9,3): error TS2724: '"@heroicons/react/24/outline"' has no exported member named 'ExclamationTriangleIcon'. Did you mean 'ExclamationCircleIcon'?
 Error: src/licensing/utils/hardware.utils.ts(119,57): error TS18046: 'error' is of type 'unknown'.
 Error: src/licensing/utils/hardware.utils.ts(141,50): error TS18046: 'error' is of type 'unknown'.
 Error: src/licensing/utils/hardware.utils.ts(161,55): error TS2554: Expected 0 arguments, but got 1.
@@ -715,6 +655,7 @@ Error: src/services/offlineSync.ts(194,7): error TS2322: Type '{ synced: boolean
   Object literal may only specify known properties, and 'synced' does not exist in type '{ pages?: number | undefined; wordCount: number; characters: number; author?: string | undefined; createdDate?: Date | undefined; modifiedDate?: Date | undefined; format: string; }'.
 Error: src/services/offlineSync.ts(237,9): error TS2345: Argument of type '{ path: any; movedFrom: any; lastModified: Date; }' is not assignable to parameter of type 'Partial<ExtendedFileMetadata>'.
   Object literal may only specify known properties, and 'movedFrom' does not exist in type 'Partial<ExtendedFileMetadata>'.
+Error: src/services/performanceMonitor.ts(97,10): error TS2339: Property 'setMaxListeners' does not exist on type 'PerformanceMonitor'.
 Error: src/services/settings/localSettingsService.ts(240,35): error TS2345: Argument of type 'string | Buffer' is not assignable to parameter of type 'string'.
   Type 'Buffer' is not assignable to type 'string'.
 Error: src/services/settings/localSettingsService.ts(366,33): error TS2345: Argument of type 'string | Buffer' is not assignable to parameter of type 'string'.
@@ -725,7 +666,6 @@ Error: src/services/streamingManager.ts(2,59): error TS2307: Cannot find module 
 Error: src/services/streamingService.ts(208,76): error TS18046: 'error' is of type 'unknown'.
 Error: src/services/streamingService.ts(237,96): error TS18046: 'error' is of type 'unknown'.
 Error: src/services/streamingService.ts(355,78): error TS18046: 'error' is of type 'unknown'.
-Error: src/services/userSettings.ts(284,48): error TS2552: Cannot find name 'remgedSettings'. Did you mean 'remoteSettings'?
 Error: src/services/userSettings.ts(363,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
 Error: src/services/userSettings.ts(376,28): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
 Error: src/services/userSettings.ts(388,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
@@ -736,37 +676,101 @@ Error: src/services/userSettings.ts(413,48): error TS2322: Type 'Partial<{ highC
 Error: src/services/userSettings.ts(444,48): error TS2322: Type 'Partial<{ desktop: boolean; email: boolean; inApp: boolean; sound: boolean; }>' is not assignable to type '{ desktop: boolean; email: boolean; inApp: boolean; sound: boolean; }'.
   Types of property 'desktop' are incompatible.
     Type 'boolean | undefined' is not assignable to type 'boolean'.
-Error: src/state/bear-store.ts(12,19): error TS2305: Module '"zustand/middleware/persist"' has no exported member 'createJSONStorage'.
-Error: src/state/bear-store.ts(216,29): error TS2554: Expected 1 arguments, but got 0.
-Error: src/state/bear-store.ts(217,3): error TS2554: Expected 0 arguments, but got 1.
-Error: src/state/bear-store.ts(257,13): error TS18046: 'agent' is of type 'unknown'.
-Error: src/state/bear-store.ts(257,43): error TS18046: 'agent' is of type 'unknown'.
-Error: src/state/bear-store.ts(278,63): error TS18046: 'doc' is of type 'unknown'.
-Error: src/state/bear-store.ts(310,60): error TS18046: 'task' is of type 'unknown'.
-Error: src/state/bear-store.ts(368,62): error TS18046: 'model' is of type 'unknown'.
-Error: src/state/bear-store.ts(518,36): error TS18046: 'error' is of type 'unknown'.
-Error: src/state/bear-store.ts(524,63): error TS18046: 'error' is of type 'unknown'.
-Error: src/state/bear-store.ts(629,29): error TS18046: 'error' is of type 'unknown'.
-Error: src/state/bear-store.ts(653,32): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(12,10): error TS2305: Module '"zustand/middleware"' has no exported member 'persist'.
+Error: src/state/bear-store.ts(221,29): error TS2554: Expected 1 arguments, but got 0.
+Error: src/state/bear-store.ts(222,3): error TS2554: Expected 0 arguments, but got 1.
+Error: src/state/bear-store.ts(261,53): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => value is unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(agent: Agent) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => value is unknown'.
+      Types of parameters 'agent' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Agent'.
+  Overload 2 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(agent: Agent) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => unknown'.
+      Types of parameters 'agent' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Agent'.
+Error: src/state/bear-store.ts(283,56): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => value is unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(doc: Document) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => value is unknown'.
+      Types of parameters 'doc' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Document'.
+  Overload 2 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(doc: Document) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => unknown'.
+      Types of parameters 'doc' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Document'.
+Error: src/state/bear-store.ts(315,52): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => value is unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(task: Task) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => value is unknown'.
+      Types of parameters 'task' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Task'.
+  Overload 2 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(task: Task) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => unknown'.
+      Types of parameters 'task' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'Task'.
+Error: src/state/bear-store.ts(373,53): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => value is unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(model: LLMModel) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => value is unknown'.
+      Types of parameters 'model' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'LLMModel'.
+  Overload 2 of 2, '(predicate: (value: unknown, index: number, array: unknown[]) => unknown, thisArg?: any): unknown[]', gave the following error.
+    Argument of type '(model: LLMModel) => boolean' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => unknown'.
+      Types of parameters 'model' and 'value' are incompatible.
+        Type 'unknown' is not assignable to type 'LLMModel'.
+Error: src/state/bear-store.ts(669,32): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(654,35): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(670,35): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(655,31): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(671,31): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(656,32): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(672,32): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(657,28): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(673,28): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(658,34): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(674,34): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/bear-store.ts(662,17): error TS2349: This expression is not callable.
+Error: src/state/bear-store.ts(680,15): error TS2349: This expression is not callable.
   Type 'BearStore' has no call signatures.
-Error: src/state/unified/stateManager.tsx(7,38): error TS2307: Cannot find module '@/utils/unified/logger' or its corresponding type declarations.
-Error: src/state/unified/stateManager.tsx(8,41): error TS2307: Cannot find module '@/utils/unified/errorHandler' or its corresponding type declarations.
+Error: src/state/bear-store.ts(681,18): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(682,18): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(685,18): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(686,21): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(687,21): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(688,22): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(691,14): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(692,17): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(693,19): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(694,15): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(697,15): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(698,18): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(699,16): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(700,18): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(703,19): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(704,26): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(705,22): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(708,17): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(709,23): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
+Error: src/state/bear-store.ts(710,30): error TS2349: This expression is not callable.
+  Type 'BearStore' has no call signatures.
 Error: src/utils/chat/codeExecution.ts(180,7): error TS2531: Object is possibly 'null'.
 Error: src/utils/chat/codeExecution.ts(181,7): error TS2531: Object is possibly 'null'.
-Error: src/utils/cn.ts(1,15): error TS2614: Module '"clsx"' has no exported member 'ClassValue'. Did you mean to use 'import ClassValue from "clsx"' instead?
-Error: src/utils/cn.ts(1,27): error TS2614: Module '"clsx"' has no exported member 'clsx'. Did you mean to use 'import clsx from "clsx"' instead?
 Error: src/utils/huggingface/CompatibilityValidator.ts(244,21): error TS2345: Argument of type '{ component: string; currentSpec: string; recommendedSpec: string; estimatedCost: number; compatibilityImprovement: number; modelsEnabled: string[]; }' is not assignable to parameter of type 'never'.
 Error: src/utils/huggingface/CompatibilityValidator.ts(259,21): error TS2345: Argument of type '{ component: string; currentSpec: string; recommendedSpec: string; estimatedCost: number; compatibilityImprovement: number; modelsEnabled: string[]; }' is not assignable to parameter of type 'never'.
 Error: src/utils/huggingface/CompatibilityValidator.ts(274,21): error TS2345: Argument of type '{ component: string; currentSpec: string; recommendedSpec: string; estimatedCost: number; compatibilityImprovement: number; modelsEnabled: string[]; }' is not assignable to parameter of type 'never'.
@@ -778,3 +782,28 @@ Error: src/utils/huggingface/CompatibilityValidator.ts(281,19): error TS2339: Pr
 Error: src/utils/localStorageBackup.ts(260,20): error TS18046: 'error' is of type 'unknown'.
 Error: src/utils/localStorageBackup.ts(366,41): error TS18046: 'error' is of type 'unknown'.
 Error: Process completed with exit code 2.
+
+Annotations
+10 errors and 1 warning
+Code Quality & Security: src/components/documents/DocumentUpload.tsx#L180
+Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/modern/MessageList.tsx#L226
+Type '(el: any) => void' is not assignable to type 'Ref<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/modern/MessageInput.tsx#L342
+Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+Code Quality & Security: src/components/chat/modern/MessageComponent.tsx#L115
+Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+Code Quality & Security: src/components/chat/modern/FileUpload.tsx#L191
+Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/modern/FileUpload.tsx#L190
+Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/modern/FileUpload.tsx#L189
+Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/modern/FileUpload.tsx#L188
+Type '(e: React.DragEvent<HTMLDivElement>) => void' is not assignable to type 'DragEventHandler<HTMLDivElement>'.
+Code Quality & Security: src/components/chat/OfflineChatInterface.tsx#L319
+Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+Code Quality & Security: src/components/chat/ChatInput.tsx#L146
+Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLTextAreaElement>'.
+Code Quality & Security
+Cache not found for keys: v0-rust-quality-checks-Linux-x64-468ee77e-f3c7c2d1, v0-rust-quality-checks-Linux-x64-468ee77e
