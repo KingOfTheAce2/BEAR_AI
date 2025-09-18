@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 use chrono::{DateTime, Utc};
 use printpdf::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
+use std::path::{Path, PathBuf};
 
 /// Chat Export Engine for BEAR AI
 /// Provides export functionality for chat conversations in multiple formats
@@ -82,9 +82,18 @@ impl ChatExporter {
         if options.include_metadata {
             content.push_str("## Session Information\n\n");
             content.push_str(&format!("- **Session ID**: {}\n", session.id));
-            content.push_str(&format!("- **Created**: {}\n", session.created_at.format("%Y-%m-%d %H:%M:%S UTC")));
-            content.push_str(&format!("- **Last Updated**: {}\n", session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")));
-            content.push_str(&format!("- **Total Messages**: {}\n\n", session.messages.len()));
+            content.push_str(&format!(
+                "- **Created**: {}\n",
+                session.created_at.format("%Y-%m-%d %H:%M:%S UTC")
+            ));
+            content.push_str(&format!(
+                "- **Last Updated**: {}\n",
+                session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")
+            ));
+            content.push_str(&format!(
+                "- **Total Messages**: {}\n\n",
+                session.messages.len()
+            ));
 
             // Add custom metadata
             if !session.metadata.is_empty() {
@@ -150,8 +159,14 @@ impl ChatExporter {
         if options.include_metadata {
             content.push_str("\nSESSION INFORMATION:\n");
             content.push_str(&format!("Session ID: {}\n", session.id));
-            content.push_str(&format!("Created: {}\n", session.created_at.format("%Y-%m-%d %H:%M:%S UTC")));
-            content.push_str(&format!("Last Updated: {}\n", session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")));
+            content.push_str(&format!(
+                "Created: {}\n",
+                session.created_at.format("%Y-%m-%d %H:%M:%S UTC")
+            ));
+            content.push_str(&format!(
+                "Last Updated: {}\n",
+                session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")
+            ));
             content.push_str(&format!("Total Messages: {}\n", session.messages.len()));
         }
 
@@ -206,7 +221,8 @@ impl ChatExporter {
         let file_path = self.export_path.join(&filename);
 
         // Create PDF document
-        let (doc, page1, layer1) = PdfDocument::new(&session.title, Mm(210.0), Mm(297.0), "Layer 1");
+        let (doc, page1, layer1) =
+            PdfDocument::new(&session.title, Mm(210.0), Mm(297.0), "Layer 1");
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         // Set up fonts

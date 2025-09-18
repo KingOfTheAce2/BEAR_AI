@@ -18,7 +18,10 @@ fn main() {
             println!("cargo:rustc-link-arg=/SUBSYSTEM:WINDOWS");
 
             // Set version info
-            println!("cargo:rustc-env=CARGO_PKG_VERSION={}", env!("CARGO_PKG_VERSION"));
+            println!(
+                "cargo:rustc-env=CARGO_PKG_VERSION={}",
+                env!("CARGO_PKG_VERSION")
+            );
         }
 
         if cfg!(target_os = "macos") {
@@ -29,7 +32,13 @@ fn main() {
     }
 
     // Set build metadata
-    println!("cargo:rustc-env=BUILD_TIMESTAMP={}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
+    println!(
+        "cargo:rustc-env=BUILD_TIMESTAMP={}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+    );
 
     // Set Git information if available
     if let Ok(output) = std::process::Command::new("git")
