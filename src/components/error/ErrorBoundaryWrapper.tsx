@@ -25,6 +25,11 @@ export interface ErrorBoundaryWrapperProps {
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
+export interface ErrorFallbackProps {
+  error: Error;
+  resetError: () => void;
+}
+
 // ==================== ERROR BOUNDARY WRAPPER ====================
 
 export class ErrorBoundaryWrapper extends Component<ErrorBoundaryWrapperProps, ErrorBoundaryWrapperState> {
