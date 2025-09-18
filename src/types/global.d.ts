@@ -513,6 +513,13 @@ declare module 'react' {
     type ReactElement<P = any, T = any> = any;
     type ReactNode = any;
 
+    // Event Handler Types
+    type KeyboardEventHandler<T = Element> = (event: KeyboardEvent<T>) => void;
+    type DragEventHandler<T = Element> = (event: DragEvent<T>) => void;
+    type MouseEventHandler<T = Element> = (event: MouseEvent<T>) => void;
+    type FormEventHandler<T = Element> = (event: FormEvent<T>) => void;
+    type ChangeEventHandler<T = Element> = (event: ChangeEvent<T>) => void;
+
     interface Component<P = {}, S = {}, SS = any> {
       render(): any;
     }
@@ -621,7 +628,15 @@ declare module 'react' {
       onClick?: (event: any) => void;
       onChange?: (event: any) => void;
       onSubmit?: (event: any) => void;
+      onKeyDown?: (event: any) => void;
+      onKeyUp?: (event: any) => void;
+      onKeyPress?: (event: any) => void;
+      onDrop?: (event: any) => void;
+      onDragOver?: (event: any) => void;
+      onDragEnter?: (event: any) => void;
+      onDragLeave?: (event: any) => void;
       children?: ReactNode;
+      jsx?: boolean;
       [key: string]: any;
     }
 
@@ -636,6 +651,15 @@ declare module 'react' {
     interface ButtonHTMLAttributes<T> extends HTMLAttributes<T> {
       type?: 'button' | 'submit' | 'reset';
       disabled?: boolean;
+    }
+
+    interface StyleHTMLAttributes<T> extends HTMLAttributes<T> {
+      jsx?: boolean;
+      children?: ReactNode;
+    }
+
+    interface DetailedHTMLProps<E extends HTMLAttributes<T>, T> extends E {
+      ref?: any;
     }
   }
 
