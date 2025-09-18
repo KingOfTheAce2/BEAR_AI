@@ -437,7 +437,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .local-chat-history {
           display: flex;
           flex-direction: column;

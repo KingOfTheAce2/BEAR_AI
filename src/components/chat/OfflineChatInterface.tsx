@@ -352,7 +352,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .offline-chat-interface {
           display: flex;
           flex-direction: column;

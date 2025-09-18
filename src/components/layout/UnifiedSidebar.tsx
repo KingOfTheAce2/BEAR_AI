@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
-  ChatBubbleLeftIcon,
+  ChatBubbleOvalLeftIcon,
   DocumentIcon,
   MagnifyingGlassIcon,
   ClockIcon,
@@ -11,10 +11,10 @@ import {
   CogIcon,
   ScaleIcon,
   FolderIcon,
-  UserGroupIcon,
+  UsersIcon,
   CalendarIcon,
   ChartBarIcon,
-  QuestionMarkCircleIcon,
+  InformationCircleIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
@@ -37,7 +37,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   // Main features (always visible)
-  { id: 'chat', label: 'AI Chat', icon: ChatBubbleLeftIcon, path: '/chat', section: 'main' },
+  { id: 'chat', label: 'AI Chat', icon: ChatBubbleOvalLeftIcon, path: '/chat', section: 'main' },
   { id: 'documents', label: 'Documents', icon: DocumentIcon, path: '/documents', section: 'main' },
   { id: 'research', label: 'Research', icon: BookOpenIcon, path: '/research', section: 'main' },
   { id: 'search', label: 'Search', icon: MagnifyingGlassIcon, path: '/search', section: 'main' },
@@ -45,13 +45,13 @@ const navItems: NavItem[] = [
   
   // Secondary features
   { id: 'cases', label: 'Cases', icon: FolderIcon, path: '/cases', section: 'secondary' },
-  { id: 'clients', label: 'Clients', icon: UserGroupIcon, path: '/clients', section: 'secondary' },
+  { id: 'clients', label: 'Clients', icon: UsersIcon, path: '/clients', section: 'secondary' },
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon, path: '/calendar', section: 'secondary' },
   { id: 'reports', label: 'Reports', icon: ChartBarIcon, path: '/reports', section: 'secondary' },
   
   // Settings
   { id: 'settings', label: 'Settings', icon: CogIcon, path: '/settings', section: 'settings' },
-  { id: 'help', label: 'Help', icon: QuestionMarkCircleIcon, path: '/help', section: 'settings' }
+  { id: 'help', label: 'Help', icon: InformationCircleIcon, path: '/help', section: 'settings' }
 ];
 
 export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({

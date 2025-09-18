@@ -8,7 +8,7 @@ import {
   KeyIcon,
   ComputerDesktopIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   ArrowRightIcon,
   DocumentDuplicateIcon
 } from '@heroicons/react/24/outline';
@@ -208,7 +208,7 @@ export const LicenseActivation: React.FC<LicenseActivationProps> = ({
       {error && (
         <div className="bg-red-50 border border-red-200 rounded p-3">
           <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 text-red-500 mr-2" />
+            <ExclamationCircleIcon className="h-5 w-5 text-red-500 mr-2" />
             <span className="text-sm text-red-700">{error}</span>
           </div>
         </div>
@@ -360,7 +360,7 @@ export const LicenseActivation: React.FC<LicenseActivationProps> = ({
 
   const renderErrorStep = () => (
     <div className="text-center space-y-6">
-      <ExclamationTriangleIcon className="h-16 w-16 text-red-500 mx-auto" />
+      <ExclamationCircleIcon className="h-16 w-16 text-red-500 mx-auto" />
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Activation Failed</h2>
         <p className="text-gray-600 mb-4">{error}</p>

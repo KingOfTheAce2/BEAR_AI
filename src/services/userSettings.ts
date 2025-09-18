@@ -65,7 +65,7 @@ export class UserSettingsService extends EventEmitter {
   private profiles: Map<string, SettingsProfile[]> = new Map();
   private validationRules: SettingsValidationRule[] = [];
   private syncStatus: Map<string, SettingsSyncStatus> = new Map();
-  private autoSaveInterval: NodeJS.Timeout | null = null;
+  private autoSaveInterval: number | null = null;
   private conflictResolutionStrategy: 'local' | 'remote' | 'manual' | 'merge' = 'manual';
 
   constructor() {
@@ -281,7 +281,7 @@ export class UserSettingsService extends EventEmitter {
 
     if (conflicts.length === 0) {
       // No conflicts, apply remote settings
-      await this.updateUserPreferences(userId, remgedSettings);
+      await this.updateUserPreferences(userId, mergedSettings);
       this.emit('sync.completed', { userId, conflicts: 0 });
     } else {
       // Handle conflicts based on strategy
@@ -486,10 +486,10 @@ export class UserSettingsService extends EventEmitter {
 
   private enableAutoSave(intervalMs: number = 30000): void {
     if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
+      window.clearInterval(this.autoSaveInterval);
     }
 
-    this.autoSaveInterval = setInterval(async () => {
+    this.autoSaveInterval = window.setInterval(async () => {
       for (const [sessionId, session] of this.sessions) {
         if (!session.isGuest && this.hasUnsavedChanges(session)) {
           try {
@@ -651,7 +651,7 @@ export class UserSettingsService extends EventEmitter {
 
   destroy(): void {
     if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
+      window.clearInterval(this.autoSaveInterval);
     }
     this.sessions.clear();
     this.profiles.clear();

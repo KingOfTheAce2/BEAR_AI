@@ -10,7 +10,7 @@ import {
   ArrowPathIcon, 
   CpuChipIcon,
   ClockIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   CheckCircleIcon,
   InformationCircleIcon,
   Cog6ToothIcon,
@@ -98,7 +98,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
       case ModelStatus.LOADING:
         return <ArrowPathIcon className="w-5 h-5 text-blue-500 animate-spin" />;
       case ModelStatus.ERROR:
-        return <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />;
+        return <ExclamationCircleIcon className="w-5 h-5 text-red-500" />;
       case ModelStatus.ACTIVE:
         return <PlayIcon className="w-5 h-5 text-green-600" />;
       default:
@@ -239,7 +239,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
       {error && (
         <div className="p-4 bg-red-50 border-l-4 border-red-400">
           <div className="flex items-center">
-            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 mr-2" />
+            <ExclamationCircleIcon className="w-5 h-5 text-red-400 mr-2" />
             <span className="text-red-800">{error}</span>
             <button
               onClick={actions.clearError}

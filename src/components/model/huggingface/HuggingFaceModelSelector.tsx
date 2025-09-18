@@ -8,11 +8,11 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   StarIcon,
-  ArrowDownTrayIcon,
+  ArrowDownIcon,
   PlayIcon,
   StopIcon,
   ChartBarIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   CheckCircleIcon,
   ClockIcon,
   CpuChipIcon,
@@ -182,7 +182,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
             {compatibility.compatible ? (
               <CheckCircleIcon className="w-4 h-4" />
             ) : (
-              <ExclamationTriangleIcon className="w-4 h-4" />
+              <ExclamationCircleIcon className="w-4 h-4" />
             )}
             <span>
               {compatibility.compatible ? 'Compatible' : 'Issues Found'} ({compatibility.score}/100)
@@ -241,7 +241,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
               className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 flex items-center space-x-1"
               disabled={isDownloading}
             >
-              <ArrowDownTrayIcon className="w-4 h-4" />
+              <ArrowDownIcon className="w-4 h-4" />
               <span>Download</span>
             </button>
           )}
@@ -732,7 +732,7 @@ export const HuggingFaceModelSelector: React.FC<HuggingFaceModelSelectorProps> =
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center">
-                <ExclamationTriangleIcon className="w-5 h-5 text-red-400 mr-2" />
+                <ExclamationCircleIcon className="w-5 h-5 text-red-400 mr-2" />
                 <span className="text-red-800">{error}</span>
                 <button
                   onClick={() => setError(null)}

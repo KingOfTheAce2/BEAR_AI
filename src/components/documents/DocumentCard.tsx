@@ -3,7 +3,7 @@ import { Document } from '../../types';
 import {
   DocumentTextIcon,
   EyeIcon,
-  ArrowDownTrayIcon,
+  ArrowDownIcon,
   TrashIcon,
   PencilIcon,
   ClockIcon,
@@ -166,7 +166,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, viewMode }
               className="p-1.5 text-gray-500 hover:text-bear-navy rounded-lg hover:bg-gray-100"
               title="Download"
             >
-              <ArrowDownTrayIcon className="w-4 h-4" />
+              <ArrowDownIcon className="w-4 h-4" />
             </button>
             <button
               onClick={handleEdit}
@@ -294,7 +294,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, viewMode }
               className="p-1.5 text-gray-500 hover:text-bear-navy rounded-lg hover:bg-gray-100 transition-colors duration-200"
               title="Download"
             >
-              <ArrowDownTrayIcon className="w-4 h-4" />
+              <ArrowDownIcon className="w-4 h-4" />
             </button>
           </div>
           

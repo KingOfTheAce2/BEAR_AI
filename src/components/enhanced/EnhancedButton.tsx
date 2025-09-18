@@ -97,7 +97,7 @@ export const EnhancedButton = React.forwardRef<HTMLButtonElement, EnhancedButton
     const [isFocused, setIsFocused] = useState(false);
     
     // Use the forwarded ref or create our own
-    const internalRef = (ref as React.RefObject<HTMLButtonElement>) || buttonRef;
+    const internalRef = (ref as RefObject<HTMLButtonElement>) || buttonRef;
     
     const { transitionTo, applySpring } = useAnimation(internalRef);
     
@@ -297,23 +297,23 @@ EnhancedButton.displayName = 'EnhancedButton';
 
 // Styled button variants for common use cases
 export const PrimaryButton = React.forwardRef<HTMLButtonElement, Omit<EnhancedButtonProps, 'variant'>>(
-  (props, ref) => <EnhancedButton {...props} ref={ref} variant="primary" />
+  (props, ref) => <EnhancedButton {...props} ref={ref} variant="primary">Primary Button</EnhancedButton>
 );
 
 export const SecondaryButton = React.forwardRef<HTMLButtonElement, Omit<EnhancedButtonProps, 'variant'>>(
-  (props, ref) => <EnhancedButton {...props} ref={ref} variant="secondary" />
+  (props, ref) => <EnhancedButton {...props} ref={ref} variant="secondary">Secondary Button</EnhancedButton>
 );
 
 export const OutlineButton = React.forwardRef<HTMLButtonElement, Omit<EnhancedButtonProps, 'variant'>>(
-  (props, ref) => <EnhancedButton {...props} ref={ref} variant="outline" />
+  (props, ref) => <EnhancedButton {...props} ref={ref} variant="outline">Outline Button</EnhancedButton>
 );
 
 export const GhostButton = React.forwardRef<HTMLButtonElement, Omit<EnhancedButtonProps, 'variant'>>(
-  (props, ref) => <EnhancedButton {...props} ref={ref} variant="ghost" />
+  (props, ref) => <EnhancedButton {...props} ref={ref} variant="ghost">Ghost Button</EnhancedButton>
 );
 
 export const DangerButton = React.forwardRef<HTMLButtonElement, Omit<EnhancedButtonProps, 'variant'>>(
-  (props, ref) => <EnhancedButton {...props} ref={ref} variant="danger" />
+  (props, ref) => <EnhancedButton {...props} ref={ref} variant="danger">Danger Button</EnhancedButton>
 );
 
 PrimaryButton.displayName = 'PrimaryButton';

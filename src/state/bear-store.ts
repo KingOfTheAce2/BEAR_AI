@@ -9,7 +9,12 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { persist, createJSONStorage } from 'zustand/middleware/persist'
+import { persist } from 'zustand/middleware'
+
+interface PersistedState {
+  version: number
+  state: any
+}
 
 // State Types
 export interface Agent {
@@ -216,7 +221,7 @@ const defaultSettings: AppSettings = {
 export const useBearStore = create<BearStore>()(
   subscribeWithSelector(
     persist(
-      immer((set, get) => ({
+      immer<BearStore>((set, get) => ({
         // Initial State
         agents: {},
         documents: {},
@@ -253,7 +258,7 @@ export const useBearStore = create<BearStore>()(
 
         getActiveAgents: () => {
           const state = get()
-          return Object.values(state.agents).filter(agent => 
+          return Object.values(state.agents).filter((agent: Agent) =>
             agent.status !== 'offline' && agent.status !== 'error'
           )
         },
@@ -275,7 +280,7 @@ export const useBearStore = create<BearStore>()(
 
         getDocumentsByStatus: (status) => {
           const state = get()
-          return Object.values(state.documents).filter(doc => doc.status === status)
+          return Object.values(state.documents).filter((doc: Document) => doc.status === status)
         },
 
         // Task Actions
@@ -307,7 +312,7 @@ export const useBearStore = create<BearStore>()(
 
         getTasksByStatus: (status) => {
           const state = get()
-          return Object.values(state.tasks).filter(task => task.status === status)
+          return Object.values(state.tasks).filter((task: Task) => task.status === status)
         },
 
         // Model Actions
@@ -365,7 +370,7 @@ export const useBearStore = create<BearStore>()(
 
         getLoadedModels: () => {
           const state = get()
-          return Object.values(state.models).filter(model => model.isLoaded)
+          return Object.values(state.models).filter((model: LLMModel) => model.isLoaded)
         },
 
         // UI Actions
@@ -514,14 +519,14 @@ export const useBearStore = create<BearStore>()(
               message: `${document.name} has been successfully analyzed`
             })
 
-          } catch (error) {
-            get().failTask(taskId, error.message)
+          } catch (error: any) {
+            get().failTask(taskId, error?.message || 'Unknown error')
             get().updateDocument(documentId, { status: 'error' })
-            
+
             get().addNotification({
               type: 'error',
               title: 'Processing Failed',
-              message: `Failed to process ${document.name}: ${error.message}`
+              message: `Failed to process ${document.name}: ${error?.message || 'Unknown error'}`
             })
           }
         },
@@ -624,9 +629,9 @@ export const useBearStore = create<BearStore>()(
               message: 'BEAR AI is ready for document processing'
             })
 
-          } catch (error) {
+          } catch (error: any) {
             set((state) => {
-              state.error = error.message
+              state.error = error?.message || 'Unknown error'
               state.isLoading = false
             })
           }
@@ -634,7 +639,18 @@ export const useBearStore = create<BearStore>()(
       })),
       {
         name: 'bear-ai-store',
-        storage: createJSONStorage(() => localStorage),
+        storage: {
+          getItem: (key: string) => {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : null;
+          },
+          setItem: (key: string, value: any) => {
+            localStorage.setItem(key, JSON.stringify(value));
+          },
+          removeItem: (key: string) => {
+            localStorage.removeItem(key);
+          }
+        },
         partialize: (state) => ({
           settings: state.settings,
           ui: {
@@ -659,39 +675,38 @@ export const useSettings = () => useBearStore(state => state.settings)
 
 // Action Hooks
 export const useStoreActions = () => {
-  const store = useBearStore()
   return {
     // Agent actions
-    addAgent: store.addAgent,
-    updateAgent: store.updateAgent,
-    removeAgent: store.removeAgent,
-    
+    addAgent: useBearStore(state => state.addAgent),
+    updateAgent: useBearStore(state => state.updateAgent),
+    removeAgent: useBearStore(state => state.removeAgent),
+
     // Document actions
-    addDocument: store.addDocument,
-    updateDocument: store.updateDocument,
-    removeDocument: store.removeDocument,
-    processDocument: store.processDocument,
-    
+    addDocument: useBearStore(state => state.addDocument),
+    updateDocument: useBearStore(state => state.updateDocument),
+    removeDocument: useBearStore(state => state.removeDocument),
+    processDocument: useBearStore(state => state.processDocument),
+
     // Task actions
-    addTask: store.addTask,
-    updateTask: store.updateTask,
-    completeTask: store.completeTask,
-    failTask: store.failTask,
-    
+    addTask: useBearStore(state => state.addTask),
+    updateTask: useBearStore(state => state.updateTask),
+    completeTask: useBearStore(state => state.completeTask),
+    failTask: useBearStore(state => state.failTask),
+
     // Model actions
-    addModel: store.addModel,
-    updateModel: store.updateModel,
-    loadModel: store.loadModel,
-    unloadModel: store.unloadModel,
-    
+    addModel: useBearStore(state => state.addModel),
+    updateModel: useBearStore(state => state.updateModel),
+    loadModel: useBearStore(state => state.loadModel),
+    unloadModel: useBearStore(state => state.unloadModel),
+
     // UI actions
-    setActiveTab: store.setActiveTab,
-    setSelectedDocument: store.setSelectedDocument,
-    addNotification: store.addNotification,
-    
+    setActiveTab: useBearStore(state => state.setActiveTab),
+    setSelectedDocument: useBearStore(state => state.setSelectedDocument),
+    addNotification: useBearStore(state => state.addNotification),
+
     // System actions
-    initialize: store.initialize,
-    coordinateAgents: store.coordinateAgents,
-    optimizeAgentAllocation: store.optimizeAgentAllocation
+    initialize: useBearStore(state => state.initialize),
+    coordinateAgents: useBearStore(state => state.coordinateAgents),
+    optimizeAgentAllocation: useBearStore(state => state.optimizeAgentAllocation)
   }
 }

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { 
-  CheckCircleIcon, 
-  ExclamationTriangleIcon, 
-  InformationCircleIcon, 
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon,
   XCircleIcon,
-  XMarkIcon 
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 export const NotificationCenter: React.FC = () => {
@@ -62,7 +62,7 @@ function getNotificationIcon(type: string) {
     case 'success':
       return CheckCircleIcon;
     case 'warning':
-      return ExclamationTriangleIcon;
+      return ExclamationCircleIcon;
     case 'error':
       return XCircleIcon;
     case 'info':

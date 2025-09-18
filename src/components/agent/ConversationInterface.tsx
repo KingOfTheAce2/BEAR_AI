@@ -98,7 +98,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   }
 
   const renderMessage = (message: Message) => {
-    const participant = getParticipantById(message.agentId)
+    const participant = message.agentId !== undefined ? getParticipantById(message.agentId) : undefined
     const isCurrentUser = currentUser && message.agentId === currentUser.id
 
     return (

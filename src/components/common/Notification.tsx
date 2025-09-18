@@ -39,8 +39,8 @@ const Notification: React.FC<NotificationProps> = ({
   const [isVisible, setIsVisible] = React.useState(false)
   const [isExiting, setIsExiting] = React.useState(false)
   const progressRef = React.useRef<number>(100)
-  const intervalRef = React.useRef<NodeJS.Timeout>()
-  const timeoutRef = React.useRef<NodeJS.Timeout>()
+  const intervalRef = React.useRef<number>()
+  const timeoutRef = React.useRef<number>()
 
   // Entrance animation
   React.useEffect(() => {
@@ -54,7 +54,7 @@ const Notification: React.FC<NotificationProps> = ({
 
     const startTime = Date.now()
     
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = window.setInterval(() => {
       const elapsed = Date.now() - startTime
       const remaining = Math.max(0, duration - elapsed)
       const newProgress = (remaining / duration) * 100
@@ -68,14 +68,14 @@ const Notification: React.FC<NotificationProps> = ({
     }, 50)
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (intervalRef.current) window.clearInterval(intervalRef.current)
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
     }
   }, [duration, persistent])
 
   const handleClose = () => {
     setIsExiting(true)
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       onClose(id)
     }, 200)
   }
@@ -267,8 +267,17 @@ const NotificationContainer: React.FC<{
       {notifications.map(notification => (
         <Notification
           key={notification.id}
-          {...notification}
+          id={notification.id}
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          duration={notification.duration}
+          persistent={notification.persistent}
+          actions={notification.actions}
+          onClose={notification.onClose}
+          onAction={notification.onAction}
           position={position}
+          showProgress={notification.showProgress}
         />
       ))}
     </div>,

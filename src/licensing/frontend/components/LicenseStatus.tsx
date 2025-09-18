@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   CheckCircleIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   XCircleIcon,
   InformationCircleIcon,
   CogIcon,
@@ -70,7 +70,7 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
     if (validationResult.isValid) {
       return <CheckCircleIcon className="h-6 w-6 text-green-500" />;
     } else if (validationResult.warnings.length > 0) {
-      return <ExclamationTriangleIcon className="h-6 w-6 text-yellow-500" />;
+      return <ExclamationCircleIcon className="h-6 w-6 text-yellow-500" />;
     } else {
       return <XCircleIcon className="h-6 w-6 text-red-500" />;
     }
@@ -198,7 +198,7 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
           <div className="mt-4 space-y-2">
             {validationResult.warnings.map((warning, index) => (
               <div key={index} className="flex items-center text-sm text-yellow-700">
-                <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
+                <ExclamationCircleIcon className="h-4 w-4 mr-2" />
                 {warning}
               </div>
             ))}
@@ -215,7 +215,7 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
         {validationResult?.expirationWarning && (
           <div className="mt-4 bg-yellow-100 border border-yellow-200 rounded p-3">
             <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mr-2" />
+              <ExclamationCircleIcon className="h-5 w-5 text-yellow-600 mr-2" />
               <div>
                 <p className="text-sm text-yellow-800">
                   Your license expires in {validationResult.expirationWarning} days

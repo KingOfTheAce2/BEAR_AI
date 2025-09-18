@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import React, { Component } from 'react'
 import { cn } from '../../utils/cn'
 import { ErrorFallbackProps } from '../../types/modelTypes'
 import { Button } from './Button'
@@ -8,12 +8,12 @@ import {
   AlertTriangle,
   RefreshCw,
   Home,
-  Bug,
+  AlertCircle,
   Copy,
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Mail,
+  Send,
   FileText,
   Shield,
   Zap
@@ -22,16 +22,16 @@ import {
 interface ErrorBoundaryState {
   hasError: boolean
   error: Error | null
-  errorInfo: ErrorInfo | null
+  errorInfo: { componentStack: string } | null
   retryCount: number
   showDetails: boolean
   reportSent: boolean
 }
 
 interface ErrorBoundaryProps {
-  children: ReactNode
-  fallback?: React.ComponentType<ErrorFallbackProps>
-  onError?: (error: Error, errorInfo: ErrorInfo) => void
+  children: React.ReactNode
+  fallback?: any
+  onError?: (error: Error, errorInfo: { componentStack: string }) => void
   resetKeys?: Array<string | number>
   resetOnPropsChange?: boolean
   maxRetries?: number
@@ -41,7 +41,7 @@ interface ErrorBoundaryProps {
 
 interface ErrorReportProps {
   error: Error
-  errorInfo: ErrorInfo
+  errorInfo: { componentStack: string }
   onSendReport: (report: ErrorReport) => void
   onClose: () => void
 }
@@ -182,7 +182,7 @@ Timestamp: ${new Date().toISOString()}
               onClick={() => setShowReport(!showReport)}
               className="flex-1 sm:flex-none"
             >
-              <Bug className="h-4 w-4 mr-2" />
+              <AlertCircle className="h-4 w-4 mr-2" />
               Report Issue
             </Button>
             
@@ -245,7 +245,7 @@ Timestamp: ${new Date().toISOString()}
           {showReport && (
             <ErrorReportForm
               error={error}
-              errorInfo={errorInfo}
+              errorInfo={errorInfo || { componentStack: 'Unknown' }}
               onSendReport={(report) => {
                 console.log('Error report:', report)
                 setShowReport(false)
@@ -323,7 +323,7 @@ const ErrorReportForm: React.FC<ErrorReportProps> = ({
             </>
           ) : (
             <>
-              <Mail className="h-4 w-4 mr-2" />
+              <Send className="h-4 w-4 mr-2" />
               Send Report
             </>
           )}
@@ -333,7 +333,7 @@ const ErrorReportForm: React.FC<ErrorReportProps> = ({
   )
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+const ErrorBoundaryClass: any = class extends (React as any).Component<ErrorBoundaryProps, ErrorBoundaryState> {
   private resetTimeoutId: number | null = null
 
   constructor(props: ErrorBoundaryProps) {
@@ -355,13 +355,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
     this.setState({
       errorInfo
     })
 
     // Call onError callback if provided
-    this.props.onError?.(error, errorInfo)
+    this.props.onError?.(error, errorInfo || { componentStack: '' })
 
     // Log error for debugging
     console.error('ErrorBoundary caught an error:', error, errorInfo)
@@ -456,5 +456,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-export { ErrorBoundary, DefaultErrorFallback }
+// Export the working class
+export const ErrorBoundary = ErrorBoundaryClass;
+export { DefaultErrorFallback }
 export type { ErrorBoundaryProps, ErrorFallbackProps }

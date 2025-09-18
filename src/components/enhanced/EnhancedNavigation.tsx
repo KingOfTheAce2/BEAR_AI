@@ -7,11 +7,11 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { AnimationUtils, MicroInteractions, useAnimation } from '../../design/animation-system';
 import {
-  ChatBubbleLeftIcon,
+  ChatBubbleOvalLeftIcon,
   DocumentIcon,
   MagnifyingGlassIcon,
   ClockIcon,
@@ -19,10 +19,10 @@ import {
   CogIcon,
   ScaleIcon,
   FolderIcon,
-  UserGroupIcon,
+  UsersIcon,
   CalendarIcon,
   ChartBarIcon,
-  QuestionMarkCircleIcon,
+  InformationCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   HomeIcon,
@@ -32,7 +32,7 @@ import {
 export interface NavigationItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.FC<{ className?: string }>;
   path: string;
   badge?: string | number;
   section?: 'primary' | 'secondary' | 'utility';
@@ -40,7 +40,7 @@ export interface NavigationItem {
   quickActions?: Array<{
     id: string;
     label: string;
-    icon: React.ComponentType<{ className?: string }>;
+    icon: React.FC<{ className?: string }>;
     action: () => void;
   }>;
   metadata?: {
@@ -54,7 +54,7 @@ export interface SpatialBreadcrumb {
   label: string;
   path: string;
   depth: number;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: React.FC<{ className?: string }>;
   context?: string;
 }
 
@@ -75,12 +75,12 @@ const navigationItems: NavigationItem[] = [
   {
     id: 'chat',
     label: 'AI Assistant',
-    icon: ChatBubbleLeftIcon,
+    icon: ChatBubbleOvalLeftIcon,
     path: '/chat',
     section: 'primary',
     contextualActions: ['New Chat', 'Export History', 'Settings'],
     quickActions: [
-      { id: 'new-chat', label: 'New Chat', icon: ChatBubbleLeftIcon, action: () => console.log('New chat') },
+      { id: 'new-chat', label: 'New Chat', icon: ChatBubbleOvalLeftIcon, action: () => console.log('New chat') },
       { id: 'templates', label: 'Templates', icon: DocumentIcon, action: () => console.log('Templates') }
     ],
     metadata: { importance: 'high', frequency: 10 }
@@ -132,7 +132,7 @@ const navigationItems: NavigationItem[] = [
   {
     id: 'clients',
     label: 'Client Portal',
-    icon: UserGroupIcon,
+    icon: UsersIcon,
     path: '/clients',
     section: 'secondary',
     contextualActions: ['Add Client', 'Communications', 'Billing'],
@@ -179,7 +179,7 @@ const navigationItems: NavigationItem[] = [
   {
     id: 'help',
     label: 'Help & Support',
-    icon: QuestionMarkCircleIcon,
+    icon: InformationCircleIcon,
     path: '/help',
     section: 'utility',
     contextualActions: ['Documentation', 'Contact', 'Tutorials'],
@@ -198,7 +198,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   className
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const location = { pathname: window.location.pathname };
   const navigationRef = useRef<HTMLElement>(null);
   
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -369,10 +369,8 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                   'hover:bg-surface-level-1 hover:text-text-primary hover:translate-x-1',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
                   collapsed ? 'justify-center px-2' : 'justify-start',
-                  isActive && [
-                    'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm',
-                    'hover:from-primary-600 hover:to-primary-700 hover:translate-x-0'
-                  ],
+                  isActive && 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm',
+                  isActive && 'hover:from-primary-600 hover:to-primary-700 hover:translate-x-0',
                   !isActive && 'text-text-secondary',
                   isHovered && !isActive && 'bg-surface-level-1 text-text-primary transform translate-x-1'
                 )}
@@ -543,7 +541,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
             {breadcrumbs.map((crumb, index) => {
               const CrumbIcon = crumb.icon;
               return (
-                <React.Fragment key={crumb.path}>
+                <div key={crumb.path}>
                   {index > 0 && (
                     <ChevronRightIcon className="w-3 h-3 flex-shrink-0" />
                   )}
@@ -554,7 +552,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                     {CrumbIcon && <CrumbIcon className="w-3 h-3" />}
                     <span className="truncate max-w-24">{crumb.label}</span>
                   </button>
-                </React.Fragment>
+                </div>
               );
             })}
           </div>

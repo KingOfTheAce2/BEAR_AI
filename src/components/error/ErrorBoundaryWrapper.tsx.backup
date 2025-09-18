@@ -1,0 +1,392 @@
+/**
+ * Enhanced Error Boundary Wrapper for BEAR AI
+ * Integrates with the centralized error handling system
+ * 
+ * @file Enhanced error boundary with recovery and reporting
+ * @version 2.0.0
+ */
+
+import React, { Component } from 'react';
+import { ErrorHandler, ProcessedError, ErrorContext } from '../../services/errorHandler';
+import { Logger } from '../../services/logger';
+import { ErrorFallbackComponent } from './ErrorFallbackComponent';
+import { ErrorRecoveryDialog } from './ErrorRecoveryDialog';
+
+// ==================== INTERFACES ====================
+
+export interface ErrorBoundaryWrapperState {
+  hasError: boolean;
+  processedError: ProcessedError | null;
+  retryCount: number;
+  showRecoveryDialog: boolean;
+  isRecovering: boolean;
+  lastErrorTime: number;
+}
+
+export interface ErrorBoundaryWrapperProps {
+  children: React.ReactNode;
+  fallback?: React.FC<ErrorFallbackProps>;
+  onError?: (error: ProcessedError) => void;
+  resetKeys?: Array<string | number>;
+  resetOnPropsChange?: boolean;
+  maxRetries?: number;
+  isolate?: boolean;
+  className?: string;
+  errorHandler: ErrorHandler;
+  logger: Logger;
+  context?: Partial<ErrorContext>;
+  enableRecovery?: boolean;
+  enableReporting?: boolean;
+  enableAnalytics?: boolean;
+  component?: string;
+}
+
+export interface ErrorFallbackProps {
+  error: ProcessedError;
+  resetError: () => void;
+  retry: () => void;
+  canRetry: boolean;
+  retryCount: number;
+  maxRetries: number;
+  isRecovering: boolean;
+  showRecoveryOptions: () => void;
+  suggestions: string[];
+}
+
+// ==================== ERROR BOUNDARY WRAPPER ====================
+
+export class ErrorBoundaryWrapper extends Component<ErrorBoundaryWrapperProps, ErrorBoundaryWrapperState> {
+  private resetTimeoutId: number | null = null;
+  private errorThrottleTime = 1000; // Prevent error spam
+
+  constructor(props: ErrorBoundaryWrapperProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      processedError: null,
+      retryCount: 0,
+      showRecoveryDialog: false,
+      isRecovering: false,
+      lastErrorTime: 0
+    };
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryWrapperState> {
+    return {
+      hasError: true
+    };
+  }
+
+  async componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
+    const { errorHandler, logger, context, component } = this.props;
+    const now = Date.now();
+
+    // Throttle rapid errors
+    if (now - this.state.lastErrorTime < this.errorThrottleTime) {
+      console.warn('Error throttled due to rapid succession');
+      return;
+    }
+
+    try {
+      // Create error context
+      const errorContext: Partial<ErrorContext> = {
+        ...context,
+        component: component || 'ErrorBoundary',
+        action: 'component-render',
+        route: typeof window !== 'undefined' ? window.location.pathname : undefined,
+        additionalData: {
+          componentStack: errorInfo.componentStack,
+          errorBoundary: true,
+          retryCount: this.state.retryCount
+        }
+      };
+
+      // Process error through centralized handler
+      const processedError = await errorHandler.handleError(error, errorContext);
+
+      // Update state with processed error
+      this.setState({
+        processedError,
+        lastErrorTime: now
+      });
+
+      // Call onError callback if provided
+      this.props.onError?.(processedError);
+
+      // Log error with additional boundary context
+      logger.error('Error caught by boundary', {
+        errorId: processedError.id,
+        component: component || 'ErrorBoundary',
+        severity: processedError.severity,
+        category: processedError.category,
+        retryCount: this.state.retryCount,
+        componentStack: errorInfo.componentStack
+      });
+
+      // Attempt automatic recovery for certain error types
+      if (this.props.enableRecovery && processedError.recoverable) {
+        await this.attemptAutomaticRecovery(processedError);
+      }
+
+    } catch (handlingError) {
+      console.error('Error in error handling:', handlingError);
+      logger.error('Failed to process boundary error', {
+        originalError: error.message,
+        handlingError: handlingError instanceof Error ? handlingError.message : 'Unknown'
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: ErrorBoundaryWrapperProps) {
+    const { resetKeys, resetOnPropsChange } = this.props;
+    const { hasError } = this.state;
+
+    // Reset on key changes
+    if (hasError && prevProps.resetKeys !== resetKeys) {
+      if (resetKeys?.some((key, idx) => key !== prevProps.resetKeys?.[idx])) {
+        this.resetErrorBoundary();
+      }
+    }
+
+    // Reset on props change
+    if (hasError && resetOnPropsChange && prevProps.children !== this.props.children) {
+      this.resetErrorBoundary();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.resetTimeoutId) {
+      clearTimeout(this.resetTimeoutId);
+    }
+  }
+
+  // ==================== ERROR HANDLING METHODS ====================
+
+  resetErrorBoundary = () => {
+    if (this.resetTimeoutId) {
+      clearTimeout(this.resetTimeoutId);
+    }
+
+    this.setState({
+      hasError: false,
+      processedError: null,
+      retryCount: 0,
+      showRecoveryDialog: false,
+      isRecovering: false,
+      lastErrorTime: 0
+    });
+
+    this.props.logger.info('Error boundary reset', {
+      component: this.props.component || 'ErrorBoundary'
+    });
+  };
+
+  handleRetry = async () => {
+    const { maxRetries = 3 } = this.props;
+    const { retryCount, processedError } = this.state;
+
+    if (retryCount >= maxRetries) {
+      this.props.logger.warn('Maximum retry attempts reached', {
+        retryCount,
+        maxRetries,
+        errorId: processedError?.id
+      });
+      return;
+    }
+
+    this.setState({ 
+      retryCount: retryCount + 1,
+      isRecovering: true 
+    });
+
+    this.props.logger.info('Retrying after error', {
+      retryCount: retryCount + 1,
+      errorId: processedError?.id
+    });
+
+    // Exponential backoff
+    const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+    
+    this.resetTimeoutId = window.setTimeout(() => {
+      this.resetErrorBoundary();
+    }, delay);
+  };
+
+  showRecoveryOptions = () => {
+    this.setState({ showRecoveryDialog: true });
+  };
+
+  hideRecoveryDialog = () => {
+    this.setState({ showRecoveryDialog: false });
+  };
+
+  private async attemptAutomaticRecovery(error: ProcessedError): Promise<void> {
+    const { logger } = this.props;
+
+    try {
+      this.setState({ isRecovering: true });
+
+      // Automatic recovery strategies based on error type
+      switch (error.category) {
+        case 'memory':
+          await this.performMemoryRecovery();
+          break;
+        case 'network':
+          await this.performNetworkRecovery();
+          break;
+        case 'component':
+          await this.performComponentRecovery();
+          break;
+        default:
+          // Generic recovery
+          await this.performGenericRecovery();
+      }
+
+      logger.info('Automatic recovery attempted', {
+        errorId: error.id,
+        category: error.category
+      });
+
+    } catch (recoveryError) {
+      logger.error('Automatic recovery failed', {
+        errorId: error.id,
+        recoveryError: recoveryError instanceof Error ? recoveryError.message : 'Unknown'
+      });
+    } finally {
+      this.setState({ isRecovering: false });
+    }
+  }
+
+  private async performMemoryRecovery(): Promise<void> {
+    // Clear caches and force garbage collection
+    if (typeof window !== 'undefined') {
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+      
+      // Clear some localStorage if needed
+      const keysToRemove = Object.keys(localStorage).filter(key => 
+        key.includes('cache') || key.includes('temp')
+      );
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    }
+  }
+
+  private async performNetworkRecovery(): Promise<void> {
+    // Test network connectivity
+    try {
+      await fetch('/ping', { method: 'HEAD' });
+    } catch {
+      // Network still down, will handle in UI
+    }
+  }
+
+  private async performComponentRecovery(): Promise<void> {
+    // Force re-render after a short delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  private async performGenericRecovery(): Promise<void> {
+    // Generic recovery: just wait a moment
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  // ==================== RENDER METHOD ====================
+
+  render() {
+    const { hasError, processedError, retryCount, showRecoveryDialog, isRecovering } = this.state;
+    const { children, fallback: Fallback, isolate, className, maxRetries = 3 } = this.props;
+
+    if (hasError && processedError) {
+      const errorFallbackProps: ErrorFallbackProps = {
+        error: processedError,
+        resetError: this.resetErrorBoundary,
+        retry: this.handleRetry,
+        canRetry: retryCount < maxRetries && processedError.retryable,
+        retryCount,
+        maxRetries,
+        isRecovering,
+        showRecoveryOptions: this.showRecoveryOptions,
+        suggestions: processedError.suggestions
+      };
+
+      const fallbackComponent = Fallback ? (
+        <Fallback {...errorFallbackProps} />
+      ) : (
+        <ErrorFallbackComponent {...errorFallbackProps} />
+      );
+
+      const wrappedComponent = isolate ? (
+        <div className={`error-boundary-container ${className || ''}`}>
+          {fallbackComponent}
+          {showRecoveryDialog && (
+            <ErrorRecoveryDialog
+              error={processedError}
+              onClose={this.hideRecoveryDialog}
+              onRetry={this.handleRetry}
+              onReset={this.resetErrorBoundary}
+            />
+          )}
+        </div>
+      ) : (
+        <>
+          {fallbackComponent}
+          {showRecoveryDialog && (
+            <ErrorRecoveryDialog
+              error={processedError}
+              onClose={this.hideRecoveryDialog}
+              onRetry={this.handleRetry}
+              onReset={this.resetErrorBoundary}
+            />
+          )}
+        </>
+      );
+
+      return wrappedComponent;
+    }
+
+    return children;
+  }
+}
+
+// ==================== HOC WRAPPER ====================
+
+interface WithErrorBoundaryOptions {
+  component?: string;
+  maxRetries?: number;
+  enableRecovery?: boolean;
+  enableReporting?: boolean;
+  context?: Partial<ErrorContext>;
+  fallback?: React.FC<ErrorFallbackProps>;
+}
+
+export const withErrorBoundary = <P extends object>(
+  WrappedComponent: React.FC<P> | React.ComponentClass<P>,
+  options: WithErrorBoundaryOptions = {}
+) => {
+  const WithErrorBoundaryComponent = (props: P & { errorHandler: ErrorHandler; logger: Logger }) => {
+    const { errorHandler, logger, ...restProps } = props;
+    
+    return (
+      <ErrorBoundaryWrapper
+        errorHandler={errorHandler}
+        logger={logger}
+        component={options.component || WrappedComponent.displayName || WrappedComponent.name}
+        maxRetries={options.maxRetries}
+        enableRecovery={options.enableRecovery}
+        enableReporting={options.enableReporting}
+        context={options.context}
+        fallback={options.fallback}
+      >
+        <WrappedComponent {...(restProps as P)} />
+      </ErrorBoundaryWrapper>
+    );
+  };
+
+  WithErrorBoundaryComponent.displayName = `withErrorBoundary(${WrappedComponent.displayName || WrappedComponent.name})`;
+  
+  return WithErrorBoundaryComponent;
+};
+
+export default ErrorBoundaryWrapper;

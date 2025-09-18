@@ -79,13 +79,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     // Reset typing timeout
     if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
+      window.clearTimeout(typingTimeoutRef.current);
     }
 
-    typingTimeoutRef.current = setTimeout(() => {
+    typingTimeoutRef.current = window.setTimeout(() => {
       setIsTyping(false);
       onStopTyping();
-    }, 2000);
+    }, 2000) as unknown as number;
 
     // Handle commands
     const lines = value.split('\n');
@@ -130,7 +130,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     }
 
     if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
+      window.clearTimeout(typingTimeoutRef.current);
     }
   }, [message, disabled, onSendMessage, onStopTyping]);
 
@@ -160,7 +160,31 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
       e.preventDefault();
-      handleSubmit(e as any);
+
+      if (!message.trim() || disabled) return;
+
+      // Handle special commands
+      const trimmedMessage = message.trim();
+      if (trimmedMessage.startsWith('/')) {
+        handleCommand(trimmedMessage);
+        return;
+      }
+
+      // Determine message type
+      let messageType: Message['type'] = 'text';
+      if (message.includes('```')) {
+        messageType = 'code';
+      }
+
+      onSendMessage(trimmedMessage, messageType);
+      setMessage('');
+      setIsTyping(false);
+      onStopTyping();
+
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     } else if (e.key === 'Escape') {
       setShowCommands(false);
       setShowEmojis(false);
@@ -182,7 +206,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowCommands(false);
     
     // Focus and position cursor
-    setTimeout(() => {
+    window.setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
         const cursorPos = command.template.indexOf('\n\n');
@@ -207,7 +231,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setMessage(newText);
 
     // Restore cursor position
-    setTimeout(() => {
+    window.setTimeout(() => {
       if (selectedText) {
         textarea.setSelectionRange(start + before.length, end + before.length);
       } else {
@@ -228,7 +252,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     const newText = beforeText + text + afterText;
     setMessage(newText);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       textarea.setSelectionRange(start + text.length, start + text.length);
       textarea.focus();
     }, 0);

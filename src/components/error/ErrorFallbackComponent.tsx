@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug, Copy, ChevronDown, ChevronUp, ExternalLink, Mail, Shield, Zap, Clock, TrendingUp } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, AlertCircle, Copy, ChevronDown, ChevronUp, ExternalLink, Send, Shield, Zap, Clock, TrendingUp } from 'lucide-react';
 import { ProcessedError } from '../../services/errorHandler';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -339,7 +339,7 @@ export const ErrorFallbackComponent: React.FC<ErrorFallbackComponentProps> = ({
 
             <ErrorActionButton
               onClick={showRecoveryOptions}
-              icon={<Bug className="h-4 w-4 mr-2" />}
+              icon={<AlertCircle className="h-4 w-4 mr-2" />}
               label="Recovery Options"
               variant="outline"
             />
@@ -375,7 +375,7 @@ export const ErrorFallbackComponent: React.FC<ErrorFallbackComponentProps> = ({
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <a href="mailto:support@bearai.com" target="_blank" rel="noopener noreferrer">
-                  <Mail className="h-4 w-4 mr-1" />
+                  <Send className="h-4 w-4 mr-1" />
                   Contact Support
                 </a>
               </Button>

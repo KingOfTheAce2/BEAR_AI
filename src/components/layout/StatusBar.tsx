@@ -5,7 +5,7 @@ import {
   ShieldCheckIcon,
   ClockIcon,
   CpuChipIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
 
@@ -32,7 +32,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({ systemStatus }) => {
       case 'secure':
         return <ShieldCheckIcon className="w-3 h-3 text-bear-green" />;
       case 'warning':
-        return <ExclamationTriangleIcon className="w-3 h-3 text-yellow-500" />;
+        return <ExclamationCircleIcon className="w-3 h-3 text-yellow-500" />;
       case 'error':
         return <XCircleIcon className="w-3 h-3 text-bear-red" />;
       default:

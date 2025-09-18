@@ -11,7 +11,7 @@ import {
   DocumentTextIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-  ExclamationTriangleIcon,
+  ExclamationCircleIcon,
   CheckCircleIcon,
   ArrowUpTrayIcon,
   CloudArrowDownIcon,
@@ -198,7 +198,7 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
                 {validationResult.valid ? (
                   <CheckCircleIcon className="w-5 h-5 text-green-600" />
                 ) : (
-                  <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+                  <ExclamationCircleIcon className="w-5 h-5 text-red-600" />
                 )}
                 <span className={`font-medium ${
                   validationResult.valid ? 'text-green-900' : 'text-red-900'
@@ -630,7 +630,7 @@ const JobProgress: React.FC<{
       {job.error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center space-x-2">
-            <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />
+            <ExclamationCircleIcon className="w-5 h-5 text-red-500" />
             <span className="font-medium text-red-900">Training Failed</span>
           </div>
           <p className="text-sm text-red-700 mt-1">{job.error}</p>
