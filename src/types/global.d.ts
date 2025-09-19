@@ -384,6 +384,9 @@ declare global {
     interface IntrinsicElements {
       [elemName: string]: any;
     }
+    interface IntrinsicAttributes {
+      key?: React.Key;
+    }
     interface ElementClass {
       render(): any;
     }
@@ -399,6 +402,11 @@ declare global {
   }
 
   namespace React {
+    type Key = string | number;
+    interface Attributes {
+      key?: Key;
+      ref?: any;
+    }
     interface KeyboardEvent<T = Element> {
       key: string;
       code: string;
@@ -520,8 +528,17 @@ declare module 'react' {
     type FormEventHandler<T = Element> = (event: FormEvent<T>) => void;
     type ChangeEventHandler<T = Element> = (event: ChangeEvent<T>) => void;
 
-    interface Component<P = {}, S = {}, SS = any> {
+    class Component<P = {}, S = {}, SS = any> {
+      constructor(props: P);
+      props: Readonly<P>;
+      state: Readonly<S>;
+      setState(state: Partial<S> | ((prevState: Readonly<S>) => Partial<S> | null)): void;
+      forceUpdate(callback?: () => void): void;
       render(): any;
+    }
+
+    interface ComponentClass<P = {}, S = {}> {
+      new (props: P): Component<P, S>;
     }
 
     interface FunctionComponent<P = {}> {
@@ -529,6 +546,11 @@ declare module 'react' {
       displayName?: string;
     }
     type FC<P = {}> = FunctionComponent<P>;
+    type ComponentType<P = {}> = ComponentClass<P> | FunctionComponent<P>;
+
+    interface RefObject<T> {
+      readonly current: T | null;
+    }
 
     function useState<S>(initialState: S | (() => S)): [S, (newState: S | ((prevState: S) => S)) => void];
     function useEffect(effect: () => void | (() => void), deps?: any[]): void;
@@ -538,6 +560,12 @@ declare module 'react' {
     function useRef<T>(initialValue: T): React.MutableRefObject<T>;
     function useRef<T>(initialValue: T | null): React.MutableRefObject<T | null>;
     function useRef<T = undefined>(initialValue: T | undefined): React.MutableRefObject<T | undefined>;
+    function useImperativeHandle<T, R extends T>(
+      ref: React.Ref<T> | undefined,
+      init: () => R,
+      deps?: any[]
+    ): void;
+    function useLayoutEffect(effect: () => void | (() => void), deps?: any[]): void;
 
     interface MutableRefObject<T> {
       current: T;
@@ -606,9 +634,9 @@ declare module 'react' {
       };
     }
 
-    interface Ref<T> {
-      current: T | null;
-    }
+    type RefCallback<T> = (instance: T | null) => void;
+    type Ref<T> = RefObject<T> | RefCallback<T> | null;
+    type ForwardedRef<T> = Ref<T>;
 
     interface Context<T> {
       Provider: FC<{ value: T; children?: ReactNode }>;
@@ -621,10 +649,18 @@ declare module 'react' {
     type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
     type Dispatch<A> = (value: A) => void;
 
+    type FocusEvent<T = Element> = FormEvent<T>;
+    type UIEvent<T = Element> = {
+      target: T;
+      currentTarget: T;
+      preventDefault(): void;
+      stopPropagation(): void;
+    };
+
     interface HTMLAttributes<T> {
       className?: string;
       id?: string;
-      style?: any;
+      style?: CSSProperties;
       onClick?: (event: any) => void;
       onChange?: (event: any) => void;
       onSubmit?: (event: any) => void;
@@ -661,6 +697,10 @@ declare module 'react' {
     interface DetailedHTMLProps<E extends HTMLAttributes<T>, T> extends E {
       ref?: any;
     }
+    type CSSProperties = Record<string, string | number>;
+    const Fragment: FunctionComponent<{ children?: ReactNode }>;
+    const StrictMode: FunctionComponent<{ children?: ReactNode }>;
+    function memo<T extends FunctionComponent<any>>(component: T): T;
   }
 
   const React: {
@@ -670,11 +710,15 @@ declare module 'react' {
     useCallback: typeof React.useCallback;
     useMemo: typeof React.useMemo;
     useRef: typeof React.useRef;
+    useImperativeHandle: typeof React.useImperativeHandle;
+    useLayoutEffect: typeof React.useLayoutEffect;
     createContext: typeof React.createContext;
     useContext: typeof React.useContext;
     useReducer: typeof React.useReducer;
     forwardRef: typeof React.forwardRef;
+    memo: typeof React.memo;
     Fragment: React.FunctionComponent<{ children?: React.ReactNode }>;
+    StrictMode: React.FunctionComponent<{ children?: React.ReactNode }>;
     Component: typeof React.Component;
   };
 
@@ -750,6 +794,34 @@ declare module 'lucide-react' {
   export const Plus: FC<IconProps>;
   export const X: FC<IconProps>;
   export const Check: FC<IconProps>;
+  export const Share: FC<IconProps>;
+  export const Share2: FC<IconProps>;
+  export const Scale: FC<IconProps>;
+  export const Sparkles: FC<IconProps>;
+  export const Laptop: FC<IconProps>;
+  export const Smartphone: FC<IconProps>;
+  export const HardDrive: FC<IconProps>;
+  export const MemoryStick: FC<IconProps>;
+  export const Gauge: FC<IconProps>;
+  export const TrendingDown: FC<IconProps>;
+  export const MoreHorizontal: FC<IconProps>;
+  export const RotateCcw: FC<IconProps>;
+  export const StopCircle: FC<IconProps>;
+  export const Lock: FC<IconProps>;
+  export const Unlock: FC<IconProps>;
+  export const ShieldCheck: FC<IconProps>;
+  export const ShieldAlert: FC<IconProps>;
+  export const FileWarning: FC<IconProps>;
+  export const FileCheck: FC<IconProps>;
+  export const FileX: FC<IconProps>;
+  export const Fingerprint: FC<IconProps>;
+  export const Key: FC<IconProps>;
+  export const UserX: FC<IconProps>;
+  export const Bell: FC<IconProps>;
+  export const BellOff: FC<IconProps>;
+  export const Music: FC<IconProps>;
+  export const Maximize2: FC<IconProps>;
+  export const Minimize2: FC<IconProps>;
   export const ChevronDown: FC<IconProps>;
   export const ChevronUp: FC<IconProps>;
   export const ChevronLeft: FC<IconProps>;
@@ -1213,6 +1285,7 @@ declare module '@components/ui' {
   export * from '../components/ui/Badge';
   export * from '../components/ui/Avatar';
   export * from '../components/ui/Input';
+  export * from '../components/ui/MemoryUsageIndicator';
   export * from '../components/ui/Tabs';
 }
 

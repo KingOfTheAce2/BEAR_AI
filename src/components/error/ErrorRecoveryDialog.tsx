@@ -147,6 +147,7 @@ const RecoveryActionCard: React.FC<{
   action: RecoveryAction;
   onExecute: (action: RecoveryAction) => void;
   isExecuting: boolean;
+  [extra: string]: unknown;
 }> = ({ action, onExecute, isExecuting }) => {
   const getRiskColor = (risk: string) => {
     switch (risk) {
