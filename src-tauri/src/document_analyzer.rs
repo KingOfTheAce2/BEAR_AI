@@ -1,13 +1,14 @@
 use anyhow::{Context, Result};
+use calamine::{open_workbook, Reader, Xls, Xlsx};
+use csv::ReaderBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::io::{Cursor, Read};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::fs;
 use uuid::Uuid;
-use calamine::{Reader, Xlsx, Xls, open_workbook};
-use csv::ReaderBuilder;
-use std::io::Cursor;
+use zip::ZipArchive;
 
 /// Document Analysis Engine for BEAR AI
 /// Provides comprehensive legal document processing and analysis
@@ -253,7 +254,10 @@ pub struct DocumentAnalyzer {
 
 impl DocumentAnalyzer {
     /// Initialize the document analyzer
-    pub fn new(app_data_dir: &Path, llm_manager: Option<Arc<crate::llm_manager::LLMManager>>) -> Result<Self> {
+    pub fn new(
+        app_data_dir: &Path,
+        llm_manager: Option<Arc<crate::llm_manager::LLMManager>>,
+    ) -> Result<Self> {
         let documents_path = app_data_dir.join("documents");
         let cache_path = app_data_dir.join("analysis_cache");
 
@@ -279,13 +283,17 @@ impl DocumentAnalyzer {
 
         // Perform various analyses
         let entities = self.extract_entities(&extracted_text).await?;
-        let clauses = self.analyze_clauses(&extracted_text, &metadata.document_type).await?;
+        let clauses = self
+            .analyze_clauses(&extracted_text, &metadata.document_type)
+            .await?;
         let risks = self.assess_risks(&extracted_text, &clauses).await?;
         let key_terms = self.extract_key_terms(&extracted_text).await?;
         let citations = self.extract_citations(&extracted_text).await?;
         let summary = self.generate_summary(&extracted_text).await?;
         let sentiment_analysis = self.analyze_sentiment(&extracted_text).await?;
-        let compliance_flags = self.check_compliance(&extracted_text, &metadata.document_type).await?;
+        let compliance_flags = self
+            .check_compliance(&extracted_text, &metadata.document_type)
+            .await?;
 
         let analysis = DocumentAnalysis {
             metadata,
@@ -310,12 +318,14 @@ impl DocumentAnalyzer {
     /// Extract metadata from document
     async fn extract_metadata(&self, file_path: &Path) -> Result<DocumentMetadata> {
         let file_metadata = fs::metadata(file_path).await?;
-        let filename = file_path.file_name()
+        let filename = file_path
+            .file_name()
             .and_then(|name| name.to_str())
             .unwrap_or("unknown")
             .to_string();
 
-        let file_type = file_path.extension()
+        let file_type = file_path
+            .extension()
             .and_then(|ext| ext.to_str())
             .unwrap_or("unknown")
             .to_lowercase();
@@ -332,15 +342,16 @@ impl DocumentAnalyzer {
             processed_at: Some(chrono::Utc::now()),
             document_type,
             language: "en".to_string(), // TODO: Auto-detect language
-            page_count: None, // TODO: Extract from PDF
-            word_count: None, // TODO: Calculate from text
+            page_count: None,           // TODO: Extract from PDF
+            word_count: None,           // TODO: Calculate from text
             security_classification: SecurityLevel::Confidential, // Default to high security
         })
     }
 
     /// Extract text from various document formats
     async fn extract_text(&self, file_path: &Path) -> Result<String> {
-        let extension = file_path.extension()
+        let extension = file_path
+            .extension()
             .and_then(|ext| ext.to_str())
             .unwrap_or("")
             .to_lowercase();
@@ -387,7 +398,8 @@ impl DocumentAnalyzer {
 
     /// Extract text from plain text files
     async fn extract_text_from_txt(&self, file_path: &Path) -> Result<String> {
-        fs::read_to_string(file_path).await
+        fs::read_to_string(file_path)
+            .await
             .context("Failed to read text file")
     }
 
@@ -567,10 +579,24 @@ impl DocumentAnalyzer {
     /// Extract legal terms
     fn extract_legal_terms(&self, text: &str) -> Vec<LegalEntity> {
         let legal_terms = vec![
-            "plaintiff", "defendant", "breach", "liability", "indemnity",
-            "warranty", "termination", "force majeure", "jurisdiction",
-            "governing law", "arbitration", "mediation", "injunction",
-            "damages", "remedy", "consideration", "covenant", "estoppel",
+            "plaintiff",
+            "defendant",
+            "breach",
+            "liability",
+            "indemnity",
+            "warranty",
+            "termination",
+            "force majeure",
+            "jurisdiction",
+            "governing law",
+            "arbitration",
+            "mediation",
+            "injunction",
+            "damages",
+            "remedy",
+            "consideration",
+            "covenant",
+            "estoppel",
         ];
 
         let mut entities = Vec::new();
@@ -614,7 +640,11 @@ impl DocumentAnalyzer {
     }
 
     /// Analyze contract clauses
-    async fn analyze_clauses(&self, text: &str, doc_type: &Option<DocumentType>) -> Result<Vec<ContractClause>> {
+    async fn analyze_clauses(
+        &self,
+        text: &str,
+        doc_type: &Option<DocumentType>,
+    ) -> Result<Vec<ContractClause>> {
         if !matches!(doc_type, Some(DocumentType::Contract) | Some(DocumentType::EmploymentAgreement) | Some(DocumentType::Lease) | Some(DocumentType::NDA)) {
             return Ok(Vec::new());
         }
@@ -739,7 +769,11 @@ impl DocumentAnalyzer {
     }
 
     /// Assess document risks
-    async fn assess_risks(&self, _text: &str, clauses: &[ContractClause]) -> Result<Vec<RiskAssessment>> {
+    async fn assess_risks(
+        &self,
+        _text: &str,
+        clauses: &[ContractClause],
+    ) -> Result<Vec<RiskAssessment>> {
         let mut risks = Vec::new();
 
         // Analyze risks based on detected clauses
@@ -820,9 +854,11 @@ impl DocumentAnalyzer {
         }
 
         // Simple extractive summary (take first and last sentences)
-        let summary = format!("{}. {}",
-                            sentences.first().unwrap_or(&""),
-                            sentences.last().unwrap_or(&""));
+        let summary = format!(
+            "{}. {}",
+            sentences.first().unwrap_or(&""),
+            sentences.last().unwrap_or(&"")
+        );
 
         Ok(Some(summary))
     }
@@ -835,7 +871,11 @@ impl DocumentAnalyzer {
     }
 
     /// Check compliance requirements
-    async fn check_compliance(&self, _text: &str, _doc_type: &Option<DocumentType>) -> Result<Vec<ComplianceFlag>> {
+    async fn check_compliance(
+        &self,
+        _text: &str,
+        _doc_type: &Option<DocumentType>,
+    ) -> Result<Vec<ComplianceFlag>> {
         // TODO: Implement compliance checking
         // This would check against various regulatory requirements
         Ok(Vec::new())
@@ -843,7 +883,9 @@ impl DocumentAnalyzer {
 
     /// Cache analysis results
     async fn cache_analysis(&self, analysis: &DocumentAnalysis) -> Result<()> {
-        let cache_file = self.cache_path.join(format!("{}.json", analysis.metadata.id));
+        let cache_file = self
+            .cache_path
+            .join(format!("{}.json", analysis.metadata.id));
         let json = serde_json::to_string_pretty(analysis)?;
         fs::write(cache_file, json).await?;
         Ok(())
@@ -860,9 +902,8 @@ impl DocumentAnalyzer {
                     if let Ok(range) = workbook.worksheet_range(&sheet_name) {
                         result.push_str(&format!("=== Sheet: {} ===\n", sheet_name));
                         for row in range.rows() {
-                            let row_text: Vec<String> = row.iter()
-                                .map(|cell| cell.to_string())
-                                .collect();
+                            let row_text: Vec<String> =
+                                row.iter().map(|cell| cell.to_string()).collect();
                             result.push_str(&row_text.join("\t"));
                             result.push('\n');
                         }
@@ -879,9 +920,8 @@ impl DocumentAnalyzer {
                             if let Ok(range) = workbook.worksheet_range(&sheet_name) {
                                 result.push_str(&format!("=== Sheet: {} ===\n", sheet_name));
                                 for row in range.rows() {
-                                    let row_text: Vec<String> = row.iter()
-                                        .map(|cell| cell.to_string())
-                                        .collect();
+                                    let row_text: Vec<String> =
+                                        row.iter().map(|cell| cell.to_string()).collect();
                                     result.push_str(&row_text.join("\t"));
                                     result.push('\n');
                                 }
@@ -935,15 +975,18 @@ impl DocumentAnalyzer {
 
             // Look for slide content in ppt/slides/ directory
             for i in 0..archive.len() {
-                if let Ok(file) = archive.by_index(i) {
-                    let name = file.name();
+                if let Ok(mut file) = archive.by_index(i) {
+                    let name = file.name().to_string();
                     if name.starts_with("ppt/slides/slide") && name.ends_with(".xml") {
-                        result.push_str(&format!("=== Slide {} ===\n",
+                        result.push_str(&format!(
+                            "=== Slide {} ===\n",
                             name.trim_start_matches("ppt/slides/slide")
-                                .trim_end_matches(".xml")));
+                                .trim_end_matches(".xml")
+                        ));
 
                         // Basic XML text extraction (simplified)
-                        if let Ok(xml_content) = std::io::read_to_string(file) {
+                        let mut xml_content = String::new();
+                        if file.read_to_string(&mut xml_content).is_ok() {
                             result.push_str(&self.extract_text_from_xml(&xml_content));
                         }
                         result.push('\n');
@@ -953,7 +996,9 @@ impl DocumentAnalyzer {
 
             Ok(result)
         } else {
-            Err(anyhow::anyhow!("Failed to read PowerPoint file as ZIP archive"))
+            Err(anyhow::anyhow!(
+                "Failed to read PowerPoint file as ZIP archive"
+            ))
         }
     }
 
@@ -984,7 +1029,10 @@ pub async fn analyze_document_file(
     file_path: String,
 ) -> Result<DocumentAnalysis, String> {
     let path = Path::new(&file_path);
-    analyzer.analyze_document(path).await.map_err(|e| e.to_string())
+    analyzer
+        .analyze_document(path)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

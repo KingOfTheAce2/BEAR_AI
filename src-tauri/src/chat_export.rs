@@ -235,30 +235,60 @@ impl ChatExporter {
         let line_height = Mm(6.0);
 
         // Add title
-        current_layer.use_text(&format!("Chat Export: {}", session.title), 16.0, margin_left, y_position, &font_bold);
+        current_layer.use_text(
+            &format!("Chat Export: {}", session.title),
+            16.0,
+            margin_left,
+            y_position,
+            &font_bold,
+        );
         y_position -= line_height * 2.0;
 
         // Add session info
         if options.include_metadata {
-            current_layer.use_text("Session Information:", 12.0, margin_left, y_position, &font_bold);
+            current_layer.use_text(
+                "Session Information:",
+                12.0,
+                margin_left,
+                y_position,
+                &font_bold,
+            );
             y_position -= line_height;
 
             let info_lines = vec![
                 format!("Session ID: {}", session.id),
-                format!("Created: {}", session.created_at.format("%Y-%m-%d %H:%M:%S UTC")),
-                format!("Last Updated: {}", session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")),
+                format!(
+                    "Created: {}",
+                    session.created_at.format("%Y-%m-%d %H:%M:%S UTC")
+                ),
+                format!(
+                    "Last Updated: {}",
+                    session.updated_at.format("%Y-%m-%d %H:%M:%S UTC")
+                ),
                 format!("Total Messages: {}", session.messages.len()),
             ];
 
             for line in info_lines {
-                current_layer.use_text(&line, 10.0, margin_left, y_position, &font);
+                current_layer.use_text(
+                    &line,
+                    10.0,
+                    margin_left,
+                    y_position,
+                    &font,
+                );
                 y_position -= line_height;
             }
             y_position -= line_height;
         }
 
         // Add conversation header
-        current_layer.use_text("Conversation:", 12.0, margin_left, y_position, &font_bold);
+        current_layer.use_text(
+            "Conversation:",
+            12.0,
+            margin_left,
+            y_position,
+            &font_bold,
+        );
         y_position -= line_height * 1.5;
 
         // Add messages
@@ -278,12 +308,23 @@ impl ChatExporter {
             };
 
             let header_text = if options.include_timestamps {
-                format!("[{}] {} - {}", index + 1, role_text, message.timestamp.format("%H:%M:%S"))
+                format!(
+                    "[{}] {} - {}",
+                    index + 1,
+                    role_text,
+                    message.timestamp.format("%H:%M:%S")
+                )
             } else {
                 format!("[{}] {}", index + 1, role_text)
             };
 
-            current_layer.use_text(&header_text, 10.0, margin_left, y_position, &font_bold);
+            current_layer.use_text(
+                &header_text,
+                10.0,
+                margin_left,
+                y_position,
+                &font_bold,
+            );
             y_position -= line_height;
 
             // Message content (simplified text wrapping)
@@ -294,7 +335,13 @@ impl ChatExporter {
             for word in words {
                 if current_line.len() + word.len() + 1 > MAX_CHARS_PER_LINE {
                     if !current_line.is_empty() {
-                        current_layer.use_text(&current_line, 9.0, margin_left + Mm(5.0), y_position, &font);
+                        current_layer.use_text(
+                            &current_line,
+                            9.0,
+                            margin_left + Mm(5.0),
+                            y_position,
+                            &font,
+                        );
                         y_position -= line_height;
                         current_line.clear();
                     }
@@ -306,7 +353,13 @@ impl ChatExporter {
             }
 
             if !current_line.is_empty() {
-                current_layer.use_text(&current_line, 9.0, margin_left + Mm(5.0), y_position, &font);
+                current_layer.use_text(
+                    &current_line,
+                    9.0,
+                    margin_left + Mm(5.0),
+                    y_position,
+                    &font,
+                );
                 y_position -= line_height;
             }
 
@@ -316,16 +369,20 @@ impl ChatExporter {
         // Add footer
         y_position = Mm(20.0);
         current_layer.use_text(
-            &format!("Exported on {} using BEAR AI Legal Assistant",
-                    Utc::now().format("%Y-%m-%d %H:%M:%S UTC")),
+            &format!(
+                "Exported on {} using BEAR AI Legal Assistant",
+                Utc::now().format("%Y-%m-%d %H:%M:%S UTC")
+            ),
             8.0,
             margin_left,
             y_position,
-            &font
+            &font,
         );
 
         // Save PDF
-        doc.save(&mut std::io::BufWriter::new(std::fs::File::create(&file_path)?))?;
+        doc.save(&mut std::io::BufWriter::new(std::fs::File::create(
+            &file_path,
+        )?))?;
         Ok(file_path)
     }
 
@@ -369,7 +426,8 @@ pub async fn export_chat_session(
         .map_err(|e| format!("Failed to parse export options: {}", e))?;
 
     let exporter = exporter.lock().unwrap();
-    let file_path = exporter.export_session(&session, &format, &options)
+    let file_path = exporter
+        .export_session(&session, &format, &options)
         .await
         .map_err(|e| format!("Export failed: {}", e))?;
 

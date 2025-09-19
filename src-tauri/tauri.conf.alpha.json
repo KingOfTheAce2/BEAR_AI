@@ -1,0 +1,224 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "BEAR AI Legal Assistant (Alpha)",
+  "version": "1.0.0-alpha",
+  "identifier": "com.bearai.legalassistant.alpha",
+  "build": {
+    "beforeBuildCommand": "npm run build:alpha-fast",
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../build",
+    "devUrl": "http://localhost:3000"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "BEAR AI Legal Assistant (Alpha)",
+        "label": "main",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1000,
+        "minHeight": 700,
+        "maxWidth": 2560,
+        "maxHeight": 1440,
+        "center": true,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "contentProtected": false,
+        "skipTaskbar": false,
+        "theme": "Light",
+        "titleBarStyle": "Visible",
+        "hiddenTitle": false,
+        "acceptFirstMouse": false,
+        "tabbingIdentifier": "bear-ai-legal-alpha",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI",
+        "userAgent": "BEAR AI Legal Assistant Alpha v1.0.0-alpha"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-eval'; connect-src 'self' https: wss: ws:; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
+      "devCsp": "default-src 'self' localhost:3000; img-src 'self' data: https: localhost:3000; style-src 'self' 'unsafe-inline' localhost:3000; font-src 'self' data: localhost:3000; script-src 'self' 'unsafe-eval' 'unsafe-inline' localhost:3000; connect-src 'self' https: wss: ws: localhost:3000; media-src 'self' https: localhost:3000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
+      "freezePrototype": false,
+      "dangerousDisableAssetCspModification": true
+    },
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false,
+      "tooltip": "BEAR AI Legal Assistant (Alpha)",
+      "title": "BEAR AI Alpha"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
+    "shortDescription": "BEAR AI Legal Assistant Alpha Build",
+    "longDescription": "BEAR AI Legal Assistant Alpha - Early access version for testing and development. This alpha version may contain bugs and incomplete features.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/256x256.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "targets": "all",
+    "publisher": "BEAR AI Team",
+    "homepage": "https://bear-ai.com",
+    "resources": [
+      "assets/**/*",
+      "templates/**/*"
+    ],
+    "externalBin": [],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "tsp": false,
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "allowDowngrades": true
+    },
+    "macOS": {
+      "frameworks": [
+        "Security",
+        "WebKit",
+        "Foundation",
+        "AppKit",
+        "CoreServices",
+        "SystemConfiguration"
+      ],
+      "minimumSystemVersion": "10.13",
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "hardenedRuntime": false,
+      "entitlements": null,
+      "providerShortName": null,
+      "dmg": {
+        "background": "assets/dmg-background.png",
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        }
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.0-37",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": false
+    },
+    "stronghold": {
+      "path": ".stronghold"
+    },
+    "shell": {
+      "all": false,
+      "execute": false,
+      "sidecar": false,
+      "open": true
+    },
+    "window": {
+      "all": false,
+      "create": false,
+      "center": true,
+      "requestUserAttention": true,
+      "setResizable": true,
+      "setTitle": true,
+      "maximize": true,
+      "unmaximize": true,
+      "minimize": true,
+      "unminimize": true,
+      "show": true,
+      "hide": true,
+      "close": false,
+      "setDecorations": true,
+      "setAlwaysOnTop": true,
+      "setContentProtected": true,
+      "setSize": true,
+      "setMinSize": true,
+      "setMaxSize": true,
+      "setPosition": true,
+      "setFullscreen": true,
+      "setFocus": true,
+      "setIcon": true,
+      "setSkipTaskbar": true,
+      "setCursorGrab": false,
+      "setCursorVisible": true,
+      "setCursorIcon": true,
+      "setCursorPosition": false,
+      "setIgnoreCursorEvents": false,
+      "startDragging": false,
+      "print": true
+    },
+    "fs": {
+      "all": false,
+      "readFile": true,
+      "writeFile": true,
+      "readDir": true,
+      "copyFile": true,
+      "createDir": true,
+      "removeDir": true,
+      "removeFile": true,
+      "renameFile": true,
+      "exists": true
+    },
+    "path": {
+      "all": true
+    },
+    "os": {
+      "all": true
+    },
+    "process": {
+      "all": false,
+      "relaunch": true,
+      "exit": true
+    },
+    "dialog": {
+      "all": false,
+      "ask": true,
+      "confirm": true,
+      "message": true,
+      "open": true,
+      "save": true
+    },
+    "notification": {
+      "all": true
+    },
+    "globalShortcut": {
+      "all": false
+    },
+    "http": {
+      "all": true,
+      "request": true
+    },
+    "clipboard": {
+      "all": false,
+      "writeText": true,
+      "readText": true
+    }
+  }
+}

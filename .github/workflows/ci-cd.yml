@@ -59,11 +59,21 @@ jobs:
             }
           }
 
-      - name: TypeScript type checking (Skipped for Alpha)
-        run: echo "Skipping TypeScript strict checking for v1.0.0-alpha release"
+      - name: TypeScript type checking (Conditional)
+        run: |
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
+            echo "Skipping TypeScript strict checking for alpha release"
+          else
+            npm run typecheck:build
+          fi
 
-      - name: ESLint (Skipped for Alpha)
-        run: echo "Skipping ESLint checking for v1.0.0-alpha release"
+      - name: ESLint (Conditional)
+        run: |
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
+            echo "Skipping ESLint checking for alpha release"
+          else
+            npm run lint
+          fi
 
       - name: Rust formatting check
         working-directory: src-tauri
@@ -147,14 +157,20 @@ jobs:
           }
 
       - name: Build frontend
-        run: npm run build
+        run: |
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
+            echo "Building alpha version with relaxed checks"
+            npm run build:alpha-fast
+          else
+            npm run build
+          fi
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} ${{ (contains(github.ref, 'alpha') || contains(github.event.head_commit.message, 'alpha')) && '--config src-tauri/tauri.conf.alpha.json' || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
