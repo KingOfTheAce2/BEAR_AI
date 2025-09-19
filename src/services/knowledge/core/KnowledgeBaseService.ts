@@ -18,14 +18,14 @@ import { AnalyticsService } from '../analytics/AnalyticsService';
 export class KnowledgeBaseService {
   private static instance: KnowledgeBaseService;
   
-  private documentIndexer: DocumentIndexer;
-  private semanticSearch: SemanticSearchService;
-  private knowledgeGraph: KnowledgeGraphService;
-  private ragService: RAGService;
-  private vectorDb: VectorDatabaseService;
-  private versioning: DocumentVersioningService;
-  private citations: CitationService;
-  private analytics: AnalyticsService;
+  private documentIndexer!: DocumentIndexer;
+  private semanticSearch!: SemanticSearchService;
+  private knowledgeGraph!: KnowledgeGraphService;
+  private ragService!: RAGService;
+  private vectorDb!: VectorDatabaseService;
+  private versioning?: DocumentVersioningService;
+  private citations?: CitationService;
+  private analytics?: AnalyticsService;
   
   private config: KnowledgeBaseConfig = {
     embeddingModel: 'all-MiniLM-L6-v2',
@@ -93,9 +93,10 @@ export class KnowledgeBaseService {
       }
       
       return documentId;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error adding document:', error);
-      throw new Error(`Failed to add document: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to add document: ${message}`);
     }
   }
 
@@ -122,9 +123,10 @@ export class KnowledgeBaseService {
       if (this.analytics) {
         await this.analytics.trackDocumentUpdated(updatedDoc);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error updating document:', error);
-      throw new Error(`Failed to update document: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update document: ${message}`);
     }
   }
 
@@ -150,9 +152,10 @@ export class KnowledgeBaseService {
       if (this.analytics) {
         await this.analytics.trackDocumentDeleted(document);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error deleting document:', error);
-      throw new Error(`Failed to delete document: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to delete document: ${message}`);
     }
   }
 
@@ -168,18 +171,20 @@ export class KnowledgeBaseService {
   async search(query: SearchQuery): Promise<SearchResult[]> {
     try {
       return await this.semanticSearch.search(query);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error performing search:', error);
-      throw new Error(`Search failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Search failed: ${message}`);
     }
   }
 
   async facetedSearch(query: SearchQuery): Promise<FacetedSearchResult> {
     try {
       return await this.semanticSearch.facetedSearch(query);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error performing faceted search:', error);
-      throw new Error(`Faceted search failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Faceted search failed: ${message}`);
     }
   }
 
@@ -299,9 +304,10 @@ export class KnowledgeBaseService {
       await this.bulkAddDocuments(documents);
       
       console.log(`Reindexed ${documents.length} documents`);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error during reindexing:', error);
-      throw new Error(`Reindexing failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Reindexing failed: ${message}`);
     }
   }
 

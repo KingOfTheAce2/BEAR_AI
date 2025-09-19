@@ -106,9 +106,10 @@ export class CitationService {
 
       console.log(`Created citation: ${citation.id}`);
       return citation.id;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating citation:', error);
-      throw new Error(`Failed to create citation: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create citation: ${message}`);
     }
   }
 

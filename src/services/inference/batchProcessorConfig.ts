@@ -421,9 +421,3 @@ export class BatchConfigurationFactory {
     return optimizer.generateLowLatencyConfig();
   }
 }
-
-export {
-  SystemCapabilityDetector,
-  BatchConfigurationOptimizer,
-  BatchConfigurationValidator
-};

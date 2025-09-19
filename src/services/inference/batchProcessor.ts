@@ -208,7 +208,7 @@ class IntelligentBatcher {
  * Tracks system resources and provides real-time resource availability
  */
 class ResourceMonitor {
-  private updateInterval: NodeJS.Timeout;
+  private updateInterval: ReturnType<typeof setInterval>;
   private currentResources: SystemResources;
 
   constructor(updateIntervalMs: number = 1000) {
@@ -417,7 +417,7 @@ export class BatchProcessor extends EventEmitter {
   private loadBalancer: LoadBalancer;
   private workerPool: WorkerPool;
   private isRunning: boolean = false;
-  private processingInterval: NodeJS.Timeout | null = null;
+  private processingInterval: ReturnType<typeof setInterval> | null = null;
   private metrics: BatchMetrics;
 
   constructor(config: Partial<BatchProcessorConfig> = {}) {
