@@ -49,12 +49,24 @@ export interface ModelSearchFilters {
 export const LegalCategory = {
   CONTRACT_ANALYSIS: 'contract_analysis',
   LEGAL_RESEARCH: 'legal_research',
+  COMPLIANCE: 'compliance',
   COMPLIANCE_CHECK: 'compliance_check',
   DOCUMENT_REVIEW: 'document_review',
   CASE_LAW_ANALYSIS: 'case_law_analysis',
+  REGULATORY_ANALYSIS: 'regulatory_analysis',
   REGULATORY_COMPLIANCE: 'regulatory_compliance',
   RISK_ASSESSMENT: 'risk_assessment',
-  LEGAL_DRAFTING: 'legal_drafting'
+  LEGAL_DRAFTING: 'legal_drafting',
+  LITIGATION_SUPPORT: 'litigation_support',
+  INTELLECTUAL_PROPERTY: 'intellectual_property',
+  CORPORATE_LAW: 'corporate_law',
+  CRIMINAL_LAW: 'criminal_law',
+  FAMILY_LAW: 'family_law',
+  IMMIGRATION_LAW: 'immigration_law',
+  TAX_LAW: 'tax_law',
+  REAL_ESTATE: 'real_estate',
+  EMPLOYMENT_LAW: 'employment_law',
+  GENERAL_LEGAL: 'general_legal'
 } as const;
 
 export type LegalCategory = typeof LegalCategory[keyof typeof LegalCategory];
