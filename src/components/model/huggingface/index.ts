@@ -21,13 +21,14 @@ export { default as HuggingFaceErrorHandler } from '../../utils/huggingface/Erro
 export * from '../../types/huggingface';
 
 // Re-export for convenience
+export { LegalCategory } from '../../types/huggingface';
 export type {
   HuggingFaceModel,
   ModelSearchFilters,
-  LegalCategory,
   ModelRecommendation,
   CompatibilityResult,
   FineTuningCapabilities,
+  FineTuningConfig,
   ModelDownloadProgress,
   BenchmarkResult
 } from '../../types/huggingface';
