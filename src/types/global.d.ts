@@ -1321,7 +1321,27 @@ declare module '@hooks/useMemoryMonitor' {
 }
 
 declare module '@utils/systemResources' {
-  export function getSystemResources(): any;
+  export interface SystemInfo {
+    platform: string;
+    cores: number;
+    memory?: number;
+    deviceMemory?: number;
+    connection?: string;
+    userAgent?: string;
+    language?: string;
+  }
+
+  export interface OptimalSystemConfig {
+    memoryMonitorInterval: number;
+    enableDetailedMetrics: boolean;
+    historySize: number;
+    smoothingFactor: number;
+    maxSamples: number;
+    adaptiveSampling: boolean;
+  }
+
+  export function getSystemInfo(): SystemInfo;
+  export function getOptimalConfig(systemInfo?: SystemInfo): OptimalSystemConfig;
 }
 
 declare module '@utils/cn' {
