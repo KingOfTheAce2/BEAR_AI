@@ -125,7 +125,7 @@ export const StreamingChat: React.FC<StreamingChatProps> = ({
     }
   }, [inputValue, isConnected, isStreaming, streamMessage, streamingOptions, maxMessages, onMessageSent, onMessageReceived]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

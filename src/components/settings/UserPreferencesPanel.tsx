@@ -18,7 +18,12 @@ const UserPreferencesPanel: React.FC = () => {
     { value: 'zh-TW', label: '中文 (繁體)' },
   ];
 
-  const timezoneOptions = Intl.supportedValuesOf('timeZone').map(tz => ({
+  const supportedTimezones = (
+    (Intl as typeof Intl & { supportedValuesOf?: (input: string) => string[] })
+      .supportedValuesOf?.('timeZone') ?? ['UTC']
+  );
+
+  const timezoneOptions = supportedTimezones.map(tz => ({
     value: tz,
     label: tz.replace(/_/g, ' '),
   }));
