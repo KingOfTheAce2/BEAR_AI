@@ -102,7 +102,7 @@ fn get_current_timestamp() -> Result<u64, String> {
 fn generate_uuid() -> String {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
-    
+
     let mut hasher = DefaultHasher::new();
     SystemTime::now().hash(&mut hasher);
     format!("local_{:x}", hasher.finish())
@@ -115,13 +115,13 @@ fn validate_session(session_id: &str, sessions: &SessionStorage) -> Result<bool,
             if !session.authenticated {
                 return Ok(false);
             }
-            
+
             // Check if session is expired (24 hours)
             let now = get_current_timestamp()?;
             if now - session.created_at > 86400 {
                 return Ok(false);
             }
-            
+
             Ok(true)
         }
         None => Ok(false),
@@ -131,27 +131,27 @@ fn validate_session(session_id: &str, sessions: &SessionStorage) -> Result<bool,
 fn check_rate_limit(session_id: &str, sessions: &SessionStorage) -> Result<bool, String> {
     const MAX_REQUESTS: u32 = 100;
     const WINDOW_SECONDS: u64 = 60;
-    
+
     let mut sessions_guard = sessions.lock().unwrap();
     if let Some(session) = sessions_guard.get_mut(session_id) {
         let now = get_current_timestamp()?;
-        
+
         // Reset rate limit if window has passed
         if now - session.rate_limit_window_start > WINDOW_SECONDS {
             session.rate_limit_count = 0;
             session.rate_limit_window_start = now;
         }
-        
+
         // Check if over limit
         if session.rate_limit_count >= MAX_REQUESTS {
             return Ok(false);
         }
-        
+
         // Increment count
         session.rate_limit_count += 1;
         session.last_activity = now;
     }
-    
+
     Ok(true)
 }
 
@@ -168,11 +168,11 @@ pub async fn local_auth_login(
         "demo" if credentials.password == "demo123" => true,
         _ => false,
     };
-    
+
     if is_valid {
         let session_id = generate_uuid();
         let now = get_current_timestamp()?;
-        
+
         let session = LocalSession {
             id: session_id.clone(),
             authenticated: true,
@@ -181,9 +181,9 @@ pub async fn local_auth_login(
             rate_limit_count: 0,
             rate_limit_window_start: now,
         };
-        
+
         sessions.lock().unwrap().insert(session_id.clone(), session);
-        
+
         Ok(AuthResponse {
             success: true,
             token: Some(format!("local_token_{}", session_id)),
@@ -226,7 +226,7 @@ pub async fn local_auth_refresh(
 ) -> Result<AuthResponse, String> {
     if validate_session(&session_id, &sessions)? {
         let now = get_current_timestamp()?;
-        
+
         // Update session activity
         {
             let mut sessions_guard = sessions.lock().unwrap();
@@ -234,7 +234,7 @@ pub async fn local_auth_refresh(
                 session.last_activity = now;
             }
         }
-        
+
         Ok(AuthResponse {
             success: true,
             token: Some(format!("local_token_{}", session_id)),
@@ -263,16 +263,13 @@ pub async fn local_chat_sessions(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let chat_guard = chat_storage.lock().unwrap();
-    Ok(chat_guard
-        .get(&session_id)
-        .cloned()
-        .unwrap_or_default())
+    Ok(chat_guard.get(&session_id).cloned().unwrap_or_default())
 }
 
 #[tauri::command]
@@ -286,11 +283,11 @@ pub async fn local_chat_create(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let now = chrono::Utc::now().to_rfc3339();
     let chat_session = ChatSession {
         id: generate_uuid(),
@@ -300,11 +297,11 @@ pub async fn local_chat_create(
         message_count: 0,
         last_activity: now,
     };
-    
+
     let mut chat_guard = chat_storage.lock().unwrap();
     let user_chats = chat_guard.entry(session_id).or_insert_with(Vec::new);
     user_chats.push(chat_session.clone());
-    
+
     Ok(chat_session)
 }
 
@@ -321,11 +318,11 @@ pub async fn local_chat_send_message(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let message = ChatMessage {
         id: generate_uuid(),
         session_id: chat_session_id.clone(),
@@ -334,12 +331,14 @@ pub async fn local_chat_send_message(
         timestamp: chrono::Utc::now().to_rfc3339(),
         metadata: None,
     };
-    
+
     // Store message
     let mut message_guard = message_storage.lock().unwrap();
-    let chat_messages = message_guard.entry(chat_session_id.clone()).or_insert_with(Vec::new);
+    let chat_messages = message_guard
+        .entry(chat_session_id.clone())
+        .or_insert_with(Vec::new);
     chat_messages.push(message.clone());
-    
+
     // Update chat session
     let mut chat_guard = chat_storage.lock().unwrap();
     if let Some(user_chats) = chat_guard.get_mut(&session_id) {
@@ -348,7 +347,7 @@ pub async fn local_chat_send_message(
             chat.last_activity = message.timestamp.clone();
         }
     }
-    
+
     Ok(message)
 }
 
@@ -364,21 +363,21 @@ pub async fn local_chat_get_messages(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let message_guard = message_storage.lock().unwrap();
     let messages = message_guard
         .get(&chat_session_id)
         .cloned()
         .unwrap_or_default();
-    
+
     // Apply pagination if specified
     let start = offset.unwrap_or(0) as usize;
     let end = limit.map(|l| start + l as usize).unwrap_or(messages.len());
-    
+
     Ok(messages.into_iter().skip(start).take(end - start).collect())
 }
 
@@ -393,21 +392,21 @@ pub async fn local_chat_delete_session(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     // Remove chat session
     let mut chat_guard = chat_storage.lock().unwrap();
     if let Some(user_chats) = chat_guard.get_mut(&session_id) {
         if let Some(pos) = user_chats.iter().position(|c| c.id == chat_session_id) {
             user_chats.remove(pos);
-            
+
             // Remove associated messages
             let mut message_guard = message_storage.lock().unwrap();
             message_guard.remove(&chat_session_id);
-            
+
             return Ok(true);
         }
     }
-    
+
     Ok(false)
 }
 
@@ -424,27 +423,31 @@ pub async fn local_documents_list(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let doc_guard = document_storage.lock().unwrap();
-    let mut documents = doc_guard
-        .get(&session_id)
-        .cloned()
-        .unwrap_or_default();
-    
+    let mut documents = doc_guard.get(&session_id).cloned().unwrap_or_default();
+
     // Filter by category if specified
     if let Some(cat) = category {
-        documents = documents.into_iter().filter(|d| d.category == cat).collect();
+        documents = documents
+            .into_iter()
+            .filter(|d| d.category == cat)
+            .collect();
     }
-    
+
     // Apply pagination
     let start = offset.unwrap_or(0) as usize;
     let end = limit.map(|l| start + l as usize).unwrap_or(documents.len());
-    
-    Ok(documents.into_iter().skip(start).take(end - start).collect())
+
+    Ok(documents
+        .into_iter()
+        .skip(start)
+        .take(end - start)
+        .collect())
 }
 
 #[tauri::command]
@@ -461,11 +464,11 @@ pub async fn local_document_upload(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let document = Document {
         id: generate_uuid(),
         name,
@@ -476,11 +479,11 @@ pub async fn local_document_upload(
         status: "uploaded".to_string(),
         content_type,
     };
-    
+
     let mut doc_guard = document_storage.lock().unwrap();
     let user_docs = doc_guard.entry(session_id).or_insert_with(Vec::new);
     user_docs.push(document.clone());
-    
+
     Ok(document)
 }
 
@@ -494,11 +497,11 @@ pub async fn local_document_get(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let doc_guard = document_storage.lock().unwrap();
     if let Some(user_docs) = doc_guard.get(&session_id) {
         let document = user_docs.iter().find(|d| d.id == document_id).cloned();
@@ -518,11 +521,11 @@ pub async fn local_document_delete(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let mut doc_guard = document_storage.lock().unwrap();
     if let Some(user_docs) = doc_guard.get_mut(&session_id) {
         if let Some(pos) = user_docs.iter().position(|d| d.id == document_id) {
@@ -530,7 +533,7 @@ pub async fn local_document_delete(
             return Ok(true);
         }
     }
-    
+
     Ok(false)
 }
 
@@ -547,11 +550,11 @@ pub async fn local_document_update(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     let mut doc_guard = document_storage.lock().unwrap();
     if let Some(user_docs) = doc_guard.get_mut(&session_id) {
         if let Some(document) = user_docs.iter_mut().find(|d| d.id == document_id) {
@@ -567,7 +570,7 @@ pub async fn local_document_update(
             return Ok(Some(document.clone()));
         }
     }
-    
+
     Ok(None)
 }
 
@@ -581,11 +584,11 @@ pub async fn local_research_search(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     // Mock search results - in production, integrate with local search engine
     let mut results = HashMap::new();
     results.insert("query".to_string(), serde_json::json!(query.query));
@@ -593,7 +596,7 @@ pub async fn local_research_search(
     results.insert("total".to_string(), serde_json::json!(0));
     results.insert("processing_time_ms".to_string(), serde_json::json!(50));
     results.insert("local_search".to_string(), serde_json::json!(true));
-    
+
     Ok(results)
 }
 
@@ -607,24 +610,33 @@ pub async fn local_analysis_analyze(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
+
     if !check_rate_limit(&session_id, &sessions)? {
         return Err("Rate limit exceeded".to_string());
     }
-    
+
     // Mock analysis results - in production, integrate with local AI models
     let mut results = HashMap::new();
     results.insert("id".to_string(), serde_json::json!(generate_uuid()));
-    results.insert("document_id".to_string(), serde_json::json!(request.document_id));
+    results.insert(
+        "document_id".to_string(),
+        serde_json::json!(request.document_id),
+    );
     results.insert("type".to_string(), serde_json::json!(request.analysis_type));
-    results.insert("result".to_string(), serde_json::json!({
-        "summary": "Analysis completed using local processing",
-        "confidence": 0.95,
-        "local_processing": true
-    }));
-    results.insert("created_at".to_string(), serde_json::json!(chrono::Utc::now().to_rfc3339()));
+    results.insert(
+        "result".to_string(),
+        serde_json::json!({
+            "summary": "Analysis completed using local processing",
+            "confidence": 0.95,
+            "local_processing": true
+        }),
+    );
+    results.insert(
+        "created_at".to_string(),
+        serde_json::json!(chrono::Utc::now().to_rfc3339()),
+    );
     results.insert("processing_time_ms".to_string(), serde_json::json!(1200));
-    
+
     Ok(results)
 }
 
@@ -638,19 +650,32 @@ pub async fn local_system_health(
 ) -> Result<HashMap<String, serde_json::Value>, String> {
     let sessions_count = sessions.lock().unwrap().len();
     let chat_count: usize = chat_storage.lock().unwrap().values().map(|v| v.len()).sum();
-    let document_count: usize = document_storage.lock().unwrap().values().map(|v| v.len()).sum();
-    let message_count: usize = message_storage.lock().unwrap().values().map(|v| v.len()).sum();
-    
+    let document_count: usize = document_storage
+        .lock()
+        .unwrap()
+        .values()
+        .map(|v| v.len())
+        .sum();
+    let message_count: usize = message_storage
+        .lock()
+        .unwrap()
+        .values()
+        .map(|v| v.len())
+        .sum();
+
     let mut health = HashMap::new();
     health.insert("status".to_string(), serde_json::json!("healthy"));
-    health.insert("timestamp".to_string(), serde_json::json!(chrono::Utc::now().to_rfc3339()));
+    health.insert(
+        "timestamp".to_string(),
+        serde_json::json!(chrono::Utc::now().to_rfc3339()),
+    );
     health.insert("version".to_string(), serde_json::json!("1.0.0-local"));
     health.insert("local_only".to_string(), serde_json::json!(true));
     health.insert("sessions".to_string(), serde_json::json!(sessions_count));
     health.insert("chats".to_string(), serde_json::json!(chat_count));
     health.insert("documents".to_string(), serde_json::json!(document_count));
     health.insert("messages".to_string(), serde_json::json!(message_count));
-    
+
     Ok(health)
 }
 
@@ -666,39 +691,56 @@ pub async fn local_system_stats(
     if !validate_session(&session_id, &sessions)? {
         return Err("Unauthorized".to_string());
     }
-    
-    let user_chats = chat_storage.lock().unwrap()
+
+    let user_chats = chat_storage
+        .lock()
+        .unwrap()
         .get(&session_id)
         .map(|v| v.len())
         .unwrap_or(0);
-    
-    let user_documents = document_storage.lock().unwrap()
+
+    let user_documents = document_storage
+        .lock()
+        .unwrap()
         .get(&session_id)
         .map(|v| v.len())
         .unwrap_or(0);
-    
-    let user_messages: usize = message_storage.lock().unwrap()
+
+    let user_messages: usize = message_storage
+        .lock()
+        .unwrap()
         .iter()
         .filter_map(|(_, messages)| {
             // Find messages that belong to user's chat sessions
-            let user_chat_ids: Vec<String> = chat_storage.lock().unwrap()
+            let user_chat_ids: Vec<String> = chat_storage
+                .lock()
+                .unwrap()
                 .get(&session_id)
                 .map(|chats| chats.iter().map(|c| c.id.clone()).collect())
                 .unwrap_or_default();
-            
-            if messages.iter().any(|m| user_chat_ids.contains(&m.session_id)) {
+
+            if messages
+                .iter()
+                .any(|m| user_chat_ids.contains(&m.session_id))
+            {
                 Some(messages.len())
             } else {
                 None
             }
         })
         .sum();
-    
+
     let mut stats = HashMap::new();
     stats.insert("user_chats".to_string(), serde_json::json!(user_chats));
-    stats.insert("user_documents".to_string(), serde_json::json!(user_documents));
-    stats.insert("user_messages".to_string(), serde_json::json!(user_messages));
+    stats.insert(
+        "user_documents".to_string(),
+        serde_json::json!(user_documents),
+    );
+    stats.insert(
+        "user_messages".to_string(),
+        serde_json::json!(user_messages),
+    );
     stats.insert("local_only".to_string(), serde_json::json!(true));
-    
+
     Ok(stats)
 }

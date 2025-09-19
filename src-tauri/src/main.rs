@@ -1,20 +1,20 @@
 // Prevents additional console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::collections::HashMap;
 use tauri::{
     CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
     Window, WindowBuilder, WindowUrl,
 };
-use std::collections::HashMap;
 
-mod local_api;
-mod llm_manager;
-mod huggingface;
+mod chat_export;
 mod document_analyzer;
+mod huggingface;
+mod licensing;
+mod llm_manager;
+mod local_api;
 mod mcp_server;
 mod security;
-mod licensing;
-mod chat_export;
 
 use local_api::*;
 use std::sync::{Arc, Mutex};
@@ -28,11 +28,11 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 async fn get_system_info() -> Result<HashMap<String, String>, String> {
     let mut info = HashMap::new();
-    
+
     info.insert("platform".to_string(), std::env::consts::OS.to_string());
     info.insert("arch".to_string(), std::env::consts::ARCH.to_string());
     info.insert("version".to_string(), env!("CARGO_PKG_VERSION").to_string());
-    
+
     Ok(info)
 }
 
@@ -61,7 +61,7 @@ fn create_tray() -> SystemTray {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit BEAR AI");
     let show = CustomMenuItem::new("show".to_string(), "Show Window");
     let hide = CustomMenuItem::new("hide".to_string(), "Hide Window");
-    
+
     let tray_menu = SystemTrayMenu::new()
         .add_item(show)
         .add_item(hide)
@@ -108,7 +108,7 @@ fn handle_tray_event(app: &tauri::AppHandle, event: SystemTrayEvent) {
 
 fn main() {
     init_logging();
-    
+
     tauri::Builder::default()
         .system_tray(create_tray())
         .on_system_tray_event(handle_tray_event)
@@ -202,7 +202,7 @@ fn main() {
                 // Additional Windows-specific setup
                 log::info!("Setting up Windows-specific configurations");
             }
-            
+
             // Handle window close to minimize to tray instead of exit
             let app_handle = app.handle();
             window.on_window_event(move |event| {
@@ -218,7 +218,7 @@ fn main() {
                     _ => {}
                 }
             });
-            
+
             log::info!("BEAR AI Legal Assistant started successfully");
             Ok(())
         })

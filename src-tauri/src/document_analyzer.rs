@@ -645,7 +645,13 @@ impl DocumentAnalyzer {
         text: &str,
         doc_type: &Option<DocumentType>,
     ) -> Result<Vec<ContractClause>> {
-        if !matches!(doc_type, Some(DocumentType::Contract) | Some(DocumentType::EmploymentAgreement) | Some(DocumentType::Lease) | Some(DocumentType::NDA)) {
+        if !matches!(
+            doc_type,
+            Some(DocumentType::Contract)
+                | Some(DocumentType::EmploymentAgreement)
+                | Some(DocumentType::Lease)
+                | Some(DocumentType::NDA)
+        ) {
             return Ok(Vec::new());
         }
 

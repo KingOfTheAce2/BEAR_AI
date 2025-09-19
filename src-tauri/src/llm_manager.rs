@@ -168,13 +168,20 @@ impl LLMManager {
     }
 
     /// Download a model from HuggingFace
-    pub async fn download_model(&self, model_id: &str, progress_callback: Option<Box<dyn Fn(u64, u64) + Send>>) -> Result<()> {
+    pub async fn download_model(
+        &self,
+        model_id: &str,
+        progress_callback: Option<Box<dyn Fn(u64, u64) + Send>>,
+    ) -> Result<()> {
         let curated_models = Self::get_curated_legal_models();
-        let model = curated_models.iter()
+        let model = curated_models
+            .iter()
             .find(|m| m.id == model_id)
             .context("Model not found in curated list")?;
 
-        let download_url = model.download_url.as_ref()
+        let download_url = model
+            .download_url
+            .as_ref()
             .context("No download URL available for this model")?;
 
         let model_file = self.model_path.join(&model.path);
@@ -184,7 +191,8 @@ impl LLMManager {
 
         // Use reqwest for downloading with progress
         let client = reqwest::Client::new();
-        let response = client.get(download_url)
+        let response = client
+            .get(download_url)
             .send()
             .await
             .context("Failed to start download")?;
@@ -192,7 +200,8 @@ impl LLMManager {
         let total_size = response.content_length().unwrap_or(0);
         let mut downloaded = 0u64;
 
-        let mut file = async_fs::File::create(&model_file).await
+        let mut file = async_fs::File::create(&model_file)
+            .await
             .context("Failed to create model file")?;
 
         let mut stream = response.bytes_stream();
@@ -200,7 +209,8 @@ impl LLMManager {
 
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.context("Failed to read chunk")?;
-            tokio::io::AsyncWriteExt::write_all(&mut file, &chunk).await
+            tokio::io::AsyncWriteExt::write_all(&mut file, &chunk)
+                .await
                 .context("Failed to write chunk")?;
 
             downloaded += chunk.len() as u64;
@@ -213,7 +223,11 @@ impl LLMManager {
         // Verify download
         let file_size = async_fs::metadata(&model_file).await?.len();
         if total_size > 0 && file_size != total_size {
-            return Err(anyhow::anyhow!("Download verification failed: expected {} bytes, got {}", total_size, file_size));
+            return Err(anyhow::anyhow!(
+                "Download verification failed: expected {} bytes, got {}",
+                total_size,
+                file_size
+            ));
         }
 
         // Update registry
@@ -231,8 +245,7 @@ impl LLMManager {
     /// Load a model for inference
     pub async fn load_model(&self, model_id: &str) -> Result<String> {
         let registry = self.registry.lock().unwrap();
-        let model = registry.models.get(model_id)
-            .context("Model not found")?;
+        let model = registry.models.get(model_id).context("Model not found")?;
 
         if !model.installed {
             return Err(anyhow::anyhow!("Model {} is not installed", model_id));
@@ -247,20 +260,19 @@ impl LLMManager {
         let server_port = self.get_available_port().await?;
         let mut cmd = AsyncCommand::new("llama-server");
         cmd.arg("--model")
-           .arg(&model_file)
-           .arg("--port")
-           .arg(server_port.to_string())
-           .arg("--host")
-           .arg("127.0.0.1")
-           .arg("--ctx-size")
-           .arg("4096")
-           .arg("--threads")
-           .arg("8")
-           .stdout(Stdio::piped())
-           .stderr(Stdio::piped());
+            .arg(&model_file)
+            .arg("--port")
+            .arg(server_port.to_string())
+            .arg("--host")
+            .arg("127.0.0.1")
+            .arg("--ctx-size")
+            .arg("4096")
+            .arg("--threads")
+            .arg("8")
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
 
-        let mut child = cmd.spawn()
-            .context("Failed to start llama-server")?;
+        let mut child = cmd.spawn().context("Failed to start llama-server")?;
 
         // Wait for server to be ready
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
@@ -288,7 +300,8 @@ impl LLMManager {
         if let Some(model) = registry.models.get(model_id) {
             let model_file = self.model_path.join(&model.path);
             if model_file.exists() {
-                async_fs::remove_file(&model_file).await
+                async_fs::remove_file(&model_file)
+                    .await
                     .context("Failed to remove model file")?;
             }
             registry.models.remove(model_id);
@@ -304,10 +317,14 @@ impl LLMManager {
 
         // Get available memory
         if let Ok(mem_info) = sys_info::mem_info() {
-            info.insert("available_memory_gb".to_string(),
-                       (mem_info.avail / 1024 / 1024).to_string());
-            info.insert("total_memory_gb".to_string(),
-                       (mem_info.total / 1024 / 1024).to_string());
+            info.insert(
+                "available_memory_gb".to_string(),
+                (mem_info.avail / 1024 / 1024).to_string(),
+            );
+            info.insert(
+                "total_memory_gb".to_string(),
+                (mem_info.total / 1024 / 1024).to_string(),
+            );
         }
 
         // Get CPU info
@@ -324,7 +341,8 @@ impl LLMManager {
     /// Get recommended models based on system capabilities
     pub fn get_recommended_models(&self) -> Result<Vec<String>> {
         let system_info = self.get_system_info()?;
-        let available_memory = system_info.get("available_memory_gb")
+        let available_memory = system_info
+            .get("available_memory_gb")
             .and_then(|s| s.parse::<u64>().ok())
             .unwrap_or(8);
 
@@ -350,14 +368,16 @@ impl LLMManager {
 
     // Helper methods
     async fn get_available_port(&self) -> Result<u16> {
-        use std::net::{TcpListener, SocketAddr};
+        use std::net::{SocketAddr, TcpListener};
         let listener = TcpListener::bind("127.0.0.1:0")?;
         let port = listener.local_addr()?.port();
         Ok(port)
     }
 
     fn save_registry(&self, registry: &ModelRegistry) -> Result<()> {
-        let registry_path = self.model_path.parent()
+        let registry_path = self
+            .model_path
+            .parent()
             .context("Invalid model path")?
             .join("model_registry.json");
 
@@ -369,7 +389,9 @@ impl LLMManager {
 
 // Integration with Tauri commands
 #[tauri::command]
-pub async fn list_models(manager: tauri::State<'_, Arc<LLMManager>>) -> Result<Vec<ModelInfo>, String> {
+pub async fn list_models(
+    manager: tauri::State<'_, Arc<LLMManager>>,
+) -> Result<Vec<ModelInfo>, String> {
     manager.list_models().await.map_err(|e| e.to_string())
 }
 
@@ -378,7 +400,10 @@ pub async fn download_model(
     manager: tauri::State<'_, Arc<LLMManager>>,
     model_id: String,
 ) -> Result<(), String> {
-    manager.download_model(&model_id, None).await.map_err(|e| e.to_string())
+    manager
+        .download_model(&model_id, None)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -386,7 +411,10 @@ pub async fn load_model(
     manager: tauri::State<'_, Arc<LLMManager>>,
     model_id: String,
 ) -> Result<String, String> {
-    manager.load_model(&model_id).await.map_err(|e| e.to_string())
+    manager
+        .load_model(&model_id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -394,7 +422,10 @@ pub async fn unload_model(
     manager: tauri::State<'_, Arc<LLMManager>>,
     model_id: String,
 ) -> Result<(), String> {
-    manager.unload_model(&model_id).await.map_err(|e| e.to_string())
+    manager
+        .unload_model(&model_id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -402,7 +433,10 @@ pub async fn remove_model(
     manager: tauri::State<'_, Arc<LLMManager>>,
     model_id: String,
 ) -> Result<(), String> {
-    manager.remove_model(&model_id).await.map_err(|e| e.to_string())
+    manager
+        .remove_model(&model_id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

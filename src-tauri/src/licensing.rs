@@ -101,7 +101,11 @@ impl LicenseManager {
             models_downloaded: 0,
             documents_processed_today: 0,
             agent_executions_today: 0,
-            last_reset: chrono::Utc::now().date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc(),
+            last_reset: chrono::Utc::now()
+                .date_naive()
+                .and_hms_opt(0, 0, 0)
+                .unwrap()
+                .and_utc(),
         });
 
         Ok(Self {
@@ -149,22 +153,28 @@ impl LicenseManager {
         // Check usage limits
         if let Some(model_limit) = license.model_limit {
             if self.current_usage.models_downloaded >= model_limit {
-                warnings.push(format!("Model download limit reached ({}/{})",
-                                     self.current_usage.models_downloaded, model_limit));
+                warnings.push(format!(
+                    "Model download limit reached ({}/{})",
+                    self.current_usage.models_downloaded, model_limit
+                ));
             }
         }
 
         if let Some(document_limit) = license.document_limit {
             if self.current_usage.documents_processed_today >= document_limit {
-                errors.push(format!("Daily document processing limit exceeded ({}/{})",
-                                   self.current_usage.documents_processed_today, document_limit));
+                errors.push(format!(
+                    "Daily document processing limit exceeded ({}/{})",
+                    self.current_usage.documents_processed_today, document_limit
+                ));
             }
         }
 
         if let Some(agent_limit) = license.agent_limit {
             if self.current_usage.agent_executions_today >= agent_limit {
-                errors.push(format!("Daily agent execution limit exceeded ({}/{})",
-                                   self.current_usage.agent_executions_today, agent_limit));
+                errors.push(format!(
+                    "Daily agent execution limit exceeded ({}/{})",
+                    self.current_usage.agent_executions_today, agent_limit
+                ));
             }
         }
 
@@ -232,9 +242,18 @@ impl LicenseManager {
     /// Get usage statistics
     pub fn get_usage_stats(&self) -> HashMap<String, u32> {
         let mut stats = HashMap::new();
-        stats.insert("models_downloaded".to_string(), self.current_usage.models_downloaded);
-        stats.insert("documents_processed_today".to_string(), self.current_usage.documents_processed_today);
-        stats.insert("agent_executions_today".to_string(), self.current_usage.agent_executions_today);
+        stats.insert(
+            "models_downloaded".to_string(),
+            self.current_usage.models_downloaded,
+        );
+        stats.insert(
+            "documents_processed_today".to_string(),
+            self.current_usage.documents_processed_today,
+        );
+        stats.insert(
+            "agent_executions_today".to_string(),
+            self.current_usage.agent_executions_today,
+        );
         stats.insert("users_active".to_string(), self.current_usage.users_active);
         stats
     }
@@ -244,11 +263,23 @@ impl LicenseManager {
         self.current_license.as_ref().map(|license| {
             let mut info = HashMap::new();
             info.insert("license_id".to_string(), license.license_id.clone());
-            info.insert("license_type".to_string(), format!("{:?}", license.license_type));
-            info.insert("organization".to_string(), license.organization.clone().unwrap_or("Individual".to_string()));
+            info.insert(
+                "license_type".to_string(),
+                format!("{:?}", license.license_type),
+            );
+            info.insert(
+                "organization".to_string(),
+                license
+                    .organization
+                    .clone()
+                    .unwrap_or("Individual".to_string()),
+            );
 
             if let Some(expires_at) = license.expires_at {
-                info.insert("expires_at".to_string(), expires_at.format("%Y-%m-%d").to_string());
+                info.insert(
+                    "expires_at".to_string(),
+                    expires_at.format("%Y-%m-%d").to_string(),
+                );
                 let days_remaining = (expires_at - chrono::Utc::now()).num_days();
                 info.insert("days_remaining".to_string(), days_remaining.to_string());
             } else {
@@ -256,7 +287,10 @@ impl LicenseManager {
                 info.insert("days_remaining".to_string(), "Unlimited".to_string());
             }
 
-            info.insert("features_count".to_string(), license.features.len().to_string());
+            info.insert(
+                "features_count".to_string(),
+                license.features.len().to_string(),
+            );
             info
         })
     }
@@ -303,7 +337,10 @@ impl LicenseManager {
                 ("models".to_string(), "2".to_string()),
                 ("documents".to_string(), "10/day".to_string()),
                 ("agents".to_string(), "5/day".to_string()),
-                ("features".to_string(), "Basic LLM, Document Analysis".to_string()),
+                (
+                    "features".to_string(),
+                    "Basic LLM, Document Analysis".to_string(),
+                ),
             ]),
             HashMap::from([
                 ("name".to_string(), "Personal".to_string()),
@@ -312,7 +349,10 @@ impl LicenseManager {
                 ("models".to_string(), "10".to_string()),
                 ("documents".to_string(), "100/day".to_string()),
                 ("agents".to_string(), "50/day".to_string()),
-                ("features".to_string(), "Advanced LLM, Full Document Analysis, Basic Agents".to_string()),
+                (
+                    "features".to_string(),
+                    "Advanced LLM, Full Document Analysis, Basic Agents".to_string(),
+                ),
             ]),
             HashMap::from([
                 ("name".to_string(), "Professional".to_string()),
@@ -321,7 +361,10 @@ impl LicenseManager {
                 ("models".to_string(), "Unlimited".to_string()),
                 ("documents".to_string(), "1000/day".to_string()),
                 ("agents".to_string(), "500/day".to_string()),
-                ("features".to_string(), "All Features, Multi-Agent Workflows, Priority Support".to_string()),
+                (
+                    "features".to_string(),
+                    "All Features, Multi-Agent Workflows, Priority Support".to_string(),
+                ),
             ]),
             HashMap::from([
                 ("name".to_string(), "Enterprise".to_string()),
@@ -330,7 +373,10 @@ impl LicenseManager {
                 ("models".to_string(), "Unlimited".to_string()),
                 ("documents".to_string(), "Unlimited".to_string()),
                 ("agents".to_string(), "Unlimited".to_string()),
-                ("features".to_string(), "All Features, Multi-User, Custom Models, Compliance Reporting".to_string()),
+                (
+                    "features".to_string(),
+                    "All Features, Multi-User, Custom Models, Compliance Reporting".to_string(),
+                ),
             ]),
         ]
     }
@@ -367,7 +413,11 @@ impl LicenseManager {
     }
 
     fn reset_daily_usage_if_needed(&mut self) {
-        let today = chrono::Utc::now().date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+        let today = chrono::Utc::now()
+            .date_naive()
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_utc();
         if self.current_usage.last_reset < today {
             self.current_usage.documents_processed_today = 0;
             self.current_usage.agent_executions_today = 0;
@@ -399,7 +449,9 @@ pub async fn install_license(
     license_jwt: String,
 ) -> Result<(), String> {
     let mut manager = license_manager.lock().unwrap();
-    manager.install_license(&license_jwt).map_err(|e| e.to_string())
+    manager
+        .install_license(&license_jwt)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
