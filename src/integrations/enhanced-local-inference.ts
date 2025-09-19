@@ -453,50 +453,78 @@ export class EnhancedLocalInferenceClient extends EventEmitter {
     }
   }
 
-  private async *createTokenGenerator(requestId: string): AsyncGenerator<string, void, unknown> {
-    return new Promise<AsyncGenerator<string, void, unknown>>((resolve, reject) => {
-      const tokens: string[] = [];
-      let completed = false;
+  private createTokenGenerator(requestId: string): AsyncGenerator<string, void, unknown> {
+    if (!this.streamingHandler) {
+      throw new StreamingError('Streaming not initialized');
+    }
 
-      const tokenHandler = (token: StreamToken) => {
-        if (token.finishReason) {
-          completed = true;
-          return;
-        }
-        tokens.push(token.token);
-      };
+    const streamingHandler = this.streamingHandler;
+    const tokens: string[] = [];
+    let completed = false;
+    let streamError: Error | null = null;
+    let cleanedUp = false;
+    let cleanupTimeout: ReturnType<typeof setTimeout> | null = null;
 
-      const errorHandler = (error: Error) => {
-        reject(error);
-      };
+    const cleanup = () => {
+      if (cleanedUp) {
+        return;
+      }
+      cleanedUp = true;
 
-      const completeHandler = () => {
+      streamingHandler.off('token', tokenHandler);
+      streamingHandler.off('error', errorHandler);
+      streamingHandler.off('complete', completeHandler);
+
+      if (cleanupTimeout) {
+        clearTimeout(cleanupTimeout);
+        cleanupTimeout = null;
+      }
+    };
+
+    const tokenHandler = (token: StreamToken) => {
+      if (token.finishReason) {
         completed = true;
-      };
+        return;
+      }
+      tokens.push(token.token);
+    };
 
-      this.streamingHandler!.on('token', tokenHandler);
-      this.streamingHandler!.on('error', errorHandler);
-      this.streamingHandler!.on('complete', completeHandler);
+    const errorHandler = (error: Error) => {
+      streamError = error;
+      completed = true;
+    };
 
-      const generator = async function* () {
+    const completeHandler = () => {
+      completed = true;
+    };
+
+    streamingHandler.on('token', tokenHandler);
+    streamingHandler.on('error', errorHandler);
+    streamingHandler.on('complete', completeHandler);
+
+    cleanupTimeout = setTimeout(() => {
+      cleanup();
+    }, 300000); // 5 minutes
+
+    const generator = (async function* () {
+      try {
         while (!completed || tokens.length > 0) {
+          if (streamError) {
+            throw streamError;
+          }
+
           if (tokens.length > 0) {
             yield tokens.shift()!;
           } else {
             await new Promise(resolve => setTimeout(resolve, 10));
           }
         }
-      };
+      } finally {
+        cleanup();
+      }
+    })();
 
-      resolve(generator());
-
-      // Cleanup listeners after some time
-      setTimeout(() => {
-        this.streamingHandler!.off('token', tokenHandler);
-        this.streamingHandler!.off('error', errorHandler);
-        this.streamingHandler!.off('complete', completeHandler);
-      }, 300000); // 5 minutes
-    });
+    return generator;
   }
 
   async getOptimizationRecommendations(request: Partial<InferenceRequest>): Promise<OptimizationRecommendations> {

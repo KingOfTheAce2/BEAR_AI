@@ -21,9 +21,7 @@ import {
   FileText,
   Bell,
   BellOff,
-  Paintbrush,
   Sun,
-  Moon,
   Volume2,
   VolumeX,
   Globe,
@@ -566,9 +564,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
                   <Label>Cache Size Limit</Label>
                   <div className="flex items-center gap-4">
                     <Slider
-                      value={[settings.storage.maxCacheSize]}
-                      onValueChange={(value) => 
-                        updateSetting('storage', 'maxCacheSize', value[0])
+                      value={settings.storage.maxCacheSize}
+                      onValueChange={(value) =>
+                        updateSetting('storage', 'maxCacheSize', value)
                       }
                       max={8192}
                       min={256}
@@ -667,9 +665,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
                   <Label>Maximum Memory Usage</Label>
                   <div className="flex items-center gap-4">
                     <Slider
-                      value={[settings.inference.maxMemoryUsage]}
-                      onValueChange={(value) => 
-                        updateSetting('inference', 'maxMemoryUsage', value[0])
+                      value={settings.inference.maxMemoryUsage}
+                      onValueChange={(value) =>
+                        updateSetting('inference', 'maxMemoryUsage', value)
                       }
                       max={systemInfo.totalMemory}
                       min={1024}
@@ -689,9 +687,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
                   <Label>CPU Threads</Label>
                   <div className="flex items-center gap-4">
                     <Slider
-                      value={[settings.inference.threadCount]}
-                      onValueChange={(value) => 
-                        updateSetting('inference', 'threadCount', value[0])
+                      value={settings.inference.threadCount}
+                      onValueChange={(value) =>
+                        updateSetting('inference', 'threadCount', value)
                       }
                       max={systemInfo.cpuCores}
                       min={1}
@@ -736,9 +734,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
                       <Label>Temperature</Label>
                       <div className="flex items-center gap-4">
                         <Slider
-                          value={[settings.inference.temperature]}
-                          onValueChange={(value) => 
-                            updateSetting('inference', 'temperature', value[0])
+                          value={settings.inference.temperature}
+                          onValueChange={(value) =>
+                            updateSetting('inference', 'temperature', value)
                           }
                           max={2}
                           min={0}
@@ -760,7 +758,7 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
           <TabsContent value="interface" className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Paintbrush className="w-5 h-5" />
+                <Sun className="w-5 h-5" />
                 Appearance
               </h3>
 
@@ -784,9 +782,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
                   <Label>Font Size</Label>
                   <div className="flex items-center gap-4">
                     <Slider
-                      value={[settings.interface.fontSize]}
-                      onValueChange={(value) => 
-                        updateSetting('interface', 'fontSize', value[0])
+                      value={settings.interface.fontSize}
+                      onValueChange={(value) =>
+                        updateSetting('interface', 'fontSize', value)
                       }
                       max={24}
                       min={10}

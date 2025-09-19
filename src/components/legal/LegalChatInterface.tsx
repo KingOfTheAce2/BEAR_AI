@@ -17,7 +17,7 @@ import { LegalContextPanel } from './LegalContextPanel';
 import { LegalInputArea } from './LegalInputArea';
 import { LegalToolbar } from './LegalToolbar';
 import { LegalSettingsPanel } from './LegalSettingsPanel';
-import TypingIndicator from '../chat/modern/TypingIndicator';
+import { TypingIndicator } from '../streaming';
 import './LegalChatInterface.css';
 
 interface LegalChatInterfaceProps {

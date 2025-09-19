@@ -11,6 +11,7 @@ import {
   PluginStorageAPI,
   PluginUIAPI,
   PluginEventAPI,
+  PluginEventHandler,
   PluginUtilsAPI,
   BearAIAPI,
   PluginConfigSchema,
@@ -388,11 +389,11 @@ export class PluginAPIProvider extends EventEmitter {
 
   private createEventAPI(pluginId: string): PluginEventAPI {
     const eventAPI: PluginEventAPI = {
-      on: (event: string, handler: Function) => {
+      on: (event: string, handler: PluginEventHandler) => {
         this.on(`plugin:${pluginId}:${event}`, handler);
       },
 
-      off: (event: string, handler: Function) => {
+      off: (event: string, handler: PluginEventHandler) => {
         this.off(`plugin:${pluginId}:${event}`, handler);
       },
 
@@ -401,7 +402,7 @@ export class PluginAPIProvider extends EventEmitter {
         this.emit('plugin:event', { pluginId, event, data });
       },
 
-      once: (event: string, handler: Function) => {
+      once: (event: string, handler: PluginEventHandler) => {
         this.once(`plugin:${pluginId}:${event}`, handler);
       }
     };

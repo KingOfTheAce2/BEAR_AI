@@ -528,11 +528,22 @@ declare module 'react' {
     type FormEventHandler<T = Element> = (event: FormEvent<T>) => void;
     type ChangeEventHandler<T = Element> = (event: ChangeEvent<T>) => void;
 
+    interface ErrorInfo {
+      componentStack: string;
+    }
+
     class Component<P = {}, S = {}, SS = any> {
-      constructor(props: P);
+      constructor(props: P, context?: any);
       props: Readonly<P>;
       state: Readonly<S>;
-      setState(state: Partial<S> | ((prevState: Readonly<S>) => Partial<S> | null)): void;
+      context: any;
+      refs: Record<string, any>;
+      setState(
+        state:
+          | Partial<S>
+          | ((prevState: Readonly<S>, props: Readonly<P>) => Partial<S> | null),
+        callback?: () => void
+      ): void;
       forceUpdate(callback?: () => void): void;
       render(): any;
     }
@@ -721,6 +732,8 @@ declare module 'react' {
     StrictMode: React.FunctionComponent<{ children?: React.ReactNode }>;
     Component: typeof React.Component;
   };
+
+  export type ErrorInfo = React.ErrorInfo;
 
   export = React;
 }
@@ -1136,6 +1149,7 @@ declare module '@heroicons/react/24/outline' {
   export const ArrowRightIcon: FC<IconProps>;
   export const ArrowUpIcon: FC<IconProps>;
   export const ArrowDownIcon: FC<IconProps>;
+  export const ArrowTopRightOnSquareIcon: FC<IconProps>;
   export const ArrowRightOnRectangleIcon: FC<IconProps>;
   export const PlusIcon: FC<IconProps>;
   export const MinusIcon: FC<IconProps>;

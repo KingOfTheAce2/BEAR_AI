@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { KeyboardEvent } from 'react';
 import {
   PaperAirplaneIcon,
   DocumentArrowUpIcon,
@@ -44,7 +43,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       if (value.trim() && !disabled) {

@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
-import type { FormHTMLAttributes, FormEvent } from 'react';
+import type { FormEvent, HTMLAttributes } from 'react';
 
-export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {}
+export interface FormProps extends HTMLAttributes<HTMLFormElement> {}
 
 export const Form = forwardRef<HTMLFormElement, FormProps>(
   ({ className, ...props }, ref) => (

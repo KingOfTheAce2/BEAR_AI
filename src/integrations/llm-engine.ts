@@ -381,8 +381,85 @@ export class BearLLMEngine {
   }
 
   private generateApiKey(modelId: string, port: string): string {
-    // Generate a simple API key for the model session
-    return Buffer.from(`${modelId}:${port}:${Date.now()}`).toString('base64')
+    const rawKey = `${modelId}:${port}:${Date.now()}`
+    return this.encodeToBase64(rawKey)
+  }
+
+  private encodeToBase64(value: string): string {
+    const globalObj = globalThis as typeof globalThis & {
+      btoa?: (data: string) => string
+      Buffer?: { from(input: string, encoding?: string): { toString(encoding: string): string } }
+    }
+
+    if (typeof globalObj.btoa === 'function') {
+      try {
+        return globalObj.btoa(value)
+      } catch {
+        // btoa throws for non-Latin1 input; fall through to other strategies
+      }
+    }
+
+    const bufferCtor = globalObj.Buffer
+    if (bufferCtor && typeof bufferCtor.from === 'function') {
+      return bufferCtor.from(value, 'utf-8').toString('base64')
+    }
+
+    const encoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null
+    const bytes = encoder ? encoder.encode(value) : this.stringToUtf8Bytes(value)
+    return this.bytesToBase64(bytes)
+  }
+
+  private stringToUtf8Bytes(value: string): Uint8Array {
+    const codePoints: number[] = []
+
+    for (let i = 0; i < value.length; i += 1) {
+      const charCode = value.charCodeAt(i)
+
+      if (charCode < 0x80) {
+        codePoints.push(charCode)
+      } else if (charCode < 0x800) {
+        codePoints.push(0xc0 | (charCode >> 6))
+        codePoints.push(0x80 | (charCode & 0x3f))
+      } else if (charCode < 0xd800 || charCode >= 0xe000) {
+        codePoints.push(0xe0 | (charCode >> 12))
+        codePoints.push(0x80 | ((charCode >> 6) & 0x3f))
+        codePoints.push(0x80 | (charCode & 0x3f))
+      } else {
+        i += 1
+        const nextChar = value.charCodeAt(i)
+        const surrogate = 0x10000 + (((charCode & 0x3ff) << 10) | (nextChar & 0x3ff))
+        codePoints.push(0xf0 | (surrogate >> 18))
+        codePoints.push(0x80 | ((surrogate >> 12) & 0x3f))
+        codePoints.push(0x80 | ((surrogate >> 6) & 0x3f))
+        codePoints.push(0x80 | (surrogate & 0x3f))
+      }
+    }
+
+    return new Uint8Array(codePoints)
+  }
+
+  private bytesToBase64(bytes: Uint8Array): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    let output = ''
+    let index = 0
+
+    while (index < bytes.length) {
+      const byte1 = bytes[index++]
+      const byte2 = index < bytes.length ? bytes[index++] : undefined
+      const byte3 = index < bytes.length ? bytes[index++] : undefined
+
+      const enc1 = byte1 >> 2
+      const enc2 = ((byte1 & 0x03) << 4) | ((byte2 ?? 0) >> 4)
+      const enc3 = byte2 !== undefined ? ((byte2 & 0x0f) << 2) | ((byte3 ?? 0) >> 6) : -1
+      const enc4 = byte3 !== undefined ? byte3 & 0x3f : -1
+
+      output += chars[enc1]
+      output += chars[enc2]
+      output += enc3 >= 0 ? chars[enc3] : '='
+      output += enc4 >= 0 ? chars[enc4] : '='
+    }
+
+    return output
   }
 
   private async *handleStreamingResponse(

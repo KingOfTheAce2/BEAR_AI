@@ -565,7 +565,7 @@ export class PluginSecurityManager extends EventEmitter {
   }
 
   private getAverageVariableNameLength(code: string): number {
-    const varNames = code.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]*\b/g) || [];
+    const varNames: string[] = code.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]*\b/g) ?? [];
     if (varNames.length === 0) return 0;
     
     const totalLength = varNames.reduce((sum, name) => sum + name.length, 0);
