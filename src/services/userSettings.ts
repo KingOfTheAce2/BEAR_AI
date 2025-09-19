@@ -407,10 +407,16 @@ export class UserSettingsService extends EventEmitter {
   }
 
   async updateAccessibilitySettings(
-    userId: string, 
+    userId: string,
     settings: Partial<UserPreferences['accessibility']>
   ): Promise<void> {
-    await this.updateUserPreferences(userId, { accessibility: settings });
+    const current = await this.getUserPreferences(userId);
+    const updatedAccessibility: UserPreferences['accessibility'] = {
+      ...current.accessibility,
+      ...settings
+    };
+
+    await this.updateUserPreferences(userId, { accessibility: updatedAccessibility });
     this.emit('accessibility.updated', { userId, settings });
   }
 
@@ -438,10 +444,16 @@ export class UserSettingsService extends EventEmitter {
    * Notification settings
    */
   async updateNotificationSettings(
-    userId: string, 
+    userId: string,
     settings: Partial<UserPreferences['notifications']>
   ): Promise<void> {
-    await this.updateUserPreferences(userId, { notifications: settings });
+    const current = await this.getUserPreferences(userId);
+    const updatedNotifications: UserPreferences['notifications'] = {
+      ...current.notifications,
+      ...settings
+    };
+
+    await this.updateUserPreferences(userId, { notifications: updatedNotifications });
     this.emit('notifications.updated', { userId, settings });
   }
 
