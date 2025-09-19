@@ -17,6 +17,7 @@ export type {
 
 // Re-export hooks
 export { useStreaming, useMultipleStreams } from '../../hooks/useStreaming';
+export { useStreamingRecovery, useRecoveryMonitor } from '../../hooks/useStreamingRecovery';
 
 // Re-export service
 export { streamingService, createStreamingService, StreamingService } from '../../services/streamingService';
