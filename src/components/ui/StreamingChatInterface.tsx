@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { cn } from '../../utils/cn'
-import { 
-  ChatSession, 
-  Message, 
-  StreamingResponse, 
-  Model, 
-  StreamingMetadata,
-  FinishReason 
+import type { ChatSession } from '../../types'
+import {
+  StreamingResponse,
+  Model,
+  StreamingMetadata
 } from '../../types/modelTypes'
 import { MessageBubble } from '../chat/MessageBubble'
 import { Button } from './Button'
@@ -39,7 +37,7 @@ import {
   Eye,
   EyeOff,
   X,
-  Edit3,
+  Edit,
   Check,
   AlertCircle,
   Gauge
@@ -76,6 +74,7 @@ interface ChatInputProps {
 interface AttachmentPreviewProps {
   file: File
   onRemove: () => void
+  key?: string
 }
 
 interface StreamingMetricsProps {
@@ -84,7 +83,7 @@ interface StreamingMetricsProps {
   onToggleVisibility: () => void
 }
 
-const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({ file, onRemove }) => {
+const AttachmentPreview = ({ file, onRemove }: AttachmentPreviewProps) => {
   const getFileIcon = (type: string) => {
     if (type.startsWith('image/')) return <Image className="h-4 w-4" />
     if (type.startsWith('text/')) return <FileText className="h-4 w-4" />
@@ -201,7 +200,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       if (value.trim() && !disabled) {
@@ -220,18 +219,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onAttachmentsChange([...attachments, ...newFiles])
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragOver(false)
     handleFileSelect(e.dataTransfer.files)
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragOver(true)
   }
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragOver(false)
   }
@@ -555,7 +554,7 @@ const StreamingChatInterface: React.FC<StreamingChatInterfaceProps> = ({
                         onClick={() => handleEditMessage(message.id)}
                         className="h-6 w-6 p-0"
                       >
-                        <Edit3 className="h-3 w-3" />
+                        <Edit className="h-3 w-3" />
                       </Button>
                     )}
                     {message.sender === 'ai' && (
