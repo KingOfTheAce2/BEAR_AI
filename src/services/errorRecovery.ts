@@ -4,7 +4,7 @@
  */
 
 import { StreamingService } from './streamingService';
-import { StreamingConfig, ConnectionState, StreamingOptions } from '../types/streaming';
+import { StreamingConfig, ConnectionState, StreamingOptions, StreamingError } from '../types/streaming';
 
 export interface ErrorRecoveryConfig {
   maxRetries: number;

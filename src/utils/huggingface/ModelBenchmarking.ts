@@ -80,6 +80,11 @@ export class ModelBenchmarking {
       currentTest++;
     }
 
+    const representativeSequenceLength = this.config.sequenceLengths.length > 0
+      ? Math.max(...this.config.sequenceLengths)
+      : 0;
+    const hardwareInfo = this.getHardwareInfo();
+
     const result: BenchmarkResult = {
       modelId: model.id,
       timestamp: new Date(),
@@ -103,13 +108,10 @@ export class ModelBenchmarking {
           memoryUsage: this.calculateMean(memoryUsage),
           cpuUsage: this.calculateMean(cpuUsage),
           gpuUsage: 0 // Would be implemented for GPU benchmarks
-        }
-      },
-      testConfiguration: {
-        batchSize: this.config.batchSizes[0],
-        sequenceLength: this.config.sequenceLengths[0],
+        },
+        sequenceLength: representativeSequenceLength,
         numSamples: this.config.numSamples,
-        hardware: this.getHardwareInfo()
+        hardware: hardwareInfo
       }
     };
 

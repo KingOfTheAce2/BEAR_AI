@@ -4,6 +4,7 @@
 
 export interface HuggingFaceModel {
   id: string;
+  modelId: string;
   name: string;
   description?: string;
   author: string;
@@ -22,6 +23,9 @@ export interface HuggingFaceModel {
   sha?: string;
   cardData?: Record<string, any>;
   siblings?: ModelFile[];
+  legalScore?: number;
+  legalUseCases?: LegalUseCase[];
+  performanceBenchmarks?: PerformanceBenchmark[];
   resourceRequirements?: ResourceRequirements;
   compatibilityInfo?: CompatibilityInfo;
   localStatus?: LocalModelStatus;
@@ -42,7 +46,7 @@ export interface ModelSearchFilters {
   full?: boolean;
 }
 
-export type LegalCategory = 
+export type LegalCategory =
   | 'contract-analysis'
   | 'legal-research'
   | 'compliance-check'
@@ -51,6 +55,32 @@ export type LegalCategory =
   | 'regulatory-compliance'
   | 'risk-assessment'
   | 'legal-drafting';
+
+export interface LegalUseCase {
+  id: string;
+  name: string;
+  description: string;
+  category: LegalCategory;
+  suitabilityScore: number;
+  examples: string[];
+  requirements: string[];
+  limitations: string[];
+  accuracy?: number;
+  speed?: number;
+  resourceIntensive?: boolean;
+}
+
+export interface PerformanceBenchmark {
+  taskType: string;
+  taskName: string;
+  dataset: string;
+  metric: string;
+  score: number;
+  lastTested: Date;
+  testingFramework: string;
+  notes?: string;
+  legalRelevance?: number;
+}
 
 export interface ModelRecommendation {
   model: HuggingFaceModel;
@@ -67,6 +97,8 @@ export interface ModelRecommendation {
 
 export interface CompatibilityResult {
   compatible: boolean;
+  score: number;
+  confidence: number;
   issues: string[];
   warnings: string[];
   requirements: {
@@ -75,6 +107,15 @@ export interface CompatibilityResult {
     computeCapability?: string;
   };
   recommendations: string[];
+  optimizations: CompatibilityOptimization[];
+}
+
+export interface CompatibilityOptimization {
+  id: string;
+  description: string;
+  automated: boolean;
+  impact: 'low' | 'medium' | 'high';
+  estimatedImprovement?: number;
 }
 
 export interface ResourceRequirements {
