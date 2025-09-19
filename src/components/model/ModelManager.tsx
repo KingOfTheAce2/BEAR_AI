@@ -17,7 +17,7 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useModelManager } from '../../hooks/useModelManager';
-import { ModelStatus, ModelType } from '../../types/modelTypes';
+import { ModelStatus, ModelStatusType, ModelType } from '../../types/modelTypes';
 import ModelConfigManager from '../../services/modelConfigManager';
 
 interface ModelManagerProps {
@@ -91,7 +91,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
     }
   };
 
-  const getStatusIcon = (status: ModelStatus) => {
+  const getStatusIcon = (status: ModelStatusType) => {
     switch (status) {
       case ModelStatus.LOADED:
         return <CheckCircleIcon className="w-5 h-5 text-green-500" />;

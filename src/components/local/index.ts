@@ -14,15 +14,25 @@
  */
 
 // Core Components
-export { default as LocalModelSelector } from './LocalModelSelector';
-export { default as LocalFileBrowser } from './LocalFileBrowser';
-export { default as LocalChatInterface } from './LocalChatInterface';
-export { default as LocalSettingsPanel } from './LocalSettingsPanel';
+import LocalModelSelector from './LocalModelSelector';
+import LocalFileBrowser from './LocalFileBrowser';
+import LocalChatInterface from './LocalChatInterface';
+import LocalSettingsPanel from './LocalSettingsPanel';
 
 // System Components
-export { default as OfflineErrorHandler } from './OfflineErrorHandler';
-export { default as LocalPerformanceDashboard } from './LocalPerformanceDashboard';
-export { default as PrivacyIndicators } from './PrivacyIndicators';
+import OfflineErrorHandler from './OfflineErrorHandler';
+import LocalPerformanceDashboard from './LocalPerformanceDashboard';
+import PrivacyIndicators from './PrivacyIndicators';
+
+export {
+  LocalModelSelector,
+  LocalFileBrowser,
+  LocalChatInterface,
+  LocalSettingsPanel,
+  OfflineErrorHandler,
+  LocalPerformanceDashboard,
+  PrivacyIndicators,
+};
 
 // Type Definitions
 export type {

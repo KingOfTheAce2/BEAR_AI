@@ -25,7 +25,10 @@ export interface Message {
     | 'file'
     | 'image'
     | 'system'
-    | 'legal-query';
+    | 'legal-query'
+    | 'case-law'
+    | 'statute'
+    | 'contract-review';
   metadata?: {
     confidence?: number;
     sources?: string[];
