@@ -273,12 +273,14 @@ export const useApiTracking = () => {
         error,
         inputTokens: 0,
         outputTokens: tokensGenerated,
+        success: !error,
         latency: {
           firstToken: Math.min(duration, 100),
           totalTime: duration,
           networkTime: duration * 0.3,
           processingTime: duration * 0.7
-        }
+        },
+        metadata: options?.metadata
       });
     }
   };

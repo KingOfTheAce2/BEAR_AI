@@ -51,7 +51,7 @@ export type LegalCategory =
   | 'regulatory-compliance'
   | 'risk-assessment'
   | 'legal-drafting';
-
+@@ -48,76 +55,147 @@ export type LegalCategory =
 export interface ModelRecommendation {
   model: HuggingFaceModel;
   score: number;
@@ -199,10 +199,7 @@ export interface BenchmarkResult {
       memoryUsage: number;
       cpuUsage: number;
       gpuUsage?: number;
-    };
-  };
-  testConfiguration: {
-    batchSize: number;
+@@ -128,25 +206,34 @@ export interface BenchmarkResult {
     sequenceLength: number;
     numSamples: number;
     hardware: string;

@@ -383,7 +383,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
           <div className="space-y-2">
             {draftingResult.suggestions.map((suggestion, index) => (
               <div key={index} className="text-sm text-yellow-700">
-                • {suggestion.description}
+                • {suggestion}
               </div>
             ))}
           </div>

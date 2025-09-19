@@ -3,6 +3,14 @@ import { useSystemSettings } from '../../contexts/SettingsContext';
 import FormField from './FormField';
 import './SettingsPanel.css';
 
+type NavigatorWithMemory = Navigator & {
+  deviceMemory?: number;
+  connection?: unknown;
+};
+
+const getNavigator = (): NavigatorWithMemory | null =>
+  typeof navigator !== 'undefined' ? (navigator as NavigatorWithMemory) : null;
+
 const SystemSettingsPanel: React.FC = () => {
   const { system, updateSystem } = useSystemSettings();
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -42,11 +50,17 @@ const SystemSettingsPanel: React.FC = () => {
   }, []);
 
   const optimizePerformance = () => {
+    const nav = getNavigator();
+    const hardwareConcurrency = nav?.hardwareConcurrency ?? 4;
+    const deviceMemory = nav?.deviceMemory ?? 4;
+    const preloadAggressiveness: 'low' | 'medium' | 'high' =
+      deviceMemory >= 8 ? 'high' : 'medium';
+
     const optimizedSettings = {
       performance: {
         ...system.performance,
-        maxWorkerThreads: Math.min(navigator.hardwareConcurrency || 4, 8),
-        memoryLimit: Math.floor((navigator.deviceMemory || 4) * 1024 * 0.4), // 40% of available RAM
+        maxWorkerThreads: Math.min(hardwareConcurrency, 8),
+        memoryLimit: Math.floor(deviceMemory * 1024 * 0.4), // 40% of available RAM
         gcSettings: {
           enabled: true,
           threshold: 0.7,
@@ -54,12 +68,12 @@ const SystemSettingsPanel: React.FC = () => {
         },
         caching: {
           enabled: true,
-          maxSize: Math.floor((navigator.deviceMemory || 4) * 100), // Proportional to RAM
+          maxSize: Math.floor(deviceMemory * 100), // Proportional to RAM
           ttl: 1800, // 30 minutes
         },
         preloading: {
           enabled: true,
-          aggressiveness: navigator.deviceMemory && navigator.deviceMemory >= 8 ? 'high' : 'medium',
+          aggressiveness: preloadAggressiveness,
         },
       },
     };
@@ -69,15 +83,16 @@ const SystemSettingsPanel: React.FC = () => {
   };
 
   const runSystemDiagnostic = () => {
+    const nav = getNavigator();
     const diagnostics = {
-      platform: navigator.platform,
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      cookieEnabled: navigator.cookieEnabled,
-      onLine: navigator.onLine,
-      hardwareConcurrency: navigator.hardwareConcurrency,
-      deviceMemory: (navigator as any).deviceMemory,
-      connection: (navigator as any).connection,
+      platform: nav?.platform ?? 'unknown',
+      userAgent: nav?.userAgent ?? 'unknown',
+      language: nav?.language ?? 'unknown',
+      cookieEnabled: nav?.cookieEnabled ?? false,
+      onLine: nav?.onLine ?? false,
+      hardwareConcurrency: nav?.hardwareConcurrency ?? null,
+      deviceMemory: nav?.deviceMemory ?? null,
+      connection: nav?.connection ?? null,
     };
 
     console.log('System Diagnostics:', diagnostics);

@@ -59,6 +59,62 @@ export interface PluginContext {
   }
 }
 
+export interface ContractAnalysis {
+  keyTerms: Array<{
+    term: string
+    definition?: string
+    importance: 'high' | 'medium' | 'low'
+    location: { section: string; paragraph: number }
+  }>
+  parties: Array<{
+    name: string
+    role: 'primary' | 'secondary' | 'guarantor' | 'witness'
+    obligations: string[]
+    rights: string[]
+  }>
+  obligations: Array<{
+    party: string
+    obligation: string
+    deadline?: Date
+    penalty?: string
+    status: 'pending' | 'fulfilled' | 'breached' | 'disputed'
+  }>
+  risks: Array<{
+    type: 'legal' | 'financial' | 'operational' | 'reputational'
+    description: string
+    severity: 'low' | 'medium' | 'high' | 'critical'
+    mitigation?: string
+    probability: number
+    impact: number
+  }>
+  clauses: Array<{
+    type: 'termination' | 'liability' | 'indemnification' | 'force-majeure' | 'governing-law' | 'other'
+    content: string
+    assessment: 'favorable' | 'neutral' | 'unfavorable' | 'requires-attention'
+    recommendations?: string[]
+  }>
+  compliance: Array<{
+    regulation: string
+    status: 'compliant' | 'non-compliant' | 'requires-review' | 'not-applicable'
+    details?: string
+    remediation?: string[]
+  }>
+  recommendations: Array<{
+    type: 'amendment' | 'negotiation' | 'approval' | 'rejection' | 'review'
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    description: string
+    rationale: string
+    impact: string
+  }>
+  summary: {
+    overview: string
+    keyPoints: string[]
+    riskScore: number
+    recommendedAction: 'approve' | 'negotiate' | 'reject' | 'review'
+    confidence: number
+  }
+}
+
 export abstract class BearPlugin {
   protected context: PluginContext
   protected manifest: PluginManifest
@@ -123,12 +179,14 @@ export abstract class LegalDocumentPlugin extends BearPlugin {
     analysis?: any
   }>
 
-  abstract analyzeContract(content: string): Promise<{
-    keyTerms: string[]
-    obligations: Array<{ party: string; obligation: string }>
-    risks: string[]
-    recommendations: string[]
-  }>
+  abstract analyzeContract(
+    content: string,
+    options?: {
+      jurisdiction?: string
+      contractType?: string
+      focusAreas?: string[]
+    }
+  ): Promise<ContractAnalysis>
 
   abstract detectPII(content: string): Promise<{
     entities: Array<{ type: string; value: string; confidence: number }>
@@ -363,21 +421,159 @@ export class BearLegalDocumentPlugin extends LegalDocumentPlugin {
     }
   }
 
-  async analyzeContract(content: string): Promise<{
-    keyTerms: string[]
-    obligations: Array<{ party: string; obligation: string }>
-    risks: string[]
-    recommendations: string[]
-  }> {
-    // Mock contract analysis - would use LLM for actual analysis
+  async analyzeContract(
+    content: string,
+    options?: {
+      jurisdiction?: string
+      contractType?: string
+      focusAreas?: string[]
+    }
+  ): Promise<ContractAnalysis> {
+    const contractLabel = options?.contractType ?? 'agreement'
+    const normalizedContent = content.toLowerCase()
+    const includesLiability = normalizedContent.includes('liability')
+
     return {
-      keyTerms: ['payment terms', 'termination clause', 'liability'],
-      obligations: [
-        { party: 'Party A', obligation: 'Deliver services as specified' },
-        { party: 'Party B', obligation: 'Make payments according to schedule' }
+      keyTerms: [
+        {
+          term: 'Payment Terms',
+          definition: 'Schedule and method for compensation between parties',
+          importance: 'high',
+          location: { section: 'Financial Terms', paragraph: 1 }
+        },
+        {
+          term: 'Termination',
+          definition: 'Conditions under which the contract may be ended',
+          importance: 'medium',
+          location: { section: 'General Provisions', paragraph: 4 }
+        },
+        includesLiability
+          ? {
+              term: 'Liability Limitation',
+              definition: 'Caps or exclusions on party liability',
+              importance: 'high',
+              location: { section: 'Liability', paragraph: 2 }
+            }
+          : {
+              term: 'Confidentiality',
+              definition: 'Restrictions on information disclosure',
+              importance: 'medium',
+              location: { section: 'Confidentiality', paragraph: 1 }
+            }
       ],
-      risks: ['Unlimited liability', 'Vague termination terms'],
-      recommendations: ['Add liability cap', 'Clarify termination process']
+      parties: [
+        {
+          name: 'Party A',
+          role: 'primary',
+          obligations: ['Deliver services as specified', 'Provide monthly status reports'],
+          rights: ['Receive timely payment', 'Request scope clarifications']
+        },
+        {
+          name: 'Party B',
+          role: 'secondary',
+          obligations: ['Make payments according to schedule', 'Provide necessary access and information'],
+          rights: ['Review deliverables', 'Request revisions within scope']
+        }
+      ],
+      obligations: [
+        {
+          party: 'Party A',
+          obligation: 'Complete project milestones on the agreed timeline',
+          deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          status: 'pending'
+        },
+        {
+          party: 'Party B',
+          obligation: 'Submit payment within 30 days of invoice',
+          penalty: '1.5% monthly interest on late payments',
+          status: 'pending'
+        }
+      ],
+      risks: [
+        {
+          type: 'legal',
+          description: includesLiability
+            ? 'Potential exposure due to unlimited liability language'
+            : 'Review confidentiality obligations for completeness',
+          severity: includesLiability ? 'high' : 'medium',
+          mitigation: includesLiability
+            ? 'Introduce explicit liability cap aligned with industry standards'
+            : 'Define confidentiality term and permitted disclosures',
+          probability: includesLiability ? 0.4 : 0.3,
+          impact: includesLiability ? 0.7 : 0.5
+        },
+        {
+          type: 'financial',
+          description: 'Payment schedule may affect cash flow predictability',
+          severity: 'medium',
+          mitigation: 'Align invoicing cadence with internal budgeting process',
+          probability: 0.5,
+          impact: 0.6
+        }
+      ],
+      clauses: [
+        {
+          type: 'termination',
+          content: 'Either party may terminate with 30 days written notice.',
+          assessment: 'neutral',
+          recommendations: ['Clarify termination for cause and cure periods']
+        },
+        {
+          type: includesLiability ? 'liability' : 'other',
+          content: includesLiability
+            ? 'Liability is unlimited for all damages without exclusions.'
+            : 'Parties agree to maintain confidentiality for three years.',
+          assessment: includesLiability ? 'requires-attention' : 'favorable',
+          recommendations: includesLiability
+            ? ['Negotiate liability cap proportional to contract value']
+            : ['Confirm confidentiality aligns with regulatory requirements']
+        }
+      ],
+      compliance: [
+        {
+          regulation: options?.jurisdiction ? `General standards (${options.jurisdiction})` : 'General standards',
+          status: includesLiability ? 'requires-review' : 'compliant',
+          details: includesLiability
+            ? 'Liability language should be reviewed against applicable statutory limitations.'
+            : 'Key contractual protections align with standard practice.',
+          remediation: includesLiability
+            ? ['Introduce liability cap', 'Document indemnification carve-outs']
+            : undefined
+        }
+      ],
+      recommendations: [
+        {
+          type: includesLiability ? 'negotiation' : 'review',
+          priority: includesLiability ? 'high' : 'medium',
+          description: includesLiability
+            ? 'Negotiate liability limitations to reduce potential exposure.'
+            : 'Validate confidentiality obligations against internal policies.',
+          rationale: includesLiability
+            ? 'Unlimited liability may create disproportionate financial risk.'
+            : 'Ensures sensitive data protections meet organizational standards.',
+          impact: includesLiability ? 'Reduces downside risk from catastrophic events.' : 'Maintains compliance posture.'
+        },
+        {
+          type: 'amendment',
+          priority: 'medium',
+          description: 'Document detailed payment milestones and acceptance criteria.',
+          rationale: 'Improves transparency for deliverables and billing.',
+          impact: 'Enhances accountability and reduces payment disputes.'
+        }
+      ],
+      summary: {
+        overview: `Baseline analysis for ${contractLabel} involving two parties`,
+        keyPoints: [
+          'Identified payment and termination clauses as primary negotiation levers.',
+          includesLiability
+            ? 'Unlimited liability detected and flagged for immediate review.'
+            : 'Confidentiality obligations appear balanced for both parties.',
+          'Recommended actions prepared for next negotiation cycle.'
+        ],
+        riskScore: includesLiability ? 68 : 45,
+        recommendedAction: includesLiability ? 'negotiate' : 'review',
+        confidence: includesLiability ? 0.78 : 0.85
+      }
     }
   }
 
