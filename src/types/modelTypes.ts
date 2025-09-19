@@ -252,6 +252,8 @@ export interface MemoryStats {
   used: number
   percentage: number
   pressure: MemoryPressure
+  modelMemoryUsed?: number
+  timestamp?: Date
 }
 
 export interface LoadedModel {

@@ -5,12 +5,20 @@
 
 import {
   ModelConfig,
-  ModelConfiguration,
   ModelType,
   ModelPriority,
   ModelMetadata,
   ModelCapabilities
 } from '../types/modelTypes';
+
+export interface ModelConfiguration {
+  autoUnload: boolean;
+  memoryLimit: number;
+  priority: ModelPriority;
+  cacheEnabled: boolean;
+  streamingEnabled: boolean;
+  timeout: number;
+}
 
 export interface ModelConfigTemplate {
   id: string;

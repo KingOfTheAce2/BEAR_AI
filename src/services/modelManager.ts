@@ -14,6 +14,7 @@ import {
   ModelManagerConfig,
   ModelManagerStats,
   ModelStatus,
+  ModelStatusType,
   ModelError,
   ModelErrorCode,
   ModelEvent,
@@ -30,7 +31,7 @@ import { EventEmitter } from 'events';
 import LocalModelStorage from '../utils/localModelStorage';
 import ModelCapabilitiesDetector from '../utils/modelCapabilitiesDetector';
 import LocalInferenceOptimizer from '../utils/localInferenceOptimizer';
-import OfflinePerformanceMonitor from '../utils/offlinePerformanceMonitor';
+import OfflinePerformanceMonitor, { PerformanceRecommendation } from '../utils/offlinePerformanceMonitor';
 import LocalConfigManager from '../utils/localConfigManager';
 
 export class CoreModelManager extends EventEmitter implements ModelManager {
@@ -1004,7 +1005,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
     performance: any;
     capabilities: any;
     configuration: any;
-    recommendations: string[];
+    recommendations: PerformanceRecommendation[];
   } {
     if (modelId) {
       const profile = this.capabilitiesDetector.getProfile(modelId);
@@ -1092,7 +1093,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
   public async optimizeSystem(): Promise<{
     optimizations: string[];
     improvements: Record<string, number>;
-    recommendations: string[];
+    recommendations: PerformanceRecommendation[];
   }> {
     const optimizations: string[] = [];
     const improvements: Record<string, number> = {};
@@ -1148,13 +1149,13 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
 }
 
 // Additional interfaces for enhanced functionality
-export interface ModelPerformanceMetrics {
-  modelId: string;
-  modelName: string;
-  status: keyof typeof ModelStatus;
-  memoryUsage: number;
-  inferenceCount: number;
-  averageResponseTime: number;
+  export interface ModelPerformanceMetrics {
+    modelId: string;
+    modelName: string;
+    status: ModelStatusType;
+    memoryUsage: number;
+    inferenceCount: number;
+    averageResponseTime: number;
   loadTime: number;
   lastUsed: Date;
   errorCount: number;

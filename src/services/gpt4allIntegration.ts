@@ -237,29 +237,30 @@ export class GPT4ALLFactory {
         }
       ];
 
-      for (const mockModel of mockModels) {
-        const config: ModelConfig = {
-          id: this.generateModelId(mockModel.filename),
-          name: mockModel.name,
-          type: ModelType.GPT4ALL,
-          path: `${directory}/${mockModel.filename}`,
-          size: mockModel.size,
-          description: mockModel.description,
-          version: '1.0.0',
-          supportedFormats: ['text'],
-          capabilities: ['text-generation', 'conversation'],
-          parameters: {
-            contextLength: 2048,
-            temperature: 0.7,
-            topP: 0.9,
-            topK: 40
-          },
-          metadata: {
-            filename: mockModel.filename,
-            modelType: mockModel.type,
-            discovered: new Date()
-          }
-        };
+        for (const mockModel of mockModels) {
+          const config: ModelConfig = {
+            id: this.generateModelId(mockModel.filename),
+            name: mockModel.name,
+            type: ModelType.GPT4ALL,
+            path: `${directory}/${mockModel.filename}`,
+            size: mockModel.size,
+            description: mockModel.description,
+            version: '1.0.0',
+            supportedFormats: ['text'],
+            capabilities: ['text-generation', 'conversation'],
+            parameters: 7_000_000_000,
+            metadata: {
+              filename: mockModel.filename,
+              modelType: mockModel.type,
+              discovered: new Date(),
+              generationDefaults: {
+                contextLength: 2048,
+                temperature: 0.7,
+                topP: 0.9,
+                topK: 40
+              }
+            }
+          };
 
         models.push(config);
       }

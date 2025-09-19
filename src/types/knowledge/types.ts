@@ -41,6 +41,8 @@ export interface DocumentMetadata {
   difficulty?: 'easy' | 'medium' | 'hard';
   quality?: number;
   relevance?: number;
+  entityMentions?: string[];
+  concepts?: string[];
 }
 
 export interface ChunkMetadata {
