@@ -517,8 +517,10 @@ export interface LegalSearchResult {
 export interface LegalComponentProps extends ComponentProps {
   user?: {
     id: string;
+    name?: string;
     role: 'attorney' | 'paralegal' | 'admin';
     permissions: string[];
+    firm?: string;
   };
   matter?: string;
   client?: string;
