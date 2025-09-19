@@ -580,7 +580,9 @@ export const HuggingFaceModelSelector: React.FC<HuggingFaceModelSelectorProps> =
         result.sort((a, b) => b.likes - a.likes);
         break;
       case ModelSortOption.LAST_MODIFIED:
-        result.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
+        result.sort(
+          (a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+        );
         break;
       case ModelSortOption.MODEL_SIZE:
         result.sort((a, b) => a.resourceRequirements.modelSizeMB - b.resourceRequirements.modelSizeMB);

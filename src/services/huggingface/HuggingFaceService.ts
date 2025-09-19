@@ -167,7 +167,8 @@ export class HuggingFaceService {
         total: totalBytesEstimate,
         totalBytes: totalBytesEstimate,
         speed: 0,
-        eta: 0
+        eta: 0,
+        files: []
       };
 
       if (onProgress) onProgress(progress);
