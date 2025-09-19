@@ -3,8 +3,7 @@
  * Handles offline file operations and synchronization
  */
 
-import { LocalFile } from './localFileSystem';
-import { StoredDocument, localStorageService } from './localStorage';
+import { StoredDocument, localStorageService, StorageStats } from './localStorage';
 import { fileMetadataService, ExtendedFileMetadata } from './fileMetadata';
 
 export interface SyncOperation {
@@ -41,11 +40,107 @@ export class OfflineSyncService {
   private syncInProgress: boolean = false;
   private lastSync: Date | null = null;
   private listeners: Array<(status: SyncStatus) => void> = [];
+  private readonly storageKey = 'bearai_sync_queue';
+  private readonly lastSyncKey = 'bearai_sync_last_sync';
+  private syncIntervalId: number | null = null;
 
   constructor() {
     this.setupOnlineStatusListeners();
     this.loadQueueFromStorage();
     this.startPeriodicSync();
+  }
+
+  /**
+   * Subscribe to synchronization status changes
+   */
+  onStatusChange(listener: (status: SyncStatus) => void): () => void {
+    this.listeners.push(listener);
+
+    try {
+      listener(this.getSyncStatus());
+    } catch (error) {
+      console.error('Sync status listener error:', error);
+    }
+
+    return () => {
+      this.listeners = this.listeners.filter(existing => existing !== listener);
+    };
+  }
+
+  /**
+   * Get current synchronization status
+   */
+  getSyncStatus(): SyncStatus {
+    const pendingOperations = this.syncQueue.filter(op => op.status === 'pending').length;
+    const failedOperations = this.syncQueue.filter(op => op.status === 'failed').length;
+
+    return {
+      isOnline: this.isOnline,
+      lastSync: this.lastSync,
+      pendingOperations,
+      failedOperations,
+      syncInProgress: this.syncInProgress
+    };
+  }
+
+  /**
+   * Trigger synchronization immediately
+   */
+  async forceSync(): Promise<void> {
+    if (!this.isOnline) {
+      throw new Error('Cannot synchronize while offline');
+    }
+
+    await this.processSyncQueue();
+  }
+
+  /**
+   * Clear failed synchronization operations
+   */
+  async clearFailedOperations(): Promise<void> {
+    const hadFailures = this.syncQueue.some(op => op.status === 'failed');
+    if (!hadFailures) {
+      return;
+    }
+
+    this.syncQueue = this.syncQueue.filter(op => op.status !== 'failed');
+    await this.saveQueueToStorage();
+    this.notifyStatusChange();
+  }
+
+  /**
+   * Export synchronization data and related storage information
+   */
+  async exportData(): Promise<{
+    exportedAt: string;
+    lastSync: string | null;
+    syncQueue: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }>;
+    storage: StorageStats;
+    documents: StoredDocument[];
+    metadata: ExtendedFileMetadata[];
+  }> {
+    const [documents, metadata, storage] = await Promise.all([
+      localStorageService.getAllDocuments(),
+      fileMetadataService.exportMetadata(),
+      localStorageService.getStorageStats()
+    ]);
+
+    const serializedQueue = this.syncQueue.map(operation => ({
+      ...operation,
+      timestamp:
+        operation.timestamp instanceof Date
+          ? operation.timestamp.toISOString()
+          : new Date(operation.timestamp).toISOString()
+    }));
+
+    return {
+      exportedAt: new Date().toISOString(),
+      lastSync: this.lastSync ? this.lastSync.toISOString() : null,
+      syncQueue: serializedQueue,
+      storage,
+      documents,
+      metadata
+    };
   }
 
   /**
@@ -355,11 +450,125 @@ export class OfflineSyncService {
   }
 
   /**
+   * Load synchronization queue and metadata state from storage
+   */
+  private loadQueueFromStorage(): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+
+    try {
+      const storedQueue = window.localStorage.getItem(this.storageKey);
+      if (storedQueue) {
+        const parsed: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }> = JSON.parse(storedQueue);
+        this.syncQueue = parsed.map(operation => ({
+          ...operation,
+          timestamp: new Date(operation.timestamp)
+        }));
+      }
+
+      const storedLastSync = window.localStorage.getItem(this.lastSyncKey);
+      if (storedLastSync) {
+        this.lastSync = new Date(storedLastSync);
+      }
+    } catch (error) {
+      console.error('Failed to load sync queue from storage:', error);
+      this.syncQueue = [];
+    }
+  }
+
+  /**
+   * Persist synchronization queue to storage
+   */
+  private async saveQueueToStorage(): Promise<void> {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+
+    try {
+      const serializedQueue = JSON.stringify(
+        this.syncQueue.map(operation => ({
+          ...operation,
+          timestamp:
+            operation.timestamp instanceof Date
+              ? operation.timestamp.toISOString()
+              : new Date(operation.timestamp).toISOString()
+        }))
+      );
+
+      window.localStorage.setItem(this.storageKey, serializedQueue);
+
+      if (this.lastSync) {
+        window.localStorage.setItem(this.lastSyncKey, this.lastSync.toISOString());
+      } else {
+        window.localStorage.removeItem(this.lastSyncKey);
+      }
+    } catch (error) {
+      console.error('Failed to save sync queue to storage:', error);
+    }
+  }
+
+  /**
+   * Start periodic synchronization processing
+   */
+  private startPeriodicSync(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (this.syncIntervalId) {
+      window.clearInterval(this.syncIntervalId);
+    }
+
+    this.syncIntervalId = window.setInterval(() => {
+      const hasPending = this.syncQueue.some(op => op.status === 'pending');
+      if (this.isOnline && hasPending && !this.syncInProgress) {
+        this.processSyncQueue();
+      }
+    }, 30000);
+  }
+
+  /**
+   * Generate a unique identifier for sync operations
+   */
+  private generateOperationId(): string {
+    return `sync-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  /**
+   * Calculate retry delay using exponential backoff
+   */
+  private getRetryDelay(retryCount: number): number {
+    const baseDelay = 1000;
+    const maxDelay = 30000;
+    return Math.min(maxDelay, baseDelay * Math.pow(2, retryCount));
+  }
+
+  /**
+   * Notify registered listeners about status changes
+   */
+  private notifyStatusChange(): void {
+    const status = this.getSyncStatus();
+
+    for (const listener of this.listeners) {
+      try {
+        listener(status);
+      } catch (error) {
+        console.error('Sync status listener error:', error);
+      }
+    }
+  }
+
+  /**
    * Remove listeners and reset internal observers
    */
   dispose(): void {
     window.removeEventListener('online', this.handleOnlineStatusChange);
     window.removeEventListener('offline', this.handleOfflineStatusChange);
+    if (this.syncIntervalId) {
+      window.clearInterval(this.syncIntervalId);
+      this.syncIntervalId = null;
+    }
     this.listeners = [];
   }
 
