@@ -1,39 +1,78 @@
 /**
- * Local Storage Service using IndexedDB
- * Provides offline storage for documents and metadata
+ * Local Storage Service for BEAR AI
+ * Handles local document storage using IndexedDB
  */
 
-import { LocalFile } from './localFileSystem';
-import { ParsedDocument } from './documentParser';
-
-export interface StoredDocument extends ParsedDocument {
-  fileInfo: LocalFile;
-  indexed: boolean;
-  tags: string[];
-  lastAccessed: Date;
-  searchableContent: string;
+export interface DocumentMetadata {
+  pages?: number;
+  wordCount: number;
+  characters: number;
+  author?: string;
+  createdDate?: Date;
+  modifiedDate?: Date;
+  format: string;
+  // Sync-related metadata
+  synced?: boolean;
+  lastSynced?: Date;
+  remoteModified?: Date;
+  localModified?: Date;
+  version?: number;
+  checksum?: string;
+  conflicted?: boolean;
+  merged?: boolean;
+  mergedAt?: Date;
 }
 
-export interface DocumentIndex {
+export interface FileInfo {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+  lastModified: Date;
+  extension: string;
+}
+
+export interface StoredDocument {
   id: string;
-  terms: string[];
-  frequency: Record<string, number>;
-  lastIndexed: Date;
+  title: string;
+  content: string;
+  summary?: string;
+  fileInfo: FileInfo;
+  metadata: DocumentMetadata;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  version: number;
 }
 
-export class LocalStorageService {
-  private dbName = 'BearAI_LocalDocuments';
-  private dbVersion = 1;
+export interface StorageStats {
+  totalDocuments: number;
+  totalSize: number;
+  lastUpdated: Date;
+  syncedDocuments: number;
+  unsyncedDocuments: number;
+}
+
+class LocalStorageService {
+  private dbName = 'bearai_documents';
+  private version = 1;
   private db: IDBDatabase | null = null;
+
+  constructor() {
+    this.initDB();
+  }
 
   /**
    * Initialize IndexedDB
    */
-  async initialize(): Promise<void> {
+  private async initDB(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.dbVersion);
+      const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        reject(new Error('Failed to open IndexedDB'));
+      };
+
       request.onsuccess = () => {
         this.db = request.result;
         resolve();
@@ -41,87 +80,163 @@ export class LocalStorageService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-
-        // Documents store
+        
+        // Create documents store
         if (!db.objectStoreNames.contains('documents')) {
-          const documentsStore = db.createObjectStore('documents', { keyPath: 'id' });
-          documentsStore.createIndex('title', 'title', { unique: false });
-          documentsStore.createIndex('format', 'metadata.format', { unique: false });
-          documentsStore.createIndex('lastAccessed', 'lastAccessed', { unique: false });
-          documentsStore.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+          const store = db.createObjectStore('documents', { keyPath: 'id' });
+          store.createIndex('title', 'title', { unique: false });
+          store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+          store.createIndex('createdAt', 'createdAt', { unique: false });
+          store.createIndex('updatedAt', 'updatedAt', { unique: false });
+          store.createIndex('synced', 'metadata.synced', { unique: false });
         }
 
-        // Search index store
-        if (!db.objectStoreNames.contains('searchIndex')) {
-          const indexStore = db.createObjectStore('searchIndex', { keyPath: 'id' });
-          indexStore.createIndex('terms', 'terms', { unique: false, multiEntry: true });
-        }
-
-        // File metadata store
-        if (!db.objectStoreNames.contains('fileMetadata')) {
-          const metadataStore = db.createObjectStore('fileMetadata', { keyPath: 'id' });
-          metadataStore.createIndex('name', 'name', { unique: false });
-          metadataStore.createIndex('path', 'path', { unique: false });
-          metadataStore.createIndex('lastModified', 'lastModified', { unique: false });
-        }
-
-        // Settings store
-        if (!db.objectStoreNames.contains('settings')) {
-          db.createObjectStore('settings', { keyPath: 'key' });
+        // Create metadata store
+        if (!db.objectStoreNames.contains('metadata')) {
+          const metaStore = db.createObjectStore('metadata', { keyPath: 'id' });
+          metaStore.createIndex('documentId', 'documentId', { unique: true });
         }
       };
     });
   }
 
   /**
-   * Store document
+   * Ensure database is ready
    */
-  async storeDocument(document: ParsedDocument, fileInfo: LocalFile, tags: string[] = []): Promise<void> {
-    if (!this.db) await this.initialize();
+  private async ensureDB(): Promise<IDBDatabase> {
+    if (!this.db) {
+      await this.initDB();
+    }
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
+    return this.db;
+  }
+
+  /**
+   * Store a document
+   */
+  async storeDocument(document: Omit<StoredDocument, 'createdAt' | 'updatedAt' | 'version'>, fileInfo: FileInfo, tags: string[]): Promise<StoredDocument> {
+    const db = await this.ensureDB();
+    const now = new Date();
 
     const storedDoc: StoredDocument = {
       ...document,
       fileInfo,
-      indexed: false,
       tags,
-      lastAccessed: new Date(),
-      searchableContent: this.createSearchableContent(document)
+      createdAt: now,
+      updatedAt: now,
+      version: 1,
+      metadata: {
+        ...document.metadata,
+        localModified: now
+      }
     };
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents'], 'readwrite');
+      const transaction = db.transaction(['documents'], 'readwrite');
       const store = transaction.objectStore('documents');
-      const request = store.put(storedDoc);
-
-      request.onerror = () => reject(request.error);
+      
+      const request = store.add(storedDoc);
+      
       request.onsuccess = () => {
-        // Also store file metadata separately
-        this.storeFileMetadata(fileInfo);
-        resolve();
+        resolve(storedDoc);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to store document'));
       };
     });
   }
 
   /**
-   * Get document by ID
+   * Get a document by ID
    */
   async getDocument(id: string): Promise<StoredDocument | null> {
-    if (!this.db) await this.initialize();
+    const db = await this.ensureDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents'], 'readonly');
+      const transaction = db.transaction(['documents'], 'readonly');
       const store = transaction.objectStore('documents');
+      
       const request = store.get(id);
-
-      request.onerror = () => reject(request.error);
+      
       request.onsuccess = () => {
-        const document = request.result;
-        if (document) {
-          // Update last accessed
-          document.lastAccessed = new Date();
-          this.updateDocument(document);
+        const result = request.result;
+        if (result) {
+          // Convert date strings back to Date objects
+          result.createdAt = new Date(result.createdAt);
+          result.updatedAt = new Date(result.updatedAt);
+          if (result.metadata.createdDate) {
+            result.metadata.createdDate = new Date(result.metadata.createdDate);
+          }
+          if (result.metadata.modifiedDate) {
+            result.metadata.modifiedDate = new Date(result.metadata.modifiedDate);
+          }
+          if (result.metadata.lastSynced) {
+            result.metadata.lastSynced = new Date(result.metadata.lastSynced);
+          }
         }
-        resolve(document || null);
+        resolve(result || null);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to get document'));
+      };
+    });
+  }
+
+  /**
+   * Update a document
+   */
+  async updateDocument(document: StoredDocument): Promise<StoredDocument> {
+    const db = await this.ensureDB();
+    const now = new Date();
+
+    const updatedDoc: StoredDocument = {
+      ...document,
+      updatedAt: now,
+      version: document.version + 1,
+      metadata: {
+        ...document.metadata,
+        localModified: now
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['documents'], 'readwrite');
+      const store = transaction.objectStore('documents');
+      
+      const request = store.put(updatedDoc);
+      
+      request.onsuccess = () => {
+        resolve(updatedDoc);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to update document'));
+      };
+    });
+  }
+
+  /**
+   * Delete a document
+   */
+  async deleteDocument(id: string): Promise<boolean> {
+    const db = await this.ensureDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['documents'], 'readwrite');
+      const store = transaction.objectStore('documents');
+      
+      const request = store.delete(id);
+      
+      request.onsuccess = () => {
+        resolve(true);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to delete document'));
       };
     });
   }
@@ -130,274 +245,233 @@ export class LocalStorageService {
    * Get all documents
    */
   async getAllDocuments(): Promise<StoredDocument[]> {
-    if (!this.db) await this.initialize();
+    const db = await this.ensureDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents'], 'readonly');
+      const transaction = db.transaction(['documents'], 'readonly');
       const store = transaction.objectStore('documents');
+      
       const request = store.getAll();
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-    });
-  }
-
-  /**
-   * Search documents
-   */
-  async searchDocuments(query: string, filters?: {
-    format?: string;
-    tags?: string[];
-    dateRange?: { start: Date; end: Date };
-  }): Promise<StoredDocument[]> {
-    const allDocs = await this.getAllDocuments();
-    const searchTerms = query.toLowerCase().split(/\s+/).filter(term => term.length > 0);
-
-    return allDocs.filter(doc => {
-      // Text matching
-      const textMatch = searchTerms.every(term =>
-        doc.searchableContent.toLowerCase().includes(term) ||
-        doc.title.toLowerCase().includes(term)
-      );
-
-      if (!textMatch) return false;
-
-      // Format filter
-      if (filters?.format && doc.metadata.format !== filters.format) {
-        return false;
-      }
-
-      // Tags filter
-      if (filters?.tags && filters.tags.length > 0) {
-        const hasRequiredTag = filters.tags.some(tag => doc.tags.includes(tag));
-        if (!hasRequiredTag) return false;
-      }
-
-      // Date range filter
-      if (filters?.dateRange) {
-        const docDate = doc.metadata.modifiedDate || doc.metadata.createdDate;
-        if (docDate) {
-          const date = new Date(docDate);
-          if (date < filters.dateRange.start || date > filters.dateRange.end) {
-            return false;
+      
+      request.onsuccess = () => {
+        const results = request.result;
+        // Convert date strings back to Date objects
+        results.forEach(doc => {
+          doc.createdAt = new Date(doc.createdAt);
+          doc.updatedAt = new Date(doc.updatedAt);
+          if (doc.metadata.createdDate) {
+            doc.metadata.createdDate = new Date(doc.metadata.createdDate);
           }
-        }
-      }
-
-      return true;
-    }).sort((a, b) => {
-      // Sort by relevance (simple scoring based on search terms in title)
-      const aScore = searchTerms.reduce((score, term) => {
-        return score + (a.title.toLowerCase().includes(term) ? 2 : 0) +
-               (a.searchableContent.toLowerCase().includes(term) ? 1 : 0);
-      }, 0);
-
-      const bScore = searchTerms.reduce((score, term) => {
-        return score + (b.title.toLowerCase().includes(term) ? 2 : 0) +
-               (b.searchableContent.toLowerCase().includes(term) ? 1 : 0);
-      }, 0);
-
-      return bScore - aScore;
+          if (doc.metadata.modifiedDate) {
+            doc.metadata.modifiedDate = new Date(doc.metadata.modifiedDate);
+          }
+          if (doc.metadata.lastSynced) {
+            doc.metadata.lastSynced = new Date(doc.metadata.lastSynced);
+          }
+        });
+        resolve(results);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to get all documents'));
+      };
     });
   }
 
   /**
-   * Update document
+   * Search documents by title or content
    */
-  async updateDocument(document: StoredDocument): Promise<void> {
-    if (!this.db) await this.initialize();
+  async searchDocuments(query: string): Promise<StoredDocument[]> {
+    const allDocs = await this.getAllDocuments();
+    const lowercaseQuery = query.toLowerCase();
+
+    return allDocs.filter(doc => 
+      doc.title.toLowerCase().includes(lowercaseQuery) ||
+      doc.content.toLowerCase().includes(lowercaseQuery) ||
+      doc.summary?.toLowerCase().includes(lowercaseQuery) ||
+      doc.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
+    );
+  }
+
+  /**
+   * Get documents by tag
+   */
+  async getDocumentsByTag(tag: string): Promise<StoredDocument[]> {
+    const db = await this.ensureDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents'], 'readwrite');
+      const transaction = db.transaction(['documents'], 'readonly');
       const store = transaction.objectStore('documents');
-      const request = store.put(document);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
-    });
-  }
-
-  /**
-   * Delete document
-   */
-  async deleteDocument(id: string): Promise<void> {
-    if (!this.db) await this.initialize();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents', 'searchIndex'], 'readwrite');
+      const index = store.index('tags');
       
-      // Delete from documents
-      const docStore = transaction.objectStore('documents');
-      const docRequest = docStore.delete(id);
-
-      // Delete from search index
-      const indexStore = transaction.objectStore('searchIndex');
-      const indexRequest = indexStore.delete(id);
-
-      transaction.onerror = () => reject(transaction.error);
-      transaction.oncomplete = () => resolve();
-    });
-  }
-
-  /**
-   * Store file metadata
-   */
-  private async storeFileMetadata(fileInfo: LocalFile): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['fileMetadata'], 'readwrite');
-      const store = transaction.objectStore('fileMetadata');
-      const request = store.put(fileInfo);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
-    });
-  }
-
-  /**
-   * Create searchable content from document
-   */
-  private createSearchableContent(document: ParsedDocument): string {
-    let content = document.title + ' ' + document.content;
-    
-    if (document.sections) {
-      content += ' ' + document.sections.map(s => s.title + ' ' + s.content).join(' ');
-    }
-
-    if (document.metadata.author) {
-      content += ' ' + document.metadata.author;
-    }
-
-    return content;
-  }
-
-  /**
-   * Build search index for document
-   */
-  async buildSearchIndex(document: StoredDocument): Promise<void> {
-    if (!this.db) await this.initialize();
-
-    const terms = this.extractSearchTerms(document.searchableContent);
-    const frequency = this.calculateTermFrequency(terms);
-
-    const index: DocumentIndex = {
-      id: document.id,
-      terms: Array.from(new Set(terms)),
-      frequency,
-      lastIndexed: new Date()
-    };
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['searchIndex', 'documents'], 'readwrite');
+      const request = index.getAll(tag);
       
-      // Store search index
-      const indexStore = transaction.objectStore('searchIndex');
-      const indexRequest = indexStore.put(index);
-
-      // Mark document as indexed
-      document.indexed = true;
-      const docStore = transaction.objectStore('documents');
-      const docRequest = docStore.put(document);
-
-      transaction.onerror = () => reject(transaction.error);
-      transaction.oncomplete = () => resolve();
+      request.onsuccess = () => {
+        const results = request.result;
+        // Convert date strings back to Date objects
+        results.forEach(doc => {
+          doc.createdAt = new Date(doc.createdAt);
+          doc.updatedAt = new Date(doc.updatedAt);
+        });
+        resolve(results);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to get documents by tag'));
+      };
     });
   }
 
   /**
-   * Extract search terms from text
+   * Get unsynced documents
    */
-  private extractSearchTerms(text: string): string[] {
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .split(/\s+/)
-      .filter(term => term.length > 2)
-      .filter(term => !this.isStopWord(term));
+  async getUnsyncedDocuments(): Promise<StoredDocument[]> {
+    const allDocs = await this.getAllDocuments();
+    return allDocs.filter(doc => !doc.metadata.synced);
   }
 
   /**
-   * Calculate term frequency
+   * Get storage statistics
    */
-  private calculateTermFrequency(terms: string[]): Record<string, number> {
-    const frequency: Record<string, number> = {};
-    
-    for (const term of terms) {
-      frequency[term] = (frequency[term] || 0) + 1;
-    }
+  async getStorageStats(): Promise<StorageStats> {
+    const allDocs = await this.getAllDocuments();
+    const totalSize = allDocs.reduce((sum, doc) => sum + doc.content.length, 0);
+    const syncedCount = allDocs.filter(doc => doc.metadata.synced).length;
 
-    return frequency;
-  }
-
-  /**
-   * Check if word is a stop word
-   */
-  private isStopWord(word: string): boolean {
-    const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-      'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have',
-      'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
-      'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they'
-    ]);
-
-    return stopWords.has(word);
-  }
-
-  /**
-   * Get storage usage statistics
-   */
-  async getStorageStats(): Promise<{
-    documentsCount: number;
-    totalSize: number;
-    formats: Record<string, number>;
-    oldestDocument: Date | null;
-    newestDocument: Date | null;
-  }> {
-    const documents = await this.getAllDocuments();
-    
-    const stats = {
-      documentsCount: documents.length,
-      totalSize: documents.reduce((total, doc) => total + doc.fileInfo.size, 0),
-      formats: {} as Record<string, number>,
-      oldestDocument: null as Date | null,
-      newestDocument: null as Date | null
+    return {
+      totalDocuments: allDocs.length,
+      totalSize,
+      lastUpdated: new Date(),
+      syncedDocuments: syncedCount,
+      unsyncedDocuments: allDocs.length - syncedCount
     };
-
-    for (const doc of documents) {
-      const format = doc.metadata.format;
-      stats.formats[format] = (stats.formats[format] || 0) + 1;
-
-      const date = doc.metadata.modifiedDate || doc.metadata.createdDate;
-      if (date) {
-        const docDate = new Date(date);
-        if (!stats.oldestDocument || docDate < stats.oldestDocument) {
-          stats.oldestDocument = docDate;
-        }
-        if (!stats.newestDocument || docDate > stats.newestDocument) {
-          stats.newestDocument = docDate;
-        }
-      }
-    }
-
-    return stats;
   }
 
   /**
-   * Clear all stored data
+   * Clear all documents
    */
   async clearAll(): Promise<void> {
-    if (!this.db) await this.initialize();
+    const db = await this.ensureDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['documents', 'searchIndex', 'fileMetadata'], 'readwrite');
+      const transaction = db.transaction(['documents'], 'readwrite');
+      const store = transaction.objectStore('documents');
       
-      transaction.objectStore('documents').clear();
-      transaction.objectStore('searchIndex').clear();
-      transaction.objectStore('fileMetadata').clear();
-
-      transaction.onerror = () => reject(transaction.error);
-      transaction.oncomplete = () => resolve();
+      const request = store.clear();
+      
+      request.onsuccess = () => {
+        resolve();
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to clear all documents'));
+      };
     });
+  }
+
+  /**
+   * Export all data
+   */
+  async exportData(): Promise<{
+    documents: StoredDocument[];
+    metadata: any;
+    exportDate: Date;
+  }> {
+    const documents = await this.getAllDocuments();
+    const stats = await this.getStorageStats();
+
+    return {
+      documents,
+      metadata: stats,
+      exportDate: new Date()
+    };
+  }
+
+  /**
+   * Import data
+   */
+  async importData(data: { documents: StoredDocument[] }): Promise<void> {
+    const db = await this.ensureDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['documents'], 'readwrite');
+      const store = transaction.objectStore('documents');
+      
+      let completed = 0;
+      const total = data.documents.length;
+
+      if (total === 0) {
+        resolve();
+        return;
+      }
+
+      data.documents.forEach(doc => {
+        const request = store.put(doc);
+        
+        request.onsuccess = () => {
+          completed++;
+          if (completed === total) {
+            resolve();
+          }
+        };
+        
+        request.onerror = () => {
+          reject(new Error('Failed to import document'));
+        };
+      });
+    });
+  }
+
+  /**
+   * Get document count
+   */
+  async getDocumentCount(): Promise<number> {
+    const db = await this.ensureDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['documents'], 'readonly');
+      const store = transaction.objectStore('documents');
+      
+      const request = store.count();
+      
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to get document count'));
+      };
+    });
+  }
+
+  /**
+   * Check if document exists
+   */
+  async documentExists(id: string): Promise<boolean> {
+    const doc = await this.getDocument(id);
+    return doc !== null;
+  }
+
+  /**
+   * Get documents with pagination
+   */
+  async getDocumentsPaginated(offset: number = 0, limit: number = 10): Promise<{
+    documents: StoredDocument[];
+    total: number;
+    hasMore: boolean;
+  }> {
+    const allDocs = await this.getAllDocuments();
+    const total = allDocs.length;
+    const documents = allDocs
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .slice(offset, offset + limit);
+
+    return {
+      documents,
+      total,
+      hasMore: offset + limit < total
+    };
   }
 }
 
-export const localStorageService = new LocalStorageService();
+export const localStorageService = new LocalStorageService()
