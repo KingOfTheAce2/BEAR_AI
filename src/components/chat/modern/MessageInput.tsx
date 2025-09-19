@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import type { KeyboardEvent } from 'react';
 import { Message } from '../../../types/chat';
 import './MessageInput.css';
 
@@ -158,7 +157,25 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowCommands(false);
   };
 
-  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
+  const insertCommand = (command: typeof commands[0]) => {
+    const lines = message.split('\n');
+    lines[lines.length - 1] = command.template;
+    setMessage(lines.join('\n'));
+    setShowCommands(false);
+
+    // Focus and position cursor
+    window.setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        const cursorPos = command.template.indexOf('\n\n');
+        if (cursorPos > -1) {
+          textareaRef.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
+        }
+      }
+    }, 0);
+  };
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey && !isMobile) {
       event.preventDefault();
 
@@ -206,24 +223,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
     onStopTyping,
     showCommands
   ]);
-
-  const insertCommand = (command: typeof commands[0]) => {
-    const lines = message.split('\n');
-    lines[lines.length - 1] = command.template;
-    setMessage(lines.join('\n'));
-    setShowCommands(false);
-    
-    // Focus and position cursor
-    window.setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        const cursorPos = command.template.indexOf('\n\n');
-        if (cursorPos > -1) {
-          textareaRef.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
-        }
-      }
-    }, 0);
-  };
 
   const insertFormatting = (before: string, after: string) => {
     if (!textareaRef.current) return;
