@@ -1,5 +1,5 @@
 // Legal-specific TypeScript interfaces for BEAR AI
-import { ComponentProps } from '../index';
+import type { ComponentProps, User } from '../index';
 
 // Legal Document Types
 export interface LegalDocument {
@@ -515,11 +515,10 @@ export interface LegalSearchResult {
 
 // UI Component Props
 export interface LegalComponentProps extends ComponentProps {
-  user?: {
-    id: string;
-    role: 'attorney' | 'paralegal' | 'admin';
-    permissions: string[];
-  };
+  user?: Pick<User, 'id' | 'role'> &
+    Partial<Pick<User, 'name' | 'email' | 'avatar' | 'firm'>> & {
+      permissions: string[];
+    };
   matter?: string;
   client?: string;
   billingEnabled?: boolean;
