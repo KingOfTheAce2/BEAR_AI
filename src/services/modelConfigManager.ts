@@ -393,7 +393,8 @@ export class ModelConfigManager {
     }
 
     // Check priority
-    if (!Object.values(ModelPriority).includes(config.priority)) {
+    const validPriorities = new Set<number>(Object.values(ModelPriority) as number[]);
+    if (!validPriorities.has(config.priority)) {
       errors.push('Invalid priority value.');
     }
 

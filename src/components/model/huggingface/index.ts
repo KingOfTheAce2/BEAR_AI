@@ -8,27 +8,27 @@ export { default as HuggingFaceModelSelector } from './HuggingFaceModelSelector'
 export { default as FineTuningInterface } from './FineTuningInterface';
 
 // Services
-export { default as HuggingFaceService } from '../../../services/huggingface/HuggingFaceService';
-export { default as ModelSwitcher } from '../../../services/huggingface/ModelSwitcher';
-export { default as LocalModelManager } from '../../../services/huggingface/LocalModelManager';
+export { default as HuggingFaceService } from '@/services/huggingface/HuggingFaceService';
+export { default as ModelSwitcher } from '@/services/huggingface/ModelSwitcher';
+export { default as LocalModelManager } from '@/services/huggingface/LocalModelManager';
 
 // Utilities
-export { default as ModelBenchmarking } from '../../../utils/huggingface/ModelBenchmarking';
-export { default as CompatibilityValidator } from '../../../utils/huggingface/CompatibilityValidator';
-export { default as HuggingFaceErrorHandler } from '../../../utils/huggingface/ErrorHandler';
+export { default as ModelBenchmarking } from '@/utils/huggingface/ModelBenchmarking';
+export { default as CompatibilityValidator } from '@/utils/huggingface/CompatibilityValidator';
+export { default as HuggingFaceErrorHandler } from '@/utils/huggingface/ErrorHandler';
 
 // Types
-export * from '../../../types/huggingface';
-
-// Re-export for convenience
-export { LegalCategory } from '../../types/huggingface';
 export type {
   HuggingFaceModel,
   ModelSearchFilters,
   ModelRecommendation,
-  CompatibilityResult,
   FineTuningCapabilities,
   FineTuningConfig,
+  LegalCategory
+} from '@/types/huggingface/index';
+
+export type {
+  CompatibilityResult,
   ModelDownloadProgress,
   BenchmarkResult
-} from '../../types/huggingface';
+} from '@/types/huggingface';
