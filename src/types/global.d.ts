@@ -1149,6 +1149,7 @@ declare module '@heroicons/react/24/outline' {
   export const ArrowRightIcon: FC<IconProps>;
   export const ArrowUpIcon: FC<IconProps>;
   export const ArrowDownIcon: FC<IconProps>;
+  export const ArrowTopRightOnSquareIcon: FC<IconProps>;
   export const ArrowRightOnRectangleIcon: FC<IconProps>;
   export const PlusIcon: FC<IconProps>;
   export const MinusIcon: FC<IconProps>;
