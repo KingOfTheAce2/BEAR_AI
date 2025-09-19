@@ -16,7 +16,16 @@ export interface Message {
   agentId?: string;
   timestamp: Date;
   status: 'sending' | 'sent' | 'delivered' | 'error';
-  type: 'text' | 'document' | 'analysis' | 'citation' | 'code' | 'file' | 'image' | 'system';
+  type:
+    | 'text'
+    | 'document'
+    | 'analysis'
+    | 'citation'
+    | 'code'
+    | 'file'
+    | 'image'
+    | 'system'
+    | 'legal-query';
   metadata?: {
     confidence?: number;
     sources?: string[];

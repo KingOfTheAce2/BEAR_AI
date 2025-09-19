@@ -7,7 +7,7 @@ import { localChatHistoryService, ChatSession, ChatMessage } from './localChatHi
 import { encryptionService } from './encryption';
 
 // Re-export for easier imports
-export { ChatSession, ChatMessage } from './localChatHistory';
+export type { ChatSession, ChatMessage } from './localChatHistory';
 
 export interface SessionState {
   id: string;
@@ -43,8 +43,8 @@ export interface SessionBackup {
 export class ChatSessionService {
   private static instance: ChatSessionService;
   private sessionManager: SessionManager;
-  private autoSaveInterval: NodeJS.Timeout | null = null;
-  private syncInterval: NodeJS.Timeout | null = null;
+  private autoSaveInterval: ReturnType<typeof setInterval> | null = null;
+  private syncInterval: ReturnType<typeof setInterval> | null = null;
   private readonly AUTOSAVE_INTERVAL = 30000; // 30 seconds
   private readonly SYNC_INTERVAL = 60000; // 1 minute
   private readonly MAX_RETRY_COUNT = 3;
@@ -477,7 +477,7 @@ export class ChatSessionService {
   }
 
   private startAutoSave(): void {
-    if (this.autoSaveInterval) {
+    if (this.autoSaveInterval !== null) {
       clearInterval(this.autoSaveInterval);
     }
 
@@ -487,7 +487,7 @@ export class ChatSessionService {
   }
 
   private startOfflineSync(): void {
-    if (this.syncInterval) {
+    if (this.syncInterval !== null) {
       clearInterval(this.syncInterval);
     }
 

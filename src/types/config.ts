@@ -246,11 +246,13 @@ export interface ConfigImportResult {
 }
 
 // Event types for configuration changes
-export type ConfigEventType = 
+export type ConfigEventType =
   | 'config.loaded'
   | 'config.updated'
   | 'config.validated'
   | 'config.error'
+  | 'config.imported'
+  | 'config.reset'
   | 'preferences.updated'
   | 'feature.toggled'
   | 'hot.reload';

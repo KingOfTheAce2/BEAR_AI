@@ -399,17 +399,19 @@ export class LocalInferenceEngine extends EventEmitter {
 
   private async waitForQueueProcessing(request: BatchRequest): Promise<InferenceResult> {
     return new Promise((resolve, reject) => {
+      const context = this;
+
       const checkQueue = () => {
-        const queueIndex = this.inferenceQueue.findIndex(r => r.id === request.id);
+        const queueIndex = context.inferenceQueue.findIndex(r => r.id === request.id);
         if (queueIndex === -1) {
           // Request was processed
           return;
         }
 
-        if (this.activeInferences.size < this.config.maxConcurrentInferences) {
+        if (context.activeInferences.size < context.config.maxConcurrentInferences) {
           // Process the request
-          this.inferenceQueue.splice(queueIndex, 1);
-          this.executeInference(request).then(resolve).catch(reject);
+          context.inferenceQueue.splice(queueIndex, 1);
+          context.executeInference(request).then(resolve).catch(reject);
         } else {
           // Check again later
           setTimeout(checkQueue, 100);

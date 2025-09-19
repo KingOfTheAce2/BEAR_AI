@@ -45,17 +45,14 @@ export class LegalChatService {
       createdAt: new Date(),
       updatedAt: new Date(),
       tags: [practiceArea, jurisdiction],
-      category: 'legal',
-      practiceArea,
-      jurisdiction,
-      clientMatter: matter,
-      confidentialityLevel
+      category: 'legal'
     };
 
     const legalContext: LegalContext = {
       matter: matter || 'Untitled Matter',
       practiceArea,
       jurisdiction,
+      confidentialityLevel,
       relevantDocuments: [],
       keyIssues: [],
       timeline: [],
@@ -169,53 +166,35 @@ export class LegalChatService {
 
     try {
       // Start streaming from base service
-      const baseStream = streamingService.streamMessage(prompt, {
+      const baseResponse = await streamingService.streamMessage(prompt, {
+        stream: true,
         temperature: 0.3, // Lower temperature for legal precision
-        maxTokens: options.responseDepth === 'comprehensive' ? 2000 : 
+        maxTokens: options.responseDepth === 'comprehensive' ? 2000 :
                   options.responseDepth === 'detailed' ? 1000 : 500,
       });
 
-      for await (const chunk of baseStream) {
-        accumulatedContent += chunk;
-        
-        // Real-time legal analysis and enhancement
-        const analysis = await this.analyzeLegalContent(
-          accumulatedContent, 
-          context, 
-          options
-        );
+      accumulatedContent = baseResponse;
 
-        // Extract citations as they appear
-        if (options.enableCitations) {
-          const newCitations = await this.extractCitations(accumulatedContent);
-          citations = [...citations, ...newCitations];
-        }
+      // Perform analysis on the complete response
+      const interimAnalysis = await this.analyzeLegalContent(
+        accumulatedContent,
+        context,
+        options
+      );
 
-        // Extract case references
-        if (options.enableCaseSearch) {
-          const newCases = await this.extractCaseReferences(accumulatedContent);
-          cases = [...cases, ...newCases];
-        }
+      // Extract citations
+      if (options.enableCitations) {
+        citations = await this.extractCitations(accumulatedContent);
+      }
 
-        // Extract statute references
-        if (options.enableStatuteSearch) {
-          const newStatutes = await this.extractStatuteReferences(accumulatedContent);
-          statutes = [...statutes, ...newStatutes];
-        }
+      // Extract case references
+      if (options.enableCaseSearch) {
+        cases = await this.extractCaseReferences(accumulatedContent);
+      }
 
-        yield {
-          content: accumulatedContent,
-          citations: citations.length > 0 ? citations : undefined,
-          cases: cases.length > 0 ? cases : undefined,
-          statutes: statutes.length > 0 ? statutes : undefined,
-          isComplete: false,
-          metadata: {
-            confidence: analysis.confidence,
-            practiceArea: context.practiceArea,
-            jurisdiction: context.jurisdiction,
-            riskLevel: analysis.riskLevel
-          }
-        };
+      // Extract statute references
+      if (options.enableStatuteSearch) {
+        statutes = await this.extractStatuteReferences(accumulatedContent);
       }
 
       // Final processing
@@ -247,6 +226,7 @@ export class LegalChatService {
         isComplete: true,
         metadata: {
           ...finalAnalysis,
+          interimAnalysis,
           responseTime,
           wordCount: accumulatedContent.split(' ').length,
           readingTime: Math.ceil(accumulatedContent.split(' ').length / 200)

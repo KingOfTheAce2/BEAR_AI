@@ -11,7 +11,7 @@ export class ChatStreamingIntegration {
   ): Promise<StreamingMessage> {
     try {
       // Ensure connection
-      if (!this.streamingService.getConnectionState().status === 'connected') {
+      if (this.streamingService.getConnectionState().status !== 'connected') {
         await this.streamingService.connect();
       }
 
@@ -32,7 +32,8 @@ export class ChatStreamingIntegration {
         }
       };
     } catch (error) {
-      throw new Error(`Streaming failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Streaming failed: ${message}`);
     }
   }
 
