@@ -98,9 +98,9 @@ export class LicenseCrypto {
     encrypted += cipher.final('hex');
 
     const authTag = cipher.getAuthTag();
-    const authTagHex = authTag.toString('hex');
-    const ivHex = iv.toString('hex');
-    const saltHex = salt.toString('hex');
+    const authTagHex = Buffer.from(authTag).toString('hex');
+    const ivHex = Buffer.from(iv).toString('hex');
+    const saltHex = Buffer.from(salt).toString('hex');
 
     return {
       encrypted: encrypted + authTagHex,
@@ -138,10 +138,10 @@ export class LicenseCrypto {
    * Generate activation code
    */
   static generateActivationCode(): string {
-    const segments = [];
+    const segments: string[] = [];
     for (let i = 0; i < 4; i++) {
       const segmentBytes = crypto.randomBytes(2);
-      const segment = segmentBytes.toString('hex').toUpperCase();
+      const segment = Buffer.from(segmentBytes).toString('hex').toUpperCase();
       segments.push(segment);
     }
     return segments.join('-');
@@ -203,13 +203,13 @@ export class LicenseCrypto {
     ]);
 
     // Store key and IV with encrypted data in a way that's not immediately obvious
-    const combined: Buffer = Buffer.concat([
+    const combined = Buffer.concat([
       key,
       iv,
       encryptedBuffer
     ]);
 
-    return combined.toString('base64');
+    return Buffer.from(combined).toString('base64');
   }
 
   /**
@@ -223,7 +223,7 @@ export class LicenseCrypto {
       const encrypted = combined.slice(48);
 
       const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-      const decryptedBuffer: Buffer = Buffer.concat([
+      const decryptedBuffer = Buffer.concat([
         decipher.update(encrypted),
         decipher.final()
       ]);
