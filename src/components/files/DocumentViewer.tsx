@@ -3,7 +3,7 @@
  * Displays parsed documents with search and navigation capabilities
  */
 
-import type { FC, KeyboardEvent } from 'react';
+import type { FC, KeyboardEventHandler } from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { StoredDocument } from '../../services/localStorage';
 
@@ -56,7 +56,7 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
     onTagUpdate?.(document!.id, updatedTags);
   };
 
-  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress: KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (event.key === 'Enter') {
       handleAddTag();
     }
@@ -145,7 +145,7 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
         </div>
         <div className="info-row">
           <span className="info-label">Last Accessed:</span>
-          <span className="info-value">{formatDate(document.lastAccessed)}</span>
+          <span className="info-value">{formatDate(document.metadata.lastAccessed)}</span>
         </div>
         <div className="info-row">
           <span className="info-label">Path:</span>
