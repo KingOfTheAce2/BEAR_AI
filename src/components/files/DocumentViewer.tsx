@@ -26,6 +26,7 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
   const [newTag, setNewTag] = useState('');
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [localTags, setLocalTags] = useState<string[]>([]);
+  const documentSections = document?.metadata.sections ?? [];
 
   useEffect(() => {
     if (document) {
@@ -33,6 +34,12 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
       setActiveSection(0);
     }
   }, [document]);
+
+  useEffect(() => {
+    if (documentSections.length > 0 && activeSection >= documentSections.length) {
+      setActiveSection(0);
+    }
+  }, [documentSections.length, activeSection]);
 
   const highlightedContent = useMemo(() => {
     if (!document || !searchQuery) return document?.content || '';
@@ -92,6 +99,12 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
     );
   }
 
+  const hasSections = documentSections.length > 0;
+  const safeActiveSection = hasSections
+    ? Math.min(activeSection, documentSections.length - 1)
+    : 0;
+  const currentSection = hasSections ? documentSections[safeActiveSection] : undefined;
+
   return (
     <div className="document-viewer">
       <div className="document-header">
@@ -145,7 +158,7 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
         </div>
         <div className="info-row">
           <span className="info-label">Last Accessed:</span>
-          <span className="info-value">{formatDate(document.lastAccessed)}</span>
+          <span className="info-value">{formatDate(document.metadata.lastAccessed)}</span>
         </div>
         <div className="info-row">
           <span className="info-label">Path:</span>
@@ -198,11 +211,11 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
         </div>
       </div>
 
-      {document.sections && document.sections.length > 0 && (
+      {hasSections && (
         <div className="document-navigation">
           <h4>Sections</h4>
           <div className="sections-list">
-            {document.sections.map((section, index) => (
+            {documentSections.map((section, index) => (
               <button
                 key={index}
                 onClick={() => setActiveSection(index)}
@@ -217,18 +230,18 @@ export const DocumentViewer: FC<DocumentViewerProps> = ({
       )}
 
       <div className="document-content">
-        {document.sections && document.sections.length > 0 ? (
+        {hasSections ? (
           <div className="section-content">
-            <h3>{document.sections[activeSection]?.title}</h3>
+            <h3>{currentSection?.title}</h3>
             <div
               className="content-text"
               dangerouslySetInnerHTML={{
                 __html: searchQuery
-                  ? document.sections[activeSection]?.content.replace(
+                  ? (currentSection?.content || '').replace(
                       new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
                       '<mark>$1</mark>'
-                    ) || ''
-                  : document.sections[activeSection]?.content || ''
+                    )
+                  : currentSection?.content || ''
               }}
             />
           </div>

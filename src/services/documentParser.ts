@@ -4,6 +4,7 @@
  */
 
 import { LocalFile } from './localFileSystem';
+import type { DocumentSection } from './localStorage';
 
 export interface ParsedDocument {
   id: string;
@@ -18,11 +19,7 @@ export interface ParsedDocument {
     modifiedDate?: Date;
     format: string;
   };
-  sections?: Array<{
-    title: string;
-    content: string;
-    level: number;
-  }>;
+  sections?: DocumentSection[];
 }
 
 export class DocumentParserService {
@@ -235,9 +232,9 @@ export class DocumentParserService {
   /**
    * Extract sections from text
    */
-  private extractSections(lines: string[]): Array<{ title: string; content: string; level: number }> {
-    const sections: Array<{ title: string; content: string; level: number }> = [];
-    let currentSection: { title: string; content: string; level: number } | null = null;
+  private extractSections(lines: string[]): DocumentSection[] {
+    const sections: DocumentSection[] = [];
+    let currentSection: DocumentSection | null = null;
     
     for (const line of lines) {
       if (line.trim().length === 0) continue;
@@ -260,16 +257,16 @@ export class DocumentParserService {
     if (currentSection) {
       sections.push(currentSection);
     }
-    
+
     return sections;
   }
 
   /**
    * Extract sections from Markdown
    */
-  private extractMarkdownSections(lines: string[]): Array<{ title: string; content: string; level: number }> {
-    const sections: Array<{ title: string; content: string; level: number }> = [];
-    let currentSection: { title: string; content: string; level: number } | null = null;
+  private extractMarkdownSections(lines: string[]): DocumentSection[] {
+    const sections: DocumentSection[] = [];
+    let currentSection: DocumentSection | null = null;
     
     for (const line of lines) {
       const headerMatch = line.match(/^(#{1,6})\s+(.+)$/);
@@ -291,15 +288,15 @@ export class DocumentParserService {
     if (currentSection) {
       sections.push(currentSection);
     }
-    
+
     return sections;
   }
 
   /**
    * Extract sections from HTML
    */
-  private extractHTMLSections(doc: Document): Array<{ title: string; content: string; level: number }> {
-    const sections: Array<{ title: string; content: string; level: number }> = [];
+  private extractHTMLSections(doc: Document): DocumentSection[] {
+    const sections: DocumentSection[] = [];
     const headers = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
     
     headers.forEach(header => {
@@ -317,7 +314,7 @@ export class DocumentParserService {
       
       sections.push({ title, content, level });
     });
-    
+
     return sections;
   }
 
