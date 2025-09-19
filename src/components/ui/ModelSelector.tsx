@@ -290,7 +290,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           </Badge>
           <Badge
             variant={
-              [ModelStatus.LOADED, ModelStatus.ACTIVE].includes(model.status)
+              model.status === ModelStatus.LOADED || model.status === ModelStatus.ACTIVE
                 ? 'default'
                 : 'secondary'
             }

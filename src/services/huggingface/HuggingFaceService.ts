@@ -10,7 +10,8 @@ import {
   ModelRecommendation,
   HuggingFaceConfig,
   ModelMetadata,
-  ModelDownloadProgress
+  ModelDownloadProgress,
+  CompatibilityResult
 } from '../../types/huggingface';
 
 export class HuggingFaceService {
@@ -312,17 +313,28 @@ export class HuggingFaceService {
     return reasons;
   }
 
-  private async checkCompatibility(model: HuggingFaceModel): Promise<any> {
+  private async checkCompatibility(model: HuggingFaceModel): Promise<CompatibilityResult> {
     // Simplified compatibility check
     return {
       compatible: true,
+      score: 85,
+      confidence: 70,
       issues: [],
       warnings: [],
       requirements: {
         memory: 4000000000, // 4GB
         diskSpace: 2000000000, // 2GB
+        computeCapability: 'moderate'
       },
-      recommendations: ['Ensure adequate memory is available']
+      recommendations: ['Ensure adequate memory is available'],
+      optimizations: [
+        {
+          id: 'review-memory-usage',
+          description: 'Monitor memory usage during initial deployments.',
+          automated: false,
+          impact: 'medium'
+        }
+      ]
     };
   }
 

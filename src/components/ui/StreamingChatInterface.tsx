@@ -200,9 +200,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
+  type DropHandler = NonNullable<JSX.IntrinsicElements['div']['onDrop']>
+  type DragOverHandler = NonNullable<JSX.IntrinsicElements['div']['onDragOver']>
+  type DragLeaveHandler = NonNullable<JSX.IntrinsicElements['div']['onDragLeave']>
+  type TextareaKeyHandler = NonNullable<JSX.IntrinsicElements['textarea']['onKeyDown']>
+
+  const handleKeyDown: TextareaKeyHandler = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
       if (value.trim() && !disabled) {
         onSend(value, attachments)
       }
@@ -219,19 +224,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onAttachmentsChange([...attachments, ...newFiles])
   }
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
+  const handleDrop: DropHandler = (event) => {
+    event.preventDefault()
     setIsDragOver(false)
-    handleFileSelect(e.dataTransfer.files)
+    handleFileSelect(event.dataTransfer.files)
   }
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
+  const handleDragOver: DragOverHandler = (event) => {
+    event.preventDefault()
     setIsDragOver(true)
   }
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
+  const handleDragLeave: DragLeaveHandler = (event) => {
+    event.preventDefault()
     setIsDragOver(false)
   }
 

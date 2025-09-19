@@ -198,17 +198,19 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
   }, [scrollTop, calculateVisibleRange]);
   
   // Scroll handler with performance optimizations
-  const handleScroll = useCallback((event: React.UIEvent<Element>) => {
+  type ScrollHandler = NonNullable<JSX.IntrinsicElements['div']['onScroll']>
+
+  const handleScroll = useCallback<ScrollHandler>((event) => {
     const target = event.currentTarget as HTMLDivElement;
     const newScrollTop = target.scrollTop;
 
     setScrollTop(newScrollTop);
     setIsScrolling(true);
     debouncedScrollEnd();
-    
+
     // Call external scroll handler
     onScroll?.(newScrollTop);
-    
+
     // Check for end reached
     if (onEndReached && !loading) {
       const scrollRatio = (newScrollTop + containerHeight) / totalHeight;
