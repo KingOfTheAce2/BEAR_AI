@@ -1,1 +1,284 @@
-# BEAR AI React Component Library\n\n🚀 **Modern, Production-Ready GUI Components for Legal AI Applications**\n\nBuilt with React 18, TypeScript, and TailwindCSS following jan-dev architectural patterns.\n\n## 🎯 Quick Start\n\n```bash\n# Install dependencies\nnpm install\n\n# Start development server\nnpm start\n\n# Build for production\nnpm run build\n```\n\n## 📦 What's Included\n\n### Core Components\n- ✅ **Button** - Multi-variant button with loading states\n- ✅ **Card** - Flexible container with header/content/footer\n- ✅ **Input** - Form input with validation and icons\n- ✅ **Modal** - Accessible overlay with animations\n- ✅ **Badge** - Status indicators and labels\n- ✅ **Avatar** - Profile images with status indicators\n\n### Layout System\n- ✅ **AppLayout** - Main application shell\n- ✅ **Sidebar** - Responsive navigation panel\n- ✅ **Responsive Hooks** - Mobile-first breakpoint system\n\n### Agent Interface\n- ✅ **AgentCard** - Agent status and metrics display\n- ✅ **ConversationInterface** - Multi-agent chat system\n- ✅ **StatusDashboard** - Real-time monitoring dashboard\n- ✅ **ConfigurationPanel** - Advanced agent settings\n\n### Form System\n- ✅ **Form** - Complete validation and submission handling\n- ✅ **Field Components** - Input, textarea, select, checkbox\n- ✅ **Validation Engine** - Real-time form validation\n\n### Notifications\n- ✅ **Toast System** - Success, error, warning, info alerts\n- ✅ **Action Buttons** - Interactive notification actions\n- ✅ **Auto-dismiss** - Configurable timing and persistence\n\n## 🎨 Features\n\n### Design System\n- **🌙 Dark Mode** - Full dark theme support\n- **📱 Mobile-First** - Responsive on all devices\n- **♿ Accessible** - WCAG AA compliant\n- **🎭 Animations** - Smooth micro-interactions\n\n### Developer Experience\n- **🔒 TypeScript** - Full type safety\n- **🧪 Testing** - Jest + React Testing Library\n- **📏 Linting** - ESLint + Prettier\n- **🔥 Hot Reload** - Fast development iteration\n\n### Performance\n- **⚡ Tree Shaking** - Only import what you use\n- **💾 Memoization** - Optimized re-rendering\n- **📦 Code Splitting** - Lazy loading support\n- **🗜️ Bundle Analysis** - Size optimization tools\n\n## 🛠️ Usage Examples\n\n### Basic Components\n\n```tsx\nimport { Button, Card, Input, Badge } from '@/components'\n\n<Card>\n  <Card.Header>\n    <Card.Title>Agent Configuration</Card.Title>\n    <Badge variant=\"success\">Online</Badge>\n  </Card.Header>\n  <Card.Content>\n    <Input placeholder=\"Agent name\" />\n  </Card.Content>\n  <Card.Footer>\n    <Button variant=\"primary\">Save Changes</Button>\n  </Card.Footer>\n</Card>\n```\n\n### Agent Dashboard\n\n```tsx\nimport { StatusDashboard } from '@/components'\n\n<StatusDashboard\n  agents={agentList}\n  tasks={taskList}\n  autoRefresh={true}\n  refreshInterval={30000}\n  onRefresh={() => fetchLatestData()}\n/>\n```\n\n### Real-time Conversation\n\n```tsx\nimport { ConversationInterface } from '@/components'\n\n<ConversationInterface\n  conversation={activeConversation}\n  onSendMessage={handleMessage}\n  onPauseConversation={() => pauseAgents()}\n  onResumeConversation={() => resumeAgents()}\n/>\n```\n\n### Notifications\n\n```tsx\nimport { useNotifications } from '@/components'\n\nconst notifications = useNotifications()\n\nnotifications.success('Task Complete', 'Legal analysis finished')\nnotifications.error('Connection Lost', 'Unable to reach agent server')\nnotifications.warning('Low Memory', 'Agent approaching memory limit')\n```\n\n## 🏗️ Architecture\n\n```\nsrc/\n├── components/\n│   ├── ui/           # Core UI components\n│   ├── layout/       # Layout and navigation\n│   ├── forms/        # Form components and validation\n│   ├── agent/        # AI agent interfaces\n│   ├── common/       # Shared utilities\n│   └── index.ts      # Main export\n├── hooks/            # Custom React hooks\n├── types/            # TypeScript definitions\n├── utils/            # Helper utilities\n└── App.tsx           # Demo application\n```\n\n## 🎯 Component API\n\n### Button Component\n\n```tsx\ninterface ButtonProps {\n  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'\n  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon'\n  loading?: boolean\n  leftIcon?: React.ReactNode\n  rightIcon?: React.ReactNode\n  disabled?: boolean\n  onClick?: () => void\n  children: React.ReactNode\n}\n```\n\n### Agent Card\n\n```tsx\ninterface AgentCardProps {\n  agent: Agent\n  onSelect?: (agent: Agent) => void\n  onConfigure?: (agent: Agent) => void\n  interactive?: boolean\n  showMetrics?: boolean\n  compact?: boolean\n}\n```\n\n### Status Dashboard\n\n```tsx\ninterface StatusDashboardProps {\n  agents: Agent[]\n  tasks: Task[]\n  onRefresh?: () => void\n  autoRefresh?: boolean\n  refreshInterval?: number\n}\n```\n\n## 🔧 Customization\n\n### Theme Configuration\n\n```css\n:root {\n  --primary: 221.2 83.2% 53.3%;\n  --secondary: 210 40% 96%;\n  --accent: 142.1 76.2% 36.3%;\n  --background: 0 0% 100%;\n  --foreground: 222.2 84% 4.9%;\n}\n```\n\n### Component Variants\n\n```tsx\n// Custom button variant\n<Button className=\"bg-gradient-to-r from-blue-500 to-purple-600\">\n  Gradient Button\n</Button>\n\n// Custom card styling\n<Card className=\"border-2 border-dashed border-gray-300 hover:border-blue-500\">\n  Custom Card\n</Card>\n```\n\n## 📊 Performance Metrics\n\n- **Bundle Size**: ~45KB gzipped (core components)\n- **Tree Shaking**: ✅ Import only what you use\n- **Runtime Performance**: < 16ms component render time\n- **Accessibility Score**: 100/100 (Lighthouse)\n- **Mobile Performance**: 95+ (PageSpeed Insights)\n\n## 🧪 Testing\n\n```bash\n# Run all tests\nnpm test\n\n# Run tests in watch mode\nnpm test -- --watch\n\n# Generate coverage report\nnpm test -- --coverage\n\n# Run type checking\nnpm run typecheck\n```\n\n## 📱 Browser Support\n\n- ✅ Chrome 90+\n- ✅ Firefox 88+\n- ✅ Safari 14+\n- ✅ Edge 90+\n- ✅ iOS Safari 14+\n- ✅ Chrome Mobile 90+\n\n## 🚀 Production Deployment\n\n```bash\n# Production build\nnpm run build\n\n# Analyze bundle size\nnpm run analyze\n\n# Lint and format\nnpm run lint:fix\nnpm run format\n```\n\n## 📖 Documentation\n\n- **[Component API Reference](./docs/COMPONENT_LIBRARY.md)** - Detailed component documentation\n- **[Design System](./docs/DESIGN_SYSTEM.md)** - Colors, typography, spacing\n- **[Accessibility Guide](./docs/ACCESSIBILITY.md)** - WCAG compliance details\n- **[Performance Guide](./docs/PERFORMANCE.md)** - Optimization best practices\n\n## 🤝 Contributing\n\n1. **Follow the patterns** established in existing components\n2. **Write tests** for all new functionality\n3. **Update TypeScript types** for new props/interfaces\n4. **Add documentation** for new components\n5. **Test accessibility** with screen readers\n\n---\n\n**Built for BEAR AI Legal Assistant** 🐻⚖️\n\n*Enhancing legal workflows with intelligent AI-powered interfaces*"
+# BEAR AI React Component Library
+
+🚀 **Modern, Production-Ready GUI Components for Legal AI Applications**
+
+Built with React 18, TypeScript, and TailwindCSS following jan-dev architectural patterns.
+
+## 🎯 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Build for production
+npm run build
+```
+
+## 📦 What's Included
+
+### Core Components
+- ✅ **Button** - Multi-variant button with loading states
+- ✅ **Card** - Flexible container with header/content/footer
+- ✅ **Input** - Form input with validation and icons
+- ✅ **Modal** - Accessible overlay with animations
+- ✅ **Badge** - Status indicators and labels
+- ✅ **Avatar** - Profile images with status indicators
+
+### Layout System
+- ✅ **AppLayout** - Main application shell
+- ✅ **Sidebar** - Responsive navigation panel
+- ✅ **Responsive Hooks** - Mobile-first breakpoint system
+
+### Agent Interface
+- ✅ **AgentCard** - Agent status and metrics display
+- ✅ **ConversationInterface** - Multi-agent chat system
+- ✅ **StatusDashboard** - Real-time monitoring dashboard
+- ✅ **ConfigurationPanel** - Advanced agent settings
+
+### Form System
+- ✅ **Form** - Complete validation and submission handling
+- ✅ **Field Components** - Input, textarea, select, checkbox
+- ✅ **Validation Engine** - Real-time form validation
+
+### Notifications
+- ✅ **Toast System** - Success, error, warning, info alerts
+- ✅ **Action Buttons** - Interactive notification actions
+- ✅ **Auto-dismiss** - Configurable timing and persistence
+
+## 🎨 Features
+
+### Design System
+- **🌙 Dark Mode** - Full dark theme support
+- **📱 Mobile-First** - Responsive on all devices
+- **♿ Accessible** - WCAG AA compliant
+- **🎭 Animations** - Smooth micro-interactions
+
+### Developer Experience
+- **🔒 TypeScript** - Full type safety
+- **🧪 Testing** - Jest + React Testing Library
+- **📏 Linting** - ESLint + Prettier
+- **🔥 Hot Reload** - Fast development iteration
+
+### Performance
+- **⚡ Tree Shaking** - Only import what you use
+- **💾 Memoization** - Optimized re-rendering
+- **📦 Code Splitting** - Lazy loading support
+- **🗜️ Bundle Analysis** - Size optimization tools
+
+## 🛠️ Usage Examples
+
+### Basic Components
+
+```tsx
+import { Button, Card, Input, Badge } from '@/components'
+
+<Card>
+  <Card.Header>
+    <Card.Title>Agent Configuration</Card.Title>
+    <Badge variant="success">Online</Badge>
+  </Card.Header>
+  <Card.Content>
+    <Input placeholder="Agent name" />
+  </Card.Content>
+  <Card.Footer>
+    <Button variant="primary">Save Changes</Button>
+  </Card.Footer>
+</Card>
+```
+
+### Agent Dashboard
+
+```tsx
+import { StatusDashboard } from '@/components'
+
+<StatusDashboard
+  agents={agentList}
+  tasks={taskList}
+  autoRefresh={true}
+  refreshInterval={30000}
+  onRefresh={() => fetchLatestData()}
+/>
+```
+
+### Real-time Conversation
+
+```tsx
+import { ConversationInterface } from '@/components'
+
+<ConversationInterface
+  conversation={activeConversation}
+  onSendMessage={handleMessage}
+  onPauseConversation={() => pauseAgents()}
+  onResumeConversation={() => resumeAgents()}
+/>
+```
+
+### Notifications
+
+```tsx
+import { useNotifications } from '@/components'
+
+const notifications = useNotifications()
+
+notifications.success('Task Complete', 'Legal analysis finished')
+notifications.error('Connection Lost', 'Unable to reach agent server')
+notifications.warning('Low Memory', 'Agent approaching memory limit')
+```
+
+## 🏗️ Architecture
+
+```
+src/
+├── components/
+│   ├── ui/           # Core UI components
+│   ├── layout/       # Layout and navigation
+│   ├── forms/        # Form components and validation
+│   ├── agent/        # AI agent interfaces
+│   ├── common/       # Shared utilities
+│   └── index.ts      # Main export
+├── hooks/            # Custom React hooks
+├── types/            # TypeScript definitions
+├── utils/            # Helper utilities
+└── App.tsx           # Demo application
+```
+
+## 🎯 Component API
+
+### Button Component
+
+```tsx
+interface ButtonProps {
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon'
+  loading?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
+  disabled?: boolean
+  onClick?: () => void
+  children: React.ReactNode
+}
+```
+
+### Agent Card
+
+```tsx
+interface AgentCardProps {
+  agent: Agent
+  onSelect?: (agent: Agent) => void
+  onConfigure?: (agent: Agent) => void
+  interactive?: boolean
+  showMetrics?: boolean
+  compact?: boolean
+}
+```
+
+### Status Dashboard
+
+```tsx
+interface StatusDashboardProps {
+  agents: Agent[]
+  tasks: Task[]
+  onRefresh?: () => void
+  autoRefresh?: boolean
+  refreshInterval?: number
+}
+```
+
+## 🔧 Customization
+
+### Theme Configuration
+
+```css
+:root {
+  --primary: 221.2 83.2% 53.3%;
+  --secondary: 210 40% 96%;
+  --accent: 142.1 76.2% 36.3%;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+}
+```
+
+### Component Variants
+
+```tsx
+// Custom button variant
+<Button className="bg-gradient-to-r from-blue-500 to-purple-600">
+  Gradient Button
+</Button>
+
+// Custom card styling
+<Card className="border-2 border-dashed border-gray-300 hover:border-blue-500">
+  Custom Card
+</Card>
+```
+
+## 📊 Performance Metrics
+
+- **Bundle Size**: ~45KB gzipped (core components)
+- **Tree Shaking**: ✅ Import only what you use
+- **Runtime Performance**: < 16ms component render time
+- **Accessibility Score**: 100/100 (Lighthouse)
+- **Mobile Performance**: 95+ (PageSpeed Insights)
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Generate coverage report
+npm test -- --coverage
+
+# Run type checking
+npm run typecheck
+```
+
+## 📱 Browser Support
+
+- ✅ Chrome 90+
+- ✅ Firefox 88+
+- ✅ Safari 14+
+- ✅ Edge 90+
+- ✅ iOS Safari 14+
+- ✅ Chrome Mobile 90+
+
+## 🚀 Production Deployment
+
+```bash
+# Production build
+npm run build
+
+# Analyze bundle size
+npm run analyze
+
+# Lint and format
+npm run lint:fix
+npm run format
+```
+
+## 📖 Documentation
+
+- **[Component API Reference](./docs/COMPONENT_LIBRARY.md)** - Detailed component documentation
+- **[Design System](./docs/DESIGN_SYSTEM.md)** - Colors, typography, spacing
+- **[Accessibility Guide](./docs/ACCESSIBILITY.md)** - WCAG compliance details
+- **[Performance Guide](./docs/PERFORMANCE.md)** - Optimization best practices
+
+## 🤝 Contributing
+
+1. **Follow the patterns** established in existing components
+2. **Write tests** for all new functionality
+3. **Update TypeScript types** for new props/interfaces
+4. **Add documentation** for new components
+5. **Test accessibility** with screen readers
+
+---
+
+**Built for BEAR AI Legal Assistant** 🐻⚖️
+
+*Enhancing legal workflows with intelligent AI-powered interfaces*
