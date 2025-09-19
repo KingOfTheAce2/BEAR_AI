@@ -3,8 +3,9 @@
  * Comprehensive interface for fine-tuning HuggingFace models for legal tasks
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import type { DragEventHandler } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import type { FC, ChangeEvent } from 'react';
+import type React from 'react';
 import {
   PlayIcon,
   StopIcon,
@@ -14,7 +15,7 @@ import {
   Cog6ToothIcon,
   ExclamationCircleIcon,
   CheckCircleIcon,
-  ArrowUpTrayIcon,
+  ArrowUpIcon,
   CloudArrowDownIcon,
   BeakerIcon,
   AcademicCapIcon
@@ -51,7 +52,7 @@ interface TrainingConfigProps {
   onChange: (config: FineTuningConfig) => void;
 }
 
-const DatasetUpload: React.FC<DatasetUploadProps> = ({
+const DatasetUpload: FC<DatasetUploadProps> = ({
   onDatasetUpload,
   onDatasetValidate,
   acceptedFormats,
@@ -62,13 +63,13 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<{ valid: boolean; issues: string[] } | null>(null);
 
-  const handleDragEnter: DragEventHandler<HTMLDivElement> = (event) => {
+  const handleDragEnter: React.DragEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
     setDragActive(true);
   };
 
-  const handleDragOver: DragEventHandler<HTMLDivElement> = (event) => {
+  const handleDragOver: React.DragEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (!dragActive) {
@@ -76,13 +77,13 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
     }
   };
 
-  const handleDragLeave: DragEventHandler<HTMLDivElement> = (event) => {
+  const handleDragLeave: React.DragEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
     setDragActive(false);
   };
 
-  const handleDrop: DragEventHandler<HTMLDivElement> = (event) => {
+  const handleDrop: React.DragEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
     setDragActive(false);
@@ -92,7 +93,7 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
@@ -150,7 +151,7 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <ArrowUpTrayIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <ArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-lg font-medium text-gray-900 mb-2">
             Drop your dataset here
           </p>
@@ -241,7 +242,7 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
   );
 };
 
-const TrainingConfig: React.FC<TrainingConfigProps> = ({
+const TrainingConfig: FC<TrainingConfigProps> = ({
   config,
   capabilities,
   onChange
@@ -491,7 +492,7 @@ const TrainingConfig: React.FC<TrainingConfigProps> = ({
   );
 };
 
-const JobProgress: React.FC<{
+const JobProgress: FC<{
   job: FineTuningJob;
   onCancel: () => void;
   onPause: () => void;
@@ -671,7 +672,7 @@ const JobProgress: React.FC<{
   );
 };
 
-export const FineTuningInterface: React.FC<FineTuningInterfaceProps> = ({
+export const FineTuningInterface: FC<FineTuningInterfaceProps> = ({
   model,
   onJobCreate,
   onJobCancel,
@@ -787,9 +788,7 @@ export const FineTuningInterface: React.FC<FineTuningInterfaceProps> = ({
         dataset: 'uploaded-dataset.json',
         config,
         progress: 0,
-        startTime: new Date(),
-        retryCount: 0,
-        maxRetries: 3
+        startTime: new Date()
       };
       
       setActiveJobs(prev => [...prev, newJob]);
