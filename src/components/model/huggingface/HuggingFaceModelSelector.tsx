@@ -387,13 +387,13 @@ const FilterPanel: React.FC<{
               <input
                 type="checkbox"
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                checked={filters.licenses?.includes(license) || false}
+                checked={filters.license?.includes(license) || false}
                 onChange={(e) => {
-                  const current = filters.licenses || [];
+                  const current = filters.license || [];
                   const updated = e.target.checked
                     ? [...current, license]
                     : current.filter(l => l !== license);
-                  onFiltersChange({ ...filters, licenses: updated });
+                  onFiltersChange({ ...filters, license: updated });
                 }}
               />
               <span className="ml-2 text-sm text-gray-700">
@@ -461,8 +461,11 @@ export const HuggingFaceModelSelector: React.FC<HuggingFaceModelSelectorProps> =
     {
       id: 'legal-bert-base-uncased',
       modelId: 'nlpaueb/legal-bert-base-uncased',
+      name: 'Legal BERT Base Uncased',
       author: 'nlpaueb',
       sha: 'abc123',
+      created_at: '2023-01-15T00:00:00Z',
+      updated_at: '2023-06-20T00:00:00Z',
       createdAt: new Date('2023-01-15'),
       lastModified: new Date('2023-06-20'),
       downloads: 15420,
