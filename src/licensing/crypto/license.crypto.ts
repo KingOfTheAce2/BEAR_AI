@@ -98,11 +98,14 @@ export class LicenseCrypto {
     encrypted += cipher.final('hex');
 
     const authTag = cipher.getAuthTag();
+    const authTagHex = Buffer.from(authTag).toString('hex');
+    const ivHex = Buffer.from(iv).toString('hex');
+    const saltHex = Buffer.from(salt).toString('hex');
 
     return {
-      encrypted: encrypted + authTag.toString('hex'),
-      iv: iv.toString('hex'),
-      salt: salt.toString('hex')
+      encrypted: encrypted + authTagHex,
+      iv: ivHex,
+      salt: saltHex
     };
   }
 
@@ -137,7 +140,8 @@ export class LicenseCrypto {
   static generateActivationCode(): string {
     const segments = [];
     for (let i = 0; i < 4; i++) {
-      const segment = crypto.randomBytes(2).toString('hex').toUpperCase();
+      const segmentBytes = crypto.randomBytes(2);
+      const segment = Buffer.from(segmentBytes).toString('hex').toUpperCase();
       segments.push(segment);
     }
     return segments.join('-');
@@ -205,7 +209,7 @@ export class LicenseCrypto {
       encryptedBuffer
     ]);
 
-    return combined.toString('base64');
+    return Buffer.from(combined).toString('base64');
   }
 
   /**
@@ -224,7 +228,7 @@ export class LicenseCrypto {
         decipher.final()
       ]);
 
-      return decryptedBuffer.toString('utf8');
+      return Buffer.from(decryptedBuffer).toString('utf8');
     } catch (error) {
       throw new Error('Failed to deobfuscate license data');
     }

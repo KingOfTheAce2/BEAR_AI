@@ -1,34 +1,50 @@
 /**
  * HuggingFace Model Types and Interfaces for BEAR AI Legal Assistant
+ *
+ * This file consolidates all HuggingFace related type definitions that were
+ * previously split between multiple modules. The goal is to provide a single
+ * source of truth that works across both the existing production services and
+ * the newer experimental components (fine-tuning UI, enhanced recommendations,
+ * etc.).
  */
 
 // Base HuggingFace model interface
 export interface HuggingFaceModel {
   id: string;
-  modelId: string;
-  author: string;
-  sha: string;
-  createdAt: Date;
-  lastModified: Date;
-  downloads: number;
-  likes: number;
-  tags: string[];
+  modelId?: string;
+  name?: string;
+  description?: string;
+  author?: string;
+  sha?: string;
+  createdAt?: Date | string;
+  lastModified?: Date | string;
+  created_at?: string;
+  updated_at?: string;
+  downloads?: number;
+  likes?: number;
+  tags?: string[];
   pipeline_tag?: string;
   library_name?: string;
+  license?: string;
   transformersInfo?: TransformersInfo;
   cardData?: ModelCardData;
   siblings?: ModelFile[];
-  disabled: boolean;
-  gated: boolean;
-  private: boolean;
-  // BEAR AI specific enhancements
-  legalScore: number; // 0-100 score for legal use cases
-  legalUseCases: LegalUseCase[];
-  performanceBenchmarks: PerformanceBenchmark[];
-  resourceRequirements: ResourceRequirements;
-  compatibilityInfo: CompatibilityInfo;
-  localStatus: LocalModelStatus;
-  bearaiTags: string[]; // BEAR AI specific tags
+  disabled?: boolean;
+  gated?: boolean;
+  private?: boolean;
+  size?: number;
+  config?: Record<string, any>;
+  tokenizer?: string;
+  model_index?: Record<string, any>;
+  legalScore?: number;
+  legalUseCases?: LegalUseCase[];
+  performanceBenchmarks?: PerformanceBenchmark[];
+  resourceRequirements?: ResourceRequirements;
+  compatibilityInfo?: CompatibilityInfo;
+  localStatus?: LocalModelStatus;
+  bearaiTags?: string[];
+  legalUseCasesMetadata?: Record<string, any>;
+  recommendationScore?: number;
 }
 
 export interface TransformersInfo {
@@ -52,13 +68,17 @@ export interface ModelCardData {
 }
 
 export interface ModelFile {
-  rfilename: string;
+  rfilename?: string;
+  filename?: string;
   size?: number;
   lfs?: {
     pointer_size: number;
     size: number;
     sha256: string;
   };
+  checksum?: string;
+  compressed?: boolean;
+  downloadUrl?: string;
 }
 
 // Legal use case definitions
@@ -81,8 +101,13 @@ export enum LegalCategory {
   DOCUMENT_REVIEW = 'document_review',
   LEGAL_RESEARCH = 'legal_research',
   COMPLIANCE = 'compliance',
-  LITIGATION_SUPPORT = 'litigation_support',
+  COMPLIANCE_CHECK = 'compliance_check',
+  CASE_LAW_ANALYSIS = 'case_law_analysis',
   REGULATORY_ANALYSIS = 'regulatory_analysis',
+  REGULATORY_COMPLIANCE = 'regulatory_compliance',
+  RISK_ASSESSMENT = 'risk_assessment',
+  LEGAL_DRAFTING = 'legal_drafting',
+  LITIGATION_SUPPORT = 'litigation_support',
   INTELLECTUAL_PROPERTY = 'intellectual_property',
   CORPORATE_LAW = 'corporate_law',
   CRIMINAL_LAW = 'criminal_law',
@@ -104,45 +129,45 @@ export interface PerformanceBenchmark {
   lastTested: Date;
   testingFramework: string;
   notes?: string;
-  legalRelevance: number; // 0-100 how relevant to legal tasks
+  legalRelevance?: number; // 0-100 how relevant to legal tasks
 }
 
 // Resource requirements
 export interface ResourceRequirements {
-  minRam: number; // MB
-  recommendedRam: number; // MB
-  minStorage: number; // MB
+  minRam?: number; // MB
+  recommendedRam?: number; // MB
+  minStorage?: number; // MB
   modelSizeMB: number;
-  gpuRequired: boolean;
+  gpuRequired?: boolean;
   minGpuMemory?: number; // MB
   recommendedGpuMemory?: number; // MB
-  cpuCores: number;
-  estimatedInferenceTime: {
-    cpu: number; // ms per token
+  cpuCores?: number;
+  estimatedInferenceTime?: {
+    cpu?: number; // ms per token
     gpu?: number; // ms per token
   };
-  powerConsumption: {
-    idle: number; // watts
-    load: number; // watts
+  powerConsumption?: {
+    idle?: number; // watts
+    load?: number; // watts
   };
 }
 
 // Compatibility information
 export interface CompatibilityInfo {
-  frameworks: string[];
-  pythonVersions: string[];
-  transformersVersion: string;
+  frameworks?: string[];
+  pythonVersions?: string[];
+  transformersVersion?: string;
   torchVersions?: string[];
   tensorflowVersions?: string[];
-  onnxSupport: boolean;
-  quantizationSupport: {
-    int8: boolean;
-    int4: boolean;
-    fp16: boolean;
-    bfloat16: boolean;
+  onnxSupport?: boolean;
+  quantizationSupport?: {
+    int8?: boolean;
+    int4?: boolean;
+    fp16?: boolean;
+    bfloat16?: boolean;
   };
-  platforms: string[];
-  architectures: string[];
+  platforms?: string[];
+  architectures?: string[];
   specialRequirements?: string[];
 }
 
@@ -155,7 +180,7 @@ export interface LocalModelStatus {
   localPath?: string;
   localSize?: number; // bytes
   lastUsed?: Date;
-  usage: {
+  usage?: {
     totalInferences: number;
     totalTokens: number;
     averageResponseTime: number;
@@ -193,6 +218,15 @@ export interface ModelConfiguration {
 // Search and filtering
 export interface ModelSearchFilters {
   query?: string;
+  author?: string;
+  pipeline_tag?: string;
+  library?: string[];
+  language?: string[];
+  license?: string[];
+  tags?: string[];
+  sort?: 'downloads' | 'likes' | 'updated_at' | 'created_at';
+  direction?: 'asc' | 'desc';
+  full?: boolean;
   legalCategories?: LegalCategory[];
   minLegalScore?: number;
   maxModelSize?: number; // MB
@@ -202,7 +236,6 @@ export interface ModelSearchFilters {
   minDownloads?: number;
   frameworks?: string[];
   taskTypes?: string[];
-  tags?: string[];
   excludeGated?: boolean;
   excludePrivate?: boolean;
   localOnly?: boolean;
@@ -218,26 +251,54 @@ export enum ModelSortOption {
   DOWNLOADS = 'downloads',
   LIKES = 'likes',
   CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
   LAST_MODIFIED = 'last_modified',
   MODEL_SIZE = 'model_size',
   PERFORMANCE_SCORE = 'performance_score',
   NAME = 'name'
 }
 
+export interface CompatibilityOptimization {
+  id: string;
+  description: string;
+  automated: boolean;
+  impact: 'low' | 'medium' | 'high';
+  estimatedImprovement?: number;
+}
+
+export interface CompatibilityResult {
+  compatible: boolean;
+  score: number;
+  confidence: number;
+  issues: string[];
+  warnings: string[];
+  requirements: {
+    memory: number;
+    diskSpace: number;
+    computeCapability?: string;
+  };
+  recommendations: string[];
+  optimizations: CompatibilityOptimization[];
+}
+
 // Model recommendations
 export interface ModelRecommendation {
   model: HuggingFaceModel;
-  reason: string;
-  confidence: number; // 0-100
-  pros: string[];
-  cons: string[];
-  alternativeModels: string[]; // Model IDs
-  estimatedPerformance: {
+  score?: number;
+  reason?: string;
+  reasons?: string[];
+  category?: LegalCategory;
+  confidence?: number; // 0-100
+  pros?: string[];
+  cons?: string[];
+  alternativeModels?: string[]; // Model IDs
+  estimatedPerformance?: {
     speed: number; // 1-10 scale
     accuracy: number; // 1-10 scale
     resourceEfficiency: number; // 1-10 scale
   };
-  legalUseCaseFit: {
+  compatibility?: CompatibilityResult;
+  legalUseCaseFit?: {
     useCase: LegalUseCase;
     fitScore: number; // 0-100
   }[];
@@ -358,12 +419,47 @@ export interface ModelDownloadProgress {
   total: number; // bytes
   speed: number; // bytes/second
   eta: number; // seconds
+  status?: 'pending' | 'downloading' | 'extracting' | 'completed' | 'error';
+  downloadedBytes?: number;
+  totalBytes?: number;
+  error?: string;
   files: Array<{
     filename: string;
     progress: number;
     size: number;
-    downloaded: number;
+    downloaded?: number;
+    checksum?: string;
   }>;
+}
+
+export interface BenchmarkResult {
+  modelId: string;
+  timestamp: Date;
+  metrics: {
+    latency: {
+      mean: number;
+      p50: number;
+      p90: number;
+      p99: number;
+    };
+    throughput: {
+      tokensPerSecond: number;
+      requestsPerSecond: number;
+    };
+    accuracy: {
+      score: number;
+      dataset: string;
+      metric: string;
+    };
+    resources: {
+      memoryUsage: number;
+      cpuUsage: number;
+      gpuUsage?: number;
+    };
+    sequenceLength: number;
+    numSamples: number;
+    hardware: string;
+  };
 }
 
 // Error types
@@ -379,20 +475,34 @@ export interface HuggingFaceError {
 // Configuration
 export interface HuggingFaceConfig {
   apiToken?: string;
-  baseUrl: string;
-  timeout: number;
-  retryAttempts: number;
-  cacheEnabled: boolean;
-  cacheDuration: number; // minutes
-  downloadPath: string;
-  maxConcurrentDownloads: number;
-  enableTelemetry: boolean;
-  legalOptimizations: {
+  apiKey?: string;
+  baseUrl?: string;
+  timeout?: number;
+  retryAttempts?: number;
+  retries?: number;
+  cacheEnabled?: boolean;
+  cacheDuration?: number; // minutes
+  cacheTTL?: number;
+  downloadPath?: string;
+  maxConcurrentDownloads?: number;
+  enableTelemetry?: boolean;
+  localCacheEnabled?: boolean;
+  legalOptimizations?: {
     prioritizeLegalModels: boolean;
     filterNonCommercial: boolean;
     enablePrivacyMode: boolean;
     requireOpenSource: boolean;
   };
+}
+
+export interface ModelMetadata {
+  lastUpdated: Date;
+  localPath?: string;
+  isLocal: boolean;
+  version: string;
+  checksum?: string;
+  tags: string[];
+  customConfig?: Record<string, any>;
 }
 
 // Event types for real-time updates
@@ -420,3 +530,4 @@ export enum ModelEventType {
   FINE_TUNING_PROGRESS = 'fine_tuning_progress',
   FINE_TUNING_COMPLETED = 'fine_tuning_completed'
 }
+
