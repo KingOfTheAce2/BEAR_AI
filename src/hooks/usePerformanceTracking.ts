@@ -15,7 +15,7 @@ interface InteractionTracker {
 }
 
 export const usePerformanceTracking = (options: UsePerformanceTrackingOptions): InteractionTracker => {
-  const { trackUserInteraction } = usePerformance();
+  const { recordUserInteraction } = usePerformance();
   const renderStartTime = useRef(Date.now());
   const [interactions, setInteractions] = useState<Map<string, number>>(new Map());
 
@@ -25,11 +25,12 @@ export const usePerformanceTracking = (options: UsePerformanceTrackingOptions): 
       const renderEndTime = Date.now();
       const renderDuration = renderEndTime - renderStartTime.current;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action: 'component-render',
         timestamp: renderStartTime.current,
         duration: renderDuration,
+        timeSpent: renderDuration,
         component: options.componentName,
         performance: {
           renderTime: renderDuration,
@@ -39,7 +40,7 @@ export const usePerformanceTracking = (options: UsePerformanceTrackingOptions): 
         }
       });
     }
-  }, [options.trackRender, options.componentName, trackUserInteraction]);
+  }, [options.trackRender, options.componentName, recordUserInteraction]);
 
   // Interaction tracking methods
   const start = () => {
@@ -69,17 +70,23 @@ export const usePerformanceTracking = (options: UsePerformanceTrackingOptions): 
 
   const track = (action: string, metadata?: Record<string, any>) => {
     const startTime = Date.now();
-    
+    const derivedKeystrokes = typeof metadata?.inputLength === 'number'
+      ? metadata.inputLength
+      : undefined;
+
     // Return a function to end the tracking
     return () => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action,
         timestamp: startTime,
         duration,
+        timeSpent: duration,
+        clickCount: action === 'click' ? 1 : undefined,
+        keystrokes: derivedKeystrokes,
         component: options.componentName,
         metadata,
         performance: {
@@ -97,7 +104,7 @@ export const usePerformanceTracking = (options: UsePerformanceTrackingOptions): 
 
 // Hook for tracking specific user actions
 export const useActionTracking = (componentName: string) => {
-  const { trackUserInteraction } = usePerformance();
+  const { recordUserInteraction } = usePerformance();
 
   const trackClick = (elementId: string, metadata?: Record<string, any>) => {
     const startTime = Date.now();
@@ -106,11 +113,13 @@ export const useActionTracking = (componentName: string) => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action: 'click',
         timestamp: startTime,
         duration,
+        timeSpent: duration,
+        clickCount: 1,
         component: componentName,
         metadata: { elementId, ...metadata },
         performance: {
@@ -135,11 +144,18 @@ export const useActionTracking = (componentName: string) => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action: 'form-submit',
         timestamp: startTime,
         duration,
+        timeSpent: duration,
+        keystrokes: formData ? Object.values(formData).reduce((total, value) => {
+          if (typeof value === 'string') {
+            return total + value.length;
+          }
+          return total;
+        }, 0) : undefined,
         component: componentName,
         metadata: { formId, formData },
         performance: {
@@ -159,11 +175,12 @@ export const useActionTracking = (componentName: string) => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action: 'navigation',
         timestamp: startTime,
         duration,
+        timeSpent: duration,
         component: componentName,
         metadata: { route, ...metadata },
         performance: {
@@ -183,11 +200,13 @@ export const useActionTracking = (componentName: string) => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      trackUserInteraction({
+      recordUserInteraction({
         sessionId: 'current-session',
         action: 'search',
         timestamp: startTime,
         duration,
+        timeSpent: duration,
+        keystrokes: query.length,
         component: componentName,
         metadata: { query, resultsCount },
         performance: {
@@ -210,7 +229,7 @@ export const useActionTracking = (componentName: string) => {
 
 // Hook for tracking API call performance
 export const useApiTracking = () => {
-  const { trackModelInference } = usePerformance();
+  const { recordModelInference } = usePerformance();
 
   const trackApiCall = async (
     apiName: string,
@@ -243,8 +262,8 @@ export const useApiTracking = () => {
       const duration = endTime - startTime;
 
       // Track as model inference for API calls
-      trackModelInference({
-        modelName: apiName,
+      recordModelInference({
+        modelId: apiName,
         requestId,
         startTime,
         endTime,

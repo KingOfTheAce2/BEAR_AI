@@ -52,16 +52,8 @@ export class OfflineSyncService {
    * Setup online/offline event listeners
    */
   private setupOnlineStatusListeners(): void {
-    window.addEventListener('online', () => {
-      this.isOnline = true;
-      this.notifyStatusChange();
-      this.processSyncQueue();
-    });
-
-    window.addEventListener('offline', () => {
-      this.isOnline = false;
-      this.notifyStatusChange();
-    });
+    window.addEventListener('online', this.handleOnlineStatusChange);
+    window.addEventListener('offline', this.handleOfflineStatusChange);
   }
 
   /**
@@ -361,3 +353,26 @@ export class OfflineSyncService {
     // Implementation would depend on your conflict resolution UI
     console.warn('Conflict requires manual resolution:', conflictData);
   }
+
+  /**
+   * Remove listeners and reset internal observers
+   */
+  dispose(): void {
+    window.removeEventListener('online', this.handleOnlineStatusChange);
+    window.removeEventListener('offline', this.handleOfflineStatusChange);
+    this.listeners = [];
+  }
+
+  private handleOnlineStatusChange = () => {
+    this.isOnline = true;
+    this.notifyStatusChange();
+    this.processSyncQueue();
+  };
+
+  private handleOfflineStatusChange = () => {
+    this.isOnline = false;
+    this.notifyStatusChange();
+  };
+}
+
+export const offlineSyncService = new OfflineSyncService();
