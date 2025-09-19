@@ -163,13 +163,19 @@ export class OfflineSyncService {
 
     // In a real implementation, this would sync with a remote server
     // For now, we'll just mark it as synced locally
-    document.metadata = {
+    const updatedMetadata = {
       ...document.metadata,
       synced: true,
-      lastSynced: new Date()
+      lastSynced: new Date(),
+      version: (document.metadata.version || 0) + 1
     };
 
-    await localStorageService.updateDocument(document);
+    const updatedDocument = {
+      ...document,
+      metadata: updatedMetadata
+    };
+
+    await localStorageService.updateDocument(updatedDocument);
   }
 
   /**
@@ -189,13 +195,19 @@ export class OfflineSyncService {
     }
 
     // Proceed with update
-    document.metadata = {
+    const updatedMetadata = {
       ...document.metadata,
       synced: true,
-      lastSynced: new Date()
+      lastSynced: new Date(),
+      version: (document.metadata.version || 0) + 1
     };
 
-    await localStorageService.updateDocument(document);
+    const updatedDocument = {
+      ...document,
+      metadata: updatedMetadata
+    };
+
+    await localStorageService.updateDocument(updatedDocument);
   }
 
   /**
@@ -206,11 +218,11 @@ export class OfflineSyncService {
     // For now, we'll just clean up local references
     const metadata = fileMetadataService.getMetadata(operation.fileId);
     if (metadata) {
-      // Mark as deleted in metadata
+      // Mark as deleted in metadata with proper typing
       await fileMetadataService.updateMetadata(operation.fileId, {
         deleted: true,
         deletedAt: new Date()
-      } as any);
+      });
     }
   }
 
@@ -229,12 +241,12 @@ export class OfflineSyncService {
     document.fileInfo.path = newPath;
     await localStorageService.updateDocument(document);
 
-    // Update metadata
+    // Update metadata with proper typing
     const metadata = fileMetadataService.getMetadata(operation.fileId);
     if (metadata) {
       await fileMetadataService.updateMetadata(operation.fileId, {
         path: newPath,
-        movedFrom: oldPath,
+        movedFrom: oldPath, // Now properly defined in ExtendedFileMetadata
         lastModified: new Date()
       });
     }
@@ -272,7 +284,7 @@ export class OfflineSyncService {
   private async detectConflict(document: StoredDocument): Promise<ConflictResolution | null> {
     // In a real implementation, this would check with remote server
     // For now, we'll simulate conflict detection
-    const metadata = document.metadata as any;
+    const metadata = document.metadata;
     
     if (metadata.remoteModified && metadata.localModified) {
       const remoteTime = new Date(metadata.remoteModified);
@@ -349,164 +361,3 @@ export class OfflineSyncService {
     // Implementation would depend on your conflict resolution UI
     console.warn('Conflict requires manual resolution:', conflictData);
   }
-
-  /**
-   * Get current sync status
-   */
-  getSyncStatus(): SyncStatus {
-    return {
-      isOnline: this.isOnline,
-      lastSync: this.lastSync,
-      pendingOperations: this.syncQueue.filter(op => op.status === 'pending').length,
-      failedOperations: this.syncQueue.filter(op => op.status === 'failed').length,
-      syncInProgress: this.syncInProgress
-    };
-  }
-
-  /**
-   * Force sync now
-   */
-  async forcSync(): Promise<void> {
-    if (this.isOnline) {
-      await this.processSyncQueue();
-    } else {
-      throw new Error('Cannot sync while offline');
-    }
-  }
-
-  /**
-   * Clear failed operations
-   */
-  async clearFailedOperations(): Promise<void> {
-    this.syncQueue = this.syncQueue.filter(op => op.status !== 'failed');
-    await this.saveQueueToStorage();
-    this.notifyStatusChange();
-  }
-
-  /**
-   * Subscribe to sync status changes
-   */
-  onStatusChange(callback: (status: SyncStatus) => void): () => void {
-    this.listeners.push(callback);
-    return () => {
-      this.listeners = this.listeners.filter(l => l !== callback);
-    };
-  }
-
-  /**
-   * Enable/disable offline mode manually
-   */
-  setOfflineMode(offline: boolean): void {
-    this.isOnline = !offline;
-    this.notifyStatusChange();
-    
-    if (this.isOnline) {
-      this.processSyncQueue();
-    }
-  }
-
-  // Private helper methods
-
-  private generateOperationId(): string {
-    return `sync-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  private getRetryDelay(retryCount: number): number {
-    // Exponential backoff: 1s, 2s, 4s, 8s, etc.
-    return Math.min(1000 * Math.pow(2, retryCount), 30000);
-  }
-
-  private async saveQueueToStorage(): Promise<void> {
-    try {
-      localStorage.setItem('bearai_sync_queue', JSON.stringify(this.syncQueue));
-    } catch (error) {
-      console.error('Failed to save sync queue:', error);
-    }
-  }
-
-  private async loadQueueFromStorage(): Promise<void> {
-    try {
-      const stored = localStorage.getItem('bearai_sync_queue');
-      if (stored) {
-        this.syncQueue = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
-        this.syncQueue.forEach(op => {
-          op.timestamp = new Date(op.timestamp);
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load sync queue:', error);
-      this.syncQueue = [];
-    }
-  }
-
-  private notifyStatusChange(): void {
-    const status = this.getSyncStatus();
-    this.listeners.forEach(callback => {
-      try {
-        callback(status);
-      } catch (error) {
-        console.error('Error in sync status callback:', error);
-      }
-    });
-  }
-
-  private startPeriodicSync(): void {
-    // Sync every 5 minutes when online
-    setInterval(() => {
-      if (this.isOnline && !this.syncInProgress && this.syncQueue.length > 0) {
-        this.processSyncQueue();
-      }
-    }, 5 * 60 * 1000);
-  }
-
-  /**
-   * Export data for backup
-   */
-  async exportData(): Promise<{
-    documents: StoredDocument[];
-    metadata: ExtendedFileMetadata[];
-    syncQueue: SyncOperation[];
-    timestamp: Date;
-  }> {
-    const documents = await localStorageService.getAllDocuments();
-    const metadata = fileMetadataService.getStatistics();
-    
-    return {
-      documents,
-      metadata: [], // Would need to implement getAll in metadata service
-      syncQueue: this.syncQueue,
-      timestamp: new Date()
-    };
-  }
-
-  /**
-   * Import data from backup
-   */
-  async importData(data: {
-    documents: StoredDocument[];
-    metadata: ExtendedFileMetadata[];
-    syncQueue: SyncOperation[];
-  }): Promise<void> {
-    // Clear existing data
-    await localStorageService.clearAll();
-
-    // Import documents
-    for (const doc of data.documents) {
-      await localStorageService.storeDocument(doc, doc.fileInfo, doc.tags);
-    }
-
-    // Import metadata
-    for (const meta of data.metadata) {
-      // Would need to implement import in metadata service
-    }
-
-    // Import sync queue
-    this.syncQueue = data.syncQueue;
-    await this.saveQueueToStorage();
-
-    this.notifyStatusChange();
-  }
-}
-
-export const offlineSyncService = new OfflineSyncService();
