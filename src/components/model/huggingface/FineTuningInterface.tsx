@@ -28,7 +28,7 @@ import {
   FineTuningMethod,
   FineTuningConfig,
   TrainingMetrics
-} from '../../../types/huggingface/index';
+} from '../../../types/huggingface';
 
 interface FineTuningInterfaceProps {
   model: HuggingFaceModel;
