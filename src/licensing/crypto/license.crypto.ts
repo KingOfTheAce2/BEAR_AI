@@ -15,9 +15,6 @@ import { execSync } from 'node:child_process';
 import * as os from 'node:os';
 
 const bytesToEncoding = (data: Uint8Array | Buffer, encoding: BufferEncoding): string => {
-  if (Buffer.isBuffer(data)) {
-    return data.toString(encoding);
-  }
   return Buffer.from(data).toString(encoding);
 };
 
