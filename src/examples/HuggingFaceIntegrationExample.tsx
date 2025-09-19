@@ -8,12 +8,10 @@ import {
   HuggingFaceModelSelector,
   FineTuningInterface,
   HuggingFaceService,
-  ModelSwitcher,
   LocalModelManager,
   ModelBenchmarking,
   CompatibilityValidator,
   HuggingFaceModel,
-  ModelSearchFilters,
   LegalCategory,
   CompatibilityResult,
   FineTuningConfig
@@ -29,19 +27,21 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
   currentModel,
   onModelChange
 }) => {
+  const legalOptimizationPreferences = {
+    prioritizeLegalModels: true,
+    enablePrivacyMode: true,
+    requireOpenSource: false,
+    filterNonCommercial: false
+  } as const;
+
   const [hfService] = useState(() => new HuggingFaceService({
-    apiToken: process.env.REACT_APP_HUGGINGFACE_TOKEN,
-    legalOptimizations: {
-      prioritizeLegalModels: true,
-      enablePrivacyMode: true,
-      requireOpenSource: false,
-      filterNonCommercial: false
-    }
+    apiKey: process.env.REACT_APP_HUGGINGFACE_TOKEN,
+    downloadPath: './models',
+    localCacheEnabled: true
   }));
 
   const [modelManager] = useState(() => new CoreModelManager());
   const [localModelManager] = useState(() => new LocalModelManager('./models'));
-  const [modelSwitcher] = useState(() => new ModelSwitcher(modelManager, hfService));
   const [benchmarking] = useState(() => new ModelBenchmarking());
   const [compatibilityValidator] = useState(() => new CompatibilityValidator());
 
@@ -91,7 +91,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
   const checkModelCompatibility = async (model: HuggingFaceModel) => {
     try {
-      const result = await compatibilityValidator.validateModel(model);
+      const result = await compatibilityValidator.validateCompatibility(model);
       setCompatibility(result);
 
       if (!result.compatible) {
@@ -137,30 +137,16 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
     }
 
     try {
-      const result = await modelSwitcher.switchModel(model.id, {
-        preload: true,
-        validateCompatibility: true,
-        backupConfiguration: true,
-        customConfiguration: {
-          temperature: 0.3,
-          maxLength: 2048,
-          legalOptimizations: {
-            enableCitations: true,
-            strictFactChecking: true,
-            conservativeAnswers: true,
-            jurisdictionAware: true,
-            privacyMode: true
-          }
-        }
-      });
+      const previousModelId = selectedModel?.id || currentModel?.id || '';
+      const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const startTime = now();
 
-      if (result.success) {
-        setSelectedModel(model);
-        onModelChange(model);
-        console.log('Model switch completed in', result.switchTime, 'ms');
-      } else {
-        alert(`Model switch failed: ${result.errors.join(', ')}`);
-      }
+      await modelManager.switchModel(previousModelId, model.id);
+
+      const switchDuration = Math.round(now() - startTime);
+      setSelectedModel(model);
+      onModelChange(model);
+      console.log('Model switch completed in', switchDuration, 'ms');
     } catch (error) {
       console.error('Model switch failed:', error);
       alert(`Failed to switch to ${model.modelId}`);
@@ -172,22 +158,28 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
     try {
       setActiveView('benchmark');
-      
-      const results = await benchmarking.benchmarkModel(selectedModel, [
-        'contract_analysis_v1',
-        'document_review_v1',
-        'legal_research_v1'
-      ], {
-        parallelTasks: true,
-        maxDuration: 30,
-        includeStress: false
+
+      const result = await benchmarking.benchmarkModel(selectedModel, progress => {
+        console.log(
+          `Benchmark progress: ${progress.current}/${progress.total} - ${progress.stage}`
+        );
       });
 
-      console.log('Benchmark results:', results);
-      
-      // Show results in UI (would implement detailed results view)
-      alert(`Benchmark completed! Overall score: ${results.reduce((sum, r) => sum + r.overallScore, 0) / results.length}/100`);
-      
+      console.log('Benchmark result:', result);
+
+      const latencyScore = Math.max(0, 100 - result.metrics.latency.mean);
+      const throughputScore = Math.min(result.metrics.throughput.tokensPerSecond, 100);
+      const accuracyScore = result.metrics.accuracy.score;
+      const estimatedOverall = Math.round(
+        latencyScore * 0.2 + throughputScore * 0.3 + accuracyScore * 0.5
+      );
+
+      alert(
+        `Benchmark completed! Estimated overall score: ${estimatedOverall}/100\n` +
+          `Latency: ${result.metrics.latency.mean.toFixed(1)} ms • ` +
+          `Throughput: ${result.metrics.throughput.tokensPerSecond.toFixed(2)} tokens/s`
+      );
+
     } catch (error) {
       console.error('Benchmark failed:', error);
       alert('Benchmark failed. Check console for details.');
@@ -218,27 +210,23 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
     if (!selectedModel || !compatibility) return;
 
     try {
-      const optimizations = compatibility.optimizations.filter(o => o.automated);
-      
-      if (optimizations.length === 0) {
+      const automatedOptimizations = compatibility.optimizations
+        ? compatibility.optimizations.filter(o => o.automated)
+        : [];
+
+      if (automatedOptimizations.length === 0) {
         alert('No automatic optimizations available');
         return;
       }
 
-      const result = await compatibilityValidator.applyOptimizations(
-        selectedModel.id,
-        optimizations.map(o => o.id)
+      alert(
+        'Suggested optimizations:\n' +
+          automatedOptimizations
+            .map(opt => `• ${opt.description}${opt.estimatedImprovement ? ` (≈${opt.estimatedImprovement}% improvement)` : ''}`)
+            .join('\n')
       );
 
-      if (result.applied.length > 0) {
-        alert(`Applied ${result.applied.length} optimizations successfully`);
-        // Refresh compatibility check
-        await checkModelCompatibility(selectedModel);
-      }
-
-      if (result.failed.length > 0) {
-        console.warn('Failed optimizations:', result.failed);
-      }
+      await checkModelCompatibility(selectedModel);
 
     } catch (error) {
       console.error('Optimization failed:', error);
@@ -248,21 +236,33 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
   const getRecommendations = async () => {
     try {
-      const recommendations = await hfService.getModelRecommendations([
+      const categories: LegalCategory[] = [
         LegalCategory.CONTRACT_ANALYSIS,
         LegalCategory.DOCUMENT_REVIEW,
         LegalCategory.LEGAL_RESEARCH
-      ], {
-        maxModelSize: 7000, // 7GB
-        requiresGpu: false,
-        maxInferenceTime: 30000 // 30 seconds
-      });
+      ];
+
+      const recommendationGroups = await Promise.all(
+        categories.map(category => hfService.getRecommendations(category, 5))
+      );
+
+      const recommendations = recommendationGroups
+        .flat()
+        .filter(rec => {
+          if (legalOptimizationPreferences.requireOpenSource && rec.model.license) {
+            return rec.model.license.toLowerCase().includes('apache') ||
+              rec.model.license.toLowerCase().includes('mit') ||
+              rec.model.license.toLowerCase().includes('open');
+          }
+          return true;
+        });
 
       console.log('Model recommendations:', recommendations);
-      
-      // In a real implementation, would show recommendations in UI
-      alert(`Found ${recommendations.length} recommended models for your use case`);
-      
+
+      alert(
+        `Found ${recommendations.length} recommended models across ${categories.length} legal tasks.`
+      );
+
     } catch (error) {
       console.error('Failed to get recommendations:', error);
     }

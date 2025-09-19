@@ -42,15 +42,18 @@ export interface ModelSearchFilters {
   full?: boolean;
 }
 
-export type LegalCategory = 
-  | 'contract-analysis'
-  | 'legal-research'
-  | 'compliance-check'
-  | 'document-review'
-  | 'case-law-analysis'
-  | 'regulatory-compliance'
-  | 'risk-assessment'
-  | 'legal-drafting';
+export const LegalCategory = {
+  CONTRACT_ANALYSIS: 'contract_analysis',
+  LEGAL_RESEARCH: 'legal_research',
+  COMPLIANCE_CHECK: 'compliance_check',
+  DOCUMENT_REVIEW: 'document_review',
+  CASE_LAW_ANALYSIS: 'case_law_analysis',
+  REGULATORY_COMPLIANCE: 'regulatory_compliance',
+  RISK_ASSESSMENT: 'risk_assessment',
+  LEGAL_DRAFTING: 'legal_drafting'
+} as const;
+
+export type LegalCategory = typeof LegalCategory[keyof typeof LegalCategory];
 
 export interface ModelRecommendation {
   model: HuggingFaceModel;
@@ -65,8 +68,18 @@ export interface ModelRecommendation {
   };
 }
 
+export interface CompatibilityOptimization {
+  id: string;
+  description: string;
+  automated: boolean;
+  impact: 'low' | 'medium' | 'high';
+  estimatedImprovement?: number;
+}
+
 export interface CompatibilityResult {
   compatible: boolean;
+  score: number;
+  confidence: number;
   issues: string[];
   warnings: string[];
   requirements: {
@@ -75,6 +88,7 @@ export interface CompatibilityResult {
     computeCapability?: string;
   };
   recommendations: string[];
+  optimizations: CompatibilityOptimization[];
 }
 
 export interface ResourceRequirements {

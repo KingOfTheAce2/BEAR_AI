@@ -125,13 +125,6 @@ export const StreamingChat: React.FC<StreamingChatProps> = ({
     }
   }, [inputValue, isConnected, isStreaming, streamMessage, streamingOptions, maxMessages, onMessageSent, onMessageReceived]);
 
-  const handleKeyPress: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   const getCurrentStreamingMessage = (): IStreamingMessage | null => {
     if (!isStreaming || !currentMessage) return null;
     
@@ -213,7 +206,12 @@ export const StreamingChat: React.FC<StreamingChatProps> = ({
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyPress={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault();
+                  handleSendMessage();
+                }
+              }}
               disabled={isInputDisabled || !isConnected}
               placeholder={
                 !isConnected 
