@@ -14,6 +14,17 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import * as os from 'node:os';
 
+const bytesToEncoding = (data: Uint8Array | Buffer, encoding: BufferEncoding): string => {
+  if (Buffer.isBuffer(data)) {
+    return data.toString(encoding);
+  }
+  return Buffer.from(data).toString(encoding);
+};
+
+const bytesToHex = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'hex');
+const bytesToBase64 = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'base64');
+const bytesToUtf8 = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'utf8');
+
 type JsonRecord = Record<string, unknown>;
 
 export class LicenseCrypto {
@@ -128,12 +139,12 @@ export class LicenseCrypto {
     let encrypted = cipher.update(data, 'utf8', 'hex');
     encrypted += cipher.final('hex');
 
-    const authTagHex = cipher.getAuthTag().toString('hex');
+    const authTagHex = bytesToHex(cipher.getAuthTag());
 
     return {
       encrypted: encrypted + authTagHex, // ciphertext || authTag
-      iv: iv.toString('hex'),
-      salt: salt.toString('hex')
+      iv: bytesToHex(iv),
+      salt: bytesToHex(salt)
     };
   }
 
@@ -172,7 +183,7 @@ export class LicenseCrypto {
   static generateActivationCode(): string {
     const segments: string[] = [];
     for (let i = 0; i < 4; i++) {
-      const segment = crypto.randomBytes(2).toString('hex').toUpperCase();
+      const segment = bytesToHex(crypto.randomBytes(2)).toUpperCase();
       segments.push(segment);
     }
     return segments.join('-');
@@ -232,7 +243,7 @@ export class LicenseCrypto {
 
     // key || iv || ciphertext
     const combined = Buffer.concat([key, iv, encryptedBuffer]);
-    return combined.toString('base64');
+    return bytesToBase64(combined);
   }
 
   /**
@@ -247,7 +258,7 @@ export class LicenseCrypto {
 
       const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
       const decryptedBuffer = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-      return decryptedBuffer.toString('utf8');
+      return bytesToUtf8(decryptedBuffer);
     } catch {
       throw new Error('Failed to deobfuscate license data');
     }
@@ -359,7 +370,8 @@ function isVmLinux(reasons: string[]): boolean {
 
   const read = (p: string) => {
     try {
-      return readFileSync(p, 'utf8').toLowerCase();
+      const content = readFileSync(p, { encoding: 'utf8' }) as string;
+      return content.toLowerCase();
     } catch {
       return '';
     }
@@ -394,7 +406,8 @@ function isVmLinux(reasons: string[]): boolean {
 function isVmWindows(reasons: string[]): boolean {
   const tryExec = (cmd: string) => {
     try {
-      return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).toLowerCase();
+      const output = execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) as string;
+      return output.toLowerCase();
     } catch {
       return '';
     }
@@ -417,7 +430,8 @@ function isVmWindows(reasons: string[]): boolean {
 function isVmMac(reasons: string[]): boolean {
   const tryExec = (cmd: string) => {
     try {
-      return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).toLowerCase();
+      const output = execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) as string;
+      return output.toLowerCase();
     } catch {
       return '';
     }

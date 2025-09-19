@@ -406,7 +406,7 @@ export class EnvironmentConfigLoader {
   }
 
   private async loadConfigFile(filePath: string, format: 'json' | 'yaml' | 'env'): Promise<any> {
-    const content = readFileSync(filePath, 'utf8');
+    const content = readFileSync(filePath, { encoding: 'utf8' }) as string;
 
     switch (format) {
       case 'json':
