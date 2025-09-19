@@ -15,6 +15,7 @@ import {
 interface DocumentCardProps {
   document: Document;
   viewMode: 'grid' | 'list';
+  [extra: string]: unknown;
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({ document, viewMode }) => {

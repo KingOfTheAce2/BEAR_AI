@@ -16,3 +16,18 @@ export const animations = {
   slideUp: 'animate-in slide-in-from-bottom fade-in',
   slideDown: 'animate-out slide-out-to-bottom fade-out',
 };
+
+// Responsive breakpoint helpers used across the legacy UI surface
+export const responsive = {
+  mobileOnly: 'max-sm',
+  tablet: 'sm:max-lg',
+  desktop: 'lg:max-2xl',
+  widescreen: '2xl',
+};
+
+// Lightweight theme helpers to avoid optional chaining in callers
+export const theme = {
+  light: 'theme-light',
+  dark: 'theme-dark',
+  highContrast: 'theme-high-contrast',
+};

@@ -97,7 +97,17 @@ export const EnhancedButton = React.forwardRef<HTMLButtonElement, EnhancedButton
     const [isFocused, setIsFocused] = useState(false);
     
     // Use the forwarded ref or create our own
-    const internalRef = (ref as RefObject<HTMLButtonElement>) || buttonRef;
+    const resolveRef = (
+      targetRef: React.ForwardedRef<HTMLButtonElement>,
+      fallback: React.MutableRefObject<HTMLButtonElement | null>
+    ): React.MutableRefObject<HTMLButtonElement | null> => {
+      if (targetRef && typeof targetRef !== 'function') {
+        return targetRef as React.MutableRefObject<HTMLButtonElement | null>;
+      }
+      return fallback;
+    };
+
+    const internalRef = resolveRef(ref, buttonRef);
     
     const { transitionTo, applySpring } = useAnimation(internalRef);
     

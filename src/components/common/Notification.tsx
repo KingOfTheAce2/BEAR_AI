@@ -20,6 +20,7 @@ export interface NotificationProps extends NotificationConfig {
   onAction?: (action: NotificationAction) => void
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center'
   showProgress?: boolean
+  [extra: string]: unknown
 }
 
 const Notification: React.FC<NotificationProps> = ({

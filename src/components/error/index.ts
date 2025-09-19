@@ -24,7 +24,7 @@ export type { ErrorBoundaryProps, ErrorFallbackProps as UIErrorFallbackProps } f
 // Error Service Exports
 export { ErrorHandler, createErrorHandler, setGlobalErrorHandler, getGlobalErrorHandler, handleError } from '../../services/errorHandler';
 export { Logger, createLogger, setGlobalLogger, getGlobalLogger, log } from '../../services/logger';
-export { ErrorAnalyticsService, createErrorAnalytics, setGlobalErrorAnalytics, getGlobalErrorAnalytics } from '../../services/errorAnalytics';
+export { createErrorAnalytics, setGlobalErrorAnalytics, getGlobalErrorAnalytics } from '../../services/errorAnalytics';
 export { APIErrorMiddleware, createAPIClient } from '../../services/apiErrorMiddleware';
 export { ErrorSystem, initializeErrorSystem, getGlobalErrorSystem, shutdownErrorSystem, setupErrorHandling } from '../../services/errorSystem';
 
@@ -49,7 +49,8 @@ export type {
   ErrorMetrics,
   ErrorAlert,
   ErrorReport,
-  ErrorAnalyticsConfig
+  ErrorAnalyticsConfig,
+  ErrorAnalyticsService
 } from '../../services/errorAnalytics';
 
 export type {
