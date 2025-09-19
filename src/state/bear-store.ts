@@ -449,13 +449,15 @@ export const useBearStore = create<BearStore>()(
             startedAt: new Date()
           }
 
-          const store = get()
-          store.addTask(task)
-          store.updateDocument(documentId, { status: 'processing' })
+          // Get store actions
+          const { addTask, updateDocument, updateTask, getActiveAgents, updateAgent, completeTask, addNotification } = get()
+          
+          addTask(task)
+          updateDocument(documentId, { status: 'processing' })
 
           try {
             // Assign appropriate agents
-            const availableAgents = store.getActiveAgents().filter(agent => 
+            const availableAgents = getActiveAgents().filter(agent => 
               agent.status === 'idle' && 
               agent.capabilities.some(cap => analysisType.includes(cap))
             )
@@ -465,14 +467,14 @@ export const useBearStore = create<BearStore>()(
             }
 
             const assignedAgentIds = availableAgents.slice(0, 2).map(agent => agent.id)
-            store.updateTask(taskId, { 
+            updateTask(taskId, { 
               assignedAgents: assignedAgentIds,
               status: 'in-progress'
             })
 
             // Mark agents as busy
             assignedAgentIds.forEach(agentId => {
-              store.updateAgent(agentId, { 
+              updateAgent(agentId, { 
                 status: 'busy', 
                 currentTask: taskId 
               })
@@ -481,7 +483,7 @@ export const useBearStore = create<BearStore>()(
             // Simulate processing
             for (let i = 0; i <= 100; i += 20) {
               await new Promise(resolve => setTimeout(resolve, 200))
-              get().updateTask(taskId, { progress: i })
+              updateTask(taskId, { progress: i })
             }
 
             // Mock analysis result
@@ -499,9 +501,8 @@ export const useBearStore = create<BearStore>()(
             }
 
             // Complete task
-            const finalStore = get()
-            finalStore.completeTask(taskId, analysis)
-            finalStore.updateDocument(documentId, { 
+            completeTask(taskId, analysis)
+            updateDocument(documentId, { 
               status: 'processed', 
               analysis,
               processedAt: new Date()
@@ -509,24 +510,24 @@ export const useBearStore = create<BearStore>()(
 
             // Free up agents
             assignedAgentIds.forEach(agentId => {
-              finalStore.updateAgent(agentId, { 
+              updateAgent(agentId, { 
                 status: 'idle', 
                 currentTask: undefined 
               })
             })
 
-            finalStore.addNotification({
+            addNotification({
               type: 'success',
               title: 'Document Processed',
               message: `${document.name} has been successfully analyzed`
             })
 
           } catch (error: any) {
-            const errorStore = get()
-            errorStore.failTask(taskId, error?.message || 'Unknown error')
-            errorStore.updateDocument(documentId, { status: 'error' })
+            const { failTask, updateDocument, addNotification } = get()
+            failTask(taskId, error?.message || 'Unknown error')
+            updateDocument(documentId, { status: 'error' })
 
-            errorStore.addNotification({
+            addNotification({
               type: 'error',
               title: 'Processing Failed',
               message: `Failed to process ${document.name}: ${error?.message || 'Unknown error'}`
@@ -535,20 +536,20 @@ export const useBearStore = create<BearStore>()(
         },
 
         coordinateAgents: async (taskId, agentIds) => {
-          const store = get()
-          const task = store.tasks[taskId]
+          const { tasks, updateTask, updateAgent } = get()
+          const task = tasks[taskId]
           if (!task) {
             throw new Error(`Task ${taskId} not found`)
           }
 
-          store.updateTask(taskId, { 
+          updateTask(taskId, { 
             assignedAgents: agentIds,
             status: 'in-progress'
           })
 
           // Update agent statuses
           agentIds.forEach(agentId => {
-            store.updateAgent(agentId, {
+            updateAgent(agentId, {
               status: 'busy',
               currentTask: taskId
             })
@@ -556,9 +557,9 @@ export const useBearStore = create<BearStore>()(
         },
 
         optimizeAgentAllocation: () => {
-          const store = get()
-          const pendingTasks = store.getTasksByStatus('pending')
-          const idleAgents = store.getActiveAgents().filter(agent => agent.status === 'idle')
+          const { getTasksByStatus, getActiveAgents, coordinateAgents } = get()
+          const pendingTasks = getTasksByStatus('pending')
+          const idleAgents = getActiveAgents().filter(agent => agent.status === 'idle')
 
           // Simple allocation algorithm
           pendingTasks.forEach(task => {
@@ -568,7 +569,7 @@ export const useBearStore = create<BearStore>()(
 
             if (suitableAgents.length > 0) {
               const selectedAgent = suitableAgents[0]
-              store.coordinateAgents(task.id, [selectedAgent.id])
+              coordinateAgents(task.id, [selectedAgent.id])
             }
           })
         },
@@ -581,6 +582,8 @@ export const useBearStore = create<BearStore>()(
           })
 
           try {
+            const { addAgent, addModel, addNotification } = get()
+
             // Initialize default agents
             const defaultAgents: Agent[] = [
               {
@@ -603,8 +606,7 @@ export const useBearStore = create<BearStore>()(
               }
             ]
 
-            const store = get()
-            defaultAgents.forEach(agent => store.addAgent(agent))
+            defaultAgents.forEach(agent => addAgent(agent))
 
             // Initialize default models
             const defaultModels: LLMModel[] = [
@@ -621,14 +623,14 @@ export const useBearStore = create<BearStore>()(
               }
             ]
 
-            defaultModels.forEach(model => store.addModel(model))
+            defaultModels.forEach(model => addModel(model))
 
             set((state) => {
               state.isInitialized = true
               state.isLoading = false
             })
 
-            get().addNotification({
+            addNotification({
               type: 'success',
               title: 'System Initialized',
               message: 'BEAR AI is ready for document processing'
