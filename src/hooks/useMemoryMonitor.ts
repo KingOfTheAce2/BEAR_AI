@@ -377,7 +377,12 @@ export function useMemoryAlerts(thresholds?: { warning: number; critical: number
     onCriticalMemory: () => {
       setAlerts(prev => [...prev.slice(-9), { type: 'critical', timestamp: Date.now() }]);
     },
-    config: thresholds ? { thresholds: { ...DEFAULT_MEMORY_CONFIG.thresholds, ...thresholds } } : undefined,
+    config: thresholds
+      ? {
+          warningThreshold: thresholds.warning ?? DEFAULT_MEMORY_CONFIG.warningThreshold,
+          criticalThreshold: thresholds.critical ?? DEFAULT_MEMORY_CONFIG.criticalThreshold,
+        }
+      : undefined,
   });
 
   const clearAlerts = useCallback(() => {

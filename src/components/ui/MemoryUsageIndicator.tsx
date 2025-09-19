@@ -60,6 +60,12 @@ const MemoryUsageIndicator = React.forwardRef<HTMLDivElement, MemoryUsageIndicat
     ...props
   }, ref) => {
     const usagePercentage = memoryInfo?.usagePercentage || 0;
+    const usedMemory = memoryInfo?.usedMemory ?? memoryInfo?.used ?? 0;
+    const availableMemory = memoryInfo?.availableMemory ?? memoryInfo?.available ?? 0;
+    const totalMemory = memoryInfo?.totalMemory ?? memoryInfo?.total ?? 0;
+    const processMemory = memoryInfo?.processMemory ?? null;
+    const trendRate = trend?.changeRate ?? trend?.rate ?? 0;
+    const trendConfidence = typeof trend?.confidence === 'number' ? trend.confidence : undefined;
     const severity = getMemoryUsageSeverity(usagePercentage, customThresholds);
 
     const sizes = {
@@ -248,12 +254,12 @@ const MemoryUsageIndicator = React.forwardRef<HTMLDivElement, MemoryUsageIndicat
                       : 'text-muted-foreground'
                 )} 
               />
-              <span className="text-muted-foreground">
-                {trend.direction === 'stable' 
-                  ? 'Stable' 
-                  : `${trend.direction} ${formatTrendRate(trend.rate)}`
-                }
-              </span>
+            <span className="text-muted-foreground">
+              {trend.direction === 'stable'
+                ? 'Stable'
+                : `${trend.direction} ${formatTrendRate(trendRate)}`
+              }
+            </span>
             </div>
           )}
         </div>
@@ -327,25 +333,25 @@ const MemoryUsageIndicator = React.forwardRef<HTMLDivElement, MemoryUsageIndicat
             <div>
               <span className="text-muted-foreground">Used</span>
               <div className="font-medium tabular-nums">
-                {formatMemorySize(memoryInfo.usedMemory)}
+                {formatMemorySize(usedMemory)}
               </div>
             </div>
             <div>
               <span className="text-muted-foreground">Available</span>
               <div className="font-medium tabular-nums">
-                {formatMemorySize(memoryInfo.availableMemory)}
+                {formatMemorySize(availableMemory)}
               </div>
             </div>
             <div>
               <span className="text-muted-foreground">Process</span>
               <div className="font-medium tabular-nums">
-                {formatMemorySize(memoryInfo.processMemory)}
+                {formatMemorySize(processMemory ?? 0)}
               </div>
             </div>
             <div>
               <span className="text-muted-foreground">Total</span>
               <div className="font-medium tabular-nums">
-                {formatMemorySize(memoryInfo.totalMemory)}
+                {formatMemorySize(totalMemory)}
               </div>
             </div>
           </div>
@@ -354,26 +360,26 @@ const MemoryUsageIndicator = React.forwardRef<HTMLDivElement, MemoryUsageIndicat
         {/* Trend */}
         {showTrend && trend && (
           <div className="flex items-center gap-2 pt-2 border-t text-sm">
-            <TrendIcon 
+            <TrendIcon
               className={cn(
                 'h-4 w-4',
-                trend.direction === 'increasing' 
-                  ? 'text-red-500' 
-                  : trend.direction === 'decreasing' 
-                    ? 'text-green-500' 
+                trend.direction === 'increasing'
+                  ? 'text-red-500'
+                  : trend.direction === 'decreasing'
+                    ? 'text-green-500'
                     : 'text-muted-foreground'
-              )} 
+              )}
             />
             <span className="text-muted-foreground">Trend:</span>
             <span className="font-medium">
-              {trend.direction === 'stable' 
-                ? 'Stable usage' 
-                : `${trend.direction} at ${formatTrendRate(trend.rate)}`
+              {trend.direction === 'stable'
+                ? 'Stable usage'
+                : `${trend.direction} at ${formatTrendRate(trendRate)}`
               }
             </span>
-            {trend.confidence > 0 && (
+            {trendConfidence !== undefined && trendConfidence > 0 && (
               <span className="text-xs text-muted-foreground">
-                ({Math.round(trend.confidence * 100)}% confidence)
+                ({Math.round(trendConfidence * 100)}% confidence)
               </span>
             )}
           </div>

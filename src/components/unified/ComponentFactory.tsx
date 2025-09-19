@@ -64,7 +64,7 @@ export function withBearAI<P extends BaseComponentProps>(
   Component: React.ComponentType<P>,
   metadata: ComponentMetadata
 ) {
-  const WrappedComponent = memo(forwardRef<HTMLElement, P & FactoryComponentProps>(
+  const WrappedComponent = memo(forwardRef<any, P & FactoryComponentProps>(
     (props, ref) => {
       const {
         className,
@@ -220,8 +220,8 @@ export function withBearAI<P extends BaseComponentProps>(
       try {
         return (
           <Component
-            {...(rest as P)}
-            ref={ref}
+            {...(rest as unknown as P)}
+            ref={ref as any}
             className={cn(
               disabled && "opacity-50 cursor-not-allowed pointer-events-none",
               className

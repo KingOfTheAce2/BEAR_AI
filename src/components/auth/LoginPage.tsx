@@ -75,7 +75,7 @@ export const LoginPage: React.FC = () => {
                 label="Email address"
                 type="email"
                 value={formData.email}
-                onChange={(value) => handleInputChange('email', value)}
+                onValueChange={(value) => handleInputChange('email', value)}
                 error={errors.email}
                 placeholder="sarah@lawfirm.com"
                 disabled={state.isLoading}
@@ -88,7 +88,7 @@ export const LoginPage: React.FC = () => {
                 label="Password"
                 type="password"
                 value={formData.password}
-                onChange={(value) => handleInputChange('password', value)}
+                onValueChange={(value) => handleInputChange('password', value)}
                 error={errors.password}
                 placeholder="Enter your password"
                 disabled={state.isLoading}
