@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import type { DragEvent } from 'react';
 import {
   CloudArrowUpIcon,
   DocumentTextIcon,
@@ -136,23 +137,23 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setIsDragOver(false);
-    
-    const files = e.dataTransfer.files;
+
+    const files = event.dataTransfer.files;
     if (files.length > 0) {
       handleFiles(files);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setIsDragOver(false);
   };
 

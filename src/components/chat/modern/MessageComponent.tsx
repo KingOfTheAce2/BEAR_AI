@@ -1,4 +1,5 @@
 import React, { useState, forwardRef, useRef, useEffect } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Message } from '../../../types/chat';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -96,11 +97,11 @@ const MessageComponent = forwardRef<HTMLDivElement, MessageComponentProps>(({
     });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSaveEdit();
-    } else if (e.key === 'Escape') {
+    } else if (event.key === 'Escape') {
       handleCancelEdit();
     }
   };

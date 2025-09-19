@@ -35,8 +35,8 @@ export const UnifiedStatusBar: React.FC<UnifiedStatusBarProps> = ({ systemStatus
         return { color: 'text-green-500', text: 'Secure Connection' };
       case 'warning':
         return { color: 'text-yellow-500', text: 'Security Warning' };
-      case 'insecure':
-        return { color: 'text-red-500', text: 'Insecure Connection' };
+      case 'error':
+        return { color: 'text-red-500', text: 'Security Error' };
       default:
         return { color: 'text-gray-500', text: 'Security Unknown' };
     }

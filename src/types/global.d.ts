@@ -756,6 +756,14 @@ declare module 'react-router-dom' {
     children?: ReactNode;
   }
 
+  export interface Location {
+    pathname: string;
+    search: string;
+    hash: string;
+    state?: unknown;
+    key?: string;
+  }
+
   export interface RouteProps {
     path?: string;
     element?: ReactNode;
@@ -772,6 +780,7 @@ declare module 'react-router-dom' {
   export function Navigate(props: { to: string; replace?: boolean }): JSX.Element;
   export function useNavigate(): (path: string) => void;
   export function useParams<T = {}>(): T;
+  export function useLocation(): Location;
   export function Link(props: { to: string; children?: ReactNode; className?: string }): JSX.Element;
 }
 
@@ -790,6 +799,7 @@ declare module 'lucide-react' {
   export const Brain: FC<IconProps>;
   export const MessageSquare: FC<IconProps>;
   export const FileText: FC<IconProps>;
+  export const BookOpen: FC<IconProps>;
   export const Search: FC<IconProps>;
   export const Plus: FC<IconProps>;
   export const X: FC<IconProps>;
@@ -1120,10 +1130,13 @@ declare module '@heroicons/react/24/outline' {
   export const ChevronUpIcon: FC<IconProps>;
   export const ChevronLeftIcon: FC<IconProps>;
   export const ChevronRightIcon: FC<IconProps>;
+  export const ChevronDoubleLeftIcon: FC<IconProps>;
+  export const ChevronDoubleRightIcon: FC<IconProps>;
   export const ArrowLeftIcon: FC<IconProps>;
   export const ArrowRightIcon: FC<IconProps>;
   export const ArrowUpIcon: FC<IconProps>;
   export const ArrowDownIcon: FC<IconProps>;
+  export const ArrowRightOnRectangleIcon: FC<IconProps>;
   export const PlusIcon: FC<IconProps>;
   export const MinusIcon: FC<IconProps>;
   export const Squares2X2Icon: FC<IconProps>;

@@ -141,6 +141,15 @@ export interface Agent {
   };
 }
 
+export interface AgentMetrics {
+  averageResponseTime: number;
+  tasksCompleted: number;
+  successRate: number;
+  memoryUsage?: number;
+  reliabilityScore?: number;
+  throughput?: number;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -186,6 +195,44 @@ export interface NotificationAction {
   action: () => void;
 }
 
+export interface Option {
+  label: string;
+  value: string;
+  description?: string;
+  disabled?: boolean;
+}
+
+export interface ValidationRule {
+  type: 'required' | 'minLength' | 'maxLength' | 'pattern' | 'custom';
+  message: string;
+  value?: number | string | RegExp;
+  validate?: (value: unknown) => boolean;
+}
+
+export interface FormField {
+  id: string;
+  name: string;
+  label: string;
+  type:
+    | 'text'
+    | 'textarea'
+    | 'select'
+    | 'number'
+    | 'checkbox'
+    | 'radio'
+    | 'date'
+    | 'email'
+    | 'password';
+  value?: string | number | boolean | string[];
+  placeholder?: string;
+  description?: string;
+  options?: Option[];
+  validation?: ValidationRule[];
+  required?: boolean;
+  disabled?: boolean;
+  helperText?: string;
+}
+
 // Conversation Management Types
 export interface Conversation {
   id: string;
@@ -197,3 +244,5 @@ export interface Conversation {
   updatedAt: Date;
   metadata?: Record<string, any>;
 }
+
+export type ResponsiveBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';

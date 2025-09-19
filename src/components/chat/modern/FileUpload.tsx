@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import type { DragEvent } from 'react';
 import './FileUpload.css';
 
 interface FileUploadProps {
@@ -87,33 +88,33 @@ const FileUpload: React.FC<FileUploadProps> = ({
     setIsProcessing(false);
   }, [disabled, maxFiles, maxSize, acceptedTypes]);
 
-  const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
     setIsDragOver(true);
   }, []);
 
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     // Only set drag over to false if we're leaving the drop area entirely
-    if (dropAreaRef.current && !dropAreaRef.current.contains(e.relatedTarget as Node)) {
+    if (dropAreaRef.current && !dropAreaRef.current.contains(event.relatedTarget as Node)) {
       setIsDragOver(false);
     }
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
     setIsDragOver(false);
 
-    const files = e.dataTransfer.files;
+    const files = event.dataTransfer.files;
     if (files.length > 0) {
       processFiles(files);
     }

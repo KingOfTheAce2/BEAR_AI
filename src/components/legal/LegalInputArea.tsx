@@ -1,4 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import type { KeyboardEvent } from 'react';
 import { PracticeArea, Jurisdiction } from '../../types/legal';
 import './LegalInputArea.css';
 
@@ -146,9 +147,9 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   };
 
   // Handle key press
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyPress = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSend();
     }
   };

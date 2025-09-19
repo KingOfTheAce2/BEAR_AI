@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
+import type { DragEvent } from 'react';
 import { localFileSystemService, LocalFile } from '../../services/localFileSystem';
 import { documentParserService, ParsedDocument } from '../../services/documentParser';
 import { localStorageService, StoredDocument } from '../../services/localStorage';
@@ -164,29 +165,29 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setIsDragOver(false);
     dragCounterRef.current = 0;
 
-    const files = Array.from(e.dataTransfer.files);
+    const files = Array.from(event.dataTransfer?.files ?? []);
     handleFileSelection(files);
   }, [handleFileSelection]);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
   }, []);
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     dragCounterRef.current++;
     if (dragCounterRef.current === 1) {
       setIsDragOver(true);
     }
   }, []);
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     dragCounterRef.current--;
     if (dragCounterRef.current === 0) {
       setIsDragOver(false);

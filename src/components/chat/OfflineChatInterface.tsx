@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import type { KeyboardEvent } from 'react';
 import { chatSessionService, ChatSession } from '../../services/chatSessions';
 import { ChatMessage } from '../../services/localChatHistory';
 import LocalChatHistory from './LocalChatHistory';
@@ -165,9 +166,9 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage();
     }
   };
