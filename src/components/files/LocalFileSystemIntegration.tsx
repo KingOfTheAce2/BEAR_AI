@@ -162,7 +162,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
 
   const handleForceSync = useCallback(async () => {
     try {
-      await offlineSyncService.forcSync();
+      await offlineSyncService.forceSync();
     } catch (error) {
       console.error('Sync failed:', error);
       onError?.('Synchronization failed');
