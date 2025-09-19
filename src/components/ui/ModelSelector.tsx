@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { cn } from '../../utils/cn'
-import { Model, ModelStatus, ModelFamily, CapabilityPerformance } from '../../types/modelTypes'
+import {
+  Model,
+  ModelStatus,
+  ModelStatusType,
+  ModelFamily,
+  CapabilityPerformance
+} from '../../types/modelTypes'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { Button } from './Button'
 import { Input } from './Input'
@@ -49,7 +55,7 @@ export interface ModelSelectorProps {
 
 interface FilterOptions {
   search: string
-  status: ModelStatus[]
+  status: ModelStatusType[]
   family: ModelFamily[]
   capabilities: string[]
   minPerformance: CapabilityPerformance | null
@@ -164,34 +170,43 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     return filtered
   }, [models, filters, sortBy, sortOrder, favorites])
 
-  const getStatusIcon = (status: ModelStatus) => {
+  const statusFilterOptions: ModelStatusType[] = [
+    ModelStatus.AVAILABLE,
+    ModelStatus.INSTALLED,
+    ModelStatus.LOADED
+  ]
+
+  const getStatusIcon = (status: ModelStatusType) => {
     switch (status) {
-      case 'installed':
-      case 'loaded':
+      case ModelStatus.INSTALLED:
+      case ModelStatus.LOADED:
+      case ModelStatus.ACTIVE:
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case 'downloading':
-      case 'loading':
-      case 'updating':
+      case ModelStatus.DOWNLOADING:
+      case ModelStatus.LOADING:
+      case ModelStatus.UPDATING:
         return <LoadingSpinner className="h-4 w-4" />
-      case 'error':
+      case ModelStatus.ERROR:
         return <AlertCircle className="h-4 w-4 text-red-500" />
-      case 'available':
+      case ModelStatus.AVAILABLE:
         return <Download className="h-4 w-4 text-blue-500" />
       default:
         return <Clock className="h-4 w-4 text-gray-400" />
     }
   }
 
-  const getStatusText = (status: ModelStatus) => {
+  const getStatusText = (status: ModelStatusType) => {
     switch (status) {
-      case 'available': return 'Available'
-      case 'downloading': return 'Downloading'
-      case 'installed': return 'Installed'
-      case 'loading': return 'Loading'
-      case 'loaded': return 'Active'
-      case 'error': return 'Error'
-      case 'updating': return 'Updating'
-      case 'uninstalling': return 'Removing'
+      case ModelStatus.AVAILABLE: return 'Available'
+      case ModelStatus.DOWNLOADING: return 'Downloading'
+      case ModelStatus.INSTALLED: return 'Installed'
+      case ModelStatus.LOADING: return 'Loading'
+      case ModelStatus.LOADED:
+      case ModelStatus.ACTIVE: return 'Active'
+      case ModelStatus.ERROR: return 'Error'
+      case ModelStatus.UPDATING: return 'Updating'
+      case ModelStatus.UNLOADING: return 'Removing'
+      case ModelStatus.UNLOADED: return 'Inactive'
       default: return 'Unknown'
     }
   }
@@ -226,8 +241,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     onModelFavorite(modelId)
   }
 
-  const ModelCard: React.FC<{ model: Model }> = ({ model }) => (
-    <Card 
+  const renderModelCard = (model: Model) => (
+    <Card
+      key={model.id}
       className={cn(
         'cursor-pointer transition-all duration-200 hover:shadow-md',
         selectedModel?.id === model.id && 'ring-2 ring-primary',
@@ -253,11 +269,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               }}
               className="p-1"
             >
-              <Heart 
+              <Heart
                 className={cn(
                   'h-4 w-4',
-                  favorites.has(model.id) 
-                    ? 'fill-red-500 text-red-500' 
+                  favorites.has(model.id)
+                    ? 'fill-red-500 text-red-500'
                     : 'text-gray-400 hover:text-red-500'
                 )}
               />
@@ -267,13 +283,17 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             </Button>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 mt-2">
           <Badge variant="outline" className="text-xs">
             {model.family}
           </Badge>
-          <Badge 
-            variant={model.status === 'loaded' ? 'default' : 'secondary'}
+          <Badge
+            variant={
+              [ModelStatus.LOADED, ModelStatus.ACTIVE].includes(model.status)
+                ? 'default'
+                : 'secondary'
+            }
             className="text-xs"
           >
             {getStatusText(model.status)}
@@ -325,7 +345,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {model.status === 'available' && (
+          {model.status === ModelStatus.AVAILABLE && (
             <Button
               size="sm"
               onClick={(e) => {
@@ -338,8 +358,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               Install
             </Button>
           )}
-          
-          {model.status === 'installed' && (
+
+          {model.status === ModelStatus.INSTALLED && (
             <>
               <Button
                 size="sm"
@@ -364,8 +384,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               </Button>
             </>
           )}
-          
-          {model.status === 'loaded' && (
+
+          {(model.status === ModelStatus.LOADED || model.status === ModelStatus.ACTIVE) && (
             <Button
               variant="outline"
               size="sm"
@@ -380,10 +400,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
             </Button>
           )}
 
-          {model.status === 'downloading' && (
+          {model.status === ModelStatus.DOWNLOADING && (
             <div className="flex-1">
               <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
-                <div 
+                <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${model.downloadProgress || 0}%` }}
                 />
@@ -456,14 +476,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               <div>
                 <label className="text-sm font-medium mb-1 block">Status</label>
                 <div className="space-y-1">
-                  {['available', 'installed', 'loaded'].map(status => (
+                  {statusFilterOptions.map(status => (
                     <label key={status} className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
-                        checked={filters.status.includes(status as ModelStatus)}
+                        checked={filters.status.includes(status)}
                         onChange={(e) => {
                           const newStatus = e.target.checked
-                            ? [...filters.status, status as ModelStatus]
+                            ? [...filters.status, status]
                             : filters.status.filter(s => s !== status)
                           setFilters(prev => ({ ...prev, status: newStatus }))
                         }}
@@ -534,9 +554,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
               ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               : 'grid-cols-1'
           )}>
-            {filteredModels.map(model => (
-              <ModelCard key={model.id} model={model} />
-            ))}
+            {filteredModels.map(model => renderModelCard(model))}
           </div>
         )}
       </div>
