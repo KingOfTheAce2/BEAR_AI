@@ -312,7 +312,7 @@ export const useModelTracking = () => {
         error,
         inputTokens: metadata?.inputTokens || 0,
         outputTokens: metadata?.outputTokens || tokensGenerated,
-        success,
+        success: !error,
         latency: {
           firstToken: Math.min(duration, 100), // Estimate first token latency
           totalTime: duration,
