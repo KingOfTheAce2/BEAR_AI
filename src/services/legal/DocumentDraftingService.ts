@@ -218,5 +218,3 @@ export default class DocumentDraftingService {
     return new Blob([content], { type: mimeType });
   }
 }
-
-export type { DraftingTemplate, DraftingResult, DocumentAssemblyRequest };
