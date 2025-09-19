@@ -1151,7 +1151,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
 export interface ModelPerformanceMetrics {
   modelId: string;
   modelName: string;
-  status: ModelStatus;
+  status: keyof typeof ModelStatus;
   memoryUsage: number;
   inferenceCount: number;
   averageResponseTime: number;
