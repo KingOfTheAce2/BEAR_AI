@@ -9,7 +9,7 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface PersistedState {
   version: number
@@ -449,12 +449,13 @@ export const useBearStore = create<BearStore>()(
             startedAt: new Date()
           }
 
-          get().addTask(task)
-          get().updateDocument(documentId, { status: 'processing' })
+          const store = get()
+          store.addTask(task)
+          store.updateDocument(documentId, { status: 'processing' })
 
           try {
             // Assign appropriate agents
-            const availableAgents = get().getActiveAgents().filter(agent => 
+            const availableAgents = store.getActiveAgents().filter(agent => 
               agent.status === 'idle' && 
               agent.capabilities.some(cap => analysisType.includes(cap))
             )
@@ -464,14 +465,14 @@ export const useBearStore = create<BearStore>()(
             }
 
             const assignedAgentIds = availableAgents.slice(0, 2).map(agent => agent.id)
-            get().updateTask(taskId, { 
+            store.updateTask(taskId, { 
               assignedAgents: assignedAgentIds,
               status: 'in-progress'
             })
 
             // Mark agents as busy
             assignedAgentIds.forEach(agentId => {
-              get().updateAgent(agentId, { 
+              store.updateAgent(agentId, { 
                 status: 'busy', 
                 currentTask: taskId 
               })
@@ -498,8 +499,9 @@ export const useBearStore = create<BearStore>()(
             }
 
             // Complete task
-            get().completeTask(taskId, analysis)
-            get().updateDocument(documentId, { 
+            const finalStore = get()
+            finalStore.completeTask(taskId, analysis)
+            finalStore.updateDocument(documentId, { 
               status: 'processed', 
               analysis,
               processedAt: new Date()
@@ -507,23 +509,24 @@ export const useBearStore = create<BearStore>()(
 
             // Free up agents
             assignedAgentIds.forEach(agentId => {
-              get().updateAgent(agentId, { 
+              finalStore.updateAgent(agentId, { 
                 status: 'idle', 
                 currentTask: undefined 
               })
             })
 
-            get().addNotification({
+            finalStore.addNotification({
               type: 'success',
               title: 'Document Processed',
               message: `${document.name} has been successfully analyzed`
             })
 
           } catch (error: any) {
-            get().failTask(taskId, error?.message || 'Unknown error')
-            get().updateDocument(documentId, { status: 'error' })
+            const errorStore = get()
+            errorStore.failTask(taskId, error?.message || 'Unknown error')
+            errorStore.updateDocument(documentId, { status: 'error' })
 
-            get().addNotification({
+            errorStore.addNotification({
               type: 'error',
               title: 'Processing Failed',
               message: `Failed to process ${document.name}: ${error?.message || 'Unknown error'}`
@@ -532,19 +535,20 @@ export const useBearStore = create<BearStore>()(
         },
 
         coordinateAgents: async (taskId, agentIds) => {
-          const task = get().tasks[taskId]
+          const store = get()
+          const task = store.tasks[taskId]
           if (!task) {
             throw new Error(`Task ${taskId} not found`)
           }
 
-          get().updateTask(taskId, { 
+          store.updateTask(taskId, { 
             assignedAgents: agentIds,
             status: 'in-progress'
           })
 
           // Update agent statuses
           agentIds.forEach(agentId => {
-            get().updateAgent(agentId, {
+            store.updateAgent(agentId, {
               status: 'busy',
               currentTask: taskId
             })
@@ -552,9 +556,9 @@ export const useBearStore = create<BearStore>()(
         },
 
         optimizeAgentAllocation: () => {
-          const state = get()
-          const pendingTasks = get().getTasksByStatus('pending')
-          const idleAgents = get().getActiveAgents().filter(agent => agent.status === 'idle')
+          const store = get()
+          const pendingTasks = store.getTasksByStatus('pending')
+          const idleAgents = store.getActiveAgents().filter(agent => agent.status === 'idle')
 
           // Simple allocation algorithm
           pendingTasks.forEach(task => {
@@ -564,7 +568,7 @@ export const useBearStore = create<BearStore>()(
 
             if (suitableAgents.length > 0) {
               const selectedAgent = suitableAgents[0]
-              get().coordinateAgents(task.id, [selectedAgent.id])
+              store.coordinateAgents(task.id, [selectedAgent.id])
             }
           })
         },
@@ -599,7 +603,8 @@ export const useBearStore = create<BearStore>()(
               }
             ]
 
-            defaultAgents.forEach(agent => get().addAgent(agent))
+            const store = get()
+            defaultAgents.forEach(agent => store.addAgent(agent))
 
             // Initialize default models
             const defaultModels: LLMModel[] = [
@@ -616,7 +621,7 @@ export const useBearStore = create<BearStore>()(
               }
             ]
 
-            defaultModels.forEach(model => get().addModel(model))
+            defaultModels.forEach(model => store.addModel(model))
 
             set((state) => {
               state.isInitialized = true
@@ -639,18 +644,7 @@ export const useBearStore = create<BearStore>()(
       })),
       {
         name: 'bear-ai-store',
-        storage: {
-          getItem: (key: string) => {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : null;
-          },
-          setItem: (key: string, value: any) => {
-            localStorage.setItem(key, JSON.stringify(value));
-          },
-          removeItem: (key: string) => {
-            localStorage.removeItem(key);
-          }
-        },
+        storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({
           settings: state.settings,
           ui: {
@@ -675,38 +669,40 @@ export const useSettings = () => useBearStore(state => state.settings)
 
 // Action Hooks
 export const useStoreActions = () => {
+  const store = useBearStore()
+  
   return {
     // Agent actions
-    addAgent: useBearStore(state => state.addAgent),
-    updateAgent: useBearStore(state => state.updateAgent),
-    removeAgent: useBearStore(state => state.removeAgent),
+    addAgent: store.addAgent,
+    updateAgent: store.updateAgent,
+    removeAgent: store.removeAgent,
 
     // Document actions
-    addDocument: useBearStore(state => state.addDocument),
-    updateDocument: useBearStore(state => state.updateDocument),
-    removeDocument: useBearStore(state => state.removeDocument),
-    processDocument: useBearStore(state => state.processDocument),
+    addDocument: store.addDocument,
+    updateDocument: store.updateDocument,
+    removeDocument: store.removeDocument,
+    processDocument: store.processDocument,
 
     // Task actions
-    addTask: useBearStore(state => state.addTask),
-    updateTask: useBearStore(state => state.updateTask),
-    completeTask: useBearStore(state => state.completeTask),
-    failTask: useBearStore(state => state.failTask),
+    addTask: store.addTask,
+    updateTask: store.updateTask,
+    completeTask: store.completeTask,
+    failTask: store.failTask,
 
     // Model actions
-    addModel: useBearStore(state => state.addModel),
-    updateModel: useBearStore(state => state.updateModel),
-    loadModel: useBearStore(state => state.loadModel),
-    unloadModel: useBearStore(state => state.unloadModel),
+    addModel: store.addModel,
+    updateModel: store.updateModel,
+    loadModel: store.loadModel,
+    unloadModel: store.unloadModel,
 
     // UI actions
-    setActiveTab: useBearStore(state => state.setActiveTab),
-    setSelectedDocument: useBearStore(state => state.setSelectedDocument),
-    addNotification: useBearStore(state => state.addNotification),
+    setActiveTab: store.setActiveTab,
+    setSelectedDocument: store.setSelectedDocument,
+    addNotification: store.addNotification,
 
     // System actions
-    initialize: useBearStore(state => state.initialize),
-    coordinateAgents: useBearStore(state => state.coordinateAgents),
-    optimizeAgentAllocation: useBearStore(state => state.optimizeAgentAllocation)
+    initialize: store.initialize,
+    coordinateAgents: store.coordinateAgents,
+    optimizeAgentAllocation: store.optimizeAgentAllocation
   }
 }
