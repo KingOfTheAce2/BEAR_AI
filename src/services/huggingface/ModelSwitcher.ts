@@ -1,295 +1,377 @@
 /**
- * Model Switcher Service for HuggingFace Models
- * Handles switching between different HuggingFace models
+ * Local Model Manager for HuggingFace Models
+ * Manages locally stored HuggingFace models
  */
 
-import { HuggingFaceModel } from '../../types/huggingface';
+import { HuggingFaceModel, ModelMetadata } from '../../types/huggingface';
 
-export interface ModelSwitchOptions {
-  unloadPrevious?: boolean;
-  preloadNext?: boolean;
-  timeout?: number;
-  preserveContext?: boolean;
+export interface LocalModelInfo extends HuggingFaceModel {
+  localPath: string;
+  isLocal: true;
+  metadata: ModelMetadata;
+  files: {
+    model: string[];
+    tokenizer: string[];
+    config: string[];
+    other: string[];
+  };
 }
 
-export interface ModelSwitchResult {
-  success: boolean;
-  fromModel: string | null;
-  toModel: string;
-  switchTime: number;
-  error?: string;
-  warnings?: string[];
+export interface ModelStorageInfo {
+  totalModels: number;
+  totalSize: number;
+  usedSpace: number;
+  availableSpace: number;
+  lastCleanup: Date;
 }
 
-export class ModelSwitcher {
-  private currentModel: string | null = null;
-  private loadedModels: Map<string, any> = new Map();
-  private switchHistory: ModelSwitchResult[] = [];
+export class LocalModelManager {
+  private localModels: Map<string, LocalModelInfo> = new Map();
+  private basePath: string;
+  private storageKey = 'huggingface_local_models';
+
+  constructor(basePath: string = './models/huggingface') {
+    this.basePath = basePath;
+    this.loadFromStorage();
+  }
 
   /**
-   * Switch to a different model
+   * Add a model to local management
    */
-  async switchModel(
-    toModelId: string,
-    options: ModelSwitchOptions = {}
-  ): Promise<ModelSwitchResult> {
-    const startTime = Date.now();
-    const fromModel = this.currentModel;
-
-    const switchResult: ModelSwitchResult = {
-      success: false,
-      fromModel,
-      toModel: toModelId,
-      switchTime: 0,
-      warnings: []
+  async addModel(
+    model: HuggingFaceModel,
+    localPath: string,
+    files: LocalModelInfo['files']
+  ): Promise<LocalModelInfo> {
+    const localModel: LocalModelInfo = {
+      ...model,
+      localPath,
+      isLocal: true,
+      metadata: {
+        lastUpdated: new Date(),
+        localPath,
+        isLocal: true,
+        version: '1.0.0',
+        tags: model.tags,
+        customConfig: {}
+      },
+      files
     };
+
+    this.localModels.set(model.id, localModel);
+    await this.saveToStorage();
+
+    return localModel;
+  }
+
+  /**
+   * Get all local models
+   */
+  getLocalModels(): LocalModelInfo[] {
+    return Array.from(this.localModels.values());
+  }
+
+  /**
+   * Get a specific local model
+   */
+  getLocalModel(modelId: string): LocalModelInfo | null {
+    return this.localModels.get(modelId) || null;
+  }
+
+  /**
+   * Check if model exists locally
+   */
+  hasModel(modelId: string): boolean {
+    return this.localModels.has(modelId);
+  }
+
+  /**
+   * Remove model from local storage
+   */
+  async removeModel(modelId: string): Promise<boolean> {
+    const model = this.localModels.get(modelId);
+    if (!model) return false;
+
+    // In a real implementation, this would delete files from filesystem
+    this.localModels.delete(modelId);
+    await this.saveToStorage();
+
+    return true;
+  }
+
+  /**
+   * Update model metadata
+   */
+  async updateModelMetadata(
+    modelId: string,
+    metadata: Partial<ModelMetadata>
+  ): Promise<boolean> {
+    const model = this.localModels.get(modelId);
+    if (!model) return false;
+
+    model.metadata = {
+      ...model.metadata,
+      ...metadata,
+      lastUpdated: new Date()
+    };
+
+    await this.saveToStorage();
+    return true;
+  }
+
+  /**
+   * Get storage information
+   */
+  async getStorageInfo(): Promise<ModelStorageInfo> {
+    const models = Array.from(this.localModels.values());
+    let totalSize = 0;
+
+    // In a real implementation, this would check actual file sizes
+    for (const model of models) {
+      totalSize += model.size || 1000000000; // 1GB estimate per model
+    }
+
+    return {
+      totalModels: models.length,
+      totalSize,
+      usedSpace: totalSize,
+      availableSpace: 10000000000 - totalSize, // 10GB - used
+      lastCleanup: new Date()
+    };
+  }
+
+  /**
+   * Search local models
+   */
+  searchLocalModels(query: string): LocalModelInfo[] {
+    const lowercaseQuery = query.toLowerCase();
+    
+    return Array.from(this.localModels.values()).filter(model =>
+      model.name.toLowerCase().includes(lowercaseQuery) ||
+      model.description?.toLowerCase().includes(lowercaseQuery) ||
+      model.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery)) ||
+      model.author.toLowerCase().includes(lowercaseQuery)
+    );
+  }
+
+  /**
+   * Get models by category/tag
+   */
+  getModelsByTag(tag: string): LocalModelInfo[] {
+    return Array.from(this.localModels.values()).filter(model =>
+      model.tags.includes(tag)
+    );
+  }
+
+  /**
+   * Verify model integrity
+   */
+  async verifyModel(modelId: string): Promise<{
+    valid: boolean;
+    issues: string[];
+    missingFiles: string[];
+  }> {
+    const model = this.localModels.get(modelId);
+    if (!model) {
+      return {
+        valid: false,
+        issues: ['Model not found'],
+        missingFiles: []
+      };
+    }
+
+    const issues: string[] = [];
+    const missingFiles: string[] = [];
+
+    // In a real implementation, this would check file existence and integrity
+    // For now, we simulate the verification
+    
+    const requiredFiles = [...model.files.model, ...model.files.config];
+    const totalFiles = requiredFiles.length;
+    
+    // Simulate some missing files occasionally
+    if (Math.random() > 0.9) {
+      missingFiles.push('config.json');
+      issues.push('Configuration file missing');
+    }
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      missingFiles
+    };
+  }
+
+  /**
+   * Clean up orphaned or corrupted models
+   */
+  async cleanup(): Promise<{
+    removed: string[];
+    freed: number;
+    errors: string[];
+  }> {
+    const removed: string[] = [];
+    const errors: string[] = [];
+    let freed = 0;
+
+    for (const [modelId, model] of this.localModels) {
+      try {
+        const verification = await this.verifyModel(modelId);
+        
+        if (!verification.valid && verification.issues.length > 2) {
+          // Remove severely corrupted models
+          freed += model.size || 0;
+          removed.push(modelId);
+          this.localModels.delete(modelId);
+        }
+      } catch (error) {
+        errors.push(`Failed to verify ${modelId}: ${error}`);
+      }
+    }
+
+    if (removed.length > 0) {
+      await this.saveToStorage();
+    }
+
+    return { removed, freed, errors };
+  }
+
+  /**
+   * Export model list
+   */
+  async exportModelList(): Promise<string> {
+    const exportData = {
+      models: Array.from(this.localModels.entries()),
+      exported: new Date(),
+      version: '1.0.0'
+    };
+
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /**
+   * Import model list
+   */
+  async importModelList(data: string): Promise<{
+    imported: number;
+    errors: string[];
+  }> {
+    let imported = 0;
+    const errors: string[] = [];
 
     try {
-      // Validate target model
-      if (!toModelId) {
-        throw new Error('Target model ID is required');
-      }
-
-      // Check if already using the target model
-      if (this.currentModel === toModelId) {
-        switchResult.success = true;
-        switchResult.switchTime = Date.now() - startTime;
-        switchResult.warnings?.push('Already using the specified model');
-        return switchResult;
-      }
-
-      // Preload next model if requested
-      if (options.preloadNext && !this.loadedModels.has(toModelId)) {
-        await this.loadModel(toModelId);
-      }
-
-      // Unload previous model if requested and different from target
-      if (options.unloadPrevious && fromModel && fromModel !== toModelId) {
-        await this.unloadModel(fromModel);
-      }
-
-      // Load target model if not already loaded
-      if (!this.loadedModels.has(toModelId)) {
-        await this.loadModel(toModelId);
-      }
-
-      // Switch context
-      this.currentModel = toModelId;
+      const parsed = JSON.parse(data);
       
-      switchResult.success = true;
-      switchResult.switchTime = Date.now() - startTime;
-
-      // Add to history
-      this.switchHistory.push(switchResult);
-      this.trimSwitchHistory();
-
-      return switchResult;
-
+      if (parsed.models && Array.isArray(parsed.models)) {
+        for (const [modelId, modelData] of parsed.models) {
+          try {
+            const localModel: LocalModelInfo = {
+              ...modelData,
+              metadata: {
+                ...modelData.metadata,
+                lastUpdated: new Date(modelData.metadata.lastUpdated)
+              }
+            };
+            
+            this.localModels.set(modelId, localModel);
+            imported++;
+          } catch (error) {
+            errors.push(`Failed to import ${modelId}: ${error}`);
+          }
+        }
+        
+        await this.saveToStorage();
+      }
     } catch (error) {
-      switchResult.error = error instanceof Error ? error.message : 'Unknown error';
-      switchResult.switchTime = Date.now() - startTime;
-      
-      // Add failed switch to history
-      this.switchHistory.push(switchResult);
-      this.trimSwitchHistory();
-
-      throw error;
+      errors.push(`Failed to parse import data: ${error}`);
     }
+
+    return { imported, errors };
   }
 
   /**
-   * Get currently active model
+   * Get model usage statistics
    */
-  getCurrentModel(): string | null {
-    return this.currentModel;
-  }
-
-  /**
-   * Get list of loaded models
-   */
-  getLoadedModels(): string[] {
-    return Array.from(this.loadedModels.keys());
-  }
-
-  /**
-   * Check if a model is loaded
-   */
-  isModelLoaded(modelId: string): boolean {
-    return this.loadedModels.has(modelId);
-  }
-
-  /**
-   * Preload a model without switching to it
-   */
-  async preloadModel(modelId: string): Promise<void> {
-    if (!this.loadedModels.has(modelId)) {
-      await this.loadModel(modelId);
-    }
-  }
-
-  /**
-   * Unload a specific model
-   */
-  async unloadModel(modelId: string): Promise<void> {
-    if (this.loadedModels.has(modelId)) {
-      // In a real implementation, this would cleanup model resources
-      this.loadedModels.delete(modelId);
-      
-      // If this was the current model, clear current reference
-      if (this.currentModel === modelId) {
-        this.currentModel = null;
-      }
-    }
-  }
-
-  /**
-   * Unload all models except the current one
-   */
-  async unloadUnusedModels(): Promise<string[]> {
-    const unloaded: string[] = [];
-    
-    for (const modelId of this.loadedModels.keys()) {
-      if (modelId !== this.currentModel) {
-        await this.unloadModel(modelId);
-        unloaded.push(modelId);
-      }
-    }
-    
-    return unloaded;
-  }
-
-  /**
-   * Get model switch statistics
-   */
-  getSwitchStats(): {
-    totalSwitches: number;
-    successfulSwitches: number;
-    failedSwitches: number;
-    averageSwitchTime: number;
-    mostUsedModel: string | null;
+  getModelStats(): {
+    totalModels: number;
+    byAuthor: Record<string, number>;
+    byTag: Record<string, number>;
+    byPipeline: Record<string, number>;
+    avgSize: number;
   } {
-    const totalSwitches = this.switchHistory.length;
-    const successful = this.switchHistory.filter(s => s.success).length;
-    const failed = totalSwitches - successful;
+    const models = Array.from(this.localModels.values());
+    const byAuthor: Record<string, number> = {};
+    const byTag: Record<string, number> = {};
+    const byPipeline: Record<string, number> = {};
     
-    const avgSwitchTime = totalSwitches > 0 
-      ? this.switchHistory.reduce((sum, s) => sum + s.switchTime, 0) / totalSwitches
-      : 0;
+    let totalSize = 0;
 
-    // Find most used model
-    const modelCounts = new Map<string, number>();
-    this.switchHistory.forEach(s => {
-      if (s.success) {
-        modelCounts.set(s.toModel, (modelCounts.get(s.toModel) || 0) + 1);
+    for (const model of models) {
+      // Count by author
+      byAuthor[model.author] = (byAuthor[model.author] || 0) + 1;
+      
+      // Count by tags
+      for (const tag of model.tags) {
+        byTag[tag] = (byTag[tag] || 0) + 1;
       }
-    });
-
-    const mostUsedModel = modelCounts.size > 0 
-      ? Array.from(modelCounts.entries()).reduce((a, b) => a[1] > b[1] ? a : b)[0]
-      : null;
-
-    return {
-      totalSwitches,
-      successfulSwitches: successful,
-      failedSwitches: failed,
-      averageSwitchTime: avgSwitchTime,
-      mostUsedModel
-    };
-  }
-
-  /**
-   * Get switch history
-   */
-  getSwitchHistory(limit?: number): ModelSwitchResult[] {
-    const history = [...this.switchHistory];
-    return limit ? history.slice(-limit) : history;
-  }
-
-  /**
-   * Clear switch history
-   */
-  clearSwitchHistory(): void {
-    this.switchHistory = [];
-  }
-
-  /**
-   * Get memory usage estimation
-   */
-  getMemoryUsage(): {
-    loadedModels: number;
-    estimatedMemory: number; // in bytes
-  } {
-    return {
-      loadedModels: this.loadedModels.size,
-      estimatedMemory: this.loadedModels.size * 1000000000 // 1GB per model estimate
-    };
-  }
-
-  /**
-   * Validate model switch feasibility
-   */
-  async validateSwitch(
-    toModelId: string,
-    options: ModelSwitchOptions = {}
-  ): Promise<{
-    canSwitch: boolean;
-    issues: string[];
-    recommendations: string[];
-  }> {
-    const issues: string[] = [];
-    const recommendations: string[] = [];
-
-    // Check if model ID is valid
-    if (!toModelId || toModelId.trim() === '') {
-      issues.push('Model ID cannot be empty');
-    }
-
-    // Check memory constraints
-    const memoryUsage = this.getMemoryUsage();
-    if (memoryUsage.loadedModels >= 3 && !this.isModelLoaded(toModelId)) {
-      issues.push('Too many models loaded - consider unloading unused models');
-      recommendations.push('Enable unloadPrevious option or manually unload models');
-    }
-
-    // Check if switching to same model
-    if (this.currentModel === toModelId) {
-      recommendations.push('Already using target model - switch unnecessary');
+      
+      // Count by pipeline
+      if (model.pipeline_tag) {
+        byPipeline[model.pipeline_tag] = (byPipeline[model.pipeline_tag] || 0) + 1;
+      }
+      
+      totalSize += model.size || 0;
     }
 
     return {
-      canSwitch: issues.length === 0,
-      issues,
-      recommendations
+      totalModels: models.length,
+      byAuthor,
+      byTag,
+      byPipeline,
+      avgSize: models.length > 0 ? totalSize / models.length : 0
     };
   }
 
   // Private methods
 
-  private async loadModel(modelId: string): Promise<void> {
-    // In a real implementation, this would load the actual model
-    // For now, we simulate the loading process
-    
-    if (this.loadedModels.has(modelId)) {
-      return; // Already loaded
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        
+        if (parsed.models) {
+          this.localModels = new Map(parsed.models.map(([id, model]: [string, any]) => [
+            id,
+            {
+              ...model,
+              metadata: {
+                ...model.metadata,
+                lastUpdated: new Date(model.metadata.lastUpdated)
+              }
+            }
+          ]));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load local models from storage:', error);
+      this.localModels = new Map();
     }
-
-    // Simulate loading time
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-    
-    // Store mock model instance
-    this.loadedModels.set(modelId, {
-      id: modelId,
-      loadedAt: new Date(),
-      memoryUsage: 1000000000 // 1GB estimate
-    });
   }
 
-  private trimSwitchHistory(): void {
-    const maxHistorySize = 100;
-    if (this.switchHistory.length > maxHistorySize) {
-      this.switchHistory = this.switchHistory.slice(-maxHistorySize);
+  private async saveToStorage(): Promise<void> {
+    try {
+      const toStore = {
+        models: Array.from(this.localModels.entries()),
+        lastUpdated: new Date(),
+        version: '1.0.0'
+      };
+
+      localStorage.setItem(this.storageKey, JSON.stringify(toStore));
+    } catch (error) {
+      console.error('Failed to save local models to storage:', error);
     }
   }
 }
 
-export default ModelSwitcher;
+export default LocalModelManager;
