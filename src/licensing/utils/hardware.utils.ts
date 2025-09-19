@@ -28,6 +28,20 @@ export interface HardwareIdentifiers {
 
 export class HardwareUtils {
 
+  private static bytesToHex(bytes: Uint8Array): string {
+    return Array.from(bytes)
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  private static generateRandomHex(bytes = 8): string {
+    return this.bytesToHex(crypto.randomBytes(bytes));
+  }
+
+  private static getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
+
   /**
    * Get basic system information
    */
@@ -51,12 +65,16 @@ export class HardwareUtils {
    */
   static getPrimaryMacAddress(): string {
     const interfaces = os.networkInterfaces();
+    const interfaceEntries = Object.entries(interfaces) as Array<[
+      string,
+      ReturnType<typeof os.networkInterfaces>[string]
+    ]>;
 
     // Priority order for interface types
     const priorityPrefixes = ['eth', 'en', 'wlan', 'wifi'];
 
     for (const prefix of priorityPrefixes) {
-      for (const [name, ifaces] of Object.entries(interfaces)) {
+      for (const [name, ifaces] of interfaceEntries) {
         if (name.toLowerCase().startsWith(prefix) && ifaces) {
           for (const iface of ifaces) {
             if (!iface.internal && iface.mac && iface.mac !== '00:00:00:00:00:00') {
@@ -68,7 +86,7 @@ export class HardwareUtils {
     }
 
     // Fallback to any non-internal interface
-    for (const [, ifaces] of Object.entries(interfaces)) {
+    for (const [, ifaces] of interfaceEntries) {
       if (ifaces) {
         for (const iface of ifaces) {
           if (!iface.internal && iface.mac && iface.mac !== '00:00:00:00:00:00') {
@@ -116,7 +134,7 @@ export class HardwareUtils {
         return await this.getLinuxMotherboardSerial();
       }
     } catch (error) {
-      console.warn('Failed to get motherboard serial:', error.message);
+      console.warn('Failed to get motherboard serial:', this.getErrorMessage(error));
     }
 
     // Fallback to hostname-based identifier
@@ -138,7 +156,7 @@ export class HardwareUtils {
         return await this.getLinuxDiskSerial();
       }
     } catch (error) {
-      console.warn('Failed to get disk serial:', error.message);
+      console.warn('Failed to get disk serial:', this.getErrorMessage(error));
     }
 
     // Fallback to hostname-based identifier
@@ -158,7 +176,7 @@ export class HardwareUtils {
       const match = stdout.match(/SerialNumber=(.+)/);
       return match ? match[1].trim() : `WIN-MB-${Date.now()}`;
     } catch (error) {
-      return `WIN-MB-${crypto.randomBytes(8).toString('hex')}`;
+      return `WIN-MB-${this.generateRandomHex()}`;
     }
   }
 
@@ -172,7 +190,7 @@ export class HardwareUtils {
       const match = stdout.match(/SerialNumber=(.+)/);
       return match ? match[1].trim() : `WIN-DISK-${Date.now()}`;
     } catch (error) {
-      return `WIN-DISK-${crypto.randomBytes(8).toString('hex')}`;
+      return `WIN-DISK-${this.generateRandomHex()}`;
     }
   }
 
@@ -189,7 +207,7 @@ export class HardwareUtils {
       const match = stdout.match(/Serial Number \(system\): (.+)/);
       return match ? match[1].trim() : `MAC-MB-${Date.now()}`;
     } catch (error) {
-      return `MAC-MB-${crypto.randomBytes(8).toString('hex')}`;
+      return `MAC-MB-${this.generateRandomHex()}`;
     }
   }
 
@@ -203,7 +221,7 @@ export class HardwareUtils {
       const hash = crypto.createHash('md5').update(stdout).digest('hex');
       return `MAC-DISK-${hash.substring(0, 16)}`;
     } catch (error) {
-      return `MAC-DISK-${crypto.randomBytes(8).toString('hex')}`;
+      return `MAC-DISK-${this.generateRandomHex()}`;
     }
   }
 
@@ -223,7 +241,7 @@ export class HardwareUtils {
         const serial = await fs.readFile('/sys/class/dmi/id/product_serial', 'utf8');
         return serial.trim();
       } catch (error2) {
-        return `LINUX-MB-${crypto.randomBytes(8).toString('hex')}`;
+        return `LINUX-MB-${this.generateRandomHex()}`;
       }
     }
   }
@@ -239,7 +257,7 @@ export class HardwareUtils {
       const match = stdout.match(/\s+([A-Z0-9]+)\s*$/);
       return match ? match[1].trim() : `LINUX-DISK-${Date.now()}`;
     } catch (error) {
-      return `LINUX-DISK-${crypto.randomBytes(8).toString('hex')}`;
+      return `LINUX-DISK-${this.generateRandomHex()}`;
     }
   }
 
@@ -267,7 +285,7 @@ export class HardwareUtils {
       // Fallback for platforms where BIOS info isn't available
     }
 
-    return `BIOS-${crypto.randomBytes(8).toString('hex')}`;
+    return `BIOS-${this.generateRandomHex()}`;
   }
 
   /**
