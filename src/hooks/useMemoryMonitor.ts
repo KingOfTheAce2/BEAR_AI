@@ -103,7 +103,10 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
         ...DEFAULT_MEMORY_CONFIG,
         updateInterval: systemConfig.memoryMonitorInterval,
         enableDetailedMonitoring: systemConfig.enableDetailedMetrics,
-        enablePerformanceObserver: systemConfig.enableDetailedMetrics,
+        enablePerformanceObserver: systemConfig.enableDetailedMetrics && systemConfig.adaptiveSampling,
+        historySize: systemConfig.historySize,
+        smoothingFactor: systemConfig.smoothingFactor,
+        trendWindow: Math.max(4, Math.min(12, Math.round(systemConfig.maxSamples / 20)))
       };
 
       return { ...optimalConfig, ...userConfig };
@@ -252,33 +255,30 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
 
   // Get current configuration
   const getConfig = useCallback((): MemoryMonitorConfig => {
-    return monitorRef.current ? 
-      monitorRef.current['config'] : // Access private config
-      getOptimalConfiguration();
+    if (monitorRef.current) {
+      return monitorRef.current.getConfig();
+    }
+    return getOptimalConfiguration();
   }, [getOptimalConfiguration]);
 
   // Update configuration
   const updateConfig = useCallback((newConfig: Partial<MemoryMonitorConfig>) => {
     try {
-      const wasMonitoring = isMonitoring;
-      
-      if (wasMonitoring) {
-        stop();
-      }
-
-      // Reinitialize with new config
+      const monitor = monitorRef.current || initializeMonitor();
       const fullConfig = { ...getOptimalConfiguration(), ...newConfig };
-      monitorRef.current = getGlobalMemoryMonitor(fullConfig);
 
-      if (wasMonitoring) {
-        start();
+      monitor.updateConfig(fullConfig);
+      monitorRef.current = monitor;
+
+      if (isMonitoring) {
+        monitor.start();
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update configuration');
       setError(error);
       console.error('Failed to update memory monitor configuration:', error);
     }
-  }, [isMonitoring, stop, start, getOptimalConfiguration]);
+  }, [initializeMonitor, getOptimalConfiguration, isMonitoring]);
 
   // Force manual refresh
   const refresh = useCallback(async () => {
@@ -286,16 +286,13 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
       if (!monitorRef.current) return;
 
       // Trigger immediate update
-      const currentInfo = monitorRef.current.getCurrentMemoryInfo();
-      if (currentInfo) {
-        handleMemoryUpdate(currentInfo);
-      }
+      monitorRef.current.refresh();
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to refresh memory data');
       setError(error);
       console.error('Failed to refresh memory monitoring:', error);
     }
-  }, [handleMemoryUpdate]);
+  }, []);
 
   // Auto-start effect
   useEffect(() => {

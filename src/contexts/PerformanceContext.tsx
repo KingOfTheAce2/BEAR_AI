@@ -18,16 +18,16 @@ interface PerformanceContextType {
   systemMetrics: SystemMetrics[];
   modelMetrics: ModelInferenceMetrics[];
   userMetrics: UserInteractionMetrics[];
-  
+
   // Alerts and suggestions
   alerts: PerformanceAlert[];
   suggestions: OptimizationSuggestion[];
-  
+
   // Actions
-  trackModelInference: (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => void;
-  trackUserInteraction: (metrics: UserInteractionMetrics) => void;
+  recordModelInference: (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => void;
+  recordUserInteraction: (metrics: UserInteractionMetrics) => void;
   resolveAlert: (alertId: string) => void;
-  
+
   // Summary data
   performanceSummary: any;
   
@@ -136,12 +136,12 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     performanceMonitor.stopMonitoring();
   };
 
-  const trackModelInference = (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => {
-    performanceMonitor.trackModelInference(metrics);
+  const recordModelInference = (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => {
+    performanceMonitor.recordModelInference(metrics);
   };
 
-  const trackUserInteraction = (metrics: UserInteractionMetrics) => {
-    performanceMonitor.trackUserInteraction(metrics);
+  const recordUserInteraction = (metrics: UserInteractionMetrics) => {
+    performanceMonitor.recordUserInteraction(metrics);
   };
 
   const resolveAlert = (alertId: string) => {
@@ -161,8 +161,8 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     userMetrics,
     alerts,
     suggestions,
-    trackModelInference,
-    trackUserInteraction,
+    recordModelInference,
+    recordUserInteraction,
     resolveAlert,
     performanceSummary,
     updateThresholds
@@ -197,11 +197,12 @@ export const withPerformanceTracking = <P extends object>(
       const renderTime = renderEnd - renderStart;
 
       // Track component render performance
-      performance.trackUserInteraction({
+      performance.recordUserInteraction({
         sessionId: 'current-session',
         action: 'component-render',
         timestamp: renderStart,
         duration: renderTime,
+        timeSpent: renderTime,
         component: componentName,
         performance: {
           renderTime,
@@ -229,11 +230,13 @@ export const useInteractionTracking = (componentName: string) => {
         const endTime = Date.now();
         const duration = endTime - startTime;
 
-        performance.trackUserInteraction({
+        performance.recordUserInteraction({
           sessionId: 'current-session',
           action,
           timestamp: startTime,
           duration,
+          timeSpent: duration,
+          clickCount: action === 'click' ? 1 : undefined,
           component: componentName,
           metadata,
           performance: {
@@ -292,8 +295,8 @@ export const useModelTracking = () => {
         memoryUsed = (performance as any).memory.usedJSHeapSize - memoryBefore;
       }
 
-      performance.trackModelInference({
-        modelName,
+      performance.recordModelInference({
+        modelId: modelName,
         requestId,
         startTime,
         endTime,

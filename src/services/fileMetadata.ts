@@ -3,6 +3,8 @@
  * Manages extended file metadata including sync status, relationships, and custom properties
  */
 
+import type { LocalFile } from './localFileSystem';
+
 export interface BaseFileMetadata {
   id: string;
   path: string;
@@ -96,14 +98,143 @@ export interface MetadataStatistics {
   lastUpdated: Date;
 }
 
-class FileMetadataService {
+export class FileMetadataService {
   private metadata = new Map<string, ExtendedFileMetadata>();
   private dbName = 'bearai_metadata';
   private version = 1;
   private db: IDBDatabase | null = null;
+  private textMimeTypes = new Set([
+    'text/plain',
+    'text/markdown',
+    'text/html',
+    'text/css',
+    'application/json',
+    'application/xml',
+    'application/javascript',
+    'application/typescript'
+  ]);
+  private textExtensions = new Set([
+    'txt',
+    'md',
+    'markdown',
+    'html',
+    'css',
+    'js',
+    'jsx',
+    'ts',
+    'tsx',
+    'json',
+    'yml',
+    'yaml',
+    'csv',
+    'log'
+  ]);
+  private binaryExtensions = new Set([
+    'pdf',
+    'doc',
+    'docx',
+    'ppt',
+    'pptx',
+    'xls',
+    'xlsx',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'bmp',
+    'webp',
+    'tiff',
+    'zip',
+    'rar',
+    '7z'
+  ]);
 
   constructor() {
     this.initDB();
+  }
+
+  async extractMetadata(file: LocalFile): Promise<ExtendedFileMetadata> {
+    const existing = this.metadata.get(file.id);
+    const baseMetadata: BaseFileMetadata = {
+      id: file.id,
+      path: file.path || `/${file.name}`,
+      name: file.name,
+      size: file.size,
+      type: file.type || 'application/octet-stream',
+      lastModified: new Date(file.lastModified),
+      created: existing?.created ?? new Date(file.lastModified),
+      extension: this.getFileExtension(file.name),
+      checksum: existing?.checksum
+    };
+
+    let resolvedContent = typeof file.content === 'string'
+      ? file.content
+      : typeof file.data === 'string'
+        ? file.data
+        : undefined;
+    const bufferData = file.data instanceof ArrayBuffer ? file.data : undefined;
+    let encoding = existing?.encoding;
+    let analysisUpdates: Partial<ExtendedFileMetadata> = {};
+
+    if (!resolvedContent && bufferData) {
+      if (this.shouldTreatAsText(file, bufferData)) {
+        const decoded = this.decodeBuffer(bufferData);
+        if (decoded) {
+          resolvedContent = decoded;
+          encoding = 'utf-8';
+        }
+      } else {
+        encoding = 'binary';
+        analysisUpdates = {
+          analysisResults: {
+            ...(existing?.analysisResults || {}),
+            binary: true,
+            byteLength: bufferData.byteLength,
+            contentType: file.type || 'application/octet-stream'
+          }
+        };
+      }
+    }
+
+    const characters = resolvedContent ? resolvedContent.length : existing?.characters || 0;
+    const wordCount = resolvedContent
+      ? resolvedContent.trim().split(/\s+/).filter(Boolean).length
+      : existing?.wordCount || 0;
+
+    if (existing) {
+      const updatePayload: Partial<ExtendedFileMetadata> = {
+        size: file.size,
+        lastModified: new Date(file.lastModified),
+        wordCount,
+        characters,
+        synced: false,
+        ...(encoding ? { encoding } : {}),
+        ...analysisUpdates
+      };
+
+      return (await this.updateMetadata(file.id, updatePayload))!;
+    }
+
+    return this.createMetadata(baseMetadata, {
+      wordCount,
+      characters,
+      synced: false,
+      lastAccessed: new Date(),
+      accessCount: 0,
+      ...(encoding ? { encoding } : {}),
+      ...analysisUpdates
+    });
+  }
+
+  async recordSearch(identifier: string): Promise<void> {
+    const metadata = this.metadata.get(identifier);
+    if (!metadata) return;
+
+    const updatedAccessCount = (metadata.accessCount || 0) + 1;
+    await this.updateMetadata(identifier, {
+      accessCount: updatedAccessCount,
+      lastAccessed: new Date()
+    });
   }
 
   /**
@@ -594,12 +725,46 @@ class FileMetadataService {
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['metadata'], 'readwrite');
       const store = transaction.objectStore('metadata');
-      
+
       const request = store.clear();
-      
+
       request.onsuccess = () => resolve();
       request.onerror = () => reject(new Error('Failed to clear metadata'));
     });
+  }
+
+  private shouldTreatAsText(file: LocalFile, buffer: ArrayBuffer): boolean {
+    if (file.type && this.textMimeTypes.has(file.type)) {
+      return true;
+    }
+
+    const extension = this.getFileExtension(file.name);
+    if (extension) {
+      if (this.textExtensions.has(extension)) {
+        return true;
+      }
+      if (this.binaryExtensions.has(extension)) {
+        return false;
+      }
+    }
+
+    const sample = new Uint8Array(buffer.slice(0, 32));
+    return !sample.some(byte => byte === 0);
+  }
+
+  private decodeBuffer(buffer: ArrayBuffer, encoding: string = 'utf-8'): string | undefined {
+    try {
+      const decoder = new TextDecoder(encoding, { fatal: false });
+      return decoder.decode(buffer);
+    } catch (error) {
+      console.warn('Failed to decode buffer to text:', error);
+      return undefined;
+    }
+  }
+
+  private getFileExtension(name: string): string {
+    const lastDot = name.lastIndexOf('.');
+    return lastDot === -1 ? '' : name.slice(lastDot + 1).toLowerCase();
   }
 }
 

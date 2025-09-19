@@ -11,6 +11,7 @@ export interface LocalFile {
   type: string;
   lastModified: Date;
   data: ArrayBuffer | string;
+  content?: string | ArrayBuffer;
   metadata?: Record<string, any>;
 }
 
@@ -46,11 +47,63 @@ export interface FileSystemCapabilities {
   };
 }
 
-class LocalFileSystem {
+type PermissionMode = 'read' | 'readwrite';
+type FilePermissionState = 'granted' | 'denied' | 'prompt';
+
+interface FileSystemAccessHandle {
+  kind: 'file' | 'directory';
+  name: string;
+  queryPermission?: (options?: { mode?: PermissionMode }) => Promise<FilePermissionState>;
+  requestPermission?: (options?: { mode?: PermissionMode }) => Promise<FilePermissionState>;
+}
+
+interface FileSystemAccessFileHandle extends FileSystemAccessHandle {
+  kind: 'file';
+  getFile: () => Promise<File>;
+}
+
+interface FileSystemAccessDirectoryHandle extends FileSystemAccessHandle {
+  kind: 'directory';
+  values: () => AsyncIterable<FileSystemAccessHandle>;
+}
+
+interface FilePickerOptions {
+  multiple?: boolean;
+  accept?: Record<string, string[]>;
+  excludeAcceptAllOption?: boolean;
+}
+
+export class LocalFileSystemService {
   private files = new Map<string, LocalFile>();
   private dbName = 'bearai_files';
   private version = 1;
   private db: IDBDatabase | null = null;
+  private textMimeTypes = new Set([
+    'text/plain',
+    'text/markdown',
+    'text/html',
+    'text/css',
+    'application/json',
+    'application/xml',
+    'application/javascript',
+    'application/typescript'
+  ]);
+  private textExtensions = new Set([
+    'txt',
+    'md',
+    'markdown',
+    'html',
+    'css',
+    'js',
+    'jsx',
+    'ts',
+    'tsx',
+    'json',
+    'yml',
+    'yaml',
+    'csv',
+    'log'
+  ]);
 
   constructor() {
     this.initDB();
@@ -135,6 +188,151 @@ class LocalFileSystem {
     });
   }
 
+  isSupported(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    const win = window as typeof window & {
+      showOpenFilePicker?: (options?: any) => Promise<FileSystemAccessFileHandle[]>;
+      showDirectoryPicker?: (options?: any) => Promise<FileSystemAccessDirectoryHandle>;
+    };
+
+    return typeof win.showOpenFilePicker === 'function' || typeof win.showDirectoryPicker === 'function';
+  }
+
+  async pickFiles(options: FilePickerOptions = {}): Promise<FileSystemAccessFileHandle[]> {
+    const win = window as typeof window & {
+      showOpenFilePicker?: (options?: any) => Promise<FileSystemAccessFileHandle[]>;
+    };
+
+    if (!win.showOpenFilePicker) {
+      throw new Error('File System Access API is not supported in this browser');
+    }
+
+    try {
+      const pickerOptions: Record<string, any> = {
+        multiple: options.multiple ?? false,
+        excludeAcceptAllOption: options.excludeAcceptAllOption ?? false
+      };
+
+      if (options.accept && Object.keys(options.accept).length > 0) {
+        pickerOptions.types = [
+          {
+            description: 'Supported files',
+            accept: options.accept
+          }
+        ];
+      }
+
+      const handles = await win.showOpenFilePicker(pickerOptions);
+      return handles as FileSystemAccessFileHandle[];
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error('File selection cancelled');
+      }
+      throw error instanceof Error ? error : new Error('Failed to pick files');
+    }
+  }
+
+  async pickDirectory(): Promise<FileSystemAccessDirectoryHandle> {
+    const win = window as typeof window & {
+      showDirectoryPicker?: (options?: any) => Promise<FileSystemAccessDirectoryHandle>;
+    };
+
+    if (!win.showDirectoryPicker) {
+      throw new Error('File System Access API is not supported in this browser');
+    }
+
+    try {
+      return await win.showDirectoryPicker({ id: 'bearai-directory-picker' });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error('Directory selection cancelled');
+      }
+      throw error instanceof Error ? error : new Error('Failed to pick directory');
+    }
+  }
+
+  async readDirectory(
+    directoryHandle: FileSystemAccessDirectoryHandle,
+    recursive: boolean = false,
+    currentPath: string = ''
+  ): Promise<LocalFile[]> {
+    const files: LocalFile[] = [];
+
+    const hasPermission = await this.ensurePermission(directoryHandle, recursive ? 'readwrite' : 'read');
+    if (!hasPermission) {
+      throw new Error('Permission denied for directory access');
+    }
+
+    const iterator: AsyncIterable<FileSystemAccessHandle | [string, FileSystemAccessHandle]> | null =
+      typeof directoryHandle.values === 'function'
+        ? directoryHandle.values()
+        : typeof (directoryHandle as any).entries === 'function'
+          ? (directoryHandle as any).entries()
+          : null;
+
+    if (!iterator) {
+      console.warn('Directory handle does not support iteration');
+      return files;
+    }
+
+    for await (const rawEntry of iterator) {
+      const entry = Array.isArray(rawEntry) ? (rawEntry as [string, FileSystemAccessHandle])[1] : rawEntry;
+      if (entry.kind === 'file') {
+        const fileHandle = entry as FileSystemAccessFileHandle;
+        const path = this.normalizePath(`${currentPath}/${entry.name}`);
+        try {
+          const localFile = await this.readFile(fileHandle, path);
+          files.push(localFile);
+        } catch (error) {
+          console.warn(`Failed to read file ${path}:`, error);
+        }
+      } else if (entry.kind === 'directory' && recursive) {
+        const nestedHandle = entry as FileSystemAccessDirectoryHandle;
+        const nestedPath = this.normalizePath(`${currentPath}/${entry.name}/`);
+        const nestedFiles = await this.readDirectory(nestedHandle, true, nestedPath);
+        files.push(...nestedFiles);
+      }
+    }
+
+    return files;
+  }
+
+  async readFile(handle: FileSystemAccessFileHandle, explicitPath?: string): Promise<LocalFile> {
+    const hasPermission = await this.ensurePermission(handle, 'read');
+    if (!hasPermission) {
+      throw new Error(`Permission denied for file: ${handle.name}`);
+    }
+
+    const file = await handle.getFile();
+    const arrayBuffer = await file.arrayBuffer();
+    const path = this.normalizePath(explicitPath || `/${file.name}`);
+
+    const existing = Array.from(this.files.values()).find(stored => stored.path === path);
+    const id = existing?.id || this.generateFileId();
+    const shouldDecode = this.shouldDecodeAsText(file.type, file.name, arrayBuffer);
+    const decoded = shouldDecode ? this.decodeArrayBuffer(arrayBuffer) : undefined;
+
+    const localFile: LocalFile = {
+      id,
+      name: file.name,
+      path,
+      size: file.size,
+      type: file.type || 'application/octet-stream',
+      lastModified: new Date(file.lastModified),
+      data: decoded ?? arrayBuffer,
+      content: decoded ?? existing?.content,
+      metadata: existing?.metadata || {}
+    };
+
+    this.files.set(id, localFile);
+    await this.saveFileToDB(localFile);
+
+    return localFile;
+  }
+
   /**
    * Store a file from File API
    */
@@ -150,6 +348,7 @@ class LocalFileSystem {
       type: file.type,
       lastModified: new Date(file.lastModified),
       data,
+      content: typeof data === 'string' ? data : undefined,
       metadata: {}
     };
 
@@ -178,6 +377,7 @@ class LocalFileSystem {
       type,
       lastModified: new Date(),
       data,
+      content: typeof data === 'string' ? data : undefined,
       metadata: {}
     };
 
@@ -549,6 +749,70 @@ class LocalFileSystem {
     return `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  private normalizePath(path: string): string {
+    if (!path) {
+      return '/';
+    }
+
+    const normalized = path.replace(/\\/g, '/');
+    const hasTrailingSlash = normalized.endsWith('/');
+    const hasLeadingSlash = normalized.startsWith('/');
+    const segments = normalized.split('/').filter(segment => segment.length > 0);
+    const collapsedPath = `${hasLeadingSlash ? '/' : ''}${segments.join('/')}`;
+    const basePath = collapsedPath || (hasLeadingSlash ? '/' : '');
+    const finalPath = hasTrailingSlash && basePath && !basePath.endsWith('/') ? `${basePath}/` : basePath;
+    return finalPath.startsWith('/') ? finalPath : `/${finalPath}`;
+  }
+
+  private async ensurePermission(handle: FileSystemAccessHandle, mode: PermissionMode = 'read'): Promise<boolean> {
+    try {
+      if (!handle.queryPermission || !handle.requestPermission) {
+        return true;
+      }
+
+      const options = { mode };
+      const status = await handle.queryPermission(options);
+
+      if (status === 'granted') {
+        return true;
+      }
+
+      const requestStatus = await handle.requestPermission(options);
+      return requestStatus === 'granted';
+    } catch (error) {
+      console.warn('Failed to verify file system permissions:', error);
+      return false;
+    }
+  }
+
+  private shouldDecodeAsText(type: string, name: string, data?: ArrayBuffer): boolean {
+    if (type && this.textMimeTypes.has(type)) {
+      return true;
+    }
+
+    const extension = name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
+    if (extension && this.textExtensions.has(extension)) {
+      return true;
+    }
+
+    if (!data) {
+      return false;
+    }
+
+    const sample = new Uint8Array(data.slice(0, 32));
+    return !sample.some(byte => byte === 0);
+  }
+
+  private decodeArrayBuffer(buffer: ArrayBuffer, encoding: string = 'utf-8'): string | undefined {
+    try {
+      const decoder = new TextDecoder(encoding, { fatal: false });
+      return decoder.decode(buffer);
+    } catch (error) {
+      console.warn('Failed to decode file content as text:', error);
+      return undefined;
+    }
+  }
+
   private async fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -559,4 +823,7 @@ class LocalFileSystem {
   }
 }
 
-export const localFileSystem = new LocalFileSystem();
+export type FileSystemHandle = FileHandle;
+
+export const localFileSystemService = new LocalFileSystemService();
+export const localFileSystem = localFileSystemService;

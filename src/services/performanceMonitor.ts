@@ -26,6 +26,7 @@ export interface SystemMetrics {
 
 export interface ModelInferenceMetrics {
   modelId: string;
+  requestId?: string;
   startTime: number;
   endTime: number;
   duration: number;
@@ -35,6 +36,30 @@ export interface ModelInferenceMetrics {
   gpuUsage?: number;
   success: boolean;
   error?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  latency?: {
+    firstToken: number;
+    totalTime: number;
+    networkTime?: number;
+    processingTime?: number;
+  };
+  metadata?: Record<string, any>;
+}
+
+export interface UserInteractionMetrics {
+  timestamp?: number;
+  clickCount?: number;
+  keystrokes?: number;
+  scrollDistance?: number;
+  timeSpent?: number;
+  action?: string;
+  sessionId?: string;
+  component?: string;
+  duration?: number;
+  context?: string;
+  performance?: Record<string, any>;
+  metadata?: Record<string, any>;
 }
 
 export interface PerformanceAlert {
@@ -46,6 +71,7 @@ export interface PerformanceAlert {
   currentValue: number;
   timestamp: number;
   resolved: boolean;
+  metadata?: Record<string, any>;
 }
 
 export interface OptimizationSuggestion {
@@ -58,6 +84,12 @@ export interface OptimizationSuggestion {
   category: 'system' | 'model' | 'code' | 'infrastructure';
   implementation?: string;
   timestamp: number;
+  actionable?: boolean;
+  metrics?: {
+    estimatedImprovement: number;
+    confidenceScore: number;
+    timeToImplement: number;
+  };
 }
 
 export interface PerformanceSummary {
@@ -132,6 +164,7 @@ class PerformanceMonitor extends EventEmitter {
   private isMonitoring: boolean = false;
   private systemMetrics: SystemMetrics[] = [];
   private modelMetrics: ModelInferenceMetrics[] = [];
+  private userMetrics: UserInteractionMetrics[] = [];
   private alerts: PerformanceAlert[] = [];
   private suggestions: OptimizationSuggestion[] = [];
   private monitoringInterval: number | null = null;
@@ -216,7 +249,7 @@ class PerformanceMonitor extends EventEmitter {
    */
   updateConfig(updates: Partial<MonitoringConfig>): void {
     const wasMonitoring = this.isMonitoring;
-    
+
     if (wasMonitoring) {
       this.stopMonitoring();
     }
@@ -230,15 +263,34 @@ class PerformanceMonitor extends EventEmitter {
     this.emit('config-updated', this.config);
   }
 
+  updateThresholds(thresholds: Partial<PerformanceThresholds>): void {
+    const merged: PerformanceThresholds = {
+      cpu: { ...this.config.thresholds.cpu, ...(thresholds.cpu || {}) },
+      memory: { ...this.config.thresholds.memory, ...(thresholds.memory || {}) },
+      latency: { ...this.config.thresholds.latency, ...(thresholds.latency || {}) },
+      errorRate: { ...this.config.thresholds.errorRate, ...(thresholds.errorRate || {}) }
+    };
+
+    this.config.thresholds = merged;
+    this.emit('thresholds-updated', merged);
+  }
+
   /**
    * Record model inference metrics
    */
-  recordModelInference(metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>): void {
+  recordModelInference(
+    metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond' | 'success'> & { success?: boolean }
+  ): void {
     if (!this.config.enableModelMetrics) return;
+
+    const success = metrics.success ?? !metrics.error;
 
     const fullMetrics: ModelInferenceMetrics = {
       ...metrics,
-      tokensPerSecond: metrics.duration > 0 ? metrics.tokensGenerated / (metrics.duration / 1000) : 0
+      tokensPerSecond: metrics.duration > 0 ? metrics.tokensGenerated / (metrics.duration / 1000) : 0,
+      inputTokens: metrics.inputTokens ?? 0,
+      outputTokens: metrics.outputTokens ?? metrics.tokensGenerated,
+      success
     };
 
     this.modelMetrics.push(fullMetrics);
@@ -251,6 +303,46 @@ class PerformanceMonitor extends EventEmitter {
 
     // Check for performance issues
     this.checkModelPerformanceIssues(fullMetrics);
+  }
+
+  /**
+   * Record user interaction metrics
+   */
+  recordUserInteraction(metrics: UserInteractionMetrics): void {
+    const performanceMetrics = { ...(metrics.performance ?? {}) };
+    if (performanceMetrics.renderTime == null) {
+      performanceMetrics.renderTime = metrics.duration ?? 0;
+    }
+    if (performanceMetrics.interactionToNextPaint == null) {
+      performanceMetrics.interactionToNextPaint = metrics.duration ?? 0;
+    }
+    if (performanceMetrics.cumulativeLayoutShift == null) {
+      performanceMetrics.cumulativeLayoutShift = 0;
+    }
+    if (performanceMetrics.largestContentfulPaint == null) {
+      performanceMetrics.largestContentfulPaint = metrics.duration ?? 0;
+    }
+
+    const entry: UserInteractionMetrics = {
+      timestamp: metrics.timestamp ?? Date.now(),
+      clickCount: metrics.clickCount ?? (metrics.action === 'click' ? 1 : 0),
+      keystrokes: metrics.keystrokes ?? 0,
+      scrollDistance: metrics.scrollDistance ?? 0,
+      timeSpent: metrics.timeSpent ?? metrics.duration ?? 0,
+      action: metrics.action,
+      sessionId: metrics.sessionId,
+      component: metrics.component,
+      duration: metrics.duration,
+      context: metrics.context,
+      performance: performanceMetrics,
+      metadata: metrics.metadata
+    };
+
+    this.userMetrics.push(entry);
+    const cutoff = Date.now() - this.config.retentionPeriod;
+    this.userMetrics = this.userMetrics.filter(metric => metric.timestamp > cutoff);
+
+    this.emit('user-metrics-updated', entry);
   }
 
   /**
@@ -298,11 +390,19 @@ class PerformanceMonitor extends EventEmitter {
    */
   getModelMetrics(count?: number, modelId?: string): ModelInferenceMetrics[] {
     let metrics = [...this.modelMetrics];
-    
+
     if (modelId) {
       metrics = metrics.filter(m => m.modelId === modelId);
     }
-    
+
+    return count ? metrics.slice(-count) : metrics;
+  }
+
+  /**
+   * Get user interaction metrics
+   */
+  getUserMetrics(count?: number): UserInteractionMetrics[] {
+    const metrics = [...this.userMetrics];
     return count ? metrics.slice(-count) : metrics;
   }
 
@@ -495,8 +595,8 @@ class PerformanceMonitor extends EventEmitter {
 
   private recordNavigationMetrics(entry: PerformanceNavigationTiming): void {
     this.emit('navigation-metrics', {
-      loadTime: entry.loadEventEnd - entry.navigationStart,
-      domContentLoaded: entry.domContentLoadedEventEnd - entry.navigationStart,
+      loadTime: entry.loadEventEnd - entry.fetchStart,
+      domContentLoaded: entry.domContentLoadedEventEnd - entry.fetchStart,
       firstPaint: entry.responseStart - entry.requestStart,
       timestamp: Date.now()
     });
@@ -538,18 +638,27 @@ class PerformanceMonitor extends EventEmitter {
     }
 
     if (severity) {
-      this.createAlert(type, severity, `${description} ${severity}`, threshold, value);
+      this.createAlert(type, severity, `${description} ${severity}`, threshold, value, {
+        description,
+        value
+      });
     }
   }
 
   private checkModelPerformanceIssues(metrics: ModelInferenceMetrics): void {
     if (!metrics.success) {
-      this.createAlert('error-rate', 'medium', `Model inference failed: ${metrics.error}`, 0, 1);
+      this.createAlert('error-rate', 'medium', `Model inference failed: ${metrics.error}`, 0, 1, {
+        modelId: metrics.modelId,
+        error: metrics.error
+      });
     }
 
     if (metrics.duration > this.config.thresholds.latency.warning) {
       const severity = metrics.duration > this.config.thresholds.latency.critical ? 'high' : 'medium';
-      this.createAlert('latency', severity, 'Model inference latency is high', this.config.thresholds.latency.warning, metrics.duration);
+      this.createAlert('latency', severity, 'Model inference latency is high', this.config.thresholds.latency.warning, metrics.duration, {
+        modelId: metrics.modelId,
+        duration: metrics.duration
+      });
     }
   }
 
@@ -558,7 +667,8 @@ class PerformanceMonitor extends EventEmitter {
     severity: PerformanceAlert['severity'],
     message: string,
     threshold: number,
-    currentValue: number
+    currentValue: number,
+    metadata?: Record<string, any>
   ): void {
     // Check if similar alert already exists and is unresolved
     const existingAlert = this.alerts.find(a =>
@@ -577,7 +687,8 @@ class PerformanceMonitor extends EventEmitter {
       threshold,
       currentValue,
       timestamp: Date.now(),
-      resolved: false
+      resolved: false,
+      metadata
     };
 
     this.alerts.push(alert);
@@ -643,7 +754,13 @@ class PerformanceMonitor extends EventEmitter {
       effort,
       priority,
       category,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      actionable: true,
+      metrics: {
+        estimatedImprovement: priority * 5,
+        confidenceScore: impact === 'high' ? 0.8 : impact === 'medium' ? 0.6 : 0.4,
+        timeToImplement: effort === 'low' ? 4 : effort === 'medium' ? 12 : 24
+      }
     };
 
     this.suggestions.push(suggestion);
@@ -655,6 +772,7 @@ class PerformanceMonitor extends EventEmitter {
 
     this.systemMetrics = this.systemMetrics.filter(m => m.timestamp > cutoff);
     this.modelMetrics = this.modelMetrics.filter(m => m.startTime > cutoff);
+    this.userMetrics = this.userMetrics.filter(m => m.timestamp > cutoff);
     this.alerts = this.alerts.filter(a => a.timestamp > cutoff);
     this.suggestions = this.suggestions.filter(s => s.timestamp > cutoff);
   }
@@ -679,6 +797,7 @@ class PerformanceMonitor extends EventEmitter {
     this.removeAllListeners();
     this.systemMetrics = [];
     this.modelMetrics = [];
+    this.userMetrics = [];
     this.alerts = [];
     this.suggestions = [];
   }
