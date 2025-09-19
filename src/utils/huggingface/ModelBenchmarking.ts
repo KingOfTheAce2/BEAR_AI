@@ -1,233 +1,46 @@
 /**
- * Model Performance Benchmarking for Legal Tasks
- * Provides comprehensive benchmarking and evaluation for legal AI models
+ * Model Benchmarking Utility for HuggingFace Models
+ * Provides benchmarking capabilities for model performance evaluation
  */
 
-import { 
-  PerformanceBenchmark, 
-  HuggingFaceModel, 
-  LegalCategory, 
-  TrainingMetrics 
-} from '../../types/huggingface';
+import { BenchmarkResult, HuggingFaceModel } from '../../types/huggingface';
 
-export interface BenchmarkTask {
-  id: string;
-  name: string;
-  category: LegalCategory;
-  description: string;
-  dataset: string;
-  metrics: string[];
-  testCases: BenchmarkTestCase[];
-  weight: number; // Importance weight in overall scoring
-  timeoutMs: number;
-}
-
-export interface BenchmarkTestCase {
-  id: string;
-  input: string;
-  expectedOutput?: string;
-  expectedCategories?: string[];
-  metadata?: {
-    difficulty: 'easy' | 'medium' | 'hard';
-    jurisdiction?: string;
-    lawArea?: string;
-    priority: 'low' | 'medium' | 'high';
-  };
-}
-
-export interface BenchmarkResult {
-  taskId: string;
-  modelId: string;
-  timestamp: Date;
-  metrics: {
-    accuracy: number;
-    precision: number;
-    recall: number;
-    f1Score: number;
-    executionTime: number; // milliseconds
-    tokensPerSecond: number;
-    memoryUsage: number; // MB
-    errorRate: number;
-  };
-  legalMetrics: {
-    citationAccuracy?: number;
-    legalReasoningScore?: number;
-    factualConsistency?: number;
-    ethicsScore?: number;
-    jurisdictionAccuracy?: number;
-    precedentRelevance?: number;
-  };
-  testCaseResults: Array<{
-    testCaseId: string;
-    passed: boolean;
-    score: number;
-    executionTime: number;
-    error?: string;
-    output?: string;
-  }>;
-  overallScore: number; // 0-100
-  notes?: string;
+export interface BenchmarkConfig {
+  batchSizes: number[];
+  sequenceLengths: number[];
+  numSamples: number;
+  warmupRuns: number;
+  timeout: number;
 }
 
 export interface BenchmarkSuite {
-  id: string;
   name: string;
-  version: string;
   description: string;
-  tasks: BenchmarkTask[];
-  legalJurisdictions: string[];
-  lastUpdated: Date;
+  tests: BenchmarkTest[];
 }
 
+export interface BenchmarkTest {
+  name: string;
+  description: string;
+  inputData: any[];
+  expectedOutput?: any[];
+  metrics: string[];
+}
+
+const DEFAULT_CONFIG: BenchmarkConfig = {
+  batchSizes: [1, 4, 8],
+  sequenceLengths: [128, 256, 512],
+  numSamples: 100,
+  warmupRuns: 10,
+  timeout: 300000 // 5 minutes
+};
+
 export class ModelBenchmarking {
-  private benchmarkSuites: Map<string, BenchmarkSuite> = new Map();
+  private config: BenchmarkConfig;
   private results: Map<string, BenchmarkResult[]> = new Map();
 
-  constructor() {
-    this.initializeBenchmarkSuites();
-  }
-
-  /**
-   * Initialize standard legal AI benchmark suites
-   */
-  private initializeBenchmarkSuites(): void {
-    // Contract Analysis Benchmark Suite
-    const contractSuite: BenchmarkSuite = {
-      id: 'contract_analysis_v1',
-      name: 'Contract Analysis Benchmark',
-      version: '1.0',
-      description: 'Comprehensive evaluation of contract analysis capabilities',
-      legalJurisdictions: ['US', 'EU', 'UK', 'CA'],
-      lastUpdated: new Date(),
-      tasks: [
-        {
-          id: 'contract_clause_extraction',
-          name: 'Contract Clause Extraction',
-          category: LegalCategory.CONTRACT_ANALYSIS,
-          description: 'Extract key clauses from contracts',
-          dataset: 'legal_contracts_2024',
-          metrics: ['precision', 'recall', 'f1', 'execution_time'],
-          weight: 0.25,
-          timeoutMs: 30000,
-          testCases: [
-            {
-              id: 'termination_clause',
-              input: 'This Agreement may be terminated by either party with thirty (30) days written notice.',
-              expectedCategories: ['termination', 'notice_period'],
-              metadata: { difficulty: 'easy', lawArea: 'contract', priority: 'high' }
-            },
-            {
-              id: 'liability_limitation',
-              input: 'IN NO EVENT SHALL COMPANY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES.',
-              expectedCategories: ['liability', 'limitation', 'damages'],
-              metadata: { difficulty: 'medium', lawArea: 'contract', priority: 'high' }
-            }
-          ]
-        },
-        {
-          id: 'contract_risk_assessment',
-          name: 'Contract Risk Assessment',
-          category: LegalCategory.CONTRACT_ANALYSIS,
-          description: 'Identify and assess risks in contracts',
-          dataset: 'legal_risk_scenarios',
-          metrics: ['accuracy', 'risk_precision', 'severity_accuracy'],
-          weight: 0.3,
-          timeoutMs: 45000,
-          testCases: [
-            {
-              id: 'unlimited_liability',
-              input: 'Company agrees to unlimited liability for any damages arising from this agreement.',
-              metadata: { difficulty: 'medium', lawArea: 'contract', priority: 'high' }
-            }
-          ]
-        }
-      ]
-    };
-
-    // Document Review Benchmark Suite
-    const documentSuite: BenchmarkSuite = {
-      id: 'document_review_v1',
-      name: 'Legal Document Review Benchmark',
-      version: '1.0',
-      description: 'Evaluation of document review and classification capabilities',
-      legalJurisdictions: ['US'],
-      lastUpdated: new Date(),
-      tasks: [
-        {
-          id: 'privilege_detection',
-          name: 'Attorney-Client Privilege Detection',
-          category: LegalCategory.DOCUMENT_REVIEW,
-          description: 'Detect privileged communications',
-          dataset: 'privilege_corpus_2024',
-          metrics: ['precision', 'recall', 'f1', 'false_positive_rate'],
-          weight: 0.4,
-          timeoutMs: 20000,
-          testCases: [
-            {
-              id: 'attorney_client_email',
-              input: 'From: client@company.com To: attorney@lawfirm.com Subject: Legal advice needed regarding acquisition',
-              expectedOutput: 'privileged',
-              metadata: { difficulty: 'easy', priority: 'high' }
-            }
-          ]
-        },
-        {
-          id: 'document_classification',
-          name: 'Legal Document Type Classification',
-          category: LegalCategory.DOCUMENT_REVIEW,
-          description: 'Classify legal documents by type',
-          dataset: 'legal_doc_types',
-          metrics: ['accuracy', 'top3_accuracy', 'execution_time'],
-          weight: 0.25,
-          timeoutMs: 15000,
-          testCases: []
-        }
-      ]
-    };
-
-    // Legal Research Benchmark Suite
-    const researchSuite: BenchmarkSuite = {
-      id: 'legal_research_v1',
-      name: 'Legal Research Benchmark',
-      version: '1.0',
-      description: 'Evaluation of legal research and question answering',
-      legalJurisdictions: ['US', 'EU'],
-      lastUpdated: new Date(),
-      tasks: [
-        {
-          id: 'case_law_retrieval',
-          name: 'Case Law Retrieval',
-          category: LegalCategory.LEGAL_RESEARCH,
-          description: 'Retrieve relevant case law for legal questions',
-          dataset: 'case_law_qa',
-          metrics: ['relevance_score', 'citation_accuracy', 'coverage'],
-          weight: 0.35,
-          timeoutMs: 60000,
-          testCases: [
-            {
-              id: 'contract_interpretation',
-              input: 'What is the legal standard for interpreting ambiguous contract terms?',
-              metadata: { difficulty: 'medium', lawArea: 'contract', priority: 'medium' }
-            }
-          ]
-        },
-        {
-          id: 'statutory_analysis',
-          name: 'Statutory Analysis',
-          category: LegalCategory.LEGAL_RESEARCH,
-          description: 'Analyze and interpret statutory provisions',
-          dataset: 'statutory_corpus',
-          metrics: ['interpretation_accuracy', 'citation_precision'],
-          weight: 0.3,
-          timeoutMs: 45000,
-          testCases: []
-        }
-      ]
-    };
-
-    this.benchmarkSuites.set(contractSuite.id, contractSuite);
-    this.benchmarkSuites.set(documentSuite.id, documentSuite);
-    this.benchmarkSuites.set(researchSuite.id, researchSuite);
+  constructor(config: Partial<BenchmarkConfig> = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   /**
@@ -235,413 +48,320 @@ export class ModelBenchmarking {
    */
   async benchmarkModel(
     model: HuggingFaceModel,
-    suiteIds?: string[],
-    options?: {
-      maxDuration?: number; // minutes
-      parallelTasks?: boolean;
-      includeStress?: boolean;
-      jurisdiction?: string;
-    }
-  ): Promise<BenchmarkResult[]> {
-    const suitesToRun = suiteIds || Array.from(this.benchmarkSuites.keys());
-    const results: BenchmarkResult[] = [];
-
-    console.log(`Starting benchmark for model: ${model.id}`);
-    
-    for (const suiteId of suitesToRun) {
-      const suite = this.benchmarkSuites.get(suiteId);
-      if (!suite) continue;
-
-      console.log(`Running benchmark suite: ${suite.name}`);
-      
-      if (options?.parallelTasks) {
-        // Run tasks in parallel
-        const taskPromises = suite.tasks.map(task => 
-          this.runBenchmarkTask(model, task)
-        );
-        const taskResults = await Promise.all(taskPromises);
-        results.push(...taskResults);
-      } else {
-        // Run tasks sequentially
-        for (const task of suite.tasks) {
-          const result = await this.runBenchmarkTask(model, task);
-          results.push(result);
-        }
-      }
-    }
-
-    // Store results
-    if (!this.results.has(model.id)) {
-      this.results.set(model.id, []);
-    }
-    this.results.get(model.id)!.push(...results);
-
-    return results;
-  }
-
-  /**
-   * Run a specific benchmark task
-   */
-  private async runBenchmarkTask(
-    model: HuggingFaceModel,
-    task: BenchmarkTask
+    onProgress?: (progress: { current: number; total: number; stage: string }) => void
   ): Promise<BenchmarkResult> {
     const startTime = Date.now();
+    const testConfigurations = this.generateTestConfigurations();
+    
+    let currentTest = 0;
+    const totalTests = testConfigurations.length;
+
+    const latencyResults: number[] = [];
+    const throughputResults: { tokensPerSecond: number; requestsPerSecond: number }[] = [];
+    const memoryUsage: number[] = [];
+    const cpuUsage: number[] = [];
+
+    for (const config of testConfigurations) {
+      if (onProgress) {
+        onProgress({
+          current: currentTest + 1,
+          total: totalTests,
+          stage: `Testing batch=${config.batchSize}, seqLen=${config.sequenceLength}`
+        });
+      }
+
+      const testResult = await this.runBenchmarkTest(model, config);
+      
+      latencyResults.push(testResult.latency);
+      throughputResults.push(testResult.throughput);
+      memoryUsage.push(testResult.memoryUsage);
+      cpuUsage.push(testResult.cpuUsage);
+
+      currentTest++;
+    }
+
     const result: BenchmarkResult = {
-      taskId: task.id,
       modelId: model.id,
       timestamp: new Date(),
       metrics: {
-        accuracy: 0,
-        precision: 0,
-        recall: 0,
-        f1Score: 0,
-        executionTime: 0,
-        tokensPerSecond: 0,
-        memoryUsage: 0,
-        errorRate: 0
+        latency: {
+          mean: this.calculateMean(latencyResults),
+          p50: this.calculatePercentile(latencyResults, 50),
+          p90: this.calculatePercentile(latencyResults, 90),
+          p99: this.calculatePercentile(latencyResults, 99)
+        },
+        throughput: {
+          tokensPerSecond: this.calculateMean(throughputResults.map(t => t.tokensPerSecond)),
+          requestsPerSecond: this.calculateMean(throughputResults.map(t => t.requestsPerSecond))
+        },
+        accuracy: {
+          score: await this.calculateAccuracyScore(model),
+          dataset: 'synthetic',
+          metric: 'f1'
+        },
+        resources: {
+          memoryUsage: this.calculateMean(memoryUsage),
+          cpuUsage: this.calculateMean(cpuUsage),
+          gpuUsage: 0 // Would be implemented for GPU benchmarks
+        }
       },
-      legalMetrics: {},
-      testCaseResults: [],
-      overallScore: 0
+      testConfiguration: {
+        batchSize: this.config.batchSizes[0],
+        sequenceLength: this.config.sequenceLengths[0],
+        numSamples: this.config.numSamples,
+        hardware: this.getHardwareInfo()
+      }
     };
 
-    try {
-      // Run each test case
-      const testResults: Array<{
-        testCaseId: string;
-        passed: boolean;
-        score: number;
-        executionTime: number;
-        output?: string;
-        error?: string;
-      }> = [];
-      let totalErrors = 0;
-      let totalExecutionTime = 0;
-      let totalTokens = 0;
-
-      for (const testCase of task.testCases) {
-        const caseStartTime = Date.now();
-        
-        try {
-          // Simulate model inference (replace with actual model call)
-          const caseResult = await this.runTestCase(model, testCase, task);
-          const caseExecutionTime = Date.now() - caseStartTime;
-          
-          testResults.push({
-            testCaseId: testCase.id,
-            passed: caseResult.passed,
-            score: caseResult.score,
-            executionTime: caseExecutionTime,
-            output: caseResult.output
-          });
-
-          totalExecutionTime += caseExecutionTime;
-          totalTokens += caseResult.tokens || 0;
-
-        } catch (error) {
-          totalErrors++;
-          testResults.push({
-            testCaseId: testCase.id,
-            passed: false,
-            score: 0,
-            executionTime: Date.now() - caseStartTime,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          });
-        }
-      }
-
-      result.testCaseResults = testResults;
-
-      // Calculate aggregate metrics
-      const passedTests = testResults.filter(r => r.passed);
-      result.metrics.accuracy = passedTests.length / testResults.length;
-      result.metrics.executionTime = totalExecutionTime;
-      result.metrics.errorRate = totalErrors / testResults.length;
-      result.metrics.tokensPerSecond = totalTokens > 0 ? 
-        (totalTokens / (totalExecutionTime / 1000)) : 0;
-
-      // Calculate legal-specific metrics
-      result.legalMetrics = await this.calculateLegalMetrics(
-        model, 
-        task, 
-        testResults
-      );
-
-      // Calculate overall score
-      result.overallScore = this.calculateOverallScore(result, task);
-
-      console.log(`Task ${task.id} completed: ${result.overallScore}/100`);
-
-    } catch (error) {
-      result.notes = `Benchmark failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      console.error(`Task ${task.id} failed:`, error);
-    }
+    // Store result
+    const modelResults = this.results.get(model.id) || [];
+    modelResults.push(result);
+    this.results.set(model.id, modelResults);
 
     return result;
   }
 
   /**
-   * Run individual test case
+   * Compare multiple models
    */
-  private async runTestCase(
-    model: HuggingFaceModel,
-    testCase: BenchmarkTestCase,
-    task: BenchmarkTask
+  async compareModels(
+    models: HuggingFaceModel[],
+    onProgress?: (modelIndex: number, total: number, modelId: string) => void
   ): Promise<{
-    passed: boolean;
-    score: number;
-    output?: string;
-    tokens?: number;
-  }> {
-    // This would integrate with the actual model inference
-    // For now, simulate based on model characteristics
-    
-    const simulationDelay = Math.random() * 2000 + 500; // 0.5-2.5s
-    await new Promise(resolve => setTimeout(resolve, simulationDelay));
-
-    // Simulate performance based on model's legal score
-    const baseAccuracy = model.legalScore / 100;
-    const taskDifficulty = testCase.metadata?.difficulty === 'hard' ? 0.3 : 
-                          testCase.metadata?.difficulty === 'medium' ? 0.15 : 0;
-    
-    const adjustedAccuracy = Math.max(0, baseAccuracy - taskDifficulty);
-    const passed = Math.random() < adjustedAccuracy;
-    
-    return {
-      passed,
-      score: passed ? (90 + Math.random() * 10) : (Math.random() * 40),
-      output: `Simulated output for ${testCase.id}`,
-      tokens: Math.floor(Math.random() * 200) + 50
+    results: BenchmarkResult[];
+    comparison: {
+      fastest: string;
+      mostAccurate: string;
+      mostEfficient: string;
+      recommended: string;
     };
-  }
-
-  /**
-   * Calculate legal-specific metrics
-   */
-  private async calculateLegalMetrics(
-    model: HuggingFaceModel,
-    task: BenchmarkTask,
-    testResults: Array<{ passed: boolean; score: number; output?: string }>
-  ): Promise<{
-    citationAccuracy?: number;
-    legalReasoningScore?: number;
-    factualConsistency?: number;
-    ethicsScore?: number;
-    jurisdictionAccuracy?: number;
-    precedentRelevance?: number;
   }> {
-    const metrics: any = {};
+    const results: BenchmarkResult[] = [];
 
-    // Calculate citation accuracy for research tasks
-    if (task.category === LegalCategory.LEGAL_RESEARCH) {
-      metrics.citationAccuracy = this.calculateCitationAccuracy(testResults);
-      metrics.precedentRelevance = this.calculatePrecedentRelevance(testResults);
+    for (let i = 0; i < models.length; i++) {
+      if (onProgress) {
+        onProgress(i + 1, models.length, models[i].id);
+      }
+
+      const result = await this.benchmarkModel(models[i]);
+      results.push(result);
     }
 
-    // Calculate legal reasoning for all tasks
-    metrics.legalReasoningScore = this.calculateLegalReasoningScore(testResults);
+    const comparison = this.generateComparison(results);
 
-    // Calculate ethics score
-    metrics.ethicsScore = this.calculateEthicsScore(testResults);
-
-    // Calculate factual consistency
-    metrics.factualConsistency = this.calculateFactualConsistency(testResults);
-
-    return metrics;
-  }
-
-  /**
-   * Calculate overall benchmark score
-   */
-  private calculateOverallScore(result: BenchmarkResult, task: BenchmarkTask): number {
-    const weights = {
-      accuracy: 0.3,
-      legalReasoning: 0.25,
-      performance: 0.2,
-      ethics: 0.15,
-      consistency: 0.1
-    };
-
-    let score = 0;
-    score += result.metrics.accuracy * 100 * weights.accuracy;
-    score += (result.legalMetrics.legalReasoningScore || 0) * weights.legalReasoning;
-    
-    // Performance score (inverse of execution time, normalized)
-    const performanceScore = Math.max(0, 100 - (result.metrics.executionTime / 1000));
-    score += performanceScore * weights.performance;
-    
-    score += (result.legalMetrics.ethicsScore || 0) * weights.ethics;
-    score += (result.legalMetrics.factualConsistency || 0) * weights.consistency;
-
-    return Math.min(100, Math.max(0, score));
+    return { results, comparison };
   }
 
   /**
    * Get benchmark results for a model
    */
-  getBenchmarkResults(modelId: string): BenchmarkResult[] {
+  getResults(modelId: string): BenchmarkResult[] {
     return this.results.get(modelId) || [];
   }
 
   /**
-   * Get comparative analysis between models
+   * Get all benchmark results
    */
-  compareModels(modelIds: string[]): {
-    comparison: Array<{
-      modelId: string;
-      overallScore: number;
-      categoryScores: { [category: string]: number };
-      strengths: string[];
-      weaknesses: string[];
-    }>;
-    recommendations: string[];
-  } {
-    const comparison = modelIds.map(modelId => {
-      const results = this.getBenchmarkResults(modelId);
-      const overallScore = results.length > 0 ? 
-        results.reduce((sum, r) => sum + r.overallScore, 0) / results.length : 0;
-      
-      const categoryScores: { [category: string]: number } = {};
-      for (const result of results) {
-        const task = this.findTaskById(result.taskId);
-        if (task) {
-          const category = task.category;
-          if (!categoryScores[category]) categoryScores[category] = 0;
-          categoryScores[category] += result.overallScore;
-        }
-      }
+  getAllResults(): Map<string, BenchmarkResult[]> {
+    return new Map(this.results);
+  }
 
-      // Normalize category scores
-      Object.keys(categoryScores).forEach(cat => {
-        const count = results.filter(r => {
-          const task = this.findTaskById(r.taskId);
-          return task && task.category === cat;
-        }).length;
-        if (count > 0) categoryScores[cat] /= count;
-      });
+  /**
+   * Run performance regression test
+   */
+  async runRegressionTest(
+    model: HuggingFaceModel,
+    baseline: BenchmarkResult
+  ): Promise<{
+    passed: boolean;
+    regressions: string[];
+    improvements: string[];
+    summary: string;
+  }> {
+    const current = await this.benchmarkModel(model);
+    const regressions: string[] = [];
+    const improvements: string[] = [];
 
-      return {
-        modelId,
-        overallScore,
-        categoryScores,
-        strengths: this.identifyStrengths(results),
-        weaknesses: this.identifyWeaknesses(results)
-      };
-    });
+    // Check latency regression (>10% slower)
+    if (current.metrics.latency.mean > baseline.metrics.latency.mean * 1.1) {
+      regressions.push(`Latency regression: ${current.metrics.latency.mean.toFixed(2)}ms vs ${baseline.metrics.latency.mean.toFixed(2)}ms`);
+    } else if (current.metrics.latency.mean < baseline.metrics.latency.mean * 0.9) {
+      improvements.push(`Latency improvement: ${baseline.metrics.latency.mean.toFixed(2)}ms vs ${current.metrics.latency.mean.toFixed(2)}ms`);
+    }
 
-    const recommendations = this.generateComparisonRecommendations(comparison);
+    // Check throughput regression (>10% slower)
+    if (current.metrics.throughput.tokensPerSecond < baseline.metrics.throughput.tokensPerSecond * 0.9) {
+      regressions.push(`Throughput regression: ${current.metrics.throughput.tokensPerSecond.toFixed(2)} vs ${baseline.metrics.throughput.tokensPerSecond.toFixed(2)} tokens/sec`);
+    } else if (current.metrics.throughput.tokensPerSecond > baseline.metrics.throughput.tokensPerSecond * 1.1) {
+      improvements.push(`Throughput improvement: ${current.metrics.throughput.tokensPerSecond.toFixed(2)} vs ${baseline.metrics.throughput.tokensPerSecond.toFixed(2)} tokens/sec`);
+    }
 
-    return { comparison, recommendations };
+    // Check accuracy regression (>5% worse)
+    if (current.metrics.accuracy.score < baseline.metrics.accuracy.score * 0.95) {
+      regressions.push(`Accuracy regression: ${current.metrics.accuracy.score.toFixed(3)} vs ${baseline.metrics.accuracy.score.toFixed(3)}`);
+    } else if (current.metrics.accuracy.score > baseline.metrics.accuracy.score * 1.05) {
+      improvements.push(`Accuracy improvement: ${current.metrics.accuracy.score.toFixed(3)} vs ${baseline.metrics.accuracy.score.toFixed(3)}`);
+    }
+
+    const passed = regressions.length === 0;
+    const summary = passed 
+      ? `✅ No regressions detected. ${improvements.length} improvements found.`
+      : `❌ ${regressions.length} regressions detected. ${improvements.length} improvements found.`;
+
+    return {
+      passed,
+      regressions,
+      improvements,
+      summary
+    };
   }
 
   /**
    * Export benchmark results
    */
-  exportResults(format: 'json' | 'csv' = 'json'): string {
-    const allResults: any = {};
-    
-    for (const [modelId, results] of this.results.entries()) {
-      allResults[modelId] = results;
-    }
+  exportResults(): string {
+    const exportData = {
+      results: Object.fromEntries(this.results),
+      config: this.config,
+      exported: new Date(),
+      version: '1.0.0'
+    };
 
-    if (format === 'json') {
-      return JSON.stringify(allResults, null, 2);
-    } else {
-      // Convert to CSV format
-      const csvLines = ['Model ID,Task ID,Overall Score,Accuracy,Execution Time,Legal Reasoning,Ethics Score'];
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /**
+   * Import benchmark results
+   */
+  importResults(data: string): void {
+    try {
+      const parsed = JSON.parse(data);
       
-      for (const [modelId, results] of this.results.entries()) {
-        for (const result of results) {
-          csvLines.push([
+      if (parsed.results) {
+        this.results = new Map(
+          Object.entries(parsed.results).map(([modelId, results]: [string, any]) => [
             modelId,
-            result.taskId,
-            result.overallScore.toFixed(2),
-            (result.metrics.accuracy * 100).toFixed(2),
-            result.metrics.executionTime.toString(),
-            (result.legalMetrics.legalReasoningScore || 0).toFixed(2),
-            (result.legalMetrics.ethicsScore || 0).toFixed(2)
-          ].join(','));
-        }
+            results.map((r: any) => ({
+              ...r,
+              timestamp: new Date(r.timestamp)
+            }))
+          ])
+        );
+      }
+
+      if (parsed.config) {
+        this.config = { ...this.config, ...parsed.config };
+      }
+    } catch (error) {
+      throw new Error('Failed to import benchmark results: ' + error);
+    }
+  }
+
+  // Private methods
+
+  private generateTestConfigurations(): Array<{
+    batchSize: number;
+    sequenceLength: number;
+  }> {
+    const configurations = [];
+    
+    for (const batchSize of this.config.batchSizes) {
+      for (const sequenceLength of this.config.sequenceLengths) {
+        configurations.push({ batchSize, sequenceLength });
+      }
+    }
+    
+    return configurations;
+  }
+
+  private async runBenchmarkTest(
+    model: HuggingFaceModel,
+    config: { batchSize: number; sequenceLength: number }
+  ): Promise<{
+    latency: number;
+    throughput: { tokensPerSecond: number; requestsPerSecond: number };
+    memoryUsage: number;
+    cpuUsage: number;
+  }> {
+    // Simulate benchmark test
+    await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
+
+    const baseLatency = 50 + Math.random() * 100;
+    const batchFactor = Math.log(config.batchSize + 1);
+    const seqFactor = Math.log(config.sequenceLength / 128 + 1);
+
+    return {
+      latency: baseLatency * batchFactor * seqFactor,
+      throughput: {
+        tokensPerSecond: Math.max(1, 100 - baseLatency + Math.random() * 50),
+        requestsPerSecond: Math.max(0.1, 10 / batchFactor + Math.random() * 5)
+      },
+      memoryUsage: config.batchSize * config.sequenceLength * 4 + Math.random() * 1000000, // bytes
+      cpuUsage: Math.min(100, 30 + batchFactor * 20 + Math.random() * 30)
+    };
+  }
+
+  private async calculateAccuracyScore(model: HuggingFaceModel): Promise<number> {
+    // Simulate accuracy calculation based on model characteristics
+    const downloadScore = Math.min(model.downloads / 10000, 1);
+    const likeScore = Math.min(model.likes / 100, 1);
+    const baseAccuracy = 0.6 + downloadScore * 0.2 + likeScore * 0.15;
+    
+    return Math.min(0.95, baseAccuracy + Math.random() * 0.1);
+  }
+
+  private calculateMean(values: number[]): number {
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+  }
+
+  private calculatePercentile(values: number[], percentile: number): number {
+    const sorted = [...values].sort((a, b) => a - b);
+    const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+    return sorted[Math.max(0, index)];
+  }
+
+  private generateComparison(results: BenchmarkResult[]): {
+    fastest: string;
+    mostAccurate: string;
+    mostEfficient: string;
+    recommended: string;
+  } {
+    let fastest = results[0];
+    let mostAccurate = results[0];
+    let mostEfficient = results[0];
+
+    for (const result of results) {
+      if (result.metrics.latency.mean < fastest.metrics.latency.mean) {
+        fastest = result;
+      }
+      if (result.metrics.accuracy.score > mostAccurate.metrics.accuracy.score) {
+        mostAccurate = result;
       }
       
-      return csvLines.join('\n');
+      // Efficiency = (accuracy * throughput) / (latency * memory)
+      const efficiency = (result.metrics.accuracy.score * result.metrics.throughput.tokensPerSecond) / 
+                        (result.metrics.latency.mean * result.metrics.resources.memoryUsage);
+      const currentEfficiency = (mostEfficient.metrics.accuracy.score * mostEfficient.metrics.throughput.tokensPerSecond) / 
+                               (mostEfficient.metrics.latency.mean * mostEfficient.metrics.resources.memoryUsage);
+      
+      if (efficiency > currentEfficiency) {
+        mostEfficient = result;
+      }
     }
+
+    // Recommended is the most efficient unless accuracy is too low
+    const recommended = mostEfficient.metrics.accuracy.score > 0.7 ? mostEfficient : mostAccurate;
+
+    return {
+      fastest: fastest.modelId,
+      mostAccurate: mostAccurate.modelId,
+      mostEfficient: mostEfficient.modelId,
+      recommended: recommended.modelId
+    };
   }
 
-  // Helper methods for metric calculations
-  private calculateCitationAccuracy(results: any[]): number {
-    // Simulate citation accuracy calculation
-    return 70 + Math.random() * 20;
-  }
-
-  private calculatePrecedentRelevance(results: any[]): number {
-    return 65 + Math.random() * 25;
-  }
-
-  private calculateLegalReasoningScore(results: any[]): number {
-    const avgScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
-    return Math.min(100, avgScore + Math.random() * 10);
-  }
-
-  private calculateEthicsScore(results: any[]): number {
-    return 80 + Math.random() * 15;
-  }
-
-  private calculateFactualConsistency(results: any[]): number {
-    return 75 + Math.random() * 20;
-  }
-
-  private findTaskById(taskId: string): BenchmarkTask | null {
-    for (const suite of this.benchmarkSuites.values()) {
-      const task = suite.tasks.find(t => t.id === taskId);
-      if (task) return task;
-    }
-    return null;
-  }
-
-  private identifyStrengths(results: BenchmarkResult[]): string[] {
-    const strengths: string[] = [];
-    const avgAccuracy = results.reduce((sum, r) => sum + r.metrics.accuracy, 0) / results.length;
-    
-    if (avgAccuracy > 0.8) strengths.push('High accuracy');
-    if (results.every(r => r.metrics.executionTime < 30000)) strengths.push('Fast inference');
-    if (results.every(r => (r.legalMetrics.ethicsScore || 0) > 80)) strengths.push('Strong ethics compliance');
-    
-    return strengths;
-  }
-
-  private identifyWeaknesses(results: BenchmarkResult[]): string[] {
-    const weaknesses: string[] = [];
-    const avgAccuracy = results.reduce((sum, r) => sum + r.metrics.accuracy, 0) / results.length;
-    
-    if (avgAccuracy < 0.6) weaknesses.push('Low accuracy');
-    if (results.some(r => r.metrics.executionTime > 60000)) weaknesses.push('Slow inference');
-    if (results.some(r => r.metrics.errorRate > 0.1)) weaknesses.push('High error rate');
-    
-    return weaknesses;
-  }
-
-  private generateComparisonRecommendations(comparison: any[]): string[] {
-    const recommendations: string[] = [];
-    const bestModel = comparison.reduce((best, current) => 
-      current.overallScore > best.overallScore ? current : best
-    );
-    
-    recommendations.push(`Best overall performer: ${bestModel.modelId} (${bestModel.overallScore.toFixed(1)}/100)`);
-    
-    // Add category-specific recommendations
-    const categories = new Set();
-    comparison.forEach(c => Object.keys(c.categoryScores).forEach(cat => categories.add(cat)));
-    
-    for (const category of categories) {
-      const bestInCategory = comparison.reduce((best, current) => 
-        (current.categoryScores[category as string] || 0) > (best.categoryScores[category as string] || 0) ? current : best
-      );
-      recommendations.push(`Best for ${category}: ${bestInCategory.modelId}`);
-    }
-    
-    return recommendations;
+  private getHardwareInfo(): string {
+    return `${navigator.platform} - ${navigator.hardwareConcurrency || 4} cores`;
   }
 }
 
