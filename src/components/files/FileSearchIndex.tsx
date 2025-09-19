@@ -3,7 +3,7 @@
  * Provides advanced search capabilities for local documents
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { localStorageService, StoredDocument } from '../../services/localStorage';
 
 interface SearchFilters {
@@ -44,16 +44,30 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
 
   useEffect(() => {
     loadDocuments();
-    loadStats();
   }, []);
 
   useEffect(() => {
-    if (query || Object.keys(filters).length > 0) {
-      performSearch();
-    } else {
-      setResults(allDocuments);
-    }
+    performSearch();
   }, [query, filters, allDocuments]);
+
+  const updateStatsFromDocuments = async (documents: StoredDocument[]) => {
+    try {
+      const storageStats = await localStorageService.getStorageStats();
+      const formatCounts = documents.reduce<Record<string, number>>((counts, doc) => {
+        const format = doc.metadata.format || 'unknown';
+        counts[format] = (counts[format] || 0) + 1;
+        return counts;
+      }, {});
+
+      setStats({
+        documentsCount: storageStats.totalDocuments,
+        totalSize: storageStats.totalSize,
+        formats: formatCounts
+      });
+    } catch (error) {
+      console.error('Failed to load storage stats:', error);
+    }
+  };
 
   const loadDocuments = async () => {
     try {
@@ -61,6 +75,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
       const docs = await localStorageService.getAllDocuments();
       setAllDocuments(docs);
       setResults(docs);
+      await updateStatsFromDocuments(docs);
     } catch (error) {
       console.error('Failed to load documents:', error);
       onError?.('Failed to load documents');
@@ -69,31 +84,72 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
     }
   };
 
-  const loadStats = async () => {
-    try {
-      const storageStats = await localStorageService.getStorageStats();
-      setStats(storageStats);
-    } catch (error) {
-      console.error('Failed to load storage stats:', error);
-    }
-  };
+  const performSearch = () => {
+    const hasActiveFilters = Boolean(filters.format) ||
+      Boolean(filters.tags && filters.tags.length > 0) ||
+      Boolean(filters.dateRange) ||
+      Boolean(filters.sizeRange);
 
-  const performSearch = async () => {
-    if (!query && Object.keys(filters).length === 0) {
+    if (!query.trim() && !hasActiveFilters) {
       setResults(allDocuments);
       return;
     }
 
-    try {
-      setLoading(true);
-      const searchResults = await localStorageService.searchDocuments(query, filters);
-      setResults(searchResults);
-    } catch (error) {
-      console.error('Search failed:', error);
-      onError?.('Search failed');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+
+    const normalizedQuery = query.trim().toLowerCase();
+
+    const filtered = allDocuments.filter(doc => {
+      const matchesQuery = !normalizedQuery ||
+        doc.title.toLowerCase().includes(normalizedQuery) ||
+        doc.content.toLowerCase().includes(normalizedQuery) ||
+        doc.summary?.toLowerCase().includes(normalizedQuery) ||
+        doc.tags.some(tag => tag.toLowerCase().includes(normalizedQuery));
+
+      const matchesFormat = !filters.format || doc.metadata.format === filters.format;
+
+      const matchesTags = !filters.tags || filters.tags.length === 0 ||
+        filters.tags.every(tag => doc.tags.includes(tag));
+
+      let matchesDateRange = true;
+      if (filters.dateRange) {
+        const documentDate = doc.metadata.modifiedDate ||
+          doc.metadata.createdDate ||
+          doc.fileInfo.lastModified;
+
+        if (!documentDate) {
+          matchesDateRange = false;
+        } else {
+          const documentTime = new Date(documentDate).getTime();
+          const startTime = filters.dateRange.start?.getTime();
+          const endTime = filters.dateRange.end?.getTime();
+
+          if (startTime && documentTime < startTime) {
+            matchesDateRange = false;
+          }
+          if (endTime && documentTime > endTime) {
+            matchesDateRange = false;
+          }
+        }
+      }
+
+      let matchesSizeRange = true;
+      if (filters.sizeRange) {
+        const { min, max } = filters.sizeRange;
+        const fileSize = doc.fileInfo.size;
+        if (min !== undefined && fileSize < min) {
+          matchesSizeRange = false;
+        }
+        if (max !== undefined && fileSize > max) {
+          matchesSizeRange = false;
+        }
+      }
+
+      return matchesQuery && matchesFormat && matchesTags && matchesDateRange && matchesSizeRange;
+    });
+
+    setResults(filtered);
+    setLoading(false);
   };
 
   const availableFormats = useMemo(() => {
@@ -167,7 +223,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
     }
   };
 
-  const highlightText = (text: string, query: string): JSX.Element => {
+  const highlightText = (text: string, query: string): React.ReactNode => {
     if (!query) return <span>{text}</span>;
 
     const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');

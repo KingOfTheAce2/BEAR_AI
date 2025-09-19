@@ -7,16 +7,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ModelConfig,
   LoadedModel,
-  ModelStatus,
   ModelInferenceOptions,
   ModelInferenceResult,
-  ModelPerformanceMetrics,
   ModelEventType,
   ModelEvent,
   MemoryStats,
   ModelManagerStats
 } from '../types/modelTypes';
-import CoreModelManager from '../services/modelManager';
+import CoreModelManager, { type ModelPerformanceMetrics } from '../services/modelManager';
 
 export interface UseModelManagerOptions {
   autoDiscovery?: boolean;

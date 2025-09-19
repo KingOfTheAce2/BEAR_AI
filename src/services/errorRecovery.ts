@@ -4,7 +4,7 @@
  */
 
 import { StreamingService } from './streamingService';
-import { StreamingConfig, ConnectionState } from '../types/streaming';
+import { StreamingConfig, ConnectionState, StreamingError } from '../types/streaming';
 
 export interface ErrorRecoveryConfig {
   maxRetries: number;
@@ -31,6 +31,69 @@ export interface CircuitBreakerState {
   lastFailureTime: Date | null;
   nextRetryTime: Date | null;
 }
+
+type RecoveryStrategy = 'reconnect' | 'fallback' | 'reset';
+
+interface RecoveryAttemptRecord {
+  error: StreamingError;
+  timestamp: Date;
+  attempts: number;
+  success: boolean;
+  strategy: RecoveryStrategy;
+  durationMs: number;
+  lastErrorMessage?: string;
+}
+
+const globalRecoveryAttempts: RecoveryAttemptRecord[] = [];
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const calculateRecoveryDelay = (attempt: number, config: ErrorRecoveryConfig): number => {
+  let delay = config.baseDelay;
+
+  if (config.exponentialBackoff) {
+    delay *= Math.pow(2, attempt - 1);
+  }
+
+  delay = Math.min(delay, config.maxDelay);
+
+  if (config.jitterEnabled) {
+    const jitter = Math.random() * 0.3;
+    delay *= 1 + (Math.random() > 0.5 ? jitter : -jitter);
+  }
+
+  return Math.floor(delay);
+};
+
+const logIfEnabled = (
+  config: ErrorRecoveryConfig,
+  level: 'info' | 'warn' | 'error',
+  message: string,
+  data?: any
+) => {
+  if (!config.enableLogging) {
+    return;
+  }
+
+  const logger = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info;
+  logger(`[StreamingErrorRecovery] ${message}`, data ?? '');
+};
+
+const toError = (error: unknown): Error => {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  if (typeof error === 'string') {
+    return new Error(error);
+  }
+
+  try {
+    return new Error(JSON.stringify(error));
+  } catch {
+    return new Error('Unknown error');
+  }
+};
 
 const DEFAULT_RECOVERY_CONFIG: ErrorRecoveryConfig = {
   maxRetries: 5,
@@ -438,14 +501,108 @@ export function withErrorRecovery(
 export const streamingErrorRecovery = {
   create: (service: StreamingService, config?: Partial<ErrorRecoveryConfig>) =>
     new StreamingErrorRecovery(service, config),
-    
+
   wrap: (service: StreamingService, config?: Partial<ErrorRecoveryConfig>) =>
     withErrorRecovery(service, config),
-    
+
+  attemptRecovery: async (
+    service: StreamingService,
+    error: StreamingError,
+    overrides?: Partial<ErrorRecoveryConfig>
+  ): Promise<boolean> => {
+    const config = streamingErrorRecovery.createConfig(overrides);
+    const start = Date.now();
+    const attemptRecord: RecoveryAttemptRecord = {
+      error,
+      timestamp: new Date(),
+      attempts: 0,
+      success: false,
+      strategy: 'reconnect',
+      durationMs: 0
+    };
+
+    if (!service || typeof (service as any).connect !== 'function') {
+      attemptRecord.lastErrorMessage = 'Service does not expose a connect method';
+      logIfEnabled(config, 'warn', 'Recovery attempt skipped - service missing connect method');
+      attemptRecord.durationMs = Date.now() - start;
+      globalRecoveryAttempts.push(attemptRecord);
+      return false;
+    }
+
+    let lastError: Error | undefined;
+
+    if (typeof (service as any).disconnect === 'function') {
+      try {
+        await (service as any).disconnect();
+        logIfEnabled(config, 'info', 'Service disconnected prior to recovery attempt');
+      } catch (disconnectError) {
+        lastError = toError(disconnectError);
+        logIfEnabled(config, 'warn', 'Failed to cleanly disconnect before recovery', {
+          message: lastError.message
+        });
+      }
+    }
+
+    while (attemptRecord.attempts < config.maxRetries && !attemptRecord.success) {
+      attemptRecord.attempts++;
+
+      try {
+        await (service as any).connect();
+        attemptRecord.success = true;
+        logIfEnabled(config, 'info', `Manual recovery attempt ${attemptRecord.attempts} succeeded`);
+        break;
+      } catch (connectError) {
+        lastError = toError(connectError);
+        logIfEnabled(config, 'warn', `Manual recovery attempt ${attemptRecord.attempts} failed`, {
+          message: lastError.message
+        });
+
+        if (attemptRecord.attempts >= config.maxRetries) {
+          break;
+        }
+
+        const delay = calculateRecoveryDelay(attemptRecord.attempts, config);
+        await sleep(delay);
+      }
+    }
+
+    if (!attemptRecord.success && typeof (service as any).fallbackToHttp === 'function') {
+      attemptRecord.strategy = 'fallback';
+      try {
+        await (service as any).fallbackToHttp('Recovery health check', {} as any);
+        attemptRecord.success = true;
+        logIfEnabled(config, 'info', 'Fallback HTTP recovery strategy succeeded');
+      } catch (fallbackError) {
+        const fallbackErr = toError(fallbackError);
+        lastError = fallbackErr;
+        logIfEnabled(config, 'error', 'Fallback HTTP recovery strategy failed', {
+          message: fallbackErr.message
+        });
+      }
+    }
+
+    if (!attemptRecord.success) {
+      attemptRecord.strategy = 'reconnect';
+    }
+
+    attemptRecord.durationMs = Date.now() - start;
+    attemptRecord.lastErrorMessage = lastError?.message;
+
+    globalRecoveryAttempts.push(attemptRecord);
+
+    return attemptRecord.success;
+  },
+
   defaultConfig: DEFAULT_RECOVERY_CONFIG,
-  
+
   createConfig: (overrides?: Partial<ErrorRecoveryConfig>): ErrorRecoveryConfig =>
-    ({ ...DEFAULT_RECOVERY_CONFIG, ...overrides })
+    ({ ...DEFAULT_RECOVERY_CONFIG, ...overrides }),
+
+  clearAttempts: () => {
+    globalRecoveryAttempts.length = 0;
+  },
+
+  getAttemptHistory: (): RecoveryAttemptRecord[] => [...globalRecoveryAttempts]
 };
 
 /**

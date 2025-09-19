@@ -15,11 +15,11 @@
  * @author BEAR AI UI Team
  */
 
-import React, { 
-  useRef, 
-  useEffect, 
-  useState, 
-  useCallback, 
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
   useMemo,
   useLayoutEffect,
   ReactElement,
@@ -53,6 +53,15 @@ export interface VirtualScrollProps {
   maintainScrollPosition?: boolean;
 }
 
+export interface VirtualScrollHandle {
+  scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void;
+  scrollToItem: (itemId: string, align?: 'start' | 'center' | 'end') => void;
+  scrollToTop: () => void;
+  scrollToBottom: () => void;
+  getScrollPosition: () => number;
+  forceUpdate: () => void;
+}
+
 interface ItemPosition {
   index: number;
   top: number;
@@ -66,7 +75,7 @@ interface VisibleRange {
   visibleItems: ItemPosition[];
 }
 
-export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
+export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualScrollProps>(({
   items,
   itemHeight = 60,
   containerHeight,
@@ -83,7 +92,7 @@ export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
   emptyComponent,
   smoothScrolling = true,
   maintainScrollPosition = true
-}) => {
+}, forwardedRef) => {
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollElementRef = useRef<HTMLDivElement>(null);
@@ -189,10 +198,10 @@ export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
   }, [scrollTop, calculateVisibleRange]);
   
   // Scroll handler with performance optimizations
-  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    const target = event.currentTarget;
+  const handleScroll = useCallback((event: React.UIEvent<Element>) => {
+    const target = event.currentTarget as HTMLDivElement;
     const newScrollTop = target.scrollTop;
-    
+
     setScrollTop(newScrollTop);
     setIsScrolling(true);
     debouncedScrollEnd();
@@ -281,7 +290,7 @@ export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
   }, [items, scrollToIndex]);
   
   // Expose methods via ref
-  React.useImperativeHandle(containerRef, () => ({
+  React.useImperativeHandle(forwardedRef, () => ({
     scrollToIndex,
     scrollToItem,
     scrollToTop: () => scrollToIndex(0),
@@ -291,7 +300,13 @@ export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
       measurementsRef.current.clear();
       setVisibleRange(calculateVisibleRange(scrollTop));
     }
-  }));
+  }), [
+    scrollToIndex,
+    scrollToItem,
+    items.length,
+    scrollTop,
+    calculateVisibleRange
+  ]);
   
   // Maintain scroll position when items change
   useLayoutEffect(() => {
@@ -409,15 +424,15 @@ export const VirtualScrollList: React.FC<VirtualScrollProps> = ({
       )}
     </div>
   );
-};
+});
 
 // Custom hook for using VirtualScrollList
 export const useVirtualScroll = () => {
-  const ref = useRef<any>(null);
-  
+  const ref = useRef<VirtualScrollHandle | null>(null);
+
   return {
     ref,
-    scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => 
+    scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') =>
       ref.current?.scrollToIndex(index, align),
     scrollToItem: (itemId: string, align?: 'start' | 'center' | 'end') => 
       ref.current?.scrollToItem(itemId, align),
@@ -460,5 +475,7 @@ export const VirtualScrollItemWrapper: React.FC<{
 });
 
 VirtualScrollItemWrapper.displayName = 'VirtualScrollItemWrapper';
+
+VirtualScrollList.displayName = 'VirtualScrollList';
 
 export default VirtualScrollList;

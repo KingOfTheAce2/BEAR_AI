@@ -14,15 +14,21 @@ export interface Logger {
   info: (message: string, context?: LogContext) => void;
   warn: (message: string, context?: LogContext) => void;
   error: (message: string, context?: LogContext) => void;
+  child: (context: LogContext) => Logger;
+  componentMount: (componentName: string, props?: unknown) => void;
+  componentUnmount: (componentName: string, context?: Record<string, any>) => void;
+  componentError: (componentName: string, error: Error, context?: Record<string, any>) => void;
 }
 
 class UnifiedLogger implements Logger {
   private prefix: string;
   private level: LogLevel;
+  private defaultContext: LogContext;
 
-  constructor(prefix: string = '', level: LogLevel = 'info') {
+  constructor(prefix: string = '', level: LogLevel = 'info', context: LogContext = {}) {
     this.prefix = prefix;
     this.level = level;
+    this.defaultContext = context;
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -30,10 +36,24 @@ class UnifiedLogger implements Logger {
     return levels.indexOf(level) >= levels.indexOf(this.level);
   }
 
+  private formatContext(context?: LogContext): string {
+    const mergedContext = { ...this.defaultContext, ...(context || {}) };
+    if (Object.keys(mergedContext).length === 0) {
+      return '';
+    }
+
+    try {
+      return ` ${JSON.stringify(mergedContext)}`;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return ` [context-serialization-error: ${errorMessage}]`;
+    }
+  }
+
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
     const prefixStr = this.prefix ? `[${this.prefix}] ` : '';
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
+    const contextStr = this.formatContext(context);
     return `${timestamp} [${level.toUpperCase()}] ${prefixStr}${message}${contextStr}`;
   }
 
@@ -60,14 +80,44 @@ class UnifiedLogger implements Logger {
       console.error(this.formatMessage('error', message, context));
     }
   }
+
+  child(context: LogContext): UnifiedLogger {
+    return new UnifiedLogger(this.prefix, this.level, { ...this.defaultContext, ...context });
+  }
+
+  componentMount(componentName: string, props?: unknown): void {
+    this.info(`Component mounted: ${componentName}`, {
+      component: componentName,
+      props
+    });
+  }
+
+  componentUnmount(componentName: string, context?: Record<string, any>): void {
+    this.info(`Component unmounted: ${componentName}`, {
+      component: componentName,
+      ...context
+    });
+  }
+
+  componentError(componentName: string, error: Error, context?: Record<string, any>): void {
+    this.error(`Component error: ${componentName}`, {
+      component: componentName,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      },
+      ...context
+    });
+  }
 }
 
 // Default logger instance
 export const logger = new UnifiedLogger('BEAR-AI');
 
 // Logger factory function
-export function createLogger(prefix: string, level: LogLevel = 'info'): Logger {
-  return new UnifiedLogger(prefix, level);
+export function createLogger(prefix: string, level: LogLevel = 'info', context: LogContext = {}): Logger {
+  return new UnifiedLogger(prefix, level, context);
 }
 
 // Utility functions

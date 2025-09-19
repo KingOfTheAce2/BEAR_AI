@@ -6,7 +6,7 @@
 import type { LocalFile } from './localFileSystem';
 
 export interface DocumentSection {
-  id: string;
+  id?: string;
   title: string;
   content: string;
   level: number;
@@ -227,12 +227,15 @@ export class LocalStorageService {
       summary?: string;
       tags?: string[];
       fileInfo?: FileInfo;
+      sections?: DocumentSection[];
     },
     file: FileInfo | LocalFile,
     tags: string[] = []
   ): Promise<StoredDocument> {
     const db = await this.ensureDB();
     const now = new Date();
+
+    const resolvedSections = document.sections ?? document.metadata.sections;
 
     const resolvedFileInfo: FileInfo = document.fileInfo || {
       path: 'path' in file ? file.path : `/${document.title}`,
@@ -245,6 +248,7 @@ export class LocalStorageService {
 
     const metadata: DocumentMetadata = {
       ...document.metadata,
+      ...(resolvedSections ? { sections: resolvedSections } : {}),
       localModified: now,
       accessCount: document.metadata.accessCount ?? 0,
       lastAccessed: document.metadata.lastAccessed ?? now,

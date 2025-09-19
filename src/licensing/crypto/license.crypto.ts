@@ -54,11 +54,9 @@ export class LicenseCrypto {
 
   /**
    * Sign license data with private key
-   */
+  */
   static signLicense(licenseData: any, privateKey: string): string {
     const dataString = JSON.stringify(licenseData, Object.keys(licenseData).sort());
-    const signature = crypto.sign(this.HASH_ALGORITHM, Buffer.from(dataString));
-
     const sign = crypto.createSign(this.HASH_ALGORITHM);
     sign.update(dataString);
     sign.end();
@@ -87,14 +85,14 @@ export class LicenseCrypto {
 
   /**
    * Encrypt sensitive license data
-   */
+  */
   static encryptLicenseData(data: string, password: string): { encrypted: string; iv: string; salt: string } {
     const salt = crypto.randomBytes(16);
     const iv = crypto.randomBytes(16);
     const key = crypto.pbkdf2Sync(password, salt, 10000, 32, 'sha256');
 
-    const cipher = crypto.createCipher('aes-256-gcm', key);
-    cipher.setAAD(Buffer.from('license-data'));
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    cipher.setAAD(Buffer.from('license-data', 'utf8'));
 
     let encrypted = cipher.update(data, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -120,9 +118,9 @@ export class LicenseCrypto {
       const encryptedText = encryptedData.encrypted.slice(0, -32);
       const authTag = Buffer.from(encryptedData.encrypted.slice(-32), 'hex');
 
-      const decipher = crypto.createDecipher('aes-256-gcm', key);
+      const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
       decipher.setAuthTag(authTag);
-      decipher.setAAD(Buffer.from('license-data'));
+      decipher.setAAD(Buffer.from('license-data', 'utf8'));
 
       let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
@@ -194,15 +192,17 @@ export class LicenseCrypto {
     const key = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
-    const cipher = crypto.createCipher('aes-256-cbc', key);
-    let encrypted = cipher.update(licenseData, 'utf8', 'base64');
-    encrypted += cipher.final('base64');
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    const encryptedBuffer = Buffer.concat([
+      cipher.update(licenseData, 'utf8'),
+      cipher.final()
+    ]);
 
     // Store key and IV with encrypted data in a way that's not immediately obvious
     const combined = Buffer.concat([
       key,
       iv,
-      Buffer.from(encrypted, 'base64')
+      encryptedBuffer
     ]);
 
     return combined.toString('base64');
@@ -218,11 +218,13 @@ export class LicenseCrypto {
       const iv = combined.slice(32, 48);
       const encrypted = combined.slice(48);
 
-      const decipher = crypto.createDecipher('aes-256-cbc', key);
-      let decrypted = decipher.update(encrypted, undefined, 'utf8');
-      decrypted += decipher.final('utf8');
+      const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+      const decryptedBuffer = Buffer.concat([
+        decipher.update(encrypted),
+        decipher.final()
+      ]);
 
-      return decrypted;
+      return decryptedBuffer.toString('utf8');
     } catch (error) {
       throw new Error('Failed to deobfuscate license data');
     }
