@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import type { DragEventHandler } from 'react';
 import {
   PlayIcon,
   StopIcon,
@@ -13,7 +14,7 @@ import {
   Cog6ToothIcon,
   ExclamationCircleIcon,
   CheckCircleIcon,
-  ArrowUpOnSquareIcon,
+  ArrowUpTrayIcon,
   CloudArrowDownIcon,
   BeakerIcon,
   AcademicCapIcon
@@ -25,9 +26,8 @@ import {
   FineTuningStatus,
   FineTuningMethod,
   FineTuningConfig,
-  TrainingMetrics,
-  LegalCategory
-} from '../../../types/huggingface';
+  TrainingMetrics
+} from '../../../types/huggingface/index';
 
 interface FineTuningInterfaceProps {
   model: HuggingFaceModel;
@@ -62,24 +62,33 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<{ valid: boolean; issues: string[] } | null>(null);
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const eventType = e.type;
-    if (eventType === 'dragenter' || eventType === 'dragover') {
+  const handleDragEnter: DragEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragOver: DragEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!dragActive) {
       setDragActive(true);
-    } else if (eventType === 'dragleave') {
-      setDragActive(false);
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave: DragEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+  };
+
+  const handleDrop: DragEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      handleFile(event.dataTransfer.files[0]);
     }
   };
 
@@ -132,16 +141,16 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
       {!uploadedFile ? (
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragActive 
-              ? 'border-blue-500 bg-blue-50' 
+            dragActive
+              ? 'border-blue-500 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <ArrowUpOnSquareIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <ArrowUpTrayIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-lg font-medium text-gray-900 mb-2">
             Drop your dataset here
           </p>
