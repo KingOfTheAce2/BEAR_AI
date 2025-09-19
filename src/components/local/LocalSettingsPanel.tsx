@@ -21,7 +21,7 @@ import {
   FileText,
   Bell,
   BellOff,
-  Palette,
+  Paintbrush,
   Sun,
   Moon,
   Volume2,
@@ -760,7 +760,7 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
           <TabsContent value="interface" className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Palette className="w-5 h-5" />
+                <Paintbrush className="w-5 h-5" />
                 Appearance
               </h3>
 

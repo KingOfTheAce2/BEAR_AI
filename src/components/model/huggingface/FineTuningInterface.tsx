@@ -13,7 +13,7 @@ import {
   Cog6ToothIcon,
   ExclamationCircleIcon,
   CheckCircleIcon,
-  ArrowUpTrayIcon,
+  ArrowUpOnSquareIcon,
   CloudArrowDownIcon,
   BeakerIcon,
   AcademicCapIcon
@@ -62,17 +62,18 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<{ valid: boolean; issues: string[] } | null>(null);
 
-  const handleDrag = (e: React.DragEvent) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    const eventType = e.type;
+    if (eventType === 'dragenter' || eventType === 'dragover') {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (eventType === 'dragleave') {
       setDragActive(false);
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -140,7 +141,7 @@ const DatasetUpload: React.FC<DatasetUploadProps> = ({
           onDragOver={handleDrag}
           onDrop={handleDrop}
         >
-          <ArrowUpTrayIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <ArrowUpOnSquareIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-lg font-medium text-gray-900 mb-2">
             Drop your dataset here
           </p>

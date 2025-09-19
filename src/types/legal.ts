@@ -4,7 +4,10 @@ export type {
   LegalDocumentType,
   LegalCategory,
   DocumentStatus,
-  RiskLevel
+  RiskLevel,
+  CaseLaw,
+  Statute,
+  Citation
 } from './legal/index';
 
 export interface LegalCitation {
