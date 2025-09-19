@@ -3,7 +3,8 @@
  * Handles batch file upload and processing workflows
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { FC, DragEvent, ChangeEvent } from 'react';
 import { localFileSystemService, LocalFile } from '../../services/localFileSystem';
 import { documentParserService, ParsedDocument } from '../../services/documentParser';
 import { localStorageService, StoredDocument } from '../../services/localStorage';
@@ -26,7 +27,7 @@ interface FileUploadProcessorProps {
   acceptedTypes?: string[];
 }
 
-export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
+export const FileUploadProcessor: FC<FileUploadProcessorProps> = ({
   onJobComplete,
   onAllJobsComplete,
   onError,
@@ -106,13 +107,13 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   }, [jobs, activeJobs, maxConcurrentJobs, processJob]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoProcess && jobs.some(job => job.status === 'pending') && activeJobs.size < maxConcurrentJobs) {
       processQueue();
     }
   }, [jobs, activeJobs, autoProcess, maxConcurrentJobs, processQueue]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const completedJobs = jobs.filter(job => job.status === 'completed' || job.status === 'failed');
     if (completedJobs.length > 0 && completedJobs.length === jobs.length) {
       onAllJobsComplete?.(jobs);
@@ -166,7 +167,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   };
 
-  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
     dragCounterRef.current = 0;
@@ -175,11 +176,11 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     handleFileSelection(files);
   }, [handleFileSelection]);
 
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
   }, []);
 
-  const handleDragEnter = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dragCounterRef.current++;
     if (dragCounterRef.current === 1) {
@@ -187,7 +188,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   }, []);
 
-  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dragCounterRef.current--;
     if (dragCounterRef.current === 0) {
@@ -195,7 +196,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   }, []);
 
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     handleFileSelection(files);
     
