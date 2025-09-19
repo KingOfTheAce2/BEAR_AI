@@ -87,8 +87,8 @@ export class LicenseCrypto {
    * Encrypt sensitive license data
   */
   static encryptLicenseData(data: string, password: string): { encrypted: string; iv: string; salt: string } {
-    const salt = crypto.randomBytes(16);
-    const iv = crypto.randomBytes(16);
+    const salt = crypto.randomBytes(16) as Buffer;
+    const iv = crypto.randomBytes(16) as Buffer;
     const key = crypto.pbkdf2Sync(password, salt, 10000, 32, 'sha256');
 
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
@@ -97,7 +97,7 @@ export class LicenseCrypto {
     let encrypted = cipher.update(data, 'utf8', 'hex');
     encrypted += cipher.final('hex');
 
-    const authTag = cipher.getAuthTag();
+    const authTag = cipher.getAuthTag() as Buffer;
 
     return {
       encrypted: encrypted + authTag.toString('hex'),
@@ -137,7 +137,7 @@ export class LicenseCrypto {
   static generateActivationCode(): string {
     const segments = [];
     for (let i = 0; i < 4; i++) {
-      const segment = crypto.randomBytes(2).toString('hex').toUpperCase();
+      const segment = (crypto.randomBytes(2) as Buffer).toString('hex').toUpperCase();
       segments.push(segment);
     }
     return segments.join('-');
@@ -189,8 +189,8 @@ export class LicenseCrypto {
    * Obfuscate license data for storage
    */
   static obfuscateLicenseData(licenseData: string): string {
-    const key = crypto.randomBytes(32);
-    const iv = crypto.randomBytes(16);
+    const key = crypto.randomBytes(32) as Buffer;
+    const iv = crypto.randomBytes(16) as Buffer;
 
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     const encryptedBuffer = Buffer.concat([
@@ -199,7 +199,7 @@ export class LicenseCrypto {
     ]);
 
     // Store key and IV with encrypted data in a way that's not immediately obvious
-    const combined = Buffer.concat([
+    const combined: Buffer = Buffer.concat([
       key,
       iv,
       encryptedBuffer
@@ -219,7 +219,7 @@ export class LicenseCrypto {
       const encrypted = combined.slice(48);
 
       const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-      const decryptedBuffer = Buffer.concat([
+      const decryptedBuffer: Buffer = Buffer.concat([
         decipher.update(encrypted),
         decipher.final()
       ]);
