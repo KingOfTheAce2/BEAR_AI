@@ -1,5 +1,4 @@
 import React, { useState, useRef, useCallback } from 'react';
-import type { DragEvent } from 'react';
 import './FileUpload.css';
 
 interface FileUploadProps {
@@ -88,13 +87,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
     setIsProcessing(false);
   }, [disabled, maxFiles, maxSize, acceptedTypes]);
 
-  const handleDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragOver(true);
   }, []);
 
-  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -104,12 +103,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, []);
 
-  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragOver(false);

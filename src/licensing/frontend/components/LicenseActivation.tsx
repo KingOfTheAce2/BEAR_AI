@@ -9,9 +9,9 @@ import {
   ComputerDesktopIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
-  ArrowRightIcon,
-  DocumentDuplicateIcon
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
+import { Copy } from 'lucide-react';
 import {
   LicenseActivationRequest,
   LicenseActivationResponse,
@@ -267,7 +267,7 @@ export const LicenseActivation: React.FC<LicenseActivationProps> = ({
                   onClick={() => copyToClipboard(hardwareFingerprint.fingerprint)}
                   className="ml-2 text-gray-400 hover:text-gray-600"
                 >
-                  <DocumentDuplicateIcon className="h-4 w-4" />
+                  <Copy className="h-4 w-4" />
                 </button>
               </div>
             </div>

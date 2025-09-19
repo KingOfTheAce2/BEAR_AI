@@ -63,7 +63,7 @@ export interface PluginHook {
 
 export interface PluginInstance {
   id: string;
-  metadata: PluginMetadata;
+  metadata: PluginManifest;
   status: PluginStatus;
   sandbox: PluginSandbox;
   config: Record<string, any>;
@@ -111,11 +111,13 @@ export interface PluginUIAPI {
   removePanel(panelId: string): void;
 }
 
+export type PluginEventHandler = (...args: any[]) => void;
+
 export interface PluginEventAPI {
-  on(event: string, handler: Function): void;
-  off(event: string, handler: Function): void;
+  on(event: string, handler: PluginEventHandler): void;
+  off(event: string, handler: PluginEventHandler): void;
   emit(event: string, data?: any): void;
-  once(event: string, handler: Function): void;
+  once(event: string, handler: PluginEventHandler): void;
 }
 
 export interface PluginUtilsAPI {

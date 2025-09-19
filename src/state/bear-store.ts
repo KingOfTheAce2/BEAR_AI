@@ -7,14 +7,6 @@
  */
 
 import { create } from 'zustand'
-import { subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import { persist, createJSONStorage } from 'zustand/middleware'
-
-interface PersistedState {
-  version: number
-  state: any
-}
 
 // State Types
 export interface Agent {
@@ -129,39 +121,46 @@ export interface AppSettings {
 }
 
 // Main Store Interface
-interface BearStore {
-  // Agents
+interface BearState {
   agents: Record<string, Agent>
+  documents: Record<string, Document>
+  tasks: Record<string, Task>
+  models: Record<string, LLMModel>
+  ui: UIState
+  settings: AppSettings
+  isInitialized: boolean
+  isLoading: boolean
+  error?: string
+}
+
+interface BearActions {
+  // Agents
   addAgent: (agent: Agent) => void
   updateAgent: (id: string, updates: Partial<Agent>) => void
   removeAgent: (id: string) => void
   getActiveAgents: () => Agent[]
-  
+
   // Documents
-  documents: Record<string, Document>
   addDocument: (document: Document) => void
   updateDocument: (id: string, updates: Partial<Document>) => void
   removeDocument: (id: string) => void
   getDocumentsByStatus: (status: Document['status']) => Document[]
-  
+
   // Tasks
-  tasks: Record<string, Task>
   addTask: (task: Task) => void
   updateTask: (id: string, updates: Partial<Task>) => void
   completeTask: (id: string, result: any) => void
   failTask: (id: string, error: string) => void
   getTasksByStatus: (status: Task['status']) => Task[]
-  
+
   // LLM Models
-  models: Record<string, LLMModel>
   addModel: (model: LLMModel) => void
   updateModel: (id: string, updates: Partial<LLMModel>) => void
   loadModel: (id: string) => Promise<void>
   unloadModel: (id: string) => Promise<void>
   getLoadedModels: () => LLMModel[]
-  
+
   // UI State
-  ui: UIState
   setActiveTab: (tab: UIState['activeTab']) => void
   setSelectedDocument: (id: string | undefined) => void
   setSelectedAgent: (id: string | undefined) => void
@@ -171,23 +170,21 @@ interface BearStore {
   addNotification: (notification: Omit<UIState['notifications'][0], 'id' | 'timestamp' | 'isRead'>) => void
   markNotificationAsRead: (id: string) => void
   clearNotifications: () => void
-  
+
   // Settings
-  settings: AppSettings
   updateSettings: (updates: Partial<AppSettings>) => void
   resetSettings: () => void
-  
+
   // Actions
   processDocument: (documentId: string, analysisType?: string[]) => Promise<void>
   coordinateAgents: (taskId: string, agentIds: string[]) => Promise<void>
   optimizeAgentAllocation: () => void
-  
+
   // System
-  isInitialized: boolean
-  isLoading: boolean
-  error?: string
   initialize: () => Promise<void>
 }
+
+export type BearStore = BearState & BearActions
 
 // Default Settings
 const defaultSettings: AppSettings = {
@@ -217,457 +214,690 @@ const defaultSettings: AppSettings = {
   }
 }
 
+const defaultUIState: UIState = {
+  activeTab: 'documents',
+  selectedDocumentId: undefined,
+  selectedAgentId: undefined,
+  isSettingsOpen: false,
+  isSidebarCollapsed: false,
+  theme: 'auto',
+  notifications: []
+}
+
+const STORAGE_KEY = 'bear-ai-store'
+
+const canUseStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+
+type PersistedSnapshot = {
+  settings: AppSettings
+  ui: Pick<UIState, 'theme' | 'isSidebarCollapsed'>
+  models: Record<string, LLMModel>
+  agents: Record<string, Agent>
+}
+
+const cloneSettings = (settings: AppSettings): AppSettings => ({
+  llm: { ...settings.llm },
+  privacy: { ...settings.privacy },
+  processing: { ...settings.processing },
+  ui: { ...settings.ui }
+})
+
+const mergeSettings = (base: AppSettings, updates?: Partial<AppSettings>): AppSettings => ({
+  llm: { ...base.llm, ...(updates?.llm ?? {}) },
+  privacy: { ...base.privacy, ...(updates?.privacy ?? {}) },
+  processing: { ...base.processing, ...(updates?.processing ?? {}) },
+  ui: { ...base.ui, ...(updates?.ui ?? {}) }
+})
+
+const hydrateAgent = (agent: Agent): Agent => ({
+  ...agent,
+  lastActivity: agent.lastActivity instanceof Date ? agent.lastActivity : new Date(agent.lastActivity),
+  metrics: {
+    tasksCompleted: agent.metrics?.tasksCompleted ?? 0,
+    averageProcessingTime: agent.metrics?.averageProcessingTime ?? 0,
+    errorCount: agent.metrics?.errorCount ?? 0
+  }
+})
+
+const loadPersistedSnapshot = (): Partial<PersistedSnapshot> => {
+  if (!canUseStorage) {
+    return {}
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) {
+      return {}
+    }
+
+    const parsed = JSON.parse(raw) as Partial<PersistedSnapshot>
+    const hydrated: Partial<PersistedSnapshot> = {}
+
+    if (parsed.settings) {
+      hydrated.settings = parsed.settings
+    }
+
+    if (parsed.ui) {
+      hydrated.ui = {
+        theme: parsed.ui.theme ?? defaultUIState.theme,
+        isSidebarCollapsed: parsed.ui.isSidebarCollapsed ?? defaultUIState.isSidebarCollapsed
+      }
+    }
+
+    if (parsed.models) {
+      hydrated.models = parsed.models
+    }
+
+    if (parsed.agents) {
+      const agents: Record<string, Agent> = {}
+      Object.entries(parsed.agents).forEach(([id, value]) => {
+        agents[id] = hydrateAgent(value as Agent)
+      })
+      hydrated.agents = agents
+    }
+
+    return hydrated
+  } catch (error) {
+    console.warn('Failed to load persisted BEAR AI state:', error)
+    return {}
+  }
+}
+
+const persistSnapshot = (state: Pick<BearState, 'settings' | 'ui' | 'models' | 'agents'>) => {
+  if (!canUseStorage) {
+    return
+  }
+
+  const snapshot: PersistedSnapshot = {
+    settings: cloneSettings(state.settings),
+    ui: {
+      theme: state.ui.theme,
+      isSidebarCollapsed: state.ui.isSidebarCollapsed
+    },
+    models: state.models,
+    agents: state.agents
+  }
+
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
+  } catch (error) {
+    console.warn('Failed to persist BEAR AI state:', error)
+  }
+}
+
+const persistedState = loadPersistedSnapshot()
+
 // Store Implementation
-export const useBearStore = create<BearStore>()(
-  subscribeWithSelector(
-    persist(
-      immer<BearStore>((set, get) => ({
-        // Initial State
-        agents: {},
-        documents: {},
-        tasks: {},
-        models: {},
-        ui: {
-          activeTab: 'documents',
-          selectedDocumentId: undefined,
-          selectedAgentId: undefined,
-          isSettingsOpen: false,
-          isSidebarCollapsed: false,
-          theme: 'auto',
-          notifications: []
-        },
-        settings: defaultSettings,
-        isInitialized: false,
-        isLoading: false,
-        error: undefined,
+export const useBearStore = create<BearStore>((set, get) => {
+  const baseSettings = mergeSettings(defaultSettings, persistedState.settings)
+  const baseUI: UIState = {
+    ...defaultUIState,
+    ...(persistedState.ui ?? {})
+  }
 
-        // Agent Actions
-        addAgent: (agent) => set((state) => {
-          state.agents[agent.id] = agent
-        }),
+  const persistFromState = (state: BearStore, overrides: Partial<BearState> = {}) => {
+    persistSnapshot({
+      settings: overrides.settings ?? state.settings,
+      ui: overrides.ui ?? state.ui,
+      models: overrides.models ?? state.models,
+      agents: overrides.agents ?? state.agents
+    })
+  }
 
-        updateAgent: (id, updates) => set((state) => {
-          if (state.agents[id]) {
-            Object.assign(state.agents[id], updates)
-          }
-        }),
+  const typedSet = set as unknown as (
+    partial:
+      | Partial<BearStore>
+      | ((state: BearStore) => Partial<BearStore>)
+  ) => void
 
-        removeAgent: (id) => set((state) => {
-          delete state.agents[id]
-        }),
+  return {
+    agents: persistedState.agents ?? {},
+    documents: {},
+    tasks: {},
+    models: persistedState.models ?? {},
+    ui: baseUI,
+    settings: baseSettings,
+    isInitialized: false,
+    isLoading: false,
+    error: undefined,
 
-        getActiveAgents: () => {
-          const state = get()
-          return Object.values(state.agents).filter((agent: Agent) =>
-            agent.status !== 'offline' && agent.status !== 'error'
-          )
-        },
+    // Agent Actions
+    addAgent: (agent) =>
+      typedSet((state) => {
+        const agents = { ...state.agents, [agent.id]: agent }
+        persistFromState(state, { agents })
+        return { agents }
+      }),
 
-        // Document Actions
-        addDocument: (document) => set((state) => {
-          state.documents[document.id] = document
-        }),
+    updateAgent: (id, updates) =>
+      typedSet((state) => {
+        const existing = state.agents[id]
+        if (!existing) {
+          return {}
+        }
+        const agents = {
+          ...state.agents,
+          [id]: { ...existing, ...updates }
+        }
+        persistFromState(state, { agents })
+        return { agents }
+      }),
 
-        updateDocument: (id, updates) => set((state) => {
-          if (state.documents[id]) {
-            Object.assign(state.documents[id], updates)
-          }
-        }),
+    removeAgent: (id) =>
+      typedSet((state) => {
+        if (!state.agents[id]) {
+          return {}
+        }
+        const { [id]: _removed, ...rest } = state.agents
+        persistFromState(state, { agents: rest })
+        return { agents: rest }
+      }),
 
-        removeDocument: (id) => set((state) => {
-          delete state.documents[id]
-        }),
+    getActiveAgents: () => {
+      const state = get()
+      return Object.values(state.agents).filter((agent: Agent) =>
+        agent.status !== 'offline' && agent.status !== 'error'
+      )
+    },
 
-        getDocumentsByStatus: (status) => {
-          const state = get()
-          return Object.values(state.documents).filter((doc: Document) => doc.status === status)
-        },
+    // Document Actions
+    addDocument: (document) =>
+      typedSet((state) => ({
+        documents: { ...state.documents, [document.id]: document }
+      })),
 
-        // Task Actions
-        addTask: (task) => set((state) => {
-          state.tasks[task.id] = task
-        }),
-
-        updateTask: (id, updates) => set((state) => {
-          if (state.tasks[id]) {
-            Object.assign(state.tasks[id], updates)
-          }
-        }),
-
-        completeTask: (id, result) => set((state) => {
-          if (state.tasks[id]) {
-            state.tasks[id].status = 'completed'
-            state.tasks[id].result = result
-            state.tasks[id].progress = 100
-            state.tasks[id].completedAt = new Date()
-          }
-        }),
-
-        failTask: (id, error) => set((state) => {
-          if (state.tasks[id]) {
-            state.tasks[id].status = 'failed'
-            state.tasks[id].error = error
-          }
-        }),
-
-        getTasksByStatus: (status) => {
-          const state = get()
-          return Object.values(state.tasks).filter((task: Task) => task.status === status)
-        },
-
-        // Model Actions
-        addModel: (model) => set((state) => {
-          state.models[model.id] = model
-        }),
-
-        updateModel: (id, updates) => set((state) => {
-          if (state.models[id]) {
-            Object.assign(state.models[id], updates)
-          }
-        }),
-
-        loadModel: async (id) => {
-          set((state) => {
-            if (state.models[id]) {
-              state.models[id].isLoading = true
-            }
-          })
-
-          try {
-            // Mock model loading - would integrate with actual LLM engine
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            
-            set((state) => {
-              if (state.models[id]) {
-                state.models[id].isLoaded = true
-                state.models[id].isLoading = false
-              }
-            })
-          } catch (error) {
-            set((state) => {
-              if (state.models[id]) {
-                state.models[id].isLoading = false
-              }
-            })
-            throw error
-          }
-        },
-
-        unloadModel: async (id) => {
-          try {
-            // Mock model unloading
-            await new Promise(resolve => setTimeout(resolve, 500))
-            
-            set((state) => {
-              if (state.models[id]) {
-                state.models[id].isLoaded = false
-              }
-            })
-          } catch (error) {
-            console.error('Failed to unload model:', error)
-          }
-        },
-
-        getLoadedModels: () => {
-          const state = get()
-          return Object.values(state.models).filter((model: LLMModel) => model.isLoaded)
-        },
-
-        // UI Actions
-        setActiveTab: (tab) => set((state) => {
-          state.ui.activeTab = tab
-        }),
-
-        setSelectedDocument: (id) => set((state) => {
-          state.ui.selectedDocumentId = id
-        }),
-
-        setSelectedAgent: (id) => set((state) => {
-          state.ui.selectedAgentId = id
-        }),
-
-        toggleSettings: () => set((state) => {
-          state.ui.isSettingsOpen = !state.ui.isSettingsOpen
-        }),
-
-        toggleSidebar: () => set((state) => {
-          state.ui.isSidebarCollapsed = !state.ui.isSidebarCollapsed
-        }),
-
-        setTheme: (theme) => set((state) => {
-          state.ui.theme = theme
-        }),
-
-        addNotification: (notification) => set((state) => {
-          state.ui.notifications.push({
-            ...notification,
-            id: `notif-${Date.now()}-${Math.random()}`,
-            timestamp: new Date(),
-            isRead: false
-          })
-        }),
-
-        markNotificationAsRead: (id) => set((state) => {
-          const notification = state.ui.notifications.find(n => n.id === id)
-          if (notification) {
-            notification.isRead = true
-          }
-        }),
-
-        clearNotifications: () => set((state) => {
-          state.ui.notifications = []
-        }),
-
-        // Settings Actions
-        updateSettings: (updates) => set((state) => {
-          Object.assign(state.settings, updates)
-        }),
-
-        resetSettings: () => set((state) => {
-          state.settings = { ...defaultSettings }
-        }),
-
-        // Complex Actions
-        processDocument: async (documentId, analysisType = ['summary', 'risks', 'compliance']) => {
-          const state = get()
-          const document = state.documents[documentId]
-          
-          if (!document) {
-            throw new Error(`Document ${documentId} not found`)
-          }
-
-          // Create processing task
-          const taskId = `task-${Date.now()}`
-          const task: Task = {
-            id: taskId,
-            type: 'document-analysis',
-            status: 'pending',
-            assignedAgents: [],
-            priority: 'medium',
-            documentIds: [documentId],
-            progress: 0,
-            startedAt: new Date()
-          }
-
-          // Get store actions
-          const { addTask, updateDocument, updateTask, getActiveAgents, updateAgent, completeTask, addNotification } = get()
-          
-          addTask(task)
-          updateDocument(documentId, { status: 'processing' })
-
-          try {
-            // Assign appropriate agents
-            const availableAgents = getActiveAgents().filter(agent => 
-              agent.status === 'idle' && 
-              agent.capabilities.some(cap => analysisType.includes(cap))
-            )
-
-            if (availableAgents.length === 0) {
-              throw new Error('No available agents for document processing')
-            }
-
-            const assignedAgentIds = availableAgents.slice(0, 2).map(agent => agent.id)
-            updateTask(taskId, { 
-              assignedAgents: assignedAgentIds,
-              status: 'in-progress'
-            })
-
-            // Mark agents as busy
-            assignedAgentIds.forEach(agentId => {
-              updateAgent(agentId, { 
-                status: 'busy', 
-                currentTask: taskId 
-              })
-            })
-
-            // Simulate processing
-            for (let i = 0; i <= 100; i += 20) {
-              await new Promise(resolve => setTimeout(resolve, 200))
-              updateTask(taskId, { progress: i })
-            }
-
-            // Mock analysis result
-            const analysis: DocumentAnalysis = {
-              summary: `Analysis complete for ${document.name}`,
-              keyTerms: ['contract', 'liability', 'termination'],
-              risks: [
-                { type: 'legal', description: 'Unlimited liability clause', severity: 'high' }
-              ],
-              compliance: [
-                { rule: 'GDPR', status: 'compliant' }
-              ],
-              recommendations: ['Review liability terms', 'Add force majeure clause'],
-              confidence: 0.85
-            }
-
-            // Complete task
-            completeTask(taskId, analysis)
-            updateDocument(documentId, { 
-              status: 'processed', 
-              analysis,
-              processedAt: new Date()
-            })
-
-            // Free up agents
-            assignedAgentIds.forEach(agentId => {
-              updateAgent(agentId, { 
-                status: 'idle', 
-                currentTask: undefined 
-              })
-            })
-
-            addNotification({
-              type: 'success',
-              title: 'Document Processed',
-              message: `${document.name} has been successfully analyzed`
-            })
-
-          } catch (error: any) {
-            const { failTask, updateDocument, addNotification } = get()
-            failTask(taskId, error?.message || 'Unknown error')
-            updateDocument(documentId, { status: 'error' })
-
-            addNotification({
-              type: 'error',
-              title: 'Processing Failed',
-              message: `Failed to process ${document.name}: ${error?.message || 'Unknown error'}`
-            })
-          }
-        },
-
-        coordinateAgents: async (taskId, agentIds) => {
-          const { tasks, updateTask, updateAgent } = get()
-          const task = tasks[taskId]
-          if (!task) {
-            throw new Error(`Task ${taskId} not found`)
-          }
-
-          updateTask(taskId, { 
-            assignedAgents: agentIds,
-            status: 'in-progress'
-          })
-
-          // Update agent statuses
-          agentIds.forEach(agentId => {
-            updateAgent(agentId, {
-              status: 'busy',
-              currentTask: taskId
-            })
-          })
-        },
-
-        optimizeAgentAllocation: () => {
-          const { getTasksByStatus, getActiveAgents, coordinateAgents } = get()
-          const pendingTasks = getTasksByStatus('pending')
-          const idleAgents = getActiveAgents().filter(agent => agent.status === 'idle')
-
-          // Simple allocation algorithm
-          pendingTasks.forEach(task => {
-            const suitableAgents = idleAgents.filter(agent => 
-              agent.capabilities.some(cap => task.type.includes(cap))
-            )
-
-            if (suitableAgents.length > 0) {
-              const selectedAgent = suitableAgents[0]
-              coordinateAgents(task.id, [selectedAgent.id])
-            }
-          })
-        },
-
-        // System Actions
-        initialize: async () => {
-          set((state) => {
-            state.isLoading = true
-            state.error = undefined
-          })
-
-          try {
-            const { addAgent, addModel, addNotification } = get()
-
-            // Initialize default agents
-            const defaultAgents: Agent[] = [
-              {
-                id: 'legal-analyzer-1',
-                type: 'legal-analyzer',
-                status: 'idle',
-                capabilities: ['contract-analysis', 'legal-research'],
-                config: {},
-                lastActivity: new Date(),
-                metrics: { tasksCompleted: 0, averageProcessingTime: 0, errorCount: 0 }
-              },
-              {
-                id: 'document-processor-1',
-                type: 'document-processor',
-                status: 'idle',
-                capabilities: ['text-extraction', 'format-conversion'],
-                config: {},
-                lastActivity: new Date(),
-                metrics: { tasksCompleted: 0, averageProcessingTime: 0, errorCount: 0 }
-              }
-            ]
-
-            defaultAgents.forEach(agent => addAgent(agent))
-
-            // Initialize default models
-            const defaultModels: LLMModel[] = [
-              {
-                id: 'legal-llama-7b',
-                name: 'Legal Llama 7B',
-                type: 'legal-specialist',
-                size: 4000000000,
-                quantization: 'Q4_K_M',
-                isLoaded: false,
-                isLoading: false,
-                capabilities: ['contract-analysis', 'legal-reasoning'],
-                performanceMetrics: { tokensPerSecond: 0, memoryUsage: 0, accuracy: 0 }
-              }
-            ]
-
-            defaultModels.forEach(model => addModel(model))
-
-            set((state) => {
-              state.isInitialized = true
-              state.isLoading = false
-            })
-
-            addNotification({
-              type: 'success',
-              title: 'System Initialized',
-              message: 'BEAR AI is ready for document processing'
-            })
-
-          } catch (error: any) {
-            set((state) => {
-              state.error = error?.message || 'Unknown error'
-              state.isLoading = false
-            })
+    updateDocument: (id, updates) =>
+      typedSet((state) => {
+        const existing = state.documents[id]
+        if (!existing) {
+          return {}
+        }
+        return {
+          documents: {
+            ...state.documents,
+            [id]: { ...existing, ...updates }
           }
         }
+      }),
+
+    removeDocument: (id) =>
+      typedSet((state) => {
+        if (!state.documents[id]) {
+          return {}
+        }
+        const { [id]: _removed, ...rest } = state.documents
+        return { documents: rest }
+      }),
+
+    getDocumentsByStatus: (status) => {
+      const state = get()
+      return Object.values(state.documents).filter((doc: Document) => doc.status === status)
+    },
+
+    // Task Actions
+    addTask: (task) =>
+      typedSet((state) => ({
+        tasks: { ...state.tasks, [task.id]: task }
       })),
-      {
-        name: 'bear-ai-store',
-        storage: createJSONStorage(() => localStorage),
-        partialize: (state) => ({
-          settings: state.settings,
-          ui: {
-            theme: state.ui.theme,
-            isSidebarCollapsed: state.ui.isSidebarCollapsed
-          },
-          models: state.models,
-          agents: state.agents
+
+    updateTask: (id, updates) =>
+      typedSet((state) => {
+        const existing = state.tasks[id]
+        if (!existing) {
+          return {}
+        }
+        return {
+          tasks: {
+            ...state.tasks,
+            [id]: { ...existing, ...updates }
+          }
+        }
+      }),
+
+    completeTask: (id, result) =>
+      typedSet((state) => {
+        const existing = state.tasks[id]
+        if (!existing) {
+          return {}
+        }
+        const task: Task = {
+          ...existing,
+          status: 'completed',
+          result,
+          progress: 100,
+          completedAt: new Date()
+        }
+        return {
+          tasks: {
+            ...state.tasks,
+            [id]: task
+          }
+        }
+      }),
+
+    failTask: (id, errorMessage) =>
+      typedSet((state) => {
+        const existing = state.tasks[id]
+        if (!existing) {
+          return {}
+        }
+        const task: Task = {
+          ...existing,
+          status: 'failed',
+          error: errorMessage
+        }
+        return {
+          tasks: {
+            ...state.tasks,
+            [id]: task
+          }
+        }
+      }),
+
+    getTasksByStatus: (status) => {
+      const state = get()
+      return Object.values(state.tasks).filter((task: Task) => task.status === status)
+    },
+
+    // Model Actions
+    addModel: (model) =>
+      typedSet((state) => {
+        const models = { ...state.models, [model.id]: model }
+        persistFromState(state, { models })
+        return { models }
+      }),
+
+    updateModel: (id, updates) =>
+      typedSet((state) => {
+        const existing = state.models[id]
+        if (!existing) {
+          return {}
+        }
+        const models = {
+          ...state.models,
+          [id]: { ...existing, ...updates }
+        }
+        persistFromState(state, { models })
+        return { models }
+      }),
+
+    loadModel: async (id) => {
+      typedSet((state) => {
+        const existing = state.models[id]
+        if (!existing) {
+          return {}
+        }
+        const models = {
+          ...state.models,
+          [id]: { ...existing, isLoading: true }
+        }
+        persistFromState(state, { models })
+        return { models }
+      })
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+
+        typedSet((state) => {
+          const existing = state.models[id]
+          if (!existing) {
+            return {}
+          }
+          const models = {
+            ...state.models,
+            [id]: { ...existing, isLoaded: true, isLoading: false }
+          }
+          persistFromState(state, { models })
+          return { models }
+        })
+      } catch (error) {
+        typedSet((state) => {
+          const existing = state.models[id]
+          if (!existing) {
+            return {}
+          }
+          const models = {
+            ...state.models,
+            [id]: { ...existing, isLoading: false }
+          }
+          persistFromState(state, { models })
+          return { models }
+        })
+        throw error
+      }
+    },
+
+    unloadModel: async (id) => {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        typedSet((state) => {
+          const existing = state.models[id]
+          if (!existing) {
+            return {}
+          }
+          const models = {
+            ...state.models,
+            [id]: { ...existing, isLoaded: false }
+          }
+          persistFromState(state, { models })
+          return { models }
+        })
+      } catch (error) {
+        console.error('Failed to unload model:', error)
+      }
+    },
+
+    getLoadedModels: () => {
+      const state = get()
+      return Object.values(state.models).filter((model: LLMModel) => model.isLoaded)
+    },
+
+    // UI Actions
+    setActiveTab: (tab) =>
+      typedSet((state) => {
+        const ui = { ...state.ui, activeTab: tab }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    setSelectedDocument: (id) =>
+      typedSet((state) => {
+        const ui = { ...state.ui, selectedDocumentId: id }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    setSelectedAgent: (id) =>
+      typedSet((state) => {
+        const ui = { ...state.ui, selectedAgentId: id }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    toggleSettings: () =>
+      typedSet((state) => {
+        const ui = { ...state.ui, isSettingsOpen: !state.ui.isSettingsOpen }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    toggleSidebar: () =>
+      typedSet((state) => {
+        const ui = { ...state.ui, isSidebarCollapsed: !state.ui.isSidebarCollapsed }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    setTheme: (theme) =>
+      typedSet((state) => {
+        const ui = { ...state.ui, theme }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    addNotification: (notification) =>
+      typedSet((state) => {
+        const ui = {
+          ...state.ui,
+          notifications: [
+            ...state.ui.notifications,
+            {
+              ...notification,
+              id: `notif-${Date.now()}-${Math.random()}`,
+              timestamp: new Date(),
+              isRead: false
+            }
+          ]
+        }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    markNotificationAsRead: (id) =>
+      typedSet((state) => {
+        const notifications = state.ui.notifications.map(notification =>
+          notification.id === id ? { ...notification, isRead: true } : notification
+        )
+        const ui = { ...state.ui, notifications }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    clearNotifications: () =>
+      typedSet((state) => {
+        const ui = { ...state.ui, notifications: [] }
+        persistFromState(state, { ui })
+        return { ui }
+      }),
+
+    // Settings Actions
+    updateSettings: (updates) =>
+      typedSet((state) => {
+        const settings = mergeSettings(state.settings, updates)
+        persistFromState(state, { settings })
+        return { settings }
+      }),
+
+    resetSettings: () =>
+      typedSet((state) => {
+        const settings = mergeSettings(defaultSettings)
+        persistFromState(state, { settings })
+        return { settings }
+      }),
+
+    // Complex Actions
+    processDocument: async (documentId, analysisType = ['summary', 'risks', 'compliance']) => {
+      const state = get()
+      const document = state.documents[documentId]
+
+      if (!document) {
+        throw new Error(`Document ${documentId} not found`)
+      }
+
+      const taskId = `task-${Date.now()}`
+      const task: Task = {
+        id: taskId,
+        type: 'document-analysis',
+        status: 'pending',
+        assignedAgents: [],
+        priority: 'medium',
+        documentIds: [documentId],
+        progress: 0,
+        startedAt: new Date()
+      }
+
+      const { addTask, updateDocument, updateTask, getActiveAgents, updateAgent, completeTask, addNotification } = get()
+
+      addTask(task)
+      updateDocument(documentId, { status: 'processing' })
+
+      try {
+        const availableAgents = getActiveAgents().filter(agent =>
+          agent.status === 'idle' &&
+          agent.capabilities.some(cap => analysisType.includes(cap))
+        )
+
+        if (availableAgents.length === 0) {
+          throw new Error('No available agents for document processing')
+        }
+
+        const assignedAgentIds = availableAgents.slice(0, 2).map(agent => agent.id)
+        updateTask(taskId, {
+          assignedAgents: assignedAgentIds,
+          status: 'in-progress'
+        })
+
+        assignedAgentIds.forEach(agentId => {
+          updateAgent(agentId, {
+            status: 'busy',
+            currentTask: taskId
+          })
+        })
+
+        for (let i = 0; i <= 100; i += 20) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          updateTask(taskId, { progress: i })
+        }
+
+        const analysis: DocumentAnalysis = {
+          summary: `Analysis complete for ${document.name}`,
+          keyTerms: ['contract', 'liability', 'termination'],
+          risks: [
+            { type: 'legal', description: 'Unlimited liability clause', severity: 'high' }
+          ],
+          compliance: [
+            { rule: 'GDPR', status: 'compliant' }
+          ],
+          recommendations: ['Review liability terms', 'Add force majeure clause'],
+          confidence: 0.85
+        }
+
+        completeTask(taskId, analysis)
+        updateDocument(documentId, {
+          status: 'processed',
+          analysis,
+          processedAt: new Date()
+        })
+
+        assignedAgentIds.forEach(agentId => {
+          updateAgent(agentId, {
+            status: 'idle',
+            currentTask: undefined
+          })
+        })
+
+        addNotification({
+          type: 'success',
+          title: 'Document Processed',
+          message: `${document.name} has been successfully analyzed`
+        })
+      } catch (error: any) {
+        const { failTask, updateDocument, addNotification } = get()
+        failTask(taskId, error?.message || 'Unknown error')
+        updateDocument(documentId, { status: 'error' })
+
+        addNotification({
+          type: 'error',
+          title: 'Processing Failed',
+          message: `Failed to process ${document.name}: ${error?.message || 'Unknown error'}`
         })
       }
-    )
-  )
-)
+    },
+
+    coordinateAgents: async (taskId, agentIds) => {
+      const { tasks, updateTask, updateAgent } = get()
+      const task = tasks[taskId]
+      if (!task) {
+        throw new Error(`Task ${taskId} not found`)
+      }
+
+      updateTask(taskId, {
+        assignedAgents: agentIds,
+        status: 'in-progress'
+      })
+
+      agentIds.forEach(agentId => {
+        updateAgent(agentId, {
+          status: 'busy',
+          currentTask: taskId
+        })
+      })
+    },
+
+    optimizeAgentAllocation: () => {
+      const { getTasksByStatus, getActiveAgents, coordinateAgents } = get()
+      const pendingTasks = getTasksByStatus('pending')
+      const idleAgents = getActiveAgents().filter(agent => agent.status === 'idle')
+
+      pendingTasks.forEach(task => {
+        const suitableAgents = idleAgents.filter(agent =>
+          agent.capabilities.some(cap => task.type.includes(cap))
+        )
+
+        if (suitableAgents.length > 0) {
+          const selectedAgent = suitableAgents[0]
+          coordinateAgents(task.id, [selectedAgent.id])
+        }
+      })
+    },
+
+    // System Actions
+    initialize: async () => {
+      typedSet(() => ({
+        isLoading: true,
+        error: undefined
+      }))
+
+      try {
+        const { addAgent, addModel, addNotification } = get()
+
+        const defaultAgents: Agent[] = [
+          {
+            id: 'legal-analyzer-1',
+            type: 'legal-analyzer',
+            status: 'idle',
+            capabilities: ['contract-analysis', 'legal-research'],
+            config: {},
+            lastActivity: new Date(),
+            metrics: { tasksCompleted: 0, averageProcessingTime: 0, errorCount: 0 }
+          },
+          {
+            id: 'document-processor-1',
+            type: 'document-processor',
+            status: 'idle',
+            capabilities: ['text-extraction', 'format-conversion'],
+            config: {},
+            lastActivity: new Date(),
+            metrics: { tasksCompleted: 0, averageProcessingTime: 0, errorCount: 0 }
+          }
+        ]
+
+        defaultAgents.forEach(agent => addAgent(agent))
+
+        const defaultModels: LLMModel[] = [
+          {
+            id: 'legal-llama-7b',
+            name: 'Legal Llama 7B',
+            type: 'legal-specialist',
+            size: 4000000000,
+            quantization: 'Q4_K_M',
+            isLoaded: false,
+            isLoading: false,
+            capabilities: ['contract-analysis', 'legal-reasoning'],
+            performanceMetrics: { tokensPerSecond: 0, memoryUsage: 0, accuracy: 0 }
+          }
+        ]
+
+        defaultModels.forEach(model => addModel(model))
+
+        typedSet(() => ({
+          isInitialized: true,
+          isLoading: false
+        }))
+
+        addNotification({
+          type: 'success',
+          title: 'System Initialized',
+          message: 'BEAR AI is ready for document processing'
+        })
+      } catch (error: any) {
+        typedSet(() => ({
+          error: error?.message || 'Unknown error',
+          isLoading: false
+        }))
+      }
+    }
+  }
+})
 
 // Store Hooks and Selectors
-export const useAgents = () => useBearStore(state => state.agents)
-export const useDocuments = () => useBearStore(state => state.documents)
-export const useTasks = () => useBearStore(state => state.tasks)
-export const useModels = () => useBearStore(state => state.models)
-export const useUI = () => useBearStore(state => state.ui)
-export const useSettings = () => useBearStore(state => state.settings)
+export const useAgents = () => useBearStore().agents
+export const useDocuments = () => useBearStore().documents
+export const useTasks = () => useBearStore().tasks
+export const useModels = () => useBearStore().models
+export const useUI = () => useBearStore().ui
+export const useSettings = () => useBearStore().settings
 
 // Action Hooks
 export const useStoreActions = () => {

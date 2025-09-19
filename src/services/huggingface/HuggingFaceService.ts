@@ -156,12 +156,15 @@ export class HuggingFaceService {
       // In a real implementation, this would download the actual model files
       // For now, we simulate the download process
       
+      const totalBytesEstimate = 1000000000; // 1GB estimate
       const progress: ModelDownloadProgress = {
         modelId,
         status: 'pending',
         progress: 0,
+        downloaded: 0,
         downloadedBytes: 0,
-        totalBytes: 1000000000, // 1GB estimate
+        total: totalBytesEstimate,
+        totalBytes: totalBytesEstimate,
         speed: 0,
         eta: 0
       };
@@ -173,7 +176,10 @@ export class HuggingFaceService {
       
       for (let i = 0; i <= 100; i += 10) {
         progress.progress = i;
-        progress.downloadedBytes = (progress.totalBytes * i) / 100;
+        const totalBytes = progress.totalBytes ?? totalBytesEstimate;
+        progress.downloadedBytes = (totalBytes * i) / 100;
+        progress.downloaded = (progress.total * i) / 100;
+        progress.totalBytes = totalBytes;
         progress.speed = 1000000; // 1MB/s
         progress.eta = (100 - i) * 10;
         
@@ -228,18 +234,30 @@ export class HuggingFaceService {
   // Private helper methods
 
   private getCategoryTags(category: LegalCategory): string[] {
-    const tagMap: Record<LegalCategory, string[]> = {
-      'contract-analysis': ['legal', 'contract', 'text-classification', 'nlp'],
-      'legal-research': ['legal', 'research', 'qa', 'information-retrieval'],
-      'compliance-check': ['legal', 'compliance', 'classification', 'regulation'],
-      'document-review': ['legal', 'document', 'summarization', 'classification'],
-      'case-law-analysis': ['legal', 'case-law', 'analysis', 'classification'],
-      'regulatory-compliance': ['legal', 'regulatory', 'compliance', 'classification'],
-      'risk-assessment': ['legal', 'risk', 'assessment', 'classification'],
-      'legal-drafting': ['legal', 'generation', 'text-generation', 'drafting']
+    const tagMap: Partial<Record<LegalCategory, string[]>> = {
+      [LegalCategory.CONTRACT_ANALYSIS]: ['legal', 'contract', 'text-classification', 'nlp'],
+      [LegalCategory.LEGAL_RESEARCH]: ['legal', 'research', 'qa', 'information-retrieval'],
+      [LegalCategory.COMPLIANCE]: ['legal', 'compliance', 'classification', 'regulation'],
+      [LegalCategory.COMPLIANCE_CHECK]: ['legal', 'compliance', 'classification', 'regulation'],
+      [LegalCategory.DOCUMENT_REVIEW]: ['legal', 'document', 'summarization', 'classification'],
+      [LegalCategory.CASE_LAW_ANALYSIS]: ['legal', 'case-law', 'analysis', 'classification'],
+      [LegalCategory.REGULATORY_ANALYSIS]: ['legal', 'regulatory', 'analysis', 'classification'],
+      [LegalCategory.REGULATORY_COMPLIANCE]: ['legal', 'regulatory', 'compliance', 'classification'],
+      [LegalCategory.RISK_ASSESSMENT]: ['legal', 'risk', 'assessment', 'classification'],
+      [LegalCategory.LEGAL_DRAFTING]: ['legal', 'generation', 'text-generation', 'drafting'],
+      [LegalCategory.LITIGATION_SUPPORT]: ['legal', 'litigation', 'analysis', 'case-law'],
+      [LegalCategory.INTELLECTUAL_PROPERTY]: ['legal', 'ip', 'intellectual-property', 'classification'],
+      [LegalCategory.CORPORATE_LAW]: ['legal', 'corporate', 'governance', 'compliance'],
+      [LegalCategory.CRIMINAL_LAW]: ['legal', 'criminal', 'justice', 'analysis'],
+      [LegalCategory.FAMILY_LAW]: ['legal', 'family', 'mediation', 'support'],
+      [LegalCategory.IMMIGRATION_LAW]: ['legal', 'immigration', 'citizenship', 'compliance'],
+      [LegalCategory.TAX_LAW]: ['legal', 'tax', 'compliance', 'finance'],
+      [LegalCategory.REAL_ESTATE]: ['legal', 'real-estate', 'contracts', 'documents'],
+      [LegalCategory.EMPLOYMENT_LAW]: ['legal', 'employment', 'hr', 'compliance'],
+      [LegalCategory.GENERAL_LEGAL]: ['legal', 'law', 'general', 'nlp']
     };
 
-    return tagMap[category] || ['legal'];
+    return tagMap[category] ?? ['legal'];
   }
 
   private calculateRelevanceScore(model: HuggingFaceModel, category: LegalCategory): number {
@@ -268,7 +286,7 @@ export class HuggingFaceService {
   }
 
   private getRecommendationReasons(model: HuggingFaceModel, category: LegalCategory): string[] {
-    const reasons = [];
+    const reasons: string[] = [];
     
     if (model.downloads > 10000) {
       reasons.push('Popular model with high download count');

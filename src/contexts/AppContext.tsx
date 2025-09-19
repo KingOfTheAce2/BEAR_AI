@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { User, SystemStatus, Chat, Document } from '../types';
+import { User, SystemStatus, Document, ChatSession } from '../types';
 
 // Combined state from both GUI variants
 export interface AppState {
@@ -23,8 +23,8 @@ export interface AppState {
   
   // Content state
   searchQuery: string;
-  activeChat: Chat | null;
-  recentChats: Chat[];
+  activeChat: ChatSession | null;
+  recentChats: ChatSession[];
   documents: Document[];
   
   // Loading states
@@ -40,9 +40,9 @@ type AppAction =
   | { type: 'SET_CURRENT_VIEW'; payload: string }
   | { type: 'SET_SYSTEM_STATUS'; payload: Partial<SystemStatus> }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
-  | { type: 'SET_ACTIVE_CHAT'; payload: Chat | null }
-  | { type: 'SET_RECENT_CHATS'; payload: Chat[] }
-  | { type: 'ADD_CHAT'; payload: Chat }
+  | { type: 'SET_ACTIVE_CHAT'; payload: ChatSession | null }
+  | { type: 'SET_RECENT_CHATS'; payload: ChatSession[] }
+  | { type: 'ADD_CHAT'; payload: ChatSession }
   | { type: 'SET_DOCUMENTS'; payload: Document[] }
   | { type: 'ADD_DOCUMENT'; payload: Document }
   | { type: 'ADD_NOTIFICATION'; payload: { type: 'info' | 'success' | 'warning' | 'error'; title: string; message: string } }

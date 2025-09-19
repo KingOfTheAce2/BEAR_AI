@@ -260,12 +260,12 @@ export class BearPluginSystem {
    */
 
   // Subscribe to system events
-  on(event: string, listener: Function): void {
+  on(event: string, listener: (...args: any[]) => void): void {
     this.manager.on(event, listener);
   }
 
   // Unsubscribe from system events
-  off(event: string, listener: Function): void {
+  off(event: string, listener: (...args: any[]) => void): void {
     this.manager.off(event, listener);
   }
 

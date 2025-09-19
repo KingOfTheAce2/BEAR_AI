@@ -45,7 +45,7 @@ interface ModelCardProps {
   isDownloading: boolean;
   downloadProgress?: number;
   onSelect: () => void;
-  onDownload: () => void;
+  onDownload: () => void | Promise<void>;
   onSwitch: () => void;
   onViewDetails: () => void;
 }
@@ -236,7 +236,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onDownload();
+                void onDownload();
               }}
               className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 flex items-center space-x-1"
               disabled={isDownloading}
@@ -256,7 +256,7 @@ const FilterPanel: React.FC<{
   onFiltersChange: (filters: ModelSearchFilters) => void;
   onClose: () => void;
 }> = ({ filters, onFiltersChange, onClose }) => {
-  const legalCategories = Object.values(LegalCategory);
+  const legalCategories = Object.values(LegalCategory) as LegalCategory[];
   
   return (
     <div className="bg-white border-l border-gray-200 w-80 p-6 overflow-y-auto">
@@ -291,7 +291,7 @@ const FilterPanel: React.FC<{
                 }}
               />
               <span className="ml-2 text-sm text-gray-700">
-                {category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {category.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </span>
             </label>
           ))}
@@ -709,7 +709,7 @@ export const HuggingFaceModelSelector: React.FC<HuggingFaceModelSelectorProps> =
                 key={category}
                 className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
               >
-                {category.replace(/_/g, ' ')}
+                {category.replace(/[-_]/g, ' ')}
                 <button
                   onClick={() => setFilters(prev => ({
                     ...prev,

@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
-  GPUAccelerationService, 
-  GPUServiceConfig, 
-  HardwareInfo, 
+import {
+  GPUAccelerationService,
+  GPUServiceConfig,
+  HardwareInfo,
   GPUBackend,
-  PerformanceProfile,
   quickStartGPU,
   isGPUAvailable
 } from '../../services/gpu';
