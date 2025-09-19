@@ -6,13 +6,7 @@
  * @version 2.0.3
  */
 
-import React, { Component, ReactNode } from 'react';
-
-// ==================== INTERFACES ====================
-
-interface ErrorInfo {
-  componentStack: string;
-}
+import { Component, ErrorInfo, ReactNode, type ComponentType } from 'react';
 
 export interface ErrorBoundaryWrapperState {
   hasError: boolean;
@@ -77,7 +71,7 @@ export default ErrorBoundaryWrapper;
 
 // Simple HOC for wrapping components
 export const withErrorBoundary = <P extends object>(
-  WrappedComponent: React.ComponentType<P>,
+  WrappedComponent: ComponentType<P>,
   errorFallback?: (error: Error) => ReactNode
 ) => {
   const WithErrorBoundaryComponent = (props: P) => (
