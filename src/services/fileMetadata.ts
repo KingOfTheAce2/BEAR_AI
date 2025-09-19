@@ -1,501 +1,605 @@
 /**
- * File Metadata Management Service
- * Handles metadata extraction, storage, and management for local files
+ * File Metadata Service for BEAR AI
+ * Manages extended file metadata including sync status, relationships, and custom properties
  */
 
-import { LocalFile } from './localFileSystem';
-import { ParsedDocument } from './documentParser';
-
-export interface ExtendedFileMetadata {
+export interface BaseFileMetadata {
   id: string;
-  name: string;
   path: string;
+  name: string;
   size: number;
   type: string;
   lastModified: Date;
-  created?: Date;
-  accessed?: Date;
+  created: Date;
+  extension: string;
   checksum?: string;
-  encoding?: string;
-  language?: string;
-  
-  // Content metadata
-  wordCount?: number;
-  characterCount?: number;
-  lineCount?: number;
-  pageCount?: number;
-  
-  // Document structure
-  hasImages?: boolean;
-  hasLinks?: boolean;
-  hasTables?: boolean;
-  sectionsCount?: number;
-  
-  // Content analysis
-  readingTime?: number; // in minutes
-  complexity?: 'low' | 'medium' | 'high';
-  contentType?: 'technical' | 'narrative' | 'legal' | 'academic' | 'other';
-  
-  // Custom metadata
-  tags: string[];
-  categories: string[];
-  description?: string;
-  author?: string;
-  title?: string;
-  keywords: string[];
-  
-  // Processing metadata
-  indexed: boolean;
-  lastIndexed?: Date;
-  processingErrors?: string[];
-  
-  // Version control
-  version: number;
-  previousVersions?: string[];
-  
-  // Relationships
-  relatedFiles?: string[];
-  duplicates?: string[];
-  
-  // Security
-  permissions?: {
-    read: boolean;
-    write: boolean;
-    delete: boolean;
-  };
-  
-  // Analytics
-  accessCount: number;
-  lastAccessed: Date;
-  searchCount: number;
-  editCount: number;
 }
 
-export class FileMetadataService {
-  private metadataCache: Map<string, ExtendedFileMetadata> = new Map();
+export interface ExtendedFileMetadata extends BaseFileMetadata {
+  // Content metadata
+  pages?: number;
+  wordCount?: number;
+  characters?: number;
+  language?: string;
+  encoding?: string;
   
+  // Sync metadata
+  synced: boolean;
+  lastSynced?: Date;
+  syncVersion?: number;
+  conflicted?: boolean;
+  
+  // Relationship metadata
+  parentId?: string;
+  childIds?: string[];
+  relatedFiles?: string[];
+  tags?: string[];
+  
+  // Custom properties
+  movedFrom?: string;
+  copiedFrom?: string;
+  deleted?: boolean;
+  deletedAt?: Date;
+  archived?: boolean;
+  archivedAt?: Date;
+  
+  // Processing metadata
+  processed?: boolean;
+  processedAt?: Date;
+  analysisResults?: any;
+  thumbnailPath?: string;
+  previewPath?: string;
+  
+  // User metadata
+  starred?: boolean;
+  rating?: number;
+  notes?: string;
+  customFields?: Record<string, any>;
+  
+  // System metadata
+  accessCount?: number;
+  lastAccessed?: Date;
+  permissions?: string[];
+  owner?: string;
+  version: number;
+  createdBy?: string;
+  modifiedBy?: string;
+}
+
+export interface MetadataSearchOptions {
+  tags?: string[];
+  type?: string;
+  dateRange?: {
+    start: Date;
+    end: Date;
+    field: 'created' | 'lastModified' | 'lastSynced' | 'lastAccessed';
+  };
+  synced?: boolean;
+  conflicted?: boolean;
+  deleted?: boolean;
+  archived?: boolean;
+  starred?: boolean;
+  textSearch?: string;
+  customFilters?: Record<string, any>;
+}
+
+export interface MetadataStatistics {
+  totalFiles: number;
+  syncedFiles: number;
+  conflictedFiles: number;
+  deletedFiles: number;
+  archivedFiles: number;
+  totalSize: number;
+  averageFileSize: number;
+  fileTypes: Record<string, number>;
+  tagUsage: Record<string, number>;
+  lastUpdated: Date;
+}
+
+class FileMetadataService {
+  private metadata = new Map<string, ExtendedFileMetadata>();
+  private dbName = 'bearai_metadata';
+  private version = 1;
+  private db: IDBDatabase | null = null;
+
+  constructor() {
+    this.initDB();
+  }
+
   /**
-   * Extract comprehensive metadata from a local file
+   * Initialize IndexedDB for metadata
    */
-  async extractMetadata(file: LocalFile, parsedDocument?: ParsedDocument): Promise<ExtendedFileMetadata> {
-    const basicMetadata = this.extractBasicMetadata(file);
-    const contentMetadata = await this.extractContentMetadata(file, parsedDocument);
-    const analysisMetadata = await this.analyzeContent(file, parsedDocument);
-    
+  private async initDB(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.version);
+
+      request.onerror = () => {
+        reject(new Error('Failed to open metadata database'));
+      };
+
+      request.onsuccess = () => {
+        this.db = request.result;
+        this.loadMetadataFromDB();
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        if (!db.objectStoreNames.contains('metadata')) {
+          const store = db.createObjectStore('metadata', { keyPath: 'id' });
+          store.createIndex('path', 'path', { unique: false });
+          store.createIndex('type', 'type', { unique: false });
+          store.createIndex('synced', 'synced', { unique: false });
+          store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+          store.createIndex('created', 'created', { unique: false });
+          store.createIndex('lastModified', 'lastModified', { unique: false });
+        }
+      };
+    });
+  }
+
+  /**
+   * Load metadata from IndexedDB into memory
+   */
+  private async loadMetadataFromDB(): Promise<void> {
+    if (!this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['metadata'], 'readonly');
+      const store = transaction.objectStore('metadata');
+      
+      const request = store.getAll();
+      
+      request.onsuccess = () => {
+        const results = request.result;
+        this.metadata.clear();
+        
+        results.forEach((meta: ExtendedFileMetadata) => {
+          // Convert date strings back to Date objects
+          meta.created = new Date(meta.created);
+          meta.lastModified = new Date(meta.lastModified);
+          if (meta.lastSynced) meta.lastSynced = new Date(meta.lastSynced);
+          if (meta.deletedAt) meta.deletedAt = new Date(meta.deletedAt);
+          if (meta.archivedAt) meta.archivedAt = new Date(meta.archivedAt);
+          if (meta.processedAt) meta.processedAt = new Date(meta.processedAt);
+          if (meta.lastAccessed) meta.lastAccessed = new Date(meta.lastAccessed);
+          
+          this.metadata.set(meta.id, meta);
+        });
+        
+        resolve();
+      };
+      
+      request.onerror = () => {
+        reject(new Error('Failed to load metadata from database'));
+      };
+    });
+  }
+
+  /**
+   * Save metadata to IndexedDB
+   */
+  private async saveMetadataToDB(metadata: ExtendedFileMetadata): Promise<void> {
+    if (!this.db) await this.initDB();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['metadata'], 'readwrite');
+      const store = transaction.objectStore('metadata');
+      
+      const request = store.put(metadata);
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error('Failed to save metadata'));
+    });
+  }
+
+  /**
+   * Create metadata for a new file
+   */
+  async createMetadata(fileData: BaseFileMetadata, extended?: Partial<ExtendedFileMetadata>): Promise<ExtendedFileMetadata> {
     const metadata: ExtendedFileMetadata = {
-      ...basicMetadata,
-      ...contentMetadata,
-      ...analysisMetadata,
-      
-      // Initialize tracking fields
-      tags: [],
-      categories: [],
-      keywords: [],
-      indexed: false,
-      version: 1,
+      ...fileData,
+      synced: false,
+      conflicted: false,
+      deleted: false,
+      archived: false,
+      processed: false,
+      starred: false,
       accessCount: 0,
-      lastAccessed: new Date(),
-      searchCount: 0,
-      editCount: 0,
-      permissions: {
-        read: true,
-        write: true,
-        delete: true
-      }
+      version: 1,
+      tags: [],
+      childIds: [],
+      relatedFiles: [],
+      customFields: {},
+      ...extended
     };
-    
-    // Cache the metadata
-    this.metadataCache.set(file.id, metadata);
-    
+
+    this.metadata.set(metadata.id, metadata);
+    await this.saveMetadataToDB(metadata);
+
     return metadata;
   }
-  
+
   /**
-   * Extract basic file metadata
+   * Get metadata by file ID
    */
-  private extractBasicMetadata(file: LocalFile): Partial<ExtendedFileMetadata> {
-    return {
-      id: file.id,
-      name: file.name,
-      path: file.path,
-      size: file.size,
-      type: file.type,
-      lastModified: new Date(file.lastModified),
-      encoding: this.detectEncoding(file),
-      checksum: this.calculateChecksum(file)
-    };
+  getMetadata(id: string): ExtendedFileMetadata | undefined {
+    return this.metadata.get(id);
   }
-  
+
   /**
-   * Extract content-based metadata
+   * Update metadata
    */
-  private async extractContentMetadata(
-    file: LocalFile, 
-    parsedDocument?: ParsedDocument
-  ): Promise<Partial<ExtendedFileMetadata>> {
-    const metadata: Partial<ExtendedFileMetadata> = {};
-    
-    if (parsedDocument) {
-      metadata.wordCount = parsedDocument.metadata.wordCount;
-      metadata.characterCount = parsedDocument.metadata.characters;
-      metadata.pageCount = parsedDocument.metadata.pages;
-      metadata.sectionsCount = parsedDocument.sections?.length || 0;
-      metadata.title = parsedDocument.title;
-      metadata.author = parsedDocument.metadata.author;
-    }
-    
-    if (typeof file.content === 'string') {
-      const content = file.content;
-      metadata.lineCount = content.split('\n').length;
-      metadata.hasLinks = this.containsLinks(content);
-      metadata.hasTables = this.containsTables(content);
-      metadata.language = this.detectLanguage(content);
-      metadata.keywords = this.extractKeywords(content);
-    }
-    
-    return metadata;
-  }
-  
-  /**
-   * Analyze content for additional insights
-   */
-  private async analyzeContent(
-    file: LocalFile, 
-    parsedDocument?: ParsedDocument
-  ): Promise<Partial<ExtendedFileMetadata>> {
-    const metadata: Partial<ExtendedFileMetadata> = {};
-    
-    if (parsedDocument) {
-      // Calculate reading time (average 200 words per minute)
-      metadata.readingTime = Math.ceil(parsedDocument.metadata.wordCount / 200);
-      
-      // Analyze complexity
-      metadata.complexity = this.analyzeComplexity(parsedDocument.content);
-      
-      // Determine content type
-      metadata.contentType = this.determineContentType(parsedDocument.content);
-    }
-    
-    return metadata;
-  }
-  
-  /**
-   * Update metadata for a file
-   */
-  async updateMetadata(
-    fileId: string, 
-    updates: Partial<ExtendedFileMetadata>
-  ): Promise<ExtendedFileMetadata> {
-    const existing = this.metadataCache.get(fileId);
-    if (!existing) {
-      throw new Error(`Metadata not found for file: ${fileId}`);
-    }
-    
+  async updateMetadata(id: string, updates: Partial<ExtendedFileMetadata>): Promise<ExtendedFileMetadata | null> {
+    const existing = this.metadata.get(id);
+    if (!existing) return null;
+
     const updated: ExtendedFileMetadata = {
       ...existing,
       ...updates,
       version: existing.version + 1,
       lastModified: new Date()
     };
-    
-    // Track previous version
-    if (!updated.previousVersions) {
-      updated.previousVersions = [];
-    }
-    updated.previousVersions.push(`v${existing.version}`);
-    
-    this.metadataCache.set(fileId, updated);
+
+    this.metadata.set(id, updated);
+    await this.saveMetadataToDB(updated);
+
     return updated;
   }
-  
+
   /**
-   * Get metadata for a file
+   * Delete metadata
    */
-  getMetadata(fileId: string): ExtendedFileMetadata | null {
-    return this.metadataCache.get(fileId) || null;
-  }
-  
-  /**
-   * Search files by metadata
-   */
-  searchByMetadata(criteria: Partial<ExtendedFileMetadata>): ExtendedFileMetadata[] {
-    const results: ExtendedFileMetadata[] = [];
-    
-    for (const metadata of this.metadataCache.values()) {
-      if (this.matchesCriteria(metadata, criteria)) {
-        results.push(metadata);
-      }
-    }
-    
-    return results.sort((a, b) => b.lastAccessed.getTime() - a.lastAccessed.getTime());
-  }
-  
-  /**
-   * Add tags to a file
-   */
-  async addTags(fileId: string, tags: string[]): Promise<void> {
-    const metadata = this.metadataCache.get(fileId);
-    if (!metadata) return;
-    
-    const newTags = tags.filter(tag => !metadata.tags.includes(tag));
-    metadata.tags.push(...newTags);
-    metadata.lastModified = new Date();
-    
-    this.metadataCache.set(fileId, metadata);
-  }
-  
-  /**
-   * Remove tags from a file
-   */
-  async removeTags(fileId: string, tags: string[]): Promise<void> {
-    const metadata = this.metadataCache.get(fileId);
-    if (!metadata) return;
-    
-    metadata.tags = metadata.tags.filter(tag => !tags.includes(tag));
-    metadata.lastModified = new Date();
-    
-    this.metadataCache.set(fileId, metadata);
-  }
-  
-  /**
-   * Track file access
-   */
-  async recordAccess(fileId: string): Promise<void> {
-    const metadata = this.metadataCache.get(fileId);
-    if (!metadata) return;
-    
-    metadata.accessCount++;
-    metadata.lastAccessed = new Date();
-    
-    this.metadataCache.set(fileId, metadata);
-  }
-  
-  /**
-   * Track search operations
-   */
-  async recordSearch(fileId: string): Promise<void> {
-    const metadata = this.metadataCache.get(fileId);
-    if (!metadata) return;
-    
-    metadata.searchCount++;
-    this.metadataCache.set(fileId, metadata);
-  }
-  
-  /**
-   * Find duplicate files
-   */
-  async findDuplicates(): Promise<Array<ExtendedFileMetadata[]>> {
-    const checksumGroups = new Map<string, ExtendedFileMetadata[]>();
-    
-    for (const metadata of this.metadataCache.values()) {
-      if (metadata.checksum) {
-        if (!checksumGroups.has(metadata.checksum)) {
-          checksumGroups.set(metadata.checksum, []);
-        }
-        checksumGroups.get(metadata.checksum)!.push(metadata);
-      }
-    }
-    
-    // Return only groups with duplicates
-    return Array.from(checksumGroups.values()).filter(group => group.length > 1);
-  }
-  
-  /**
-   * Get file statistics
-   */
-  getStatistics(): {
-    totalFiles: number;
-    totalSize: number;
-    averageSize: number;
-    typeDistribution: Record<string, number>;
-    tagDistribution: Record<string, number>;
-    complexityDistribution: Record<string, number>;
-    oldestFile: Date | null;
-    newestFile: Date | null;
-  } {
-    const files = Array.from(this.metadataCache.values());
-    
-    const stats = {
-      totalFiles: files.length,
-      totalSize: files.reduce((sum, f) => sum + f.size, 0),
-      averageSize: 0,
-      typeDistribution: {} as Record<string, number>,
-      tagDistribution: {} as Record<string, number>,
-      complexityDistribution: {} as Record<string, number>,
-      oldestFile: null as Date | null,
-      newestFile: null as Date | null
-    };
-    
-    if (files.length > 0) {
-      stats.averageSize = stats.totalSize / files.length;
-    }
-    
-    for (const file of files) {
-      // Type distribution
-      stats.typeDistribution[file.type] = (stats.typeDistribution[file.type] || 0) + 1;
-      
-      // Tag distribution
-      for (const tag of file.tags) {
-        stats.tagDistribution[tag] = (stats.tagDistribution[tag] || 0) + 1;
-      }
-      
-      // Complexity distribution
-      if (file.complexity) {
-        stats.complexityDistribution[file.complexity] = 
-          (stats.complexityDistribution[file.complexity] || 0) + 1;
-      }
-      
-      // Date ranges
-      if (!stats.oldestFile || file.lastModified < stats.oldestFile) {
-        stats.oldestFile = file.lastModified;
-      }
-      if (!stats.newestFile || file.lastModified > stats.newestFile) {
-        stats.newestFile = file.lastModified;
-      }
-    }
-    
-    return stats;
-  }
-  
-  // Private helper methods
-  
-  private detectEncoding(file: LocalFile): string {
-    // Simple encoding detection - in a real app, you'd use a proper library
-    if (typeof file.content === 'string') {
-      // Check for common encoding indicators
-      if (file.content.includes('utf-8') || file.content.includes('UTF-8')) {
-        return 'utf-8';
-      }
-    }
-    return 'utf-8'; // default
-  }
-  
-  private calculateChecksum(file: LocalFile): string {
-    // Simple checksum based on content and size
-    // In a real app, you'd use a proper hashing algorithm
-    const content = typeof file.content === 'string' ? file.content : file.content?.toString() || '';
-    return btoa(`${file.size}-${content.length}-${file.lastModified}`).substring(0, 16);
-  }
-  
-  private containsLinks(content: string): boolean {
-    const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/i;
-    return linkRegex.test(content);
-  }
-  
-  private containsTables(content: string): boolean {
-    // Check for markdown tables or HTML tables
-    return content.includes('|') && content.includes('---') || 
-           content.includes('<table>') || 
-           content.includes('<tr>');
-  }
-  
-  private detectLanguage(content: string): string {
-    // Very basic language detection
-    const codeKeywords = ['function', 'const', 'let', 'var', 'class', 'import', 'export'];
-    const hasCodeKeywords = codeKeywords.some(keyword => content.includes(keyword));
-    
-    if (hasCodeKeywords) return 'code';
-    
-    // Could add more sophisticated language detection here
-    return 'en'; // default to English
-  }
-  
-  private extractKeywords(content: string): string[] {
-    // Simple keyword extraction
-    const words = content
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .split(/\s+/)
-      .filter(word => word.length > 3)
-      .filter(word => !this.isStopWord(word));
-    
-    // Count frequency and return top keywords
-    const frequency: Record<string, number> = {};
-    words.forEach(word => {
-      frequency[word] = (frequency[word] || 0) + 1;
+  async deleteMetadata(id: string): Promise<boolean> {
+    const metadata = this.metadata.get(id);
+    if (!metadata) return false;
+
+    // Mark as deleted instead of removing
+    await this.updateMetadata(id, {
+      deleted: true,
+      deletedAt: new Date()
     });
-    
-    return Object.entries(frequency)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 10)
-      .map(([word]) => word);
+
+    return true;
   }
-  
-  private analyzeComplexity(content: string): 'low' | 'medium' | 'high' {
-    const sentences = content.split(/[.!?]+/).length;
-    const words = content.split(/\s+/).length;
-    const avgWordsPerSentence = words / sentences;
-    
-    if (avgWordsPerSentence > 20) return 'high';
-    if (avgWordsPerSentence > 12) return 'medium';
-    return 'low';
-  }
-  
-  private determineContentType(content: string): 'technical' | 'narrative' | 'legal' | 'academic' | 'other' {
-    const lowerContent = content.toLowerCase();
-    
-    // Technical indicators
-    const technicalTerms = ['algorithm', 'function', 'variable', 'method', 'class', 'interface'];
-    if (technicalTerms.some(term => lowerContent.includes(term))) {
-      return 'technical';
-    }
-    
-    // Legal indicators
-    const legalTerms = ['shall', 'whereas', 'hereby', 'pursuant', 'agreement', 'contract'];
-    if (legalTerms.some(term => lowerContent.includes(term))) {
-      return 'legal';
-    }
-    
-    // Academic indicators
-    const academicTerms = ['research', 'study', 'analysis', 'hypothesis', 'methodology', 'conclusion'];
-    if (academicTerms.some(term => lowerContent.includes(term))) {
-      return 'academic';
-    }
-    
-    // Narrative indicators
-    const narrativeTerms = ['story', 'character', 'chapter', 'once upon', 'narrative'];
-    if (narrativeTerms.some(term => lowerContent.includes(term))) {
-      return 'narrative';
-    }
-    
-    return 'other';
-  }
-  
-  private isStopWord(word: string): boolean {
-    const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-      'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have',
-      'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
-      'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they'
-    ]);
-    
-    return stopWords.has(word);
-  }
-  
-  private matchesCriteria(metadata: ExtendedFileMetadata, criteria: Partial<ExtendedFileMetadata>): boolean {
-    for (const [key, value] of Object.entries(criteria)) {
-      if (value === undefined) continue;
+
+  /**
+   * Permanently remove metadata
+   */
+  async removeMetadata(id: string): Promise<boolean> {
+    if (!this.metadata.has(id)) return false;
+
+    this.metadata.delete(id);
+
+    if (!this.db) return true;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['metadata'], 'readwrite');
+      const store = transaction.objectStore('metadata');
       
-      const metadataValue = (metadata as any)[key];
+      const request = store.delete(id);
       
-      if (Array.isArray(value)) {
-        // For array fields like tags, check if any match
-        if (!Array.isArray(metadataValue)) continue;
-        const hasMatch = value.some(v => metadataValue.includes(v));
-        if (!hasMatch) return false;
-      } else if (typeof value === 'string') {
-        // For string fields, do partial matching
-        if (typeof metadataValue !== 'string') continue;
-        if (!metadataValue.toLowerCase().includes(value.toLowerCase())) {
-          return false;
-        }
-      } else {
-        // For other types, do exact matching
-        if (metadataValue !== value) return false;
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(new Error('Failed to remove metadata'));
+    });
+  }
+
+  /**
+   * Search metadata
+   */
+  searchMetadata(options: MetadataSearchOptions): ExtendedFileMetadata[] {
+    let results = Array.from(this.metadata.values());
+
+    // Filter by deletion status
+    if (options.deleted !== undefined) {
+      results = results.filter(meta => meta.deleted === options.deleted);
+    } else {
+      // By default, exclude deleted items
+      results = results.filter(meta => !meta.deleted);
+    }
+
+    // Filter by tags
+    if (options.tags && options.tags.length > 0) {
+      results = results.filter(meta => 
+        meta.tags && options.tags!.some(tag => meta.tags!.includes(tag))
+      );
+    }
+
+    // Filter by type
+    if (options.type) {
+      results = results.filter(meta => meta.type === options.type);
+    }
+
+    // Filter by date range
+    if (options.dateRange) {
+      const { start, end, field } = options.dateRange;
+      results = results.filter(meta => {
+        const fieldValue = meta[field];
+        if (!(fieldValue instanceof Date)) return false;
+        return fieldValue >= start && fieldValue <= end;
+      });
+    }
+
+    // Filter by sync status
+    if (options.synced !== undefined) {
+      results = results.filter(meta => meta.synced === options.synced);
+    }
+
+    // Filter by conflict status
+    if (options.conflicted !== undefined) {
+      results = results.filter(meta => meta.conflicted === options.conflicted);
+    }
+
+    // Filter by archived status
+    if (options.archived !== undefined) {
+      results = results.filter(meta => meta.archived === options.archived);
+    }
+
+    // Filter by starred status
+    if (options.starred !== undefined) {
+      results = results.filter(meta => meta.starred === options.starred);
+    }
+
+    // Text search
+    if (options.textSearch) {
+      const searchTerm = options.textSearch.toLowerCase();
+      results = results.filter(meta => 
+        meta.name.toLowerCase().includes(searchTerm) ||
+        meta.path.toLowerCase().includes(searchTerm) ||
+        (meta.notes && meta.notes.toLowerCase().includes(searchTerm)) ||
+        (meta.tags && meta.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+      );
+    }
+
+    // Custom filters
+    if (options.customFilters) {
+      Object.entries(options.customFilters).forEach(([key, value]) => {
+        results = results.filter(meta => {
+          const metaValue = (meta as any)[key];
+          if (typeof value === 'object' && value.operator) {
+            return this.applyOperatorFilter(metaValue, value.operator, value.value);
+          }
+          return metaValue === value;
+        });
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Apply operator-based filter
+   */
+  private applyOperatorFilter(metaValue: any, operator: string, filterValue: any): boolean {
+    switch (operator) {
+      case 'gt':
+        return metaValue > filterValue;
+      case 'gte':
+        return metaValue >= filterValue;
+      case 'lt':
+        return metaValue < filterValue;
+      case 'lte':
+        return metaValue <= filterValue;
+      case 'ne':
+        return metaValue !== filterValue;
+      case 'in':
+        return Array.isArray(filterValue) && filterValue.includes(metaValue);
+      case 'nin':
+        return Array.isArray(filterValue) && !filterValue.includes(metaValue);
+      case 'contains':
+        return typeof metaValue === 'string' && metaValue.includes(filterValue);
+      default:
+        return metaValue === filterValue;
+    }
+  }
+
+  /**
+   * Get all metadata
+   */
+  getAllMetadata(includeDeleted: boolean = false): ExtendedFileMetadata[] {
+    const results = Array.from(this.metadata.values());
+    return includeDeleted ? results : results.filter(meta => !meta.deleted);
+  }
+
+  /**
+   * Get metadata statistics
+   */
+  getStatistics(): MetadataStatistics {
+    const allMetadata = this.getAllMetadata();
+    const syncedFiles = allMetadata.filter(meta => meta.synced).length;
+    const conflictedFiles = allMetadata.filter(meta => meta.conflicted).length;
+    const deletedFiles = Array.from(this.metadata.values()).filter(meta => meta.deleted).length;
+    const archivedFiles = allMetadata.filter(meta => meta.archived).length;
+    
+    const totalSize = allMetadata.reduce((sum, meta) => sum + meta.size, 0);
+    const averageFileSize = allMetadata.length > 0 ? totalSize / allMetadata.length : 0;
+
+    // File type distribution
+    const fileTypes: Record<string, number> = {};
+    allMetadata.forEach(meta => {
+      fileTypes[meta.type] = (fileTypes[meta.type] || 0) + 1;
+    });
+
+    // Tag usage
+    const tagUsage: Record<string, number> = {};
+    allMetadata.forEach(meta => {
+      meta.tags?.forEach(tag => {
+        tagUsage[tag] = (tagUsage[tag] || 0) + 1;
+      });
+    });
+
+    return {
+      totalFiles: allMetadata.length,
+      syncedFiles,
+      conflictedFiles,
+      deletedFiles,
+      archivedFiles,
+      totalSize,
+      averageFileSize,
+      fileTypes,
+      tagUsage,
+      lastUpdated: new Date()
+    };
+  }
+
+  /**
+   * Add tag to file
+   */
+  async addTag(id: string, tag: string): Promise<boolean> {
+    const metadata = this.metadata.get(id);
+    if (!metadata) return false;
+
+    if (!metadata.tags) metadata.tags = [];
+    if (!metadata.tags.includes(tag)) {
+      metadata.tags.push(tag);
+      await this.updateMetadata(id, { tags: metadata.tags });
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Remove tag from file
+   */
+  async removeTag(id: string, tag: string): Promise<boolean> {
+    const metadata = this.metadata.get(id);
+    if (!metadata || !metadata.tags) return false;
+
+    const index = metadata.tags.indexOf(tag);
+    if (index > -1) {
+      metadata.tags.splice(index, 1);
+      await this.updateMetadata(id, { tags: metadata.tags });
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Set file relationship
+   */
+  async setRelationship(parentId: string, childId: string): Promise<boolean> {
+    const parent = this.metadata.get(parentId);
+    const child = this.metadata.get(childId);
+    
+    if (!parent || !child) return false;
+
+    // Add child to parent
+    if (!parent.childIds) parent.childIds = [];
+    if (!parent.childIds.includes(childId)) {
+      parent.childIds.push(childId);
+      await this.updateMetadata(parentId, { childIds: parent.childIds });
+    }
+
+    // Set parent for child
+    await this.updateMetadata(childId, { parentId });
+
+    return true;
+  }
+
+  /**
+   * Remove file relationship
+   */
+  async removeRelationship(parentId: string, childId: string): Promise<boolean> {
+    const parent = this.metadata.get(parentId);
+    const child = this.metadata.get(childId);
+    
+    if (!parent || !child) return false;
+
+    // Remove child from parent
+    if (parent.childIds) {
+      const index = parent.childIds.indexOf(childId);
+      if (index > -1) {
+        parent.childIds.splice(index, 1);
+        await this.updateMetadata(parentId, { childIds: parent.childIds });
       }
     }
-    
+
+    // Remove parent from child
+    if (child.parentId === parentId) {
+      await this.updateMetadata(childId, { parentId: undefined });
+    }
+
     return true;
+  }
+
+  /**
+   * Record file access
+   */
+  async recordAccess(id: string): Promise<void> {
+    const metadata = this.metadata.get(id);
+    if (!metadata) return;
+
+    await this.updateMetadata(id, {
+      accessCount: (metadata.accessCount || 0) + 1,
+      lastAccessed: new Date()
+    });
+  }
+
+  /**
+   * Bulk update metadata
+   */
+  async bulkUpdate(updates: Array<{ id: string; updates: Partial<ExtendedFileMetadata> }>): Promise<number> {
+    let successCount = 0;
+
+    for (const { id, updates: updateData } of updates) {
+      try {
+        const result = await this.updateMetadata(id, updateData);
+        if (result) successCount++;
+      } catch (error) {
+        console.error(`Failed to update metadata for ${id}:`, error);
+      }
+    }
+
+    return successCount;
+  }
+
+  /**
+   * Export metadata
+   */
+  async exportMetadata(): Promise<ExtendedFileMetadata[]> {
+    return this.getAllMetadata(true); // Include deleted items in export
+  }
+
+  /**
+   * Import metadata
+   */
+  async importMetadata(metadataList: ExtendedFileMetadata[]): Promise<number> {
+    let importedCount = 0;
+
+    for (const metadata of metadataList) {
+      try {
+        this.metadata.set(metadata.id, metadata);
+        await this.saveMetadataToDB(metadata);
+        importedCount++;
+      } catch (error) {
+        console.error(`Failed to import metadata for ${metadata.id}:`, error);
+      }
+    }
+
+    return importedCount;
+  }
+
+  /**
+   * Clear all metadata
+   */
+  async clearAll(): Promise<void> {
+    this.metadata.clear();
+
+    if (!this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(['metadata'], 'readwrite');
+      const store = transaction.objectStore('metadata');
+      
+      const request = store.clear();
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error('Failed to clear metadata'));
+    });
   }
 }
 
