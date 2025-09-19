@@ -657,7 +657,7 @@ export class CrossPlatformMemoryManager {
   }
 
   getPlatform(): NodeJS.Platform {
-    return process.platform
+    return process.platform as NodeJS.Platform
   }
 
   static isMemoryOptimizationSupported(): boolean {
