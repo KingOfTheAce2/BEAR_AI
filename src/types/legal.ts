@@ -1,5 +1,19 @@
 // Legal-specific type definitions for BEAR AI
 
+import type {
+  LegalComponentProps as BaseLegalComponentProps,
+  LegalDocumentType as BaseLegalDocumentType,
+  LegalCategory as BaseLegalCategory,
+  DocumentStatus as BaseDocumentStatus,
+  RiskLevel as BaseRiskLevel
+} from './legal';
+
+export type LegalComponentProps = BaseLegalComponentProps;
+export type LegalDocumentType = BaseLegalDocumentType;
+export type LegalCategory = BaseLegalCategory;
+export type DocumentStatus = BaseDocumentStatus;
+export type RiskLevel = BaseRiskLevel;
+
 export interface LegalCitation {
   id: string;
   type: 'case' | 'statute' | 'regulation' | 'secondary' | 'constitutional' | 'rule';

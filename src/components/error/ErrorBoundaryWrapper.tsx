@@ -6,7 +6,8 @@
  * @version 2.0.3
  */
 
-import { Component, ErrorInfo, ReactNode, type ComponentType } from 'react';
+import React, { type ComponentType } from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
 
 export interface ErrorBoundaryWrapperState {
   hasError: boolean;
@@ -26,7 +27,7 @@ export interface ErrorFallbackProps {
 
 // ==================== ERROR BOUNDARY WRAPPER ====================
 
-export class ErrorBoundaryWrapper extends Component<ErrorBoundaryWrapperProps, ErrorBoundaryWrapperState> {
+export class ErrorBoundaryWrapper extends React.Component<ErrorBoundaryWrapperProps, ErrorBoundaryWrapperState> {
   constructor(props: ErrorBoundaryWrapperProps) {
     super(props);
     this.state = {

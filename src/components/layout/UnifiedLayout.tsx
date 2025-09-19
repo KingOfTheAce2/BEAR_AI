@@ -59,8 +59,8 @@ export const UnifiedLayout: React.FC = () => {
         <main className="flex-1 overflow-hidden">
           <div className="h-full">
             <Routes>
-              <Route path="/" element={<ChatInterface />} />
-              <Route path="/chat" element={<ChatInterface />} />
+              <Route path="/" element={<ChatInterface activeChat={state.activeChat} />} />
+              <Route path="/chat" element={<ChatInterface activeChat={state.activeChat} />} />
               <Route path="/documents" element={<DocumentGrid />} />
               <Route path="/research" element={<ResearchPage />} />
               <Route path="/history" element={<HistoryPage />} />

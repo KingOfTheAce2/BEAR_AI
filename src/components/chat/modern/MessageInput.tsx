@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Message } from '../../../types/chat';
 import './MessageInput.css';
 
@@ -157,20 +158,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
     setShowCommands(false);
   };
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
-      e.preventDefault();
+  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey && !isMobile) {
+      event.preventDefault();
 
       if (!message.trim() || disabled) return;
 
-      // Handle special commands
       const trimmedMessage = message.trim();
       if (trimmedMessage.startsWith('/')) {
         handleCommand(trimmedMessage);
         return;
       }
 
-      // Determine message type
       let messageType: Message['type'] = 'text';
       if (message.includes('```')) {
         messageType = 'code';
@@ -181,23 +180,32 @@ const MessageInput: React.FC<MessageInputProps> = ({
       setIsTyping(false);
       onStopTyping();
 
-      // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-    } else if (e.key === 'Escape') {
+    } else if (event.key === 'Escape') {
       setShowCommands(false);
       setShowEmojis(false);
       setShowFormatting(false);
-    } else if (e.key === 'Tab' && showCommands) {
-      e.preventDefault();
-      // Auto-complete first command
+    } else if (event.key === 'Tab' && showCommands) {
+      event.preventDefault();
       const filtered = commands.filter(cmd => cmd.name.toLowerCase().includes(commandFilter.slice(1)));
       if (filtered.length > 0) {
         insertCommand(filtered[0]);
       }
     }
-  }, [handleSubmit, isMobile, showCommands, commandFilter]);
+  }, [
+    commandFilter,
+    commands,
+    disabled,
+    handleCommand,
+    insertCommand,
+    isMobile,
+    message,
+    onSendMessage,
+    onStopTyping,
+    showCommands
+  ]);
 
   const insertCommand = (command: typeof commands[0]) => {
     const lines = message.split('\n');

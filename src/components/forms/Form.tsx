@@ -1,4 +1,5 @@
-import { forwardRef, FormHTMLAttributes } from 'react';
+import React, { forwardRef } from 'react';
+import type { FormHTMLAttributes, FormEvent } from 'react';
 
 export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {}
 
@@ -13,9 +14,9 @@ export function useForm() {
   return {
     // Simple form hook implementation
     register: (name: string) => ({ name }),
-    handleSubmit: (onSubmit: (data: any) => void) => (e: React.FormEvent) => {
-      e.preventDefault();
-      const formData = new FormData(e.target as HTMLFormElement);
+    handleSubmit: (onSubmit: (data: any) => void) => (event: FormEvent) => {
+      event.preventDefault();
+      const formData = new FormData(event.target as HTMLFormElement);
       const data = Object.fromEntries(formData.entries());
       onSubmit(data);
     },
