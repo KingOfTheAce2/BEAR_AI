@@ -3,7 +3,7 @@
  * Provides integration with GPT4All models for local inference
  */
 
-import { ModelConfig, ModelType, ModelStatus } from '../types/modelTypes';
+import { ModelConfig, ModelType, ModelPriority } from '../types/modelTypes';
 
 export interface GPT4AllModelInfo {
   filename: string;
@@ -249,6 +249,7 @@ export class GPT4ALLFactory {
             supportedFormats: ['text'],
             capabilities: ['text-generation', 'conversation'],
             parameters: 7_000_000_000,
+            priority: ModelPriority.MEDIUM,
             metadata: {
               filename: mockModel.filename,
               modelType: mockModel.type,

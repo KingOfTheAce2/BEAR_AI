@@ -3,7 +3,7 @@
  * Handles offline file operations and synchronization
  */
 
-import { StoredDocument, localStorageService } from './localStorage';
+import { type StoredDocument, type StorageStats, localStorageService } from './localStorage';
 import { fileMetadataService, ExtendedFileMetadata } from './fileMetadata';
 
 export interface SyncOperation {
@@ -72,7 +72,9 @@ export class OfflineSyncService {
    * Get current synchronization status
    */
   getSyncStatus(): SyncStatus {
-    const pendingOperations = this.syncQueue.filter(op => op.status === 'pending').length;
+    const pendingOperations = this.syncQueue.filter(op =>
+      op.status === 'pending' || op.status === 'in_progress'
+    ).length;
     const failedOperations = this.syncQueue.filter(op => op.status === 'failed').length;
 
     return {
@@ -93,6 +95,13 @@ export class OfflineSyncService {
     }
 
     await this.processSyncQueue();
+  }
+
+  /**
+   * Backwards-compatible alias with historical typo
+   */
+  async forcSync(): Promise<void> {
+    await this.forceSync();
   }
 
   /**
@@ -197,7 +206,10 @@ export class OfflineSyncService {
       const serialized = JSON.stringify(
         this.syncQueue.map(operation => ({
           ...operation,
-          timestamp: operation.timestamp.toISOString()
+          timestamp:
+            operation.timestamp instanceof Date
+              ? operation.timestamp.toISOString()
+              : new Date(operation.timestamp).toISOString()
         }))
       );
 
@@ -328,87 +340,6 @@ export class OfflineSyncService {
 
     this.syncInProgress = false;
     this.notifyStatusChange();
-  }
-
-  /**
-   * Subscribe to status updates
-   */
-  onStatusChange(listener: (status: SyncStatus) => void): () => void {
-    this.listeners.push(listener);
-
-    // Provide immediate status snapshot so UI can render without waiting
-    try {
-      listener(this.getSyncStatus());
-    } catch (error) {
-      console.error('Offline sync listener failed during initialization:', error);
-    }
-
-    return () => {
-      this.listeners = this.listeners.filter(cb => cb !== listener);
-    };
-  }
-
-  /**
-   * Retrieve the current synchronization status
-   */
-  getSyncStatus(): SyncStatus {
-    const pendingOperations = this.syncQueue.filter(op =>
-      op.status === 'pending' || op.status === 'in_progress'
-    ).length;
-    const failedOperations = this.syncQueue.filter(op => op.status === 'failed').length;
-
-    return {
-      isOnline: this.isOnline,
-      lastSync: this.lastSync,
-      pendingOperations,
-      failedOperations,
-      syncInProgress: this.syncInProgress
-    };
-  }
-
-  /**
-   * Force synchronization attempt regardless of schedule
-   */
-  async forceSync(): Promise<void> {
-    await this.processSyncQueue();
-  }
-
-  /**
-   * Backwards-compatible alias with historical typo
-   */
-  async forcSync(): Promise<void> {
-    await this.forceSync();
-  }
-
-  /**
-   * Remove failed operations from the queue
-   */
-  async clearFailedOperations(): Promise<void> {
-    const originalLength = this.syncQueue.length;
-    this.syncQueue = this.syncQueue.filter(op => op.status !== 'failed');
-
-    if (this.syncQueue.length !== originalLength) {
-      await this.saveQueueToStorage();
-      this.notifyStatusChange();
-    }
-  }
-
-  /**
-   * Export current queue and status for backup/debugging
-   */
-  async exportData(): Promise<{
-    exportedAt: string;
-    status: SyncStatus;
-    queue: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }>;
-  }> {
-    return {
-      exportedAt: new Date().toISOString(),
-      status: this.getSyncStatus(),
-      queue: this.syncQueue.map(operation => ({
-        ...operation,
-        timestamp: operation.timestamp.toISOString()
-      }))
-    };
   }
 
   /**
@@ -644,116 +575,6 @@ export class OfflineSyncService {
     // Store in IndexedDB for manual resolution UI
     // Implementation would depend on your conflict resolution UI
     console.warn('Conflict requires manual resolution:', conflictData);
-  }
-
-  /**
-   * Load synchronization queue and metadata state from storage
-   */
-  private loadQueueFromStorage(): void {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return;
-    }
-
-    try {
-      const storedQueue = window.localStorage.getItem(this.storageKey);
-      if (storedQueue) {
-        const parsed: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }> = JSON.parse(storedQueue);
-        this.syncQueue = parsed.map(operation => ({
-          ...operation,
-          timestamp: new Date(operation.timestamp)
-        }));
-      }
-
-      const storedLastSync = window.localStorage.getItem(this.lastSyncKey);
-      if (storedLastSync) {
-        this.lastSync = new Date(storedLastSync);
-      }
-    } catch (error) {
-      console.error('Failed to load sync queue from storage:', error);
-      this.syncQueue = [];
-    }
-  }
-
-  /**
-   * Persist synchronization queue to storage
-   */
-  private async saveQueueToStorage(): Promise<void> {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return;
-    }
-
-    try {
-      const serializedQueue = JSON.stringify(
-        this.syncQueue.map(operation => ({
-          ...operation,
-          timestamp:
-            operation.timestamp instanceof Date
-              ? operation.timestamp.toISOString()
-              : new Date(operation.timestamp).toISOString()
-        }))
-      );
-
-      window.localStorage.setItem(this.storageKey, serializedQueue);
-
-      if (this.lastSync) {
-        window.localStorage.setItem(this.lastSyncKey, this.lastSync.toISOString());
-      } else {
-        window.localStorage.removeItem(this.lastSyncKey);
-      }
-    } catch (error) {
-      console.error('Failed to save sync queue to storage:', error);
-    }
-  }
-
-  /**
-   * Start periodic synchronization processing
-   */
-  private startPeriodicSync(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    if (this.syncIntervalId) {
-      window.clearInterval(this.syncIntervalId);
-    }
-
-    this.syncIntervalId = window.setInterval(() => {
-      const hasPending = this.syncQueue.some(op => op.status === 'pending');
-      if (this.isOnline && hasPending && !this.syncInProgress) {
-        this.processSyncQueue();
-      }
-    }, 30000);
-  }
-
-  /**
-   * Generate a unique identifier for sync operations
-   */
-  private generateOperationId(): string {
-    return `sync-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  }
-
-  /**
-   * Calculate retry delay using exponential backoff
-   */
-  private getRetryDelay(retryCount: number): number {
-    const baseDelay = 1000;
-    const maxDelay = 30000;
-    return Math.min(maxDelay, baseDelay * Math.pow(2, retryCount));
-  }
-
-  /**
-   * Notify registered listeners about status changes
-   */
-  private notifyStatusChange(): void {
-    const status = this.getSyncStatus();
-
-    for (const listener of this.listeners) {
-      try {
-        listener(status);
-      } catch (error) {
-        console.error('Sync status listener error:', error);
-      }
-    }
   }
 
   /**
