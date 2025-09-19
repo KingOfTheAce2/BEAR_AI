@@ -3,7 +3,11 @@
  * Validates model compatibility with system requirements
  */
 
-import { CompatibilityResult, HuggingFaceModel } from '../../types/huggingface';
+import {
+  CompatibilityResult,
+  CompatibilityOptimization,
+  HuggingFaceModel
+} from '../../types/huggingface';
 
 export interface SystemRequirements {
   memory: {
@@ -77,16 +81,28 @@ export class CompatibilityValidator {
     }
 
     // Generate recommendations
-    recommendations.push(...this.generateRecommendations(model));
+    const recommendationTexts = this.generateRecommendations(model);
+    recommendations.push(...recommendationTexts);
 
     const estimatedRequirements = this.estimateRequirements(model);
+    const score = this.calculateCompatibilityScore(issues.length, warnings.length);
+    const confidence = this.estimateConfidence(issues.length, warnings.length);
+    const optimizations = this.generateOptimizations(
+      model,
+      issues,
+      warnings,
+      recommendationTexts
+    );
 
     return {
       compatible: issues.length === 0,
+      score,
+      confidence,
       issues,
       warnings,
       requirements: estimatedRequirements,
-      recommendations
+      recommendations,
+      optimizations
     };
   }
 
@@ -356,6 +372,72 @@ export class CompatibilityValidator {
     }
 
     return recommendations;
+  }
+
+  private calculateCompatibilityScore(issueCount: number, warningCount: number): number {
+    const baseScore = 100;
+    const issuePenalty = issueCount * 20;
+    const warningPenalty = warningCount * 8;
+    return Math.max(0, Math.min(100, baseScore - issuePenalty - warningPenalty));
+  }
+
+  private estimateConfidence(issueCount: number, warningCount: number): number {
+    const confidence = 100 - issueCount * 25 - warningCount * 5;
+    return Math.max(0, Math.min(100, confidence));
+  }
+
+  private generateOptimizations(
+    model: HuggingFaceModel,
+    issues: string[],
+    warnings: string[],
+    recommendationTexts: string[]
+  ): CompatibilityOptimization[] {
+    const optimizations: CompatibilityOptimization[] = recommendationTexts.map((text, index) => ({
+      id: `recommendation-${index + 1}`,
+      description: text,
+      automated: false,
+      impact: 'medium'
+    }));
+
+    if (issues.some(issue => issue.toLowerCase().includes('memory'))) {
+      optimizations.push({
+        id: 'optimize-memory-usage',
+        description: 'Enable model quantization or reduce batch size to lower memory usage.',
+        automated: true,
+        impact: 'high',
+        estimatedImprovement: 25
+      });
+    }
+
+    if (issues.some(issue => issue.toLowerCase().includes('storage'))) {
+      optimizations.push({
+        id: 'free-storage-space',
+        description: 'Clean up old model versions or move models to external storage.',
+        automated: false,
+        impact: 'medium',
+        estimatedImprovement: 15
+      });
+    }
+
+    if (!this.systemRequirements.gpu?.available && model.resourceRequirements.gpuRequired) {
+      optimizations.push({
+        id: 'switch-to-cpu-mode',
+        description: 'Use a CPU-optimized configuration or select a GPU-free variant of the model.',
+        automated: false,
+        impact: 'high'
+      });
+    }
+
+    if (warnings.length > 0) {
+      optimizations.push({
+        id: 'review-warnings',
+        description: 'Review compatibility warnings and adjust system configuration where possible.',
+        automated: false,
+        impact: 'low'
+      });
+    }
+
+    return optimizations;
   }
 
   private estimateModelMemory(model: HuggingFaceModel): number {

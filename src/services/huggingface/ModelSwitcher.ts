@@ -147,7 +147,7 @@ export class LocalModelManager {
     const lowercaseQuery = query.toLowerCase();
     
     return Array.from(this.localModels.values()).filter(model =>
-      model.name.toLowerCase().includes(lowercaseQuery) ||
+      (model.name ?? model.modelId).toLowerCase().includes(lowercaseQuery) ||
       model.description?.toLowerCase().includes(lowercaseQuery) ||
       model.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery)) ||
       model.author.toLowerCase().includes(lowercaseQuery)
