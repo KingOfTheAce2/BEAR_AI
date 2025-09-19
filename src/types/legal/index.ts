@@ -515,10 +515,13 @@ export interface LegalSearchResult {
 
 // UI Component Props
 export interface LegalComponentProps extends ComponentProps {
-  user?: Pick<User, 'id' | 'role'> &
-    Partial<Pick<User, 'name' | 'email' | 'avatar' | 'firm'>> & {
-      permissions: string[];
-    };
+  user?: {
+    id: string;
+    name?: string;
+    role: 'attorney' | 'paralegal' | 'admin';
+    permissions: string[];
+    firm?: string;
+  };
   matter?: string;
   client?: string;
   billingEnabled?: boolean;
