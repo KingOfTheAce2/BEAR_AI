@@ -520,15 +520,17 @@ export class LocalModelManager extends EventTarget {
       
       // Simulate file download progress
       for (let progress = 0; progress <= 100; progress += 10) {
-        job.progress.files[i] = {
+        const files = job.progress.files ?? [];
+        files[i] = {
           filename,
           progress,
           size: fileSize,
           downloaded: (fileSize * progress) / 100
         };
-        
+        job.progress.files = files;
+
         // Update overall progress
-        const totalDownloaded = job.progress.files.reduce(
+        const totalDownloaded = files.reduce(
           (sum, file) => sum + file.downloaded, 0
         );
         job.progress.downloaded = totalDownloaded;

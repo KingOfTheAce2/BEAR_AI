@@ -24,7 +24,9 @@ interface PerformanceContextType {
   suggestions: OptimizationSuggestion[];
 
   // Actions
-  recordModelInference: (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => void;
+  recordModelInference: (
+    metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond' | 'success'> & { success?: boolean }
+  ) => void;
   recordUserInteraction: (metrics: UserInteractionMetrics) => void;
   resolveAlert: (alertId: string) => void;
 
@@ -136,7 +138,9 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     performanceMonitor.stopMonitoring();
   };
 
-  const recordModelInference = (metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond'>) => {
+  const recordModelInference = (
+    metrics: Omit<ModelInferenceMetrics, 'tokensPerSecond' | 'success'> & { success?: boolean }
+  ) => {
     performanceMonitor.recordModelInference(metrics);
   };
 
@@ -294,6 +298,8 @@ export const useModelTracking = () => {
       if (typeof window !== 'undefined' && (performance as any).memory) {
         memoryUsed = (performance as any).memory.usedJSHeapSize - memoryBefore;
       }
+
+      const success = !error;
 
       performance.recordModelInference({
         modelId: modelName,

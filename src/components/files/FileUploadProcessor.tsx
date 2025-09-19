@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import type { DragEvent } from 'react';
 import { localFileSystemService, LocalFile } from '../../services/localFileSystem';
 import { documentParserService, ParsedDocument } from '../../services/documentParser';
 import { localStorageService, StoredDocument } from '../../services/localStorage';
@@ -134,14 +133,16 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     for (const file of validFiles) {
       try {
         // Convert File to LocalFile
+        const fileContent = await getFileContent(file);
         const localFile: LocalFile = {
           id: `${file.name}-${file.size}-${file.lastModified}`,
           name: file.name,
           type: file.type,
           size: file.size,
-          lastModified: file.lastModified,
+          lastModified: new Date(file.lastModified),
           path: file.name,
-          content: await getFileContent(file),
+          data: fileContent,
+          content: fileContent,
           metadata: { webkitRelativePath: (file as any).webkitRelativePath || '' }
         };
 
@@ -165,7 +166,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   };
 
-  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
     dragCounterRef.current = 0;
@@ -174,11 +175,11 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     handleFileSelection(files);
   }, [handleFileSelection]);
 
-  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
   }, []);
 
-  const handleDragEnter = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dragCounterRef.current++;
     if (dragCounterRef.current === 1) {
@@ -186,7 +187,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
     }
   }, []);
 
-  const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dragCounterRef.current--;
     if (dragCounterRef.current === 0) {
@@ -373,8 +374,8 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
               {job.result && (
                 <div className="job-result">
                   <div className="result-summary">
-                    ✅ Processed: {job.result.metadata.wordCount} words, 
-                    {job.result.sections?.length || 0} sections
+                    ✅ Processed: {job.result.metadata.wordCount} words,
+                    {job.result.metadata.sections?.length || 0} sections
                   </div>
                 </div>
               )}

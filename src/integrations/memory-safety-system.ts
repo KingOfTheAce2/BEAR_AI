@@ -8,6 +8,35 @@
 
 import { EventEmitter } from 'events'
 
+type NodePlatformIdentifier =
+  | 'aix'
+  | 'android'
+  | 'darwin'
+  | 'freebsd'
+  | 'linux'
+  | 'openbsd'
+  | 'sunos'
+  | 'win32'
+  | 'cygwin'
+  | 'netbsd'
+  | 'haiku'
+  | 'wasm32'
+
+interface NodeProcessLike {
+  platform?: NodePlatformIdentifier
+  pid?: number
+  memoryUsage?: () => {
+    rss: number
+    heapTotal: number
+    heapUsed: number
+    external: number
+    arrayBuffers?: number
+  }
+  cpuUsage?: () => {
+    user: number
+  }
+}
+
 // ==================== INTERFACES ====================
 
 export interface SystemMemoryInfo {
@@ -86,15 +115,52 @@ export interface ModelMemoryInfo {
 // ==================== MEMORY MONITOR SERVICE ====================
 
 export class MemoryMonitorService extends EventEmitter {
-  private monitoringInterval?: NodeJS.Timer
+  private monitoringInterval?: ReturnType<typeof setInterval>
   private updateInterval: number = 1000 // 1 second
   private isMonitoring: boolean = false
-  private platform: NodeJS.Platform
+  private platform: NodePlatformIdentifier
 
   constructor(options: { updateInterval?: number } = {}) {
     super()
     this.updateInterval = options.updateInterval || 1000
-    this.platform = process.platform
+    const nodeProcess = this.getNodeProcess()
+    this.platform = nodeProcess?.platform ?? 'linux'
+  }
+
+  private getNodeProcess(): NodeProcessLike | undefined {
+    if (typeof globalThis === 'undefined') {
+      return undefined
+    }
+
+    const candidate = (globalThis as any).process
+    if (candidate && typeof candidate === 'object') {
+      return candidate as NodeProcessLike
+    }
+
+    return undefined
+  }
+
+  private normalizePlatform(platform: NodePlatformIdentifier): SystemMemoryInfo['platform'] {
+    switch (platform) {
+      case 'win32':
+        return 'windows'
+      case 'darwin':
+        return 'darwin'
+      case 'linux':
+        return 'linux'
+      case 'android':
+      case 'aix':
+      case 'freebsd':
+      case 'openbsd':
+      case 'sunos':
+      case 'cygwin':
+      case 'netbsd':
+      case 'haiku':
+      case 'wasm32':
+        return 'linux'
+      default:
+        return 'linux'
+    }
   }
 
   async startMonitoring(): Promise<void> {
@@ -137,13 +203,19 @@ export class MemoryMonitorService extends EventEmitter {
       available: 0,
       used: 0,
       usagePercentage: 0,
-      platform: this.platform as any
+      platform: this.normalizePlatform(this.platform)
     }
 
-    if (typeof process !== 'undefined' && process.memoryUsage) {
+    const nodeProcess = this.getNodeProcess()
+
+    if (nodeProcess?.platform) {
+      this.platform = nodeProcess.platform
+    }
+
+    if (nodeProcess?.memoryUsage) {
       // Node.js environment - get basic memory info
-      const processMemory = process.memoryUsage()
-      
+      const processMemory = nodeProcess.memoryUsage()
+
       // For cross-platform implementation, we'd use native modules
       // Here's a mock implementation with realistic values
       if (this.platform === 'win32') {
@@ -177,17 +249,19 @@ export class MemoryMonitorService extends EventEmitter {
   }
 
   async getProcessMemory(pid?: number): Promise<ProcessMemoryInfo> {
-    const processMemory = process.memoryUsage()
-    
+    const nodeProcess = this.getNodeProcess()
+    const processMemory = nodeProcess?.memoryUsage?.()
+    const cpuUsage = nodeProcess?.cpuUsage?.()
+
     return {
-      pid: process.pid,
+      pid: pid ?? nodeProcess?.pid ?? 0,
       name: 'bear-ai',
-      rss: processMemory.rss,
-      heapTotal: processMemory.heapTotal,
-      heapUsed: processMemory.heapUsed,
-      external: processMemory.external,
-      arrayBuffers: processMemory.arrayBuffers || 0,
-      cpuUsage: process.cpuUsage().user / 1000000 // Convert to milliseconds
+      rss: processMemory?.rss ?? 0,
+      heapTotal: processMemory?.heapTotal ?? 0,
+      heapUsed: processMemory?.heapUsed ?? 0,
+      external: processMemory?.external ?? 0,
+      arrayBuffers: processMemory?.arrayBuffers ?? 0,
+      cpuUsage: cpuUsage ? cpuUsage.user / 1000000 : 0 // Convert to milliseconds
     }
   }
 
@@ -429,7 +503,8 @@ export class ModelLifecycleController extends EventEmitter {
         memorySaved += model.memoryUsage
         actions.push(`Unloaded model ${model.modelId} (${this.formatBytes(model.memoryUsage)})`)
       } catch (error) {
-        actions.push(`Failed to unload model ${model.modelId}: ${error.message}`)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        actions.push(`Failed to unload model ${model.modelId}: ${errorMessage}`)
       }
     }
 
@@ -634,11 +709,12 @@ export class EmergencyCleanupSystem extends EventEmitter {
             const memorySaved = await procedure()
             totalMemorySaved += memorySaved
             proceduresExecuted.push(procedureName)
-            
+
             console.log(`Emergency cleanup: ${procedureName} saved ${this.formatBytes(memorySaved)}`)
           }
         } catch (error) {
-          errors.push(`${procedureName}: ${error.message}`)
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          errors.push(`${procedureName}: ${errorMessage}`)
           console.error(`Emergency cleanup error in ${procedureName}:`, error)
         }
       }

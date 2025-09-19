@@ -6,11 +6,11 @@
  * @version 1.0.0
  */
 
-import { 
-  BearPlugin, 
-  LegalDocumentPlugin, 
-  PluginManifest, 
-  PluginContext 
+import {
+  ContractAnalysis,
+  LegalDocumentPlugin,
+  PluginManifest,
+  PluginContext
 } from './plugin-architecture'
 
 // Legal Document Types
@@ -28,61 +28,6 @@ interface LegalDocument {
   }
 }
 
-interface ContractAnalysis {
-  keyTerms: Array<{
-    term: string
-    definition?: string
-    importance: 'high' | 'medium' | 'low'
-    location: { section: string; paragraph: number }
-  }>
-  parties: Array<{
-    name: string
-    role: 'primary' | 'secondary' | 'guarantor' | 'witness'
-    obligations: string[]
-    rights: string[]
-  }>
-  obligations: Array<{
-    party: string
-    obligation: string
-    deadline?: Date
-    penalty?: string
-    status: 'pending' | 'fulfilled' | 'breached' | 'disputed'
-  }>
-  risks: Array<{
-    type: 'legal' | 'financial' | 'operational' | 'reputational'
-    description: string
-    severity: 'low' | 'medium' | 'high' | 'critical'
-    mitigation?: string
-    probability: number // 0-1
-    impact: number // 0-1
-  }>
-  clauses: Array<{
-    type: 'termination' | 'liability' | 'indemnification' | 'force-majeure' | 'governing-law' | 'other'
-    content: string
-    assessment: 'favorable' | 'neutral' | 'unfavorable' | 'requires-attention'
-    recommendations?: string[]
-  }>
-  compliance: Array<{
-    regulation: string
-    status: 'compliant' | 'non-compliant' | 'requires-review' | 'not-applicable'
-    details?: string
-    remediation?: string[]
-  }>
-  recommendations: Array<{
-    type: 'amendment' | 'negotiation' | 'approval' | 'rejection' | 'review'
-    priority: 'low' | 'medium' | 'high' | 'critical'
-    description: string
-    rationale: string
-    impact: string
-  }>
-  summary: {
-    overview: string
-    keyPoints: string[]
-    riskScore: number // 0-100
-    recommendedAction: 'approve' | 'negotiate' | 'reject' | 'review'
-    confidence: number // 0-1
-  }
-}
 
 interface PIIDetectionResult {
   entities: Array<{
@@ -234,27 +179,39 @@ export class BearLegalProcessingExtension extends LegalDocumentPlugin {
       }
       
       // Parallel analysis execution
-      const [keyTerms, risks, compliance, clauses] = await Promise.all([
+      const [keyTerms, risks, complianceResult, clauses] = await Promise.all([
         this.extractKeyTerms(content, agents.termExtractor),
         this.analyzeRisks(content, agents.riskAnalyzer, options?.jurisdiction),
         this.checkCompliance(content, agents.complianceChecker, options?.jurisdiction),
         this.analyzeClauses(content, agents.clauseAnalyzer)
       ])
-      
+
+      const compliance = this.mapComplianceToAnalysis(complianceResult)
+
       // Extract parties and obligations
       const parties = await this.extractParties(content)
       const obligations = await this.extractObligations(content, parties)
-      
+
       // Generate recommendations
       const recommendations = await this.generateRecommendations(
-        keyTerms, risks, compliance, clauses
+        keyTerms,
+        risks,
+        compliance,
+        clauses,
+        complianceResult
       )
-      
+
       // Create summary
       const summary = await this.generateContractSummary(
-        keyTerms, parties, obligations, risks, recommendations
+        keyTerms,
+        parties,
+        obligations,
+        risks,
+        recommendations,
+        complianceResult.overallCompliance,
+        complianceResult.criticalIssues
       )
-      
+
       const analysis: ContractAnalysis = {
         keyTerms,
         parties,
@@ -373,6 +330,44 @@ export class BearLegalProcessingExtension extends LegalDocumentPlugin {
   }
 
   // Private helper methods
+
+  private mapComplianceToAnalysis(
+    result: ComplianceCheckResult
+  ): ContractAnalysis['compliance'] {
+    return result.regulations.map(regulation => {
+      const status = this.normalizeComplianceStatus(regulation.status)
+      const unresolvedRequirements = regulation.requirements.filter(
+        requirement => requirement.status !== 'met'
+      )
+
+      const detailSummary = unresolvedRequirements
+        .map(requirement =>
+          `${requirement.requirement}${requirement.details ? ` — ${requirement.details}` : ''}`
+        )
+        .join(' | ')
+
+      const remediation = unresolvedRequirements.flatMap(
+        requirement => requirement.remediation ?? []
+      )
+
+      return {
+        regulation: regulation.name,
+        status,
+        details: detailSummary || undefined,
+        remediation: remediation.length ? remediation : undefined
+      }
+    })
+  }
+
+  private normalizeComplianceStatus(
+    status: ComplianceCheckResult['regulations'][number]['status']
+  ): ContractAnalysis['compliance'][number]['status'] {
+    if (status === 'partially-compliant') {
+      return 'requires-review'
+    }
+
+    return status
+  }
 
   private async initializeAgentCoordination(): Promise<void> {
     // Initialize agent coordination system
@@ -574,49 +569,182 @@ export class BearLegalProcessingExtension extends LegalDocumentPlugin {
   }
 
   private async generateRecommendations(
-    keyTerms: any, 
-    risks: any, 
-    compliance: any, 
-    clauses: any
+    keyTerms: ContractAnalysis['keyTerms'],
+    risks: ContractAnalysis['risks'],
+    compliance: ContractAnalysis['compliance'],
+    clauses: ContractAnalysis['clauses'],
+    complianceResult: ComplianceCheckResult
   ): Promise<ContractAnalysis['recommendations']> {
-    // Mock recommendation generation
-    return [
-      {
+    const recommendations: ContractAnalysis['recommendations'] = []
+    const added = new Set<string>()
+
+    const addRecommendation = (
+      recommendation: ContractAnalysis['recommendations'][number]
+    ) => {
+      const key = `${recommendation.type}:${recommendation.description}`
+      if (!added.has(key)) {
+        recommendations.push(recommendation)
+        added.add(key)
+      }
+    }
+
+    const highestRisk = risks
+      .filter(risk => risk.severity === 'critical' || risk.severity === 'high')
+      .sort(
+        (a, b) => b.impact * b.probability - a.impact * a.probability
+      )[0]
+
+    if (highestRisk) {
+      addRecommendation({
         type: 'amendment',
+        priority: highestRisk.severity === 'critical' ? 'critical' : 'high',
+        description: `Mitigate ${highestRisk.type} exposure: ${highestRisk.description}`,
+        rationale: `Automated review flagged this as ${highestRisk.severity} severity with ${(highestRisk.probability * 100).toFixed(0)}% likelihood.`,
+        impact: 'Targeted contract updates can materially reduce downside risk.'
+      })
+    }
+
+    const complianceGap = compliance.find(entry =>
+      entry.status === 'non-compliant' || entry.status === 'requires-review'
+    )
+
+    if (complianceGap) {
+      addRecommendation({
+        type: 'negotiation',
         priority: 'high',
-        description: 'Add liability limitation clause',
-        rationale: 'Current unlimited liability poses significant financial risk',
-        impact: 'Reduces potential financial exposure by up to 80%'
-      },
-      {
+        description: `Resolve ${complianceGap.regulation} compliance gap`,
+        rationale:
+          complianceGap.details ??
+          'Regulation flagged for remediation during compliance scan.',
+        impact: complianceGap.remediation?.length
+          ? `Implement remediation steps: ${complianceGap.remediation.join(', ')}.`
+          : 'Improves regulatory posture and reduces enforcement exposure.'
+      })
+    }
+
+    if (complianceResult.criticalIssues.length > 0) {
+      addRecommendation({
+        type: 'review',
+        priority: 'high',
+        description: 'Prioritize remediation of critical compliance issues',
+        rationale: `Critical findings: ${complianceResult.criticalIssues.join(', ')}`,
+        impact: 'Addresses urgent obligations identified by automated compliance audit.'
+      })
+    }
+
+    const clauseNeedingAttention = clauses.find(
+      clause => clause.assessment === 'requires-attention'
+    )
+
+    if (clauseNeedingAttention) {
+      addRecommendation({
         type: 'negotiation',
         priority: 'medium',
-        description: 'Negotiate payment terms',
-        rationale: 'Current 30-day payment terms may impact cash flow',
-        impact: 'Improved cash flow management'
-      }
-    ]
+        description: `Renegotiate ${clauseNeedingAttention.type} clause language`,
+        rationale: clauseNeedingAttention.recommendations?.join(', ') ??
+          'Clause assessment indicates additional clarification required.',
+        impact: 'Improves clarity around obligations and reduces dispute likelihood.'
+      })
+    }
+
+    const paymentTerm = keyTerms.find(term =>
+      term.term.toLowerCase().includes('payment')
+    )
+
+    if (paymentTerm) {
+      addRecommendation({
+        type: 'review',
+        priority: 'medium',
+        description: 'Validate payment schedule alignment with cash flow requirements',
+        rationale: `Key term "${paymentTerm.term}" marked ${paymentTerm.importance} importance during extraction.`,
+        impact: 'Ensures financial obligations remain practical for both parties.'
+      })
+    }
+
+    if (recommendations.length === 0) {
+      addRecommendation({
+        type: 'review',
+        priority: 'low',
+        description: 'Conduct final legal review to confirm automated findings',
+        rationale: 'No high-risk findings detected during automated analysis.',
+        impact: 'Provides human validation prior to approval.'
+      })
+    }
+
+    return recommendations
   }
 
   private async generateContractSummary(
-    keyTerms: any,
-    parties: any,
-    obligations: any,
-    risks: any,
-    recommendations: any
+    keyTerms: ContractAnalysis['keyTerms'],
+    parties: ContractAnalysis['parties'],
+    obligations: ContractAnalysis['obligations'],
+    risks: ContractAnalysis['risks'],
+    recommendations: ContractAnalysis['recommendations'],
+    overallCompliance: number,
+    criticalComplianceIssues: string[]
   ): Promise<ContractAnalysis['summary']> {
-    // Mock summary generation
+    const severityWeights: Record<ContractAnalysis['risks'][number]['severity'], number> = {
+      low: 25,
+      medium: 50,
+      high: 75,
+      critical: 90
+    }
+
+    const baseRiskScore = risks.length
+      ? risks.reduce((score, risk) =>
+          score + severityWeights[risk.severity] * (0.5 + risk.probability / 2),
+        0) / risks.length
+      : 15
+
+    const compliancePenalty = (1 - overallCompliance) * 40
+    const combinedRiskScore = Math.min(
+      100,
+      Math.round(baseRiskScore + compliancePenalty)
+    )
+
+    let recommendedAction: ContractAnalysis['summary']['recommendedAction']
+    if (combinedRiskScore >= 75) {
+      recommendedAction = 'reject'
+    } else if (combinedRiskScore >= 55) {
+      recommendedAction = 'negotiate'
+    } else if (combinedRiskScore >= 35) {
+      recommendedAction = 'review'
+    } else {
+      recommendedAction = 'approve'
+    }
+
+    const confidenceRaw = 1 - combinedRiskScore / 150
+    const confidence = Math.min(0.95, Math.max(0.55, Number(confidenceRaw.toFixed(2))))
+
+    const compliancePercentage = Math.round(overallCompliance * 100)
+    const partyNames = parties.map(party => party.name).filter(Boolean)
+    const overviewParties = partyNames.length >= 2
+      ? `${partyNames[0]} and ${partyNames[1]}`
+      : partyNames[0] ?? 'the contracting parties'
+
+    const highSeverityCount = risks.filter(
+      risk => risk.severity === 'high' || risk.severity === 'critical'
+    ).length
+
+    const keyTermHighlight = keyTerms[0]?.term ?? 'key terms'
+
+    const keyPoints = [
+      `${parties.length} parties analyzed with ${obligations.length} tracked obligations.`,
+      `${highSeverityCount} high-severity risk${highSeverityCount === 1 ? '' : 's'} identified; compliance at ${compliancePercentage}%.`,
+      `Primary negotiation focus: ${keyTermHighlight}.`,
+      `${recommendations.length} actionable recommendation${recommendations.length === 1 ? '' : 's'} generated.`
+    ]
+
+    if (criticalComplianceIssues.length > 0) {
+      keyPoints.push(`Critical compliance issues: ${criticalComplianceIssues.join(', ')}.`)
+    }
+
     return {
-      overview: 'Service agreement between Company A Inc. and Company B LLC for professional services',
-      keyPoints: [
-        '30-day payment terms',
-        'Unlimited liability clause present',
-        'Standard termination provisions',
-        'Confidentiality obligations included'
-      ],
-      riskScore: 65,
-      recommendedAction: 'negotiate',
-      confidence: 0.85
+      overview: `Automated review of the ${overviewParties} agreement indicates ${compliancePercentage}% compliance alignment.`,
+      keyPoints,
+      riskScore: combinedRiskScore,
+      recommendedAction,
+      confidence
     }
   }
 

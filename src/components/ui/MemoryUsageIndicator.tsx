@@ -2,7 +2,14 @@ import React from 'react';
 import { cn } from '@utils/cn';
 import { ComponentProps } from '../../types';
 import { Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { MemoryInfo, MemoryStatus, MemoryTrend, formatMemorySize, formatMemoryPercentage, getMemoryUsageSeverity } from '@utils/memoryMonitor';
+import {
+  MemoryInfo,
+  MemoryStatus,
+  MemoryTrend,
+  formatMemorySize,
+  formatMemoryPercentage,
+  getMemoryUsageSeverity,
+} from '@utils/memoryMonitor';
 
 export interface MemoryUsageIndicatorProps extends ComponentProps {
   /** Current memory information */
