@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "lib": ["dom", "dom.iterable", "ES2020"],
+    "types": []
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.web.ts"],
+  "exclude": [
+    "src/**/*.node.ts",
+    "src/**/*.server.ts",
+    "src/licensing/**/*",
+    "src/services/**/*"
+  ]
+}
