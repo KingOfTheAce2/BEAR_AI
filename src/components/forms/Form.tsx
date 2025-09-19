@@ -1,8 +1,8 @@
-import React from 'react';
+import { forwardRef, FormHTMLAttributes } from 'react';
 
-export interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {}
+export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {}
 
-export const Form = React.forwardRef<HTMLFormElement, FormProps>(
+export const Form = forwardRef<HTMLFormElement, FormProps>(
   ({ className, ...props }, ref) => (
     <form ref={ref} className={className} {...props} />
   )

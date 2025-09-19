@@ -193,7 +193,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .color-picker {
           position: relative;
           display: inline-block;

@@ -372,7 +372,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .local-filesystem-integration {
           height: 100%;
           display: flex;

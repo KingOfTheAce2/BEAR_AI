@@ -336,7 +336,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .file-search-index {
           height: 100%;
           display: flex;

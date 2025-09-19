@@ -295,7 +295,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .file-browser {
           padding: 20px;
           border: 1px solid #ddd;

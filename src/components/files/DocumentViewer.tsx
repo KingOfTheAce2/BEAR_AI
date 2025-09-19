@@ -3,7 +3,8 @@
  * Displays parsed documents with search and navigation capabilities
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import type { FC, KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { StoredDocument } from '../../services/localStorage';
 
 interface DocumentViewerProps {
@@ -14,7 +15,7 @@ interface DocumentViewerProps {
   searchQuery?: string;
 }
 
-export const DocumentViewer: React.FC<DocumentViewerProps> = ({
+export const DocumentViewer: FC<DocumentViewerProps> = ({
   document,
   onClose,
   onEdit,
@@ -55,8 +56,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     onTagUpdate?.(document!.id, updatedTags);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
       handleAddTag();
     }
   };
@@ -243,7 +244,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .document-viewer {
           height: 100%;
           display: flex;

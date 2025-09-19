@@ -382,7 +382,7 @@ export const FileUploadProcessor: React.FC<FileUploadProcessorProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .file-upload-processor {
           padding: 20px;
           background: white;
