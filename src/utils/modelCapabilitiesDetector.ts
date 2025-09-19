@@ -127,7 +127,12 @@ export class ModelCapabilitiesDetector {
   private async analyzeModel(modelConfig: ModelConfig): Promise<ModelCapabilities> {
     // Extract information from model configuration
     const modelSize = modelConfig.size || 0;
-    const contextLength = modelConfig.parameters?.contextLength || 2048;
+    const configCapabilities =
+      typeof modelConfig.capabilities === 'object' && !Array.isArray(modelConfig.capabilities)
+        ? modelConfig.capabilities
+        : undefined;
+    const contextLength =
+      modelConfig.contextLength ?? configCapabilities?.contextLength ?? 2048;
     
     // Determine features based on model type and metadata
     const features = this.extractFeatures(modelConfig);
@@ -218,8 +223,20 @@ export class ModelCapabilitiesDetector {
   private extractFeatures(modelConfig: ModelConfig): string[] {
     const features = [];
 
-    if (modelConfig.capabilities) {
+    if (Array.isArray(modelConfig.capabilities)) {
       features.push(...modelConfig.capabilities);
+    } else if (modelConfig.capabilities) {
+      const capabilityObject = modelConfig.capabilities;
+
+      if (Array.isArray(capabilityObject.features)) {
+        features.push(...capabilityObject.features);
+      }
+
+      for (const [key, value] of Object.entries(capabilityObject)) {
+        if (typeof value === 'boolean' && value) {
+          features.push(key);
+        }
+      }
     }
 
     // Add features based on model metadata
@@ -293,7 +310,11 @@ export class ModelCapabilitiesDetector {
   private identifyLimitations(modelConfig: ModelConfig): string[] {
     const limitations = [];
 
-    const contextLength = modelConfig.parameters?.contextLength || 2048;
+    const capabilityContextLength =
+      typeof modelConfig.capabilities === 'object' && !Array.isArray(modelConfig.capabilities)
+        ? modelConfig.capabilities.contextLength
+        : undefined;
+    const contextLength = modelConfig.contextLength ?? capabilityContextLength ?? 2048;
     if (contextLength < 4096) {
       limitations.push('limited-context-length');
     }
