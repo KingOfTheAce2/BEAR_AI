@@ -3,7 +3,7 @@
  * Handles offline file operations and synchronization
  */
 
-import { StoredDocument, localStorageService, StorageStats } from './localStorage';
+import { StoredDocument, localStorageService } from './localStorage';
 import { fileMetadataService, ExtendedFileMetadata } from './fileMetadata';
 
 export interface SyncOperation {
@@ -36,13 +36,14 @@ export interface ConflictResolution {
 
 export class OfflineSyncService {
   private syncQueue: SyncOperation[] = [];
-  private isOnline: boolean = navigator.onLine;
+  private isOnline: boolean = typeof navigator !== 'undefined' ? navigator.onLine : true;
   private syncInProgress: boolean = false;
   private lastSync: Date | null = null;
   private listeners: Array<(status: SyncStatus) => void> = [];
-  private readonly storageKey = 'bearai_sync_queue';
-  private readonly lastSyncKey = 'bearai_sync_last_sync';
-  private syncIntervalId: number | null = null;
+  private readonly QUEUE_STORAGE_KEY = 'bearai_offline_sync_queue';
+  private readonly LAST_SYNC_STORAGE_KEY = 'bearai_offline_sync_last_sync';
+  private readonly DEFAULT_SYNC_INTERVAL = 5 * 60 * 1000;
+  private periodicSyncHandle: number | null = null;
 
   constructor() {
     this.setupOnlineStatusListeners();
@@ -147,8 +148,123 @@ export class OfflineSyncService {
    * Setup online/offline event listeners
    */
   private setupOnlineStatusListeners(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     window.addEventListener('online', this.handleOnlineStatusChange);
     window.addEventListener('offline', this.handleOfflineStatusChange);
+  }
+
+  /**
+   * Load queue state from browser storage
+   */
+  private loadQueueFromStorage(): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+
+    try {
+      const storedQueue = window.localStorage.getItem(this.QUEUE_STORAGE_KEY);
+      if (storedQueue) {
+        const parsed: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }> = JSON.parse(storedQueue);
+        this.syncQueue = parsed.map(operation => ({
+          ...operation,
+          timestamp: new Date(operation.timestamp),
+          status: operation.status === 'in_progress' ? 'pending' : operation.status
+        }));
+      }
+
+      const storedLastSync = window.localStorage.getItem(this.LAST_SYNC_STORAGE_KEY);
+      if (storedLastSync) {
+        this.lastSync = new Date(storedLastSync);
+      }
+    } catch (error) {
+      console.error('Failed to load offline sync queue from storage:', error);
+      this.syncQueue = [];
+    }
+  }
+
+  /**
+   * Persist queue state to browser storage
+   */
+  private async saveQueueToStorage(): Promise<void> {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+
+    try {
+      const serialized = JSON.stringify(
+        this.syncQueue.map(operation => ({
+          ...operation,
+          timestamp: operation.timestamp.toISOString()
+        }))
+      );
+
+      window.localStorage.setItem(this.QUEUE_STORAGE_KEY, serialized);
+
+      if (this.lastSync) {
+        window.localStorage.setItem(this.LAST_SYNC_STORAGE_KEY, this.lastSync.toISOString());
+      } else {
+        window.localStorage.removeItem(this.LAST_SYNC_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.error('Failed to persist offline sync queue:', error);
+    }
+  }
+
+  /**
+   * Start periodic synchronization attempts
+   */
+  private startPeriodicSync(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (this.periodicSyncHandle !== null) {
+      window.clearInterval(this.periodicSyncHandle);
+    }
+
+    this.periodicSyncHandle = window.setInterval(() => {
+      if (this.isOnline && !this.syncInProgress) {
+        void this.processSyncQueue();
+      }
+    }, this.DEFAULT_SYNC_INTERVAL);
+  }
+
+  /**
+   * Generate a stable operation identifier
+   */
+  private generateOperationId(): string {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID();
+    }
+
+    const random = Math.random().toString(36).slice(2, 10);
+    return `sync-${Date.now()}-${random}`;
+  }
+
+  /**
+   * Notify subscribers of status changes
+   */
+  private notifyStatusChange(): void {
+    const status = this.getSyncStatus();
+    this.listeners.forEach(listener => {
+      try {
+        listener(status);
+      } catch (error) {
+        console.error('Offline sync listener failed:', error);
+      }
+    });
+  }
+
+  /**
+   * Calculate retry delay with exponential backoff
+   */
+  private getRetryDelay(retryCount: number): number {
+    const baseDelay = 1000;
+    const maxDelay = 30_000;
+    return Math.min(maxDelay, baseDelay * Math.pow(2, Math.max(0, retryCount - 1)));
   }
 
   /**
@@ -207,11 +323,92 @@ export class OfflineSyncService {
 
     // Clean up completed operations
     this.syncQueue = this.syncQueue.filter(op => op.status !== 'completed');
+    this.lastSync = new Date();
     await this.saveQueueToStorage();
 
     this.syncInProgress = false;
-    this.lastSync = new Date();
     this.notifyStatusChange();
+  }
+
+  /**
+   * Subscribe to status updates
+   */
+  onStatusChange(listener: (status: SyncStatus) => void): () => void {
+    this.listeners.push(listener);
+
+    // Provide immediate status snapshot so UI can render without waiting
+    try {
+      listener(this.getSyncStatus());
+    } catch (error) {
+      console.error('Offline sync listener failed during initialization:', error);
+    }
+
+    return () => {
+      this.listeners = this.listeners.filter(cb => cb !== listener);
+    };
+  }
+
+  /**
+   * Retrieve the current synchronization status
+   */
+  getSyncStatus(): SyncStatus {
+    const pendingOperations = this.syncQueue.filter(op =>
+      op.status === 'pending' || op.status === 'in_progress'
+    ).length;
+    const failedOperations = this.syncQueue.filter(op => op.status === 'failed').length;
+
+    return {
+      isOnline: this.isOnline,
+      lastSync: this.lastSync,
+      pendingOperations,
+      failedOperations,
+      syncInProgress: this.syncInProgress
+    };
+  }
+
+  /**
+   * Force synchronization attempt regardless of schedule
+   */
+  async forceSync(): Promise<void> {
+    await this.processSyncQueue();
+  }
+
+  /**
+   * Backwards-compatible alias with historical typo
+   */
+  async forcSync(): Promise<void> {
+    await this.forceSync();
+  }
+
+  /**
+   * Remove failed operations from the queue
+   */
+  async clearFailedOperations(): Promise<void> {
+    const originalLength = this.syncQueue.length;
+    this.syncQueue = this.syncQueue.filter(op => op.status !== 'failed');
+
+    if (this.syncQueue.length !== originalLength) {
+      await this.saveQueueToStorage();
+      this.notifyStatusChange();
+    }
+  }
+
+  /**
+   * Export current queue and status for backup/debugging
+   */
+  async exportData(): Promise<{
+    exportedAt: string;
+    status: SyncStatus;
+    queue: Array<Omit<SyncOperation, 'timestamp'> & { timestamp: string }>;
+  }> {
+    return {
+      exportedAt: new Date().toISOString(),
+      status: this.getSyncStatus(),
+      queue: this.syncQueue.map(operation => ({
+        ...operation,
+        timestamp: operation.timestamp.toISOString()
+      }))
+    };
   }
 
   /**
@@ -563,19 +760,23 @@ export class OfflineSyncService {
    * Remove listeners and reset internal observers
    */
   dispose(): void {
-    window.removeEventListener('online', this.handleOnlineStatusChange);
-    window.removeEventListener('offline', this.handleOfflineStatusChange);
-    if (this.syncIntervalId) {
-      window.clearInterval(this.syncIntervalId);
-      this.syncIntervalId = null;
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('online', this.handleOnlineStatusChange);
+      window.removeEventListener('offline', this.handleOfflineStatusChange);
+
+      if (this.periodicSyncHandle !== null) {
+        window.clearInterval(this.periodicSyncHandle);
+        this.periodicSyncHandle = null;
+      }
     }
+
     this.listeners = [];
   }
 
   private handleOnlineStatusChange = () => {
     this.isOnline = true;
     this.notifyStatusChange();
-    this.processSyncQueue();
+    void this.processSyncQueue();
   };
 
   private handleOfflineStatusChange = () => {
