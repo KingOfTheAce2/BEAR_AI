@@ -1,8 +1,8 @@
-use anyhow::{Context, Result};
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
     Aes256Gcm, Key, Nonce,
 };
+use anyhow::{Context, Result};
 use ring::digest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -141,13 +141,16 @@ impl SecurityManager {
             return Ok(data.to_vec());
         }
 
-        let key = self.encryption_key.as_ref()
+        let key = self
+            .encryption_key
+            .as_ref()
             .context("Encryption key not available")?;
 
         let cipher = Aes256Gcm::new(key);
         let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
 
-        let ciphertext = cipher.encrypt(&nonce, data)
+        let ciphertext = cipher
+            .encrypt(&nonce, data)
             .map_err(|e| anyhow::anyhow!("Encryption failed: {}", e))?;
 
         // Prepend nonce to ciphertext
@@ -167,14 +170,17 @@ impl SecurityManager {
             return Err(anyhow::anyhow!("Invalid encrypted data format"));
         }
 
-        let key = self.encryption_key.as_ref()
+        let key = self
+            .encryption_key
+            .as_ref()
             .context("Encryption key not available")?;
 
         let cipher = Aes256Gcm::new(key);
         let (nonce_bytes, ciphertext) = encrypted_data.split_at(12);
         let nonce = Nonce::from_slice(nonce_bytes);
 
-        cipher.decrypt(nonce, ciphertext)
+        cipher
+            .decrypt(nonce, ciphertext)
             .map_err(|e| anyhow::anyhow!("Decryption failed: {}", e))
     }
 
@@ -204,10 +210,13 @@ impl SecurityManager {
         }
 
         // Log the operation
-        self.log_security_action(SecurityAction::DocumentUpload,
-                                document_path.to_string_lossy().as_ref(),
-                                ActionOutcome::Success,
-                                None).await?;
+        self.log_security_action(
+            SecurityAction::DocumentUpload,
+            document_path.to_string_lossy().as_ref(),
+            ActionOutcome::Success,
+            None,
+        )
+        .await?;
 
         Ok(())
     }
@@ -215,7 +224,10 @@ impl SecurityManager {
     /// Secure document retrieval
     pub async fn secure_document_retrieve(&self, document_path: &Path) -> Result<Vec<u8>> {
         let file_hash = self.hash_file_path(document_path);
-        let secure_path = self.app_data_dir.join("secure_documents").join(format!("{}.enc", file_hash));
+        let secure_path = self
+            .app_data_dir
+            .join("secure_documents")
+            .join(format!("{}.enc", file_hash));
 
         if !secure_path.exists() {
             return Err(anyhow::anyhow!("Secure document not found"));
@@ -228,10 +240,13 @@ impl SecurityManager {
         let content = self.decrypt_data(&encrypted_content)?;
 
         // Log the operation
-        self.log_security_action(SecurityAction::DocumentAccess,
-                                document_path.to_string_lossy().as_ref(),
-                                ActionOutcome::Success,
-                                None).await?;
+        self.log_security_action(
+            SecurityAction::DocumentAccess,
+            document_path.to_string_lossy().as_ref(),
+            ActionOutcome::Success,
+            None,
+        )
+        .await?;
 
         Ok(content)
     }
@@ -268,7 +283,13 @@ impl SecurityManager {
     }
 
     /// Grant permissions to user
-    pub fn grant_permission(&mut self, user_id: String, permissions: Vec<Permission>, granted_by: String, expires_at: Option<chrono::DateTime<chrono::Utc>>) {
+    pub fn grant_permission(
+        &mut self,
+        user_id: String,
+        permissions: Vec<Permission>,
+        granted_by: String,
+        expires_at: Option<chrono::DateTime<chrono::Utc>>,
+    ) {
         let access_permissions = AccessPermissions {
             user_id: user_id.clone(),
             permissions,
@@ -351,7 +372,7 @@ impl SecurityManager {
 
     /// Generate secure session token
     pub fn generate_session_token(&self) -> String {
-        use ring::rand::{SystemRandom, SecureRandom};
+        use ring::rand::{SecureRandom, SystemRandom};
 
         let rng = SystemRandom::new();
         let mut token = [0u8; 32];
@@ -376,7 +397,8 @@ impl SecurityManager {
     /// Record failed attempt
     pub fn record_failed_attempt(&mut self, identifier: &str) {
         let attempts = self.failed_attempts.get(identifier).unwrap_or(&0) + 1;
-        self.failed_attempts.insert(identifier.to_string(), attempts);
+        self.failed_attempts
+            .insert(identifier.to_string(), attempts);
     }
 
     /// Clear failed attempts
@@ -432,7 +454,8 @@ pub async fn encrypt_document(
     content: Vec<u8>,
 ) -> Result<(), String> {
     let security_manager = security.lock().unwrap();
-    security_manager.secure_document_store(Path::new(&document_path), &content)
+    security_manager
+        .secure_document_store(Path::new(&document_path), &content)
         .await
         .map_err(|e| e.to_string())
 }
@@ -443,7 +466,8 @@ pub async fn decrypt_document(
     document_path: String,
 ) -> Result<Vec<u8>, String> {
     let security_manager = security.lock().unwrap();
-    security_manager.secure_document_retrieve(Path::new(&document_path))
+    security_manager
+        .secure_document_retrieve(Path::new(&document_path))
         .await
         .map_err(|e| e.to_string())
 }
@@ -454,7 +478,8 @@ pub async fn validate_document_security(
     content: Vec<u8>,
 ) -> Result<bool, String> {
     let security_manager = security.lock().unwrap();
-    security_manager.scan_document_content(&content)
+    security_manager
+        .scan_document_content(&content)
         .await
         .map_err(|e| e.to_string())
 }

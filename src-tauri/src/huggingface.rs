@@ -52,9 +52,22 @@ impl HuggingFaceClient {
     }
 
     /// Search for legal-relevant models on HuggingFace
-    pub async fn search_legal_models(&self, query: &str, limit: usize) -> Result<ModelSearchResult> {
+    pub async fn search_legal_models(
+        &self,
+        query: &str,
+        limit: usize,
+    ) -> Result<ModelSearchResult> {
         // Enhanced search for legal-specific models
-        let legal_keywords = vec!["legal", "law", "contract", "document", "case", "court", "lawyer", "jurisprudence"];
+        let legal_keywords = vec![
+            "legal",
+            "law",
+            "contract",
+            "document",
+            "case",
+            "court",
+            "lawyer",
+            "jurisprudence",
+        ];
         let enhanced_query = if legal_keywords.iter().any(|k| query.contains(k)) {
             query.to_string()
         } else {
@@ -69,7 +82,8 @@ impl HuggingFaceClient {
         params.insert("direction", "-1");
         params.insert("limit", &limit.to_string());
 
-        let response = self.client
+        let response = self
+            .client
             .get(&url)
             .query(&params)
             .send()
@@ -77,10 +91,15 @@ impl HuggingFaceClient {
             .context("Failed to search HuggingFace models")?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("HuggingFace API error: {}", response.status()));
+            return Err(anyhow::anyhow!(
+                "HuggingFace API error: {}",
+                response.status()
+            ));
         }
 
-        let models: Vec<serde_json::Value> = response.json().await
+        let models: Vec<serde_json::Value> = response
+            .json()
+            .await
             .context("Failed to parse HuggingFace response")?;
 
         let mut hf_models = Vec::new();
@@ -92,7 +111,11 @@ impl HuggingFaceClient {
         }
 
         // Sort by legal relevance score
-        hf_models.sort_by(|a, b| b.legal_score.partial_cmp(&a.legal_score).unwrap_or(std::cmp::Ordering::Equal));
+        hf_models.sort_by(|a, b| {
+            b.legal_score
+                .partial_cmp(&a.legal_score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         Ok(ModelSearchResult {
             models: hf_models,
@@ -106,29 +129,57 @@ impl HuggingFaceClient {
         let mut model_sets = HashMap::new();
 
         // Contract Analysis Set
-        model_sets.insert("contract_analysis".to_string(), vec![
-            self.get_model_info("microsoft/DialoGPT-legal").await?,
-            self.get_model_info("roberta-legal").await?,
-        ].into_iter().flatten().collect());
+        model_sets.insert(
+            "contract_analysis".to_string(),
+            vec![
+                self.get_model_info("microsoft/DialoGPT-legal").await?,
+                self.get_model_info("roberta-legal").await?,
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        );
 
         // Legal Research Set
-        model_sets.insert("legal_research".to_string(), vec![
-            self.get_model_info("law-ai/InLegalBERT").await?,
-            self.get_model_info("nlpaueb/legal-bert-base-uncased").await?,
-        ].into_iter().flatten().collect());
+        model_sets.insert(
+            "legal_research".to_string(),
+            vec![
+                self.get_model_info("law-ai/InLegalBERT").await?,
+                self.get_model_info("nlpaueb/legal-bert-base-uncased")
+                    .await?,
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        );
 
         // Document Processing Set
-        model_sets.insert("document_processing".to_string(), vec![
-            self.get_model_info("allenai/longformer-base-4096").await?,
-            self.get_model_info("microsoft/layoutlm-base-uncased").await?,
-        ].into_iter().flatten().collect());
+        model_sets.insert(
+            "document_processing".to_string(),
+            vec![
+                self.get_model_info("allenai/longformer-base-4096").await?,
+                self.get_model_info("microsoft/layoutlm-base-uncased")
+                    .await?,
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        );
 
         // General Legal Assistant Set
-        model_sets.insert("general_legal".to_string(), vec![
-            self.get_model_info("microsoft/Phi-3-mini-4k-instruct-gguf").await?,
-            self.get_model_info("TheBloke/Llama-2-7B-Chat-GGUF").await?,
-            self.get_model_info("TheBloke/CodeLlama-7B-Instruct-GGUF").await?,
-        ].into_iter().flatten().collect());
+        model_sets.insert(
+            "general_legal".to_string(),
+            vec![
+                self.get_model_info("microsoft/Phi-3-mini-4k-instruct-gguf")
+                    .await?,
+                self.get_model_info("TheBloke/Llama-2-7B-Chat-GGUF").await?,
+                self.get_model_info("TheBloke/CodeLlama-7B-Instruct-GGUF")
+                    .await?,
+            ]
+            .into_iter()
+            .flatten()
+            .collect(),
+        );
 
         Ok(model_sets)
     }
@@ -144,7 +195,8 @@ impl HuggingFaceClient {
         F: Fn(u64, u64) + Send + Sync,
     {
         // Verify download URL and start download
-        let response = self.client
+        let response = self
+            .client
             .get(&model.download_url)
             .send()
             .await
@@ -158,7 +210,8 @@ impl HuggingFaceClient {
         let mut downloaded = 0u64;
 
         // Create destination file
-        let mut file = fs::File::create(destination).await
+        let mut file = fs::File::create(destination)
+            .await
             .context("Failed to create destination file")?;
 
         // Stream download with progress tracking
@@ -167,7 +220,8 @@ impl HuggingFaceClient {
 
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.context("Failed to read download chunk")?;
-            file.write_all(&chunk).await
+            file.write_all(&chunk)
+                .await
                 .context("Failed to write chunk to file")?;
 
             downloaded += chunk.len() as u64;
@@ -183,14 +237,19 @@ impl HuggingFaceClient {
             fs::remove_file(destination).await?;
             return Err(anyhow::anyhow!(
                 "Download verification failed: expected {} bytes, got {}",
-                total_size, file_size
+                total_size,
+                file_size
             ));
         }
 
         // Verify model format (basic GGUF header check)
         self.verify_gguf_format(destination).await?;
 
-        log::info!("Successfully downloaded model: {} ({} bytes)", model.filename, file_size);
+        log::info!(
+            "Successfully downloaded model: {} ({} bytes)",
+            model.filename,
+            file_size
+        );
         Ok(())
     }
 
@@ -198,18 +257,25 @@ impl HuggingFaceClient {
     async fn get_model_info(&self, model_id: &str) -> Result<Option<HuggingFaceModel>> {
         let url = format!("{}/models/{}", self.api_base, model_id);
 
-        let response = self.client
+        let response = self
+            .client
             .get(&url)
             .send()
             .await
             .context("Failed to get model info")?;
 
         if !response.status().is_success() {
-            log::warn!("Failed to get info for model {}: {}", model_id, response.status());
+            log::warn!(
+                "Failed to get info for model {}: {}",
+                model_id,
+                response.status()
+            );
             return Ok(None);
         }
 
-        let model_data: serde_json::Value = response.json().await
+        let model_data: serde_json::Value = response
+            .json()
+            .await
             .context("Failed to parse model info")?;
 
         self.parse_model_data(&model_data).await
@@ -218,13 +284,22 @@ impl HuggingFaceClient {
     /// Parse model data from HuggingFace API response
     async fn parse_model_data(&self, data: &serde_json::Value) -> Result<Option<HuggingFaceModel>> {
         let model_id = data["id"].as_str().unwrap_or("").to_string();
-        let tags = data["tags"].as_array()
-            .map(|arr| arr.iter().filter_map(|v| v.as_str()).map(|s| s.to_string()).collect())
+        let tags = data["tags"]
+            .as_array()
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str())
+                    .map(|s| s.to_string())
+                    .collect()
+            })
             .unwrap_or_default();
 
         // Calculate legal relevance score
-        let legal_score = self.calculate_legal_score(&model_id, &tags,
-            data["description"].as_str().unwrap_or(""));
+        let legal_score = self.calculate_legal_score(
+            &model_id,
+            &tags,
+            data["description"].as_str().unwrap_or(""),
+        );
 
         // Find GGUF files
         if let Some(siblings) = data["siblings"].as_array() {
@@ -237,8 +312,10 @@ impl HuggingFaceClient {
                             sha: file["sha"].as_str().unwrap_or("").to_string(),
                             filename: filename.to_string(),
                             size: file["size"].as_u64().unwrap_or(0),
-                            download_url: format!("https://huggingface.co/{}/resolve/main/{}",
-                                                model_id, filename),
+                            download_url: format!(
+                                "https://huggingface.co/{}/resolve/main/{}",
+                                model_id, filename
+                            ),
                             legal_score,
                             tags: tags.clone(),
                             license: data["license"].as_str().unwrap_or("unknown").to_string(),
@@ -269,7 +346,8 @@ impl HuggingFaceClient {
             ("nlp", 0.3),
         ];
 
-        let text_to_check = format!("{} {} {}", model_id, tags.join(" "), description).to_lowercase();
+        let text_to_check =
+            format!("{} {} {}", model_id, tags.join(" "), description).to_lowercase();
 
         for (keyword, weight) in legal_keywords {
             if text_to_check.contains(keyword) {
@@ -310,7 +388,10 @@ impl HuggingFaceClient {
     }
 
     /// Check for model updates
-    pub async fn check_model_updates(&self, local_models: &[crate::llm_manager::ModelInfo]) -> Result<Vec<String>> {
+    pub async fn check_model_updates(
+        &self,
+        local_models: &[crate::llm_manager::ModelInfo],
+    ) -> Result<Vec<String>> {
         let mut updates_available = Vec::new();
 
         for local_model in local_models {
@@ -337,13 +418,19 @@ pub async fn search_huggingface_models(
     limit: usize,
 ) -> Result<ModelSearchResult, String> {
     let client = HuggingFaceClient::new();
-    client.search_legal_models(&query, limit).await.map_err(|e| e.to_string())
+    client
+        .search_legal_models(&query, limit)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 pub async fn get_legal_model_sets() -> Result<HashMap<String, Vec<HuggingFaceModel>>, String> {
     let client = HuggingFaceClient::new();
-    client.get_legal_model_sets().await.map_err(|e| e.to_string())
+    client
+        .get_legal_model_sets()
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -370,7 +457,9 @@ pub async fn download_huggingface_model(
         description: String::new(),
     };
 
-    client.download_model(&model, destination, None::<fn(u64, u64)>).await
+    client
+        .download_model(&model, destination, None::<fn(u64, u64)>)
+        .await
         .map_err(|e| e.to_string())
 }
 
@@ -379,5 +468,8 @@ pub async fn check_model_updates(
     local_models: Vec<crate::llm_manager::ModelInfo>,
 ) -> Result<Vec<String>, String> {
     let client = HuggingFaceClient::new();
-    client.check_model_updates(&local_models).await.map_err(|e| e.to_string())
+    client
+        .check_model_updates(&local_models)
+        .await
+        .map_err(|e| e.to_string())
 }

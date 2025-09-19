@@ -269,26 +269,14 @@ impl ChatExporter {
             ];
 
             for line in info_lines {
-                current_layer.use_text(
-                    &line,
-                    10.0,
-                    margin_left,
-                    y_position,
-                    &font,
-                );
+                current_layer.use_text(&line, 10.0, margin_left, y_position, &font);
                 y_position -= line_height;
             }
             y_position -= line_height;
         }
 
         // Add conversation header
-        current_layer.use_text(
-            "Conversation:",
-            12.0,
-            margin_left,
-            y_position,
-            &font_bold,
-        );
+        current_layer.use_text("Conversation:", 12.0, margin_left, y_position, &font_bold);
         y_position -= line_height * 1.5;
 
         // Add messages
@@ -318,13 +306,7 @@ impl ChatExporter {
                 format!("[{}] {}", index + 1, role_text)
             };
 
-            current_layer.use_text(
-                &header_text,
-                10.0,
-                margin_left,
-                y_position,
-                &font_bold,
-            );
+            current_layer.use_text(&header_text, 10.0, margin_left, y_position, &font_bold);
             y_position -= line_height;
 
             // Message content (simplified text wrapping)
@@ -388,11 +370,7 @@ impl ChatExporter {
 
     /// Get available export formats
     pub fn get_supported_formats() -> Vec<String> {
-        vec![
-            "markdown".to_string(),
-            "txt".to_string(),
-            "pdf".to_string(),
-        ]
+        vec!["markdown".to_string(), "txt".to_string(), "pdf".to_string()]
     }
 
     /// Export to specified format

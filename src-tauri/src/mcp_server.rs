@@ -204,7 +204,8 @@ impl MCPServer {
 
     /// Start the MCP server
     pub async fn start(&self) -> Result<()> {
-        let listener = TcpListener::bind(format!("127.0.0.1:{}", self.port)).await
+        let listener = TcpListener::bind(format!("127.0.0.1:{}", self.port))
+            .await
             .context("Failed to bind MCP server")?;
 
         log::info!("MCP Server started on port {}", self.port);
@@ -240,7 +241,8 @@ impl MCPServer {
     /// Execute an agent task
     pub async fn execute_task(&self, task: AgentTask) -> Result<AgentResponse> {
         let agents = self.agents.lock().unwrap();
-        let agent = agents.get(&task.agent_id)
+        let agent = agents
+            .get(&task.agent_id)
             .context("Agent not found")?
             .clone();
         drop(agents);
@@ -257,7 +259,9 @@ impl MCPServer {
         let prompt = agent.prompt_template.replace("{input}", &task.input);
 
         // Execute with the assigned model
-        let model_id = agent.model_id.as_ref()
+        let model_id = agent
+            .model_id
+            .as_ref()
             .unwrap_or(&"phi3-mini-legal".to_string());
 
         let response_text = self.execute_with_model(model_id, &prompt).await?;
@@ -290,9 +294,14 @@ impl MCPServer {
     }
 
     /// Execute a workflow
-    pub async fn execute_workflow(&self, workflow_id: &str, input: HashMap<String, String>) -> Result<HashMap<String, AgentResponse>> {
+    pub async fn execute_workflow(
+        &self,
+        workflow_id: &str,
+        input: HashMap<String, String>,
+    ) -> Result<HashMap<String, AgentResponse>> {
         let workflows = self.workflows.lock().unwrap();
-        let workflow = workflows.get(workflow_id)
+        let workflow = workflows
+            .get(workflow_id)
             .context("Workflow not found")?
             .clone();
         drop(workflows);
@@ -307,7 +316,11 @@ impl MCPServer {
             // Check dependencies
             for dep in &step.dependencies {
                 if !step_outputs.contains_key(dep) {
-                    return Err(anyhow::anyhow!("Dependency {} not satisfied for step {}", dep, step.step_id));
+                    return Err(anyhow::anyhow!(
+                        "Dependency {} not satisfied for step {}",
+                        dep,
+                        step.step_id
+                    ));
                 }
             }
 
@@ -323,7 +336,8 @@ impl MCPServer {
 
             // Find agent for this step
             let agents = self.agents.lock().unwrap();
-            let agent = agents.values()
+            let agent = agents
+                .values()
                 .find(|a| matches!(a.agent_type, step.agent_type))
                 .context("No agent found for step")?
                 .clone();
@@ -337,7 +351,9 @@ impl MCPServer {
                 context: input.clone(),
                 priority: TaskPriority::Normal,
                 created_at: chrono::Utc::now(),
-                deadline: Some(chrono::Utc::now() + chrono::Duration::seconds(step.timeout_seconds as i64)),
+                deadline: Some(
+                    chrono::Utc::now() + chrono::Duration::seconds(step.timeout_seconds as i64),
+                ),
             };
 
             let response = self.execute_task(task).await?;
@@ -370,7 +386,9 @@ impl MCPServer {
             .await
             .context("Failed to call local model API")?;
 
-        let response_json: serde_json::Value = response.json().await
+        let response_json: serde_json::Value = response
+            .json()
+            .await
             .context("Failed to parse model response")?;
 
         let text = response_json["choices"][0]["text"]
@@ -386,59 +404,80 @@ impl MCPServer {
         let mut workflows = self.workflows.lock().unwrap();
 
         // Contract Review Workflow
-        workflows.insert("contract_review".to_string(), WorkflowDefinition {
-            id: "contract_review".to_string(),
-            name: "Comprehensive Contract Review".to_string(),
-            description: "Multi-agent workflow for thorough contract analysis".to_string(),
-            legal_domain: LegalDomain::ContractLaw,
-            steps: vec![
-                WorkflowStep {
-                    step_id: "initial_analysis".to_string(),
-                    agent_type: AgentType::ContractAnalyzer,
-                    input_mapping: HashMap::from([("contract".to_string(), "contract_text".to_string())]),
-                    dependencies: Vec::new(),
-                    timeout_seconds: 300,
-                },
-                WorkflowStep {
-                    step_id: "risk_assessment".to_string(),
-                    agent_type: AgentType::RiskAssessor,
-                    input_mapping: HashMap::from([("analysis".to_string(), "initial_analysis".to_string())]),
-                    dependencies: vec!["initial_analysis".to_string()],
-                    timeout_seconds: 240,
-                },
-                WorkflowStep {
-                    step_id: "compliance_check".to_string(),
-                    agent_type: AgentType::ComplianceChecker,
-                    input_mapping: HashMap::from([("contract".to_string(), "contract_text".to_string())]),
-                    dependencies: vec!["initial_analysis".to_string()],
-                    timeout_seconds: 180,
-                },
-            ],
-        });
+        workflows.insert(
+            "contract_review".to_string(),
+            WorkflowDefinition {
+                id: "contract_review".to_string(),
+                name: "Comprehensive Contract Review".to_string(),
+                description: "Multi-agent workflow for thorough contract analysis".to_string(),
+                legal_domain: LegalDomain::ContractLaw,
+                steps: vec![
+                    WorkflowStep {
+                        step_id: "initial_analysis".to_string(),
+                        agent_type: AgentType::ContractAnalyzer,
+                        input_mapping: HashMap::from([(
+                            "contract".to_string(),
+                            "contract_text".to_string(),
+                        )]),
+                        dependencies: Vec::new(),
+                        timeout_seconds: 300,
+                    },
+                    WorkflowStep {
+                        step_id: "risk_assessment".to_string(),
+                        agent_type: AgentType::RiskAssessor,
+                        input_mapping: HashMap::from([(
+                            "analysis".to_string(),
+                            "initial_analysis".to_string(),
+                        )]),
+                        dependencies: vec!["initial_analysis".to_string()],
+                        timeout_seconds: 240,
+                    },
+                    WorkflowStep {
+                        step_id: "compliance_check".to_string(),
+                        agent_type: AgentType::ComplianceChecker,
+                        input_mapping: HashMap::from([(
+                            "contract".to_string(),
+                            "contract_text".to_string(),
+                        )]),
+                        dependencies: vec!["initial_analysis".to_string()],
+                        timeout_seconds: 180,
+                    },
+                ],
+            },
+        );
 
         // Legal Research Workflow
-        workflows.insert("legal_research".to_string(), WorkflowDefinition {
-            id: "legal_research".to_string(),
-            name: "Comprehensive Legal Research".to_string(),
-            description: "Multi-agent workflow for in-depth legal research".to_string(),
-            legal_domain: LegalDomain::General,
-            steps: vec![
-                WorkflowStep {
-                    step_id: "case_research".to_string(),
-                    agent_type: AgentType::LegalResearcher,
-                    input_mapping: HashMap::from([("question".to_string(), "research_question".to_string())]),
-                    dependencies: Vec::new(),
-                    timeout_seconds: 600,
-                },
-                WorkflowStep {
-                    step_id: "risk_analysis".to_string(),
-                    agent_type: AgentType::RiskAssessor,
-                    input_mapping: HashMap::from([("research".to_string(), "case_research".to_string())]),
-                    dependencies: vec!["case_research".to_string()],
-                    timeout_seconds: 300,
-                },
-            ],
-        });
+        workflows.insert(
+            "legal_research".to_string(),
+            WorkflowDefinition {
+                id: "legal_research".to_string(),
+                name: "Comprehensive Legal Research".to_string(),
+                description: "Multi-agent workflow for in-depth legal research".to_string(),
+                legal_domain: LegalDomain::General,
+                steps: vec![
+                    WorkflowStep {
+                        step_id: "case_research".to_string(),
+                        agent_type: AgentType::LegalResearcher,
+                        input_mapping: HashMap::from([(
+                            "question".to_string(),
+                            "research_question".to_string(),
+                        )]),
+                        dependencies: Vec::new(),
+                        timeout_seconds: 600,
+                    },
+                    WorkflowStep {
+                        step_id: "risk_analysis".to_string(),
+                        agent_type: AgentType::RiskAssessor,
+                        input_mapping: HashMap::from([(
+                            "research".to_string(),
+                            "case_research".to_string(),
+                        )]),
+                        dependencies: vec!["case_research".to_string()],
+                        timeout_seconds: 300,
+                    },
+                ],
+            },
+        );
 
         log::info!("Initialized {} default workflows", workflows.len());
         Ok(())
@@ -511,7 +550,10 @@ pub async fn execute_workflow(
     workflow_id: String,
     input: HashMap<String, String>,
 ) -> Result<HashMap<String, AgentResponse>, String> {
-    server.execute_workflow(&workflow_id, input).await.map_err(|e| e.to_string())
+    server
+        .execute_workflow(&workflow_id, input)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
