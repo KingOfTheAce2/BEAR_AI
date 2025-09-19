@@ -120,15 +120,19 @@ export class LicenseManager {
 
       // Get MAC address
       let macAddress = '';
-      for (const [name, interfaces] of Object.entries(networkInterfaces)) {
-        if (interfaces) {
-          for (const iface of interfaces) {
-            if (!iface.internal && iface.mac && iface.mac !== '00:00:00:00:00:00') {
-              macAddress = iface.mac;
-              break;
-            }
+      for (const name of Object.keys(networkInterfaces)) {
+        const interfaces = networkInterfaces[name];
+        if (!interfaces) {
+          continue;
+        }
+
+        for (const iface of interfaces) {
+          if (!iface.internal && iface.mac && iface.mac !== '00:00:00:00:00:00') {
+            macAddress = iface.mac;
+            break;
           }
         }
+
         if (macAddress) break;
       }
 
