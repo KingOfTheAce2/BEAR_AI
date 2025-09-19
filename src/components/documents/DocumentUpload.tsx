@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import type { FC, DragEvent, ChangeEvent } from 'react';
 import {
   CloudArrowUpIcon,
   DocumentTextIcon,
@@ -12,7 +13,7 @@ interface DocumentUploadProps {
   acceptedTypes?: string[];
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({
+export const DocumentUpload: FC<DocumentUploadProps> = ({
   onUpload,
   maxSize = 50 * 1024 * 1024, // 50MB default
   acceptedTypes = ['.pdf', '.doc', '.docx', '.txt', '.rtf']
@@ -136,7 +137,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
 
@@ -146,17 +147,17 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFiles(files);

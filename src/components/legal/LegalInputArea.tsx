@@ -1,4 +1,5 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import type { KeyboardEvent, ChangeEvent } from 'react';
 import { PracticeArea, Jurisdiction } from '../../types/legal';
 import './LegalInputArea.css';
 
@@ -146,7 +147,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   };
 
   // Handle key press
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyPress = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSend();
@@ -196,7 +197,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
   };
 
   // Handle file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
