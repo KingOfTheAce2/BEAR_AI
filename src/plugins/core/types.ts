@@ -63,7 +63,7 @@ export interface PluginHook {
 
 export interface PluginInstance {
   id: string;
-  metadata: PluginMetadata;
+  metadata: PluginManifest;
   status: PluginStatus;
   sandbox: PluginSandbox;
   config: Record<string, any>;
