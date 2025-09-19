@@ -216,7 +216,9 @@ export class VectorDatabaseService {
 
     // Delete chunks
     const chunkIndex = chunksStore.index('by-document');
-    const chunkCursor = await this.promisifyRequest(chunkIndex.openCursor(id));
+    const chunkCursor = await this.promisifyRequest<IDBCursorWithValue | null>(
+      chunkIndex.openCursor(id)
+    );
     
     if (chunkCursor) {
       await this.walkCursor(chunkCursor, async (cursor) => {
@@ -487,7 +489,7 @@ export class VectorDatabaseService {
     const transaction = this.db.transaction(['embeddings'], 'readonly');
     const store = transaction.objectStore('embeddings');
     
-    const cursor = await this.promisifyRequest(store.openCursor());
+    const cursor = await this.promisifyRequest<IDBCursorWithValue | null>(store.openCursor());
     if (cursor) {
       await this.walkCursor(cursor, async (cursor) => {
         const data = cursor.value;
@@ -532,10 +534,21 @@ export class VectorDatabaseService {
     });
   }
 
-  private async walkCursor(cursor: IDBCursor | null, callback: (cursor: IDBCursor) => Promise<void>): Promise<void> {
-    while (cursor) {
-      await callback(cursor);
-      cursor = await this.promisifyRequest(cursor.continue());
+  private async walkCursor(
+    cursor: IDBCursorWithValue | null,
+    callback: (cursor: IDBCursorWithValue) => Promise<void>
+  ): Promise<void> {
+    let current = cursor;
+
+    while (current) {
+      await callback(current);
+
+      current = await new Promise<IDBCursorWithValue | null>((resolve, reject) => {
+        const request = current!.request as IDBRequest<IDBCursorWithValue | null>;
+        request.onsuccess = () => resolve(request.result as IDBCursorWithValue | null);
+        request.onerror = () => reject(request.error);
+        current!.continue();
+      });
     }
   }
 }

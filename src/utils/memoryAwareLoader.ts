@@ -287,7 +287,7 @@ export class MemoryAwareLoader {
     } else if (percentage >= this.memoryThreshold) {
       return MemoryPressure.HIGH;
     } else if (percentage >= this.memoryThreshold * 0.7) {
-      return MemoryPressure.MEDIUM;
+      return MemoryPressure.MODERATE;
     }
     return MemoryPressure.LOW;
   }

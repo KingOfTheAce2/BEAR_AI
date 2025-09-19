@@ -51,6 +51,12 @@ export interface LocalInferenceEngineConfig {
   enableCaching: boolean;
 }
 
+type WorkerStats = {
+  totalInferences: number;
+  totalProcessingTime: number;
+  memoryUsage: number;
+};
+
 /**
  * Model Cache Manager
  * Manages loaded models in memory for fast access
@@ -156,11 +162,7 @@ class InferenceWorker {
   private worker: Worker | null = null;
   private isReady: boolean = false;
   private currentTask: string | null = null;
-  private stats: {
-    totalInferences: number;
-    totalProcessingTime: number;
-    memoryUsage: number;
-  };
+  private stats: WorkerStats;
 
   constructor(private workerId: number, private config: ModelInferenceConfig) {
     this.stats = {
@@ -245,7 +247,7 @@ class InferenceWorker {
     });
   }
 
-  getStats(): typeof this.stats & { workerId: number; isReady: boolean; currentTask: string | null } {
+  getStats(): WorkerStats & { workerId: number; isReady: boolean; currentTask: string | null } {
     return {
       ...this.stats,
       workerId: this.workerId,

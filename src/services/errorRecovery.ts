@@ -4,7 +4,7 @@
  */
 
 import { StreamingService } from './streamingService';
-import { StreamingConfig, ConnectionState } from '../types/streaming';
+import { StreamingConfig, ConnectionState, StreamingOptions } from '../types/streaming';
 
 export interface ErrorRecoveryConfig {
   maxRetries: number;
@@ -73,8 +73,11 @@ export class StreamingErrorRecovery {
   private setupErrorHandling(): void {
     // Monitor connection state changes
     const originalConnect = this.service.connect.bind(this.service);
-    const originalDisconnect = this.service.disconnect.bind(this.service);
-    const originalStream = this.service.stream.bind(this.service);
+
+    const serviceWithStreaming = this.service as StreamingService & {
+      stream?: (data: any) => Promise<AsyncIterable<any>>;
+      streamMessage?: (prompt: string, options: StreamingOptions) => Promise<string>;
+    };
 
     // Wrap connect method with error recovery
     this.service.connect = async (): Promise<void> => {
@@ -92,24 +95,86 @@ export class StreamingErrorRecovery {
     };
 
     // Wrap stream method with error recovery
-    this.service.stream = async (data: any): Promise<AsyncIterable<any>> => {
-      try {
-        const stream = await originalStream(data);
-        return this.wrapStreamWithRecovery(stream);
-      } catch (error) {
-        this.onStreamFailure(error as Error);
-        throw error;
-      }
-    };
+    if (typeof serviceWithStreaming.stream === 'function') {
+      const originalStream = serviceWithStreaming.stream.bind(this.service);
+
+      serviceWithStreaming.stream = async (data: any): Promise<AsyncIterable<any>> => {
+        try {
+          return this.wrapStreamWithRecovery(() => originalStream(data));
+        } catch (error) {
+          this.onStreamFailure(error as Error);
+          throw error;
+        }
+      };
+    } else if (typeof serviceWithStreaming.streamMessage === 'function') {
+      const originalStreamMessage = serviceWithStreaming.streamMessage.bind(this.service);
+
+      serviceWithStreaming.streamMessage = async (
+        prompt: string,
+        options: StreamingOptions
+      ): Promise<string> => {
+        let attempt = 0;
+
+        while (attempt <= this.config.maxRetries) {
+          try {
+            return await originalStreamMessage(prompt, options);
+          } catch (error) {
+            attempt++;
+            this.logError(`streamMessage error (attempt ${attempt}):`, error as Error);
+
+            if (attempt > this.config.maxRetries) {
+              this.onStreamFailure(error as Error);
+              throw error;
+            }
+
+            const delay = this.calculateDelay(attempt);
+            await this.sleep(delay);
+
+            const connectionState = this.service.getConnectionState();
+            if (connectionState.status !== 'connected') {
+              await this.attemptReconnect();
+            }
+          }
+        }
+
+        throw new Error('Failed to stream message after retries');
+      };
+    }
   }
 
   /**
    * Wrap async iterable stream with error recovery
    */
-  private async* wrapStreamWithRecovery(stream: AsyncIterable<any>): AsyncIterable<any> {
+  private async* wrapStreamWithRecovery(
+    getStream: () => Promise<AsyncIterable<any>>
+  ): AsyncIterable<any> {
     let retryCount = 0;
 
     while (retryCount <= this.config.maxRetries) {
+      let stream: AsyncIterable<any>;
+
+      try {
+        stream = await getStream();
+      } catch (initializationError) {
+        retryCount++;
+        this.logError(`Failed to initialize stream (attempt ${retryCount}):`, initializationError as Error);
+
+        if (retryCount > this.config.maxRetries) {
+          this.onStreamFailure(initializationError as Error);
+          throw initializationError;
+        }
+
+        const delay = this.calculateDelay(retryCount);
+        await this.sleep(delay);
+
+        const connectionState = this.service.getConnectionState();
+        if (connectionState.status !== 'connected') {
+          await this.attemptReconnect();
+        }
+
+        continue;
+      }
+
       try {
         for await (const chunk of stream) {
           yield chunk;
@@ -124,23 +189,12 @@ export class StreamingErrorRecovery {
           throw error;
         }
 
-        // Wait before retry
         const delay = this.calculateDelay(retryCount);
         await this.sleep(delay);
 
-        // Try to reconnect if needed
         const connectionState = this.service.getConnectionState();
         if (connectionState.status !== 'connected') {
           await this.attemptReconnect();
-        }
-
-        // Get a new stream for retry
-        try {
-          const originalStream = this.service.stream.bind(this.service);
-          stream = await originalStream({}); // Re-initialize stream
-        } catch (reconnectError) {
-          this.logError('Failed to reinitialize stream:', reconnectError as Error);
-          throw reconnectError;
         }
       }
     }
@@ -256,7 +310,7 @@ export class StreamingErrorRecovery {
       this.circuitBreaker.nextRetryTime = new Date(
         now.getTime() + this.config.circuitBreakerTimeout
       );
-      this.logError('Circuit breaker opened due to repeated failures');
+        this.logError('Circuit breaker opened due to repeated failures');
     }
 
     this.logError('Connection failure recorded:', error);
@@ -402,13 +456,17 @@ export class StreamingErrorRecovery {
     }
   }
 
-  private logError(message: string, error: Error): void {
+  private logError(message: string, error?: Error): void {
     if (this.config.enableLogging) {
-      console.error(`[StreamingErrorRecovery] ${message}`, {
-        message: error.message,
-        stack: error.stack,
-        timestamp: new Date().toISOString()
-      });
+      if (error) {
+        console.error(`[StreamingErrorRecovery] ${message}`, {
+          message: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.error(`[StreamingErrorRecovery] ${message}`);
+      }
     }
   }
 }

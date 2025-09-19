@@ -19,6 +19,13 @@ export interface HuggingFaceModel {
   config?: Record<string, any>;
   tokenizer?: string;
   model_index?: Record<string, any>;
+  sha?: string;
+  cardData?: Record<string, any>;
+  siblings?: ModelFile[];
+  resourceRequirements?: ResourceRequirements;
+  compatibilityInfo?: CompatibilityInfo;
+  localStatus?: LocalModelStatus;
+  bearaiTags?: string[];
 }
 
 export interface ModelSearchFilters {
@@ -70,6 +77,68 @@ export interface CompatibilityResult {
   recommendations: string[];
 }
 
+export interface ResourceRequirements {
+  minRam?: number;
+  recommendedRam?: number;
+  minStorage?: number;
+  modelSizeMB: number;
+  gpuRequired?: boolean;
+  minGpuMemory?: number;
+  recommendedGpuMemory?: number;
+  cpuCores?: number;
+  estimatedInferenceTime?: {
+    cpu?: number;
+    gpu?: number;
+  };
+  powerConsumption?: {
+    idle?: number;
+    load?: number;
+  };
+}
+
+export interface CompatibilityInfo {
+  frameworks?: string[];
+  pythonVersions?: string[];
+  transformersVersion?: string;
+  torchVersions?: string[];
+  tensorflowVersions?: string[];
+  onnxSupport?: boolean;
+  quantizationSupport?: {
+    int8?: boolean;
+    int4?: boolean;
+    fp16?: boolean;
+    bfloat16?: boolean;
+  };
+  platforms?: string[];
+  architectures?: string[];
+  specialRequirements?: string[];
+}
+
+export interface LocalModelStatus {
+  downloaded: boolean;
+  downloadProgress?: number;
+  downloadSpeed?: number;
+  estimatedTimeRemaining?: number;
+  localPath?: string;
+  localSize?: number;
+  lastUsed?: Date;
+  usage?: {
+    totalInferences: number;
+    totalTokens: number;
+    averageResponseTime: number;
+    errorCount: number;
+    successRate: number;
+  };
+  configuration?: Record<string, any>;
+}
+
+export interface ModelFile {
+  filename: string;
+  size?: number;
+  checksum?: string;
+  compressed?: boolean;
+}
+
 export interface FineTuningCapabilities {
   supportsFineTuning: boolean;
   supportedMethods: ('full' | 'lora' | 'qlora' | 'prefix-tuning')[];
@@ -89,13 +158,22 @@ export interface FineTuningCapabilities {
 
 export interface ModelDownloadProgress {
   modelId: string;
-  status: 'pending' | 'downloading' | 'extracting' | 'completed' | 'error';
+  status?: 'pending' | 'downloading' | 'extracting' | 'completed' | 'error';
   progress: number; // 0-100
-  downloadedBytes: number;
-  totalBytes: number;
+  downloadedBytes?: number;
+  totalBytes?: number;
+  downloaded?: number;
+  total?: number;
   speed: number; // bytes per second
   eta: number; // estimated time remaining in seconds
   error?: string;
+  files?: Array<{
+    filename: string;
+    progress: number;
+    size: number;
+    downloaded?: number;
+    checksum?: string;
+  }>;
 }
 
 export interface BenchmarkResult {
@@ -149,4 +227,13 @@ export interface ModelMetadata {
   checksum?: string;
   tags: string[];
   customConfig?: Record<string, any>;
+}
+
+export interface HuggingFaceError {
+  code: string;
+  message: string;
+  details?: any;
+  retryable: boolean;
+  suggestion?: string;
+  stack?: string;
 }
