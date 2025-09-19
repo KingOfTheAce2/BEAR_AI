@@ -120,9 +120,10 @@ export class AnalyticsService {
         summary,
         generatedAt: new Date()
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Analytics query error:', error);
-      throw new Error(`Analytics query failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Analytics query failed: ${message}`);
     }
   }
 

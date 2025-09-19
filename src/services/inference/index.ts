@@ -4,7 +4,7 @@
  */
 
 export { default as BatchProcessor } from './batchProcessor';
-export {
+export type {
   BatchRequest,
   BatchResponse,
   InferenceOptions,
@@ -21,19 +21,22 @@ export {
 } from './batchProcessor';
 
 export { default as LocalInferenceEngine } from './localInferenceEngine';
-export {
+export type {
   InferenceWorkerData,
   ModelInferenceConfig,
   InferenceResult,
   LocalInferenceEngineConfig
 } from './localInferenceEngine';
 
-export {
+export type {
   OptimizedBatchConfig,
   PerformanceConfig,
   MonitoringConfig,
   ResourceLimitConfig,
-  SystemCapabilities,
+  SystemCapabilities
+} from './batchProcessorConfig';
+
+export {
   SystemCapabilityDetector,
   BatchConfigurationOptimizer,
   BatchConfigurationValidator,
@@ -43,7 +46,8 @@ export {
 // Main factory function for easy initialization
 import BatchProcessor from './batchProcessor';
 import LocalInferenceEngine from './localInferenceEngine';
-import { BatchConfigurationFactory, OptimizedBatchConfig } from './batchProcessorConfig';
+import { BatchConfigurationFactory } from './batchProcessorConfig';
+import type { OptimizedBatchConfig } from './batchProcessorConfig';
 
 /**
  * High-level factory function to create a fully configured batch processing system
