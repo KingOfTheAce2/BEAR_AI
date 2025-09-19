@@ -126,13 +126,17 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
 
       // Perform search
       let results: ResearchResult[] = [];
+      const searchOptions: { jurisdictions?: string[] } =
+        filters.jurisdiction.length > 0
+          ? { jurisdictions: filters.jurisdiction }
+          : {};
 
       if (filters.documentType.includes('case')) {
         const cases = await researchService.searchCaseLaw(
           searchQuery,
-          filters.jurisdiction.length > 0 ? filters.jurisdiction : undefined
+          searchOptions
         );
-        
+
         results = results.concat(cases.map(caseData => ({
           id: caseData.id,
           type: 'case' as const,
@@ -150,7 +154,7 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
       if (filters.documentType.includes('statute')) {
         const statutes = await researchService.searchStatutes(
           searchQuery,
-          filters.jurisdiction.length > 0 ? filters.jurisdiction : undefined
+          searchOptions
         );
         
         results = results.concat(statutes.map(statute => ({
