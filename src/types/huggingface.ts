@@ -16,6 +16,11 @@ export interface HuggingFaceModel {
   license?: string;
   created_at: string;
   updated_at: string;
+  createdAt?: Date;
+  lastModified?: Date;
+  disabled?: boolean;
+  gated?: boolean;
+  private?: boolean;
   size?: number;
   config?: Record<string, any>;
   tokenizer?: string;
@@ -44,6 +49,34 @@ export interface ModelSearchFilters {
   direction?: 'asc' | 'desc';
   limit?: number;
   full?: boolean;
+  legalCategories?: LegalCategory[];
+  minLegalScore?: number;
+  maxModelSize?: number;
+  requiresGpu?: boolean;
+  languages?: string[];
+  licenses?: string[];
+  minDownloads?: number;
+  frameworks?: string[];
+  taskTypes?: string[];
+  excludeGated?: boolean;
+  excludePrivate?: boolean;
+  localOnly?: boolean;
+  sortBy?: ModelSortOption;
+  sortOrder?: 'asc' | 'desc';
+  offset?: number;
+}
+
+export enum ModelSortOption {
+  RELEVANCE = 'relevance',
+  LEGAL_SCORE = 'legal_score',
+  DOWNLOADS = 'downloads',
+  LIKES = 'likes',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
+  LAST_MODIFIED = 'last_modified',
+  MODEL_SIZE = 'model_size',
+  PERFORMANCE_SCORE = 'performance_score',
+  NAME = 'name',
 }
 
 export const LegalCategory = {

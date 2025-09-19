@@ -1,14 +1,25 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
+  /**
+   * Whether the card should show hover/interaction styles and behave like a button.
+   */
+  interactive?: boolean;
+  /**
+   * Optional click handler. Only applied when provided.
+   */
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+}
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, ...props }, ref) => (
+  ({ className, interactive = false, onClick, ...props }, ref) => (
     <div
       ref={ref}
+      onClick={onClick}
       className={cn(
-        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        'rounded-lg border bg-card text-card-foreground shadow-sm',
+        interactive && 'transition-shadow hover:shadow-md cursor-pointer',
         className
       )}
       {...props}

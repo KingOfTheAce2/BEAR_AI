@@ -7,6 +7,10 @@ export interface MemoryInfo {
   usagePercentage: number;
   limit?: number;
   timestamp: number;
+  usedMemory?: number;
+  totalMemory?: number;
+  availableMemory?: number;
+  processMemory?: number;
 }
 
 export type MemoryStatus = 'normal' | 'warning' | 'critical';
@@ -15,6 +19,8 @@ export interface MemoryTrend {
   direction: 'increasing' | 'decreasing' | 'stable';
   changeRate: number;
   samples: number;
+  rate?: number;
+  confidence?: number;
 }
 
 export interface MemoryMonitorConfig {

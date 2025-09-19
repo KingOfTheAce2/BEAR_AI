@@ -1,19 +1,7 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-export interface TextareaProps {
-  className?: string;
-  rows?: number;
-  value?: string;
-  defaultValue?: string | number;
-  onChange?: (event: any) => void;
-  disabled?: boolean;
-  placeholder?: string;
-  name?: string;
-  id?: string;
-  children?: React.ReactNode;
-  [key: string]: unknown;
-}
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, rows = 4, ...props }, ref) => (

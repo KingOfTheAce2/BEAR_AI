@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * BEAR AI Apple-Grade Animation System
  * 

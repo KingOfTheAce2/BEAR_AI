@@ -18,17 +18,15 @@ export { default as CompatibilityValidator } from '@/utils/huggingface/Compatibi
 export { default as HuggingFaceErrorHandler } from '@/utils/huggingface/ErrorHandler';
 
 // Types
+export { LegalCategory, ModelSortOption } from '@/types/huggingface';
+
 export type {
   HuggingFaceModel,
   ModelSearchFilters,
   ModelRecommendation,
   FineTuningCapabilities,
   FineTuningConfig,
-  LegalCategory
-} from '@/types/huggingface/index';
-
-export type {
   CompatibilityResult,
   ModelDownloadProgress,
-  BenchmarkResult
+  BenchmarkResult,
 } from '@/types/huggingface';

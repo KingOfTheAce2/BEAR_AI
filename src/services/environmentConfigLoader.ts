@@ -405,12 +405,13 @@ export class EnvironmentConfigLoader {
     return config;
   }
 
-  private async loadConfigFile(filePath: string, format: 'json' | 'yaml' | 'env'): Promise<any> {
-    const content = readFileSync(filePath, 'utf8');
+    private async loadConfigFile(filePath: string, format: 'json' | 'yaml' | 'env'): Promise<any> {
+      const rawContent = readFileSync(filePath, 'utf8');
+      const content = typeof rawContent === 'string' ? rawContent : rawContent.toString('utf8');
 
-    switch (format) {
-      case 'json':
-        return JSON.parse(content);
+      switch (format) {
+        case 'json':
+          return JSON.parse(content);
       
       case 'yaml':
         return yaml.load(content);

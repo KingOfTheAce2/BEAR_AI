@@ -16,7 +16,6 @@ interface MessageComponentProps {
   onReply: (content: string) => void;
   onClick: () => void;
   isMobile: boolean;
-  [extra: string]: unknown;
 }
 
 const MessageComponent = forwardRef<HTMLDivElement, MessageComponentProps>(({

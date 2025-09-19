@@ -31,9 +31,9 @@ import {
 } from '../../../types/huggingface';
 
 interface HuggingFaceModelSelectorProps {
-  onModelSelect: (model: HuggingFaceModel) => void;
-  onModelDownload: (model: HuggingFaceModel) => void;
-  onModelSwitch: (model: HuggingFaceModel) => void;
+  onModelSelect: (model: HuggingFaceModel) => void | Promise<void>;
+  onModelDownload: (model: HuggingFaceModel) => void | Promise<void>;
+  onModelSwitch: (model: HuggingFaceModel) => void | Promise<void>;
   currentModel?: HuggingFaceModel;
   className?: string;
 }

@@ -192,7 +192,7 @@ export const withPerformanceTracking = <P extends object>(
   WrappedComponent: React.ComponentType<P>,
   componentName: string
 ) => {
-  return React.forwardRef<any, P>((props, ref) => {
+  const ComponentWithTracking: React.FC<P> = props => {
     const performance = usePerformance();
     const [renderStart] = useState(Date.now());
 
@@ -200,7 +200,6 @@ export const withPerformanceTracking = <P extends object>(
       const renderEnd = Date.now();
       const renderTime = renderEnd - renderStart;
 
-      // Track component render performance
       performance.recordUserInteraction({
         sessionId: 'current-session',
         action: 'component-render',
@@ -217,8 +216,12 @@ export const withPerformanceTracking = <P extends object>(
       });
     }, [performance, renderStart, componentName]);
 
-    return <WrappedComponent {...props} ref={ref} />;
-  });
+    return <WrappedComponent {...props} />;
+  };
+
+  ComponentWithTracking.displayName = `withPerformanceTracking(${componentName})`;
+
+  return ComponentWithTracking;
 };
 
 // Hook for tracking user interactions
