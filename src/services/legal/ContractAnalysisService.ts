@@ -249,5 +249,3 @@ export default class ContractAnalysisService {
     };
   }
 }
-
-export type { ContractAnalysisResult, ContractSuggestion, ExtractedContractData };
