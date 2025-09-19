@@ -14,9 +14,15 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import * as os from 'node:os';
 
-const bytesToEncoding = (data: Uint8Array | Buffer, encoding: BufferEncoding): string => {
-  return Buffer.from(data).toString(encoding);
-};
+// Overload signatures
+function bytesToEncoding(data: Buffer, encoding: BufferEncoding): string;
+function bytesToEncoding(data: Uint8Array, encoding: BufferEncoding): string;
+
+// Implementation
+function bytesToEncoding(data: Uint8Array | Buffer, encoding: BufferEncoding): string {
+  const buf: Buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+  return buf.toString(encoding);
+}
 
 const bytesToHex = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'hex');
 const bytesToBase64 = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'base64');
