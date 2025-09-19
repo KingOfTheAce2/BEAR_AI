@@ -13,8 +13,8 @@ export interface HuggingFaceModel {
   pipeline_tag?: string;
   library_name?: string;
   license?: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
   size?: number;
   config?: Record<string, any>;
   tokenizer?: string;
@@ -26,6 +26,26 @@ export interface HuggingFaceModel {
   compatibilityInfo?: CompatibilityInfo;
   localStatus?: LocalModelStatus;
   bearaiTags?: string[];
+  /**
+   * Enhanced metadata used by BEAR AI's legal workflows
+   */
+  modelId?: string;
+  createdAt?: Date;
+  lastModified?: Date;
+  legalScore?: number;
+  legalUseCases?: LegalUseCase[];
+  performanceBenchmarks?: PerformanceBenchmark[];
+  fineTuningCapabilities?: FineTuningCapabilities;
+}
+
+export enum ModelSortOption {
+  RELEVANCE = 'relevance',
+  LEGAL_SCORE = 'legal_score',
+  DOWNLOADS = 'downloads',
+  LIKES = 'likes',
+  CREATED_AT = 'created_at',
+  LAST_MODIFIED = 'last_modified',
+  MODEL_SIZE = 'model_size'
 }
 
 export interface ModelSearchFilters {
@@ -40,17 +60,64 @@ export interface ModelSearchFilters {
   direction?: 'asc' | 'desc';
   limit?: number;
   full?: boolean;
+  legalCategories?: LegalCategory[];
+  minLegalScore?: number;
+  maxModelSize?: number;
+  requiresGpu?: boolean;
+  sortBy?: ModelSortOption;
+  sortOrder?: 'asc' | 'desc';
 }
 
-export type LegalCategory = 
-  | 'contract-analysis'
-  | 'legal-research'
-  | 'compliance-check'
-  | 'document-review'
-  | 'case-law-analysis'
-  | 'regulatory-compliance'
-  | 'risk-assessment'
-  | 'legal-drafting';
+export const LegalCategory = {
+  CONTRACT_ANALYSIS: 'contract-analysis',
+  LEGAL_RESEARCH: 'legal-research',
+  COMPLIANCE: 'compliance',
+  COMPLIANCE_CHECK: 'compliance-check',
+  DOCUMENT_REVIEW: 'document-review',
+  CASE_LAW_ANALYSIS: 'case-law-analysis',
+  REGULATORY_ANALYSIS: 'regulatory-analysis',
+  REGULATORY_COMPLIANCE: 'regulatory-compliance',
+  RISK_ASSESSMENT: 'risk-assessment',
+  LEGAL_DRAFTING: 'legal-drafting',
+  LITIGATION_SUPPORT: 'litigation-support',
+  INTELLECTUAL_PROPERTY: 'intellectual-property',
+  CORPORATE_LAW: 'corporate-law',
+  CRIMINAL_LAW: 'criminal-law',
+  FAMILY_LAW: 'family-law',
+  IMMIGRATION_LAW: 'immigration-law',
+  TAX_LAW: 'tax-law',
+  REAL_ESTATE: 'real-estate',
+  EMPLOYMENT_LAW: 'employment-law',
+  GENERAL_LEGAL: 'general-legal'
+} as const;
+
+export type LegalCategory = typeof LegalCategory[keyof typeof LegalCategory];
+
+export interface LegalUseCase {
+  id: string;
+  name: string;
+  description: string;
+  category: LegalCategory;
+  suitabilityScore: number;
+  examples: string[];
+  requirements: string[];
+  limitations: string[];
+  accuracy?: number;
+  speed?: number;
+  resourceIntensive?: boolean;
+}
+
+export interface PerformanceBenchmark {
+  taskType: string;
+  taskName: string;
+  dataset: string;
+  metric: string;
+  score: number;
+  lastTested: Date;
+  testingFramework: string;
+  notes?: string;
+  legalRelevance?: number;
+}
 
 export interface ModelRecommendation {
   model: HuggingFaceModel;
@@ -75,6 +142,7 @@ export interface CompatibilityResult {
     computeCapability?: string;
   };
   recommendations: string[];
+  score?: number;
 }
 
 export interface ResourceRequirements {
