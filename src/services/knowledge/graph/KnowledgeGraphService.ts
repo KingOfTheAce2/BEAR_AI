@@ -1,13 +1,5 @@
 
-import {
-  Document,
-  KnowledgeNode,
-  KnowledgeConnection,
-  KnowledgeGraph,
-  KnowledgeCluster,
-  GraphStatistics,
-  KnowledgeBaseConfig
-} from '../../../types/knowledge/types';
+import { Document, KnowledgeNode, KnowledgeConnection, KnowledgeGraph, KnowledgeCluster, GraphStatistics, KnowledgeBaseConfig } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 import { EmbeddingService } from '../indexing/EmbeddingService';
 

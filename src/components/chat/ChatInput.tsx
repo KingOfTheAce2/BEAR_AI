@@ -1,12 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-import {
-  PaperAirplaneIcon,
-  DocumentArrowUpIcon,
-  MicrophoneIcon,
-  PaperClipIcon,
-  FaceSmileIcon
-} from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, DocumentArrowUpIcon, MicrophoneIcon, PaperClipIcon, FaceSmileIcon } from '@heroicons/react/24/outline';
 
 interface ChatInputProps {
   value: string;

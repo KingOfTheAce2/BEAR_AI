@@ -1,11 +1,5 @@
 
-import {
-  RAGContext,
-  DocumentChunk,
-  Document,
-  KnowledgeBaseConfig,
-  SearchQuery
-} from '../../../types/knowledge/types';
+import { RAGContext, DocumentChunk, Document, KnowledgeBaseConfig, SearchQuery } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 import { SemanticSearchService } from '../search/SemanticSearchService';
 import { EmbeddingService } from '../indexing/EmbeddingService';

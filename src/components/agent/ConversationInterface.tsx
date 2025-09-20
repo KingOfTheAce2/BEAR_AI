@@ -7,17 +7,7 @@ import { cn } from '../../utils/cn'
 import { Conversation, Message, Agent } from '../../types'
 import { Input } from '../ui/Input'
 
-import {
-  Send,
-  Paperclip,
-  Smile,
-  MoreVertical,
-  Play,
-  Pause,
-  Square,
-  Settings,
-  Users
-} from 'lucide-react'
+import { Send, Paperclip, Smile, MoreVertical, Play, Pause, Square, Settings, Users } from 'lucide-react'
 
 export interface ConversationInterfaceProps {
   conversation: Conversation

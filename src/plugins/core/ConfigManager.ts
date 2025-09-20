@@ -4,11 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginManifest,
-  PluginConfigSchema,
-  ValidationResult
-} from './types';
+import { PluginManifest, PluginConfigSchema, ValidationResult } from './types';
 
 export class PluginConfigManager extends EventEmitter {
   private configs: Map<string, PluginConfig> = new Map();

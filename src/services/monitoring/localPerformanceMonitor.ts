@@ -1,13 +1,5 @@
 
-import {
-  MonitoringConfig,
-  MonitoringState,
-  ModelPerformanceMetrics,
-  OptimizationRecommendation,
-  PerformanceAlert,
-  PerformanceThresholds,
-  SystemMetrics
-} from '../../types/monitoring';
+import { MonitoringConfig, MonitoringState, ModelPerformanceMetrics, OptimizationRecommendation, PerformanceAlert, PerformanceThresholds, SystemMetrics } from '../../types/monitoring';
 
 interface SystemPerformanceStats {
   avgCpu: number;

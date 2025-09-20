@@ -3,13 +3,7 @@
  * Handles model configuration persistence, templates, and presets
  */
 
-import {
-  ModelConfig,
-  ModelType,
-  ModelPriority,
-  ModelMetadata,
-  ModelCapabilities
-} from '../types/modelTypes';
+import { ModelConfig, ModelType, ModelPriority, ModelMetadata, ModelCapabilities } from '../types/modelTypes';
 
 export interface ModelConfiguration {
   autoUnload: boolean;

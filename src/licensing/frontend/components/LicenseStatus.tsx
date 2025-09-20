@@ -4,21 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  XCircleIcon,
-  InformationCircleIcon,
-  CogIcon,
-  DocumentTextIcon
-} from '@heroicons/react/24/outline';
-import {
-  License,
-  LicenseStatus as LicenseStatusEnum,
-  LicenseTier,
-  LicenseValidationResult,
-  UsageTracking
-} from '../../types/license.types';
+import { CheckCircleIcon, ExclamationCircleIcon, XCircleIcon, InformationCircleIcon, CogIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { License, LicenseStatus as LicenseStatusEnum, LicenseTier, LicenseValidationResult, UsageTracking } from '../../types/license.types';
 
 interface LicenseStatusProps {
   onActivateClicked?: () => void;

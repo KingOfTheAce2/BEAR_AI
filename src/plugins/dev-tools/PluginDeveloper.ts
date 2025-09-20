@@ -4,13 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginManifest,
-  PluginPackage,
-  PluginDevelopmentConfig,
-  PluginInstance,
-  ValidationResult
-} from '../core/types';
+import { PluginManifest, PluginPackage, PluginDevelopmentConfig, PluginInstance, ValidationResult } from '../core/types';
 import { PluginManager } from '../core/PluginManager';
 
 export class PluginDeveloper extends EventEmitter {

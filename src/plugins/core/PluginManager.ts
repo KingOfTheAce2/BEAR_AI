@@ -4,16 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginInstance,
-  PluginManifest,
-  PluginStatus,
-  PluginInstallOptions,
-  PluginUpdateOptions,
-  SecurityViolation,
-  LocalPluginRegistry,
-  PluginPackage
-} from './types';
+import { PluginInstance, PluginManifest, PluginStatus, PluginInstallOptions, PluginUpdateOptions, SecurityViolation, LocalPluginRegistry, PluginPackage } from './types';
 import { PluginSandboxManager } from '../sandbox/SandboxManager';
 import { PluginAPIProvider } from '../api/APIProvider';
 import { PluginSecurityManager } from '../security/SecurityManager';

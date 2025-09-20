@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import { Message } from '../../types';
 
-import {
-  CheckIcon,
-  ClockIcon,
-  ExclamationCircleIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-  BookOpenIcon,
-  ClipboardDocumentIcon
-} from '@heroicons/react/24/outline';
+import { CheckIcon, ClockIcon, ExclamationCircleIcon, DocumentTextIcon, ChartBarIcon, BookOpenIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 
 interface MessageBubbleProps {
   message: Message;

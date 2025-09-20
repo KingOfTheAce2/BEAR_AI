@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import { QuickAction } from '../../types';
 
-import {
-  MagnifyingGlassIcon,
-  DocumentTextIcon,
-  PencilSquareIcon,
-  CheckCircleIcon,
-  ScaleIcon,
-  BookOpenIcon,
-  ClipboardDocumentListIcon,
-  BanknotesIcon
-} from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, DocumentTextIcon, PencilSquareIcon, CheckCircleIcon, ScaleIcon, BookOpenIcon, ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 
 interface QuickActionsProps {
   onActionClick: (prompt: string) => void;

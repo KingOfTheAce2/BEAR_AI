@@ -1,10 +1,5 @@
 
-import {
-  Citation,
-  Document,
-  DocumentChunk,
-  KnowledgeBaseConfig
-} from '../../../types/knowledge/types';
+import { Citation, Document, DocumentChunk, KnowledgeBaseConfig } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 
 export class CitationService {

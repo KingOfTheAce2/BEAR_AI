@@ -1,28 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-
-  Send, 
-  Paperclip, 
-  StopCircle, 
-  RotateCcw, 
-  Download, 
-  Copy, 
-  Trash2,
-  MessageSquare,
-  Clock,
-  HardDrive,
-  Shield,
-  Database,
-  FileText,
-  Eye,
-  EyeOff,
-  Settings,
-  AlertCircle,
-  CheckCircle,
-  Zap,
-  Brain,
-  Lock
-} from 'lucide-react';
+import { Send, Paperclip, StopCircle, RotateCcw, Download, Copy, Trash2, MessageSquare, Clock, HardDrive, Shield, Database, FileText, Eye, EyeOff, Settings, AlertCircle, CheckCircle, Zap, Brain, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';

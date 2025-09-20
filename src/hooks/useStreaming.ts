@@ -1,12 +1,6 @@
 import { streamingService, StreamingService } from '../services/streamingService';
 
-import {
-  StreamingMessage,
-  StreamingChunk,
-  ConnectionState,
-  StreamingError,
-  StreamingOptions
-} from '../types/streaming';
+import { StreamingMessage, StreamingChunk, ConnectionState, StreamingError, StreamingOptions } from '../types/streaming';
 
 export interface UseStreamingOptions {
   autoConnect?: boolean;

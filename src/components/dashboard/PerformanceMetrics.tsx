@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-
-  SystemMetrics, 
-  ModelInferenceMetrics, 
-  PerformanceAlert, 
-  OptimizationSuggestion,
-  performanceMonitor 
-} from '../../services/performanceMonitor';
+import { SystemMetrics, ModelInferenceMetrics, PerformanceAlert, OptimizationSuggestion, performanceMonitor } from '../../services/performanceMonitor';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 
 interface PerformanceMetricsProps {

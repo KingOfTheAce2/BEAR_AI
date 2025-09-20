@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
 
-import {
-  StreamingChat,
-  CompactStreamingChat,
-  ConnectionStatus,
-  useStreaming,
-  useStreamingRecovery,
-  StreamingMessage,
-  TypingIndicator
-} from '../components/streaming';
+import { StreamingChat, CompactStreamingChat, ConnectionStatus, useStreaming, useStreamingRecovery, StreamingMessage, TypingIndicator } from '../components/streaming';
 import { streamingManager, setupStreaming } from '../services/streamingManager';
 
 // Example 1: Basic Streaming Hook Usage

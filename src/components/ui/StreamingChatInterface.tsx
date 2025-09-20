@@ -2,11 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { cn } from '../../utils/cn'
 import type { ChatSession } from '../../types'
 
-import {
-  StreamingResponse,
-  Model,
-  StreamingMetadata
-} from '../../types/modelTypes'
+import { StreamingResponse, Model, StreamingMetadata } from '../../types/modelTypes'
 import { MessageBubble } from '../chat/MessageBubble'
 import { Button } from './Button'
 import { Input } from './Input'
@@ -14,35 +10,7 @@ import { LoadingSpinner } from './LoadingSpinner'
 import { ModelSelector } from './ModelSelector'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { Badge } from './Badge'
-import {
-  Send,
-  Square,
-  RotateCcw,
-  Settings,
-  Download,
-  Upload,
-  Mic,
-  MicOff,
-  Paperclip,
-  Image,
-  FileText,
-  Copy,
-  Share,
-  Bookmark,
-  MoreHorizontal,
-  Zap,
-  Clock,
-  Activity,
-  ChevronDown,
-  ChevronUp,
-  Eye,
-  EyeOff,
-  X,
-  Edit,
-  Check,
-  AlertCircle,
-  Gauge
-} from 'lucide-react'
+import { Send, Square, RotateCcw, Settings, Download, Upload, Mic, MicOff, Paperclip, Image, FileText, Copy, Share, Bookmark, MoreHorizontal, Zap, Clock, Activity, ChevronDown, ChevronUp, Eye, EyeOff, X, Edit, Check, AlertCircle, Gauge } from 'lucide-react'
 
 export interface StreamingChatInterfaceProps {
   session: ChatSession

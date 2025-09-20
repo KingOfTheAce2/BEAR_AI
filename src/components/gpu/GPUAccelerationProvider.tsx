@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-import {
-  GPUAccelerationService,
-  GPUServiceConfig,
-  HardwareInfo,
-  GPUBackend,
-  quickStartGPU,
-  isGPUAvailable
-} from '../../services/gpu';
+import { GPUAccelerationService, GPUServiceConfig, HardwareInfo, GPUBackend, quickStartGPU, isGPUAvailable } from '../../services/gpu';
 
 interface GPUContextType {
   service: GPUAccelerationService | null;

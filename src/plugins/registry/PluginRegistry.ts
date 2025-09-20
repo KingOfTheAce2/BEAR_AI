@@ -4,13 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginInstance,
-  PluginPackage,
-  LocalPluginRegistry,
-  PluginManifest,
-  PluginStatus
-} from '../core/types';
+import { PluginInstance, PluginPackage, LocalPluginRegistry, PluginManifest, PluginStatus } from '../core/types';
 
 export class PluginRegistry extends EventEmitter {
   private localRegistry: LocalPluginRegistry;

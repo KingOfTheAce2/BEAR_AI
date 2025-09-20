@@ -1,44 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { cn } from '../../utils/cn'
 
-import {
-  Model,
-  ModelStatus,
-  ModelStatusType,
-  ModelFamily,
-  CapabilityPerformance
-} from '../../types/modelTypes'
+import { Model, ModelStatus, ModelStatusType, ModelFamily, CapabilityPerformance } from '../../types/modelTypes'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { Button } from './Button'
 import { Input } from './Input'
 import { Badge } from './Badge'
 import { LoadingSpinner } from './LoadingSpinner'
-import {
-  Download,
-  Trash2,
-  Star,
-  Search,
-  Filter,
-  ChevronDown,
-  Play,
-  Pause,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Cpu,
-  HardDrive,
-  Zap,
-  Gauge,
-  Globe,
-  Shield,
-  Tag,
-  Eye,
-  MoreHorizontal,
-  Heart,
-  TrendingUp,
-  Users
-} from 'lucide-react'
+import { Download, Trash2, Star, Search, Filter, ChevronDown, Play, Pause, RefreshCw, AlertCircle, CheckCircle, Clock, Cpu, HardDrive, Zap, Gauge, Globe, Shield, Tag, Eye, MoreHorizontal, Heart, TrendingUp, Users } from 'lucide-react'
 
 export interface ModelSelectorProps {
   models: Model[]

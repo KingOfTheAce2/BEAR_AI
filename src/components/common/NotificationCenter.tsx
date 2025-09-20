@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  InformationCircleIcon,
-  XCircleIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useApp } from '../../contexts/AppContext';
 
 type NotificationType = 'info' | 'success' | 'warning' | 'error';

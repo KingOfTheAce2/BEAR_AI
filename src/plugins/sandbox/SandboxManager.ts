@@ -4,13 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginInstance,
-  PluginManifest,
-  PluginSandbox,
-  PluginPermission,
-  SecurityViolation
-} from '../core/types';
+import { PluginInstance, PluginManifest, PluginSandbox, PluginPermission, SecurityViolation } from '../core/types';
 import { WebWorkerSandbox } from './WebWorkerSandbox';
 import { IFrameSandbox } from './IFrameSandbox';
 import { IsolatedSandbox } from './IsolatedSandbox';

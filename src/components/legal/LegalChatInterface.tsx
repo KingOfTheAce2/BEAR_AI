@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-
-  LegalStreamingOptions, 
-  LegalContext, 
-  PracticeArea, 
-  Jurisdiction,
-  LegalCitation,
-  CaseReference,
-  StatuteReference,
-  LegalConversationMetrics
-} from '../../types/legal';
+import { LegalStreamingOptions, LegalContext, PracticeArea, Jurisdiction, LegalCitation, CaseReference, StatuteReference, LegalConversationMetrics } from '../../types/legal';
 import { Message, ChatSession } from '../../types';
 import { legalChatService } from '../../services/legalChatService';
 import { LegalMessageBubble } from './LegalMessageBubble';

@@ -22,13 +22,7 @@ import { PluginManager } from './core/PluginManager';
 import { PluginRegistry } from './registry/PluginRegistry';
 import { LocalMarketplace } from './marketplace/LocalMarketplace';
 import { PluginDeveloper } from './dev-tools/PluginDeveloper';
-import {
-  PluginInstance,
-  PluginPackage,
-  PluginManifest,
-  PluginStatus,
-  SecurityViolation
-} from './core/types';
+import { PluginInstance, PluginPackage, PluginManifest, PluginStatus, SecurityViolation } from './core/types';
 
 /**
  * Unified BEAR AI Plugin System

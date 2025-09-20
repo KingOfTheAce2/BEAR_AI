@@ -7,21 +7,7 @@ import { cn } from '../../utils/cn'
 import { Form, useForm } from '../forms/Form'
 import { Input } from '../ui/Input'
 
-import {
-  Settings,
-  Save,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  Trash2,
-  Plus,
-  Minus,
-  Copy,
-  Download,
-  Upload,
-  Eye,
-  EyeOff
-} from 'lucide-react'
+import { Settings, Save, RefreshCw, AlertCircle, CheckCircle, Trash2, Plus, Minus, Copy, Download, Upload, Eye, EyeOff } from 'lucide-react'
 
 export interface ConfigurationPanelProps {
   agent?: Agent

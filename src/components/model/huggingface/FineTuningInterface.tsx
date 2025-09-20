@@ -5,29 +5,8 @@
 
 import type { FC, ChangeEvent } from 'react';
 import type React from 'react';
-import {
-  PlayIcon,
-  StopIcon,
-  PauseIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-  ExclamationCircleIcon,
-  CheckCircleIcon,
-  ArrowUpIcon,
-  CloudArrowDownIcon,
-  BeakerIcon,
-  AcademicCapIcon
-} from '@heroicons/react/24/outline';
-import {
-  HuggingFaceModel,
-  FineTuningCapabilities,
-  FineTuningJob,
-  FineTuningStatus,
-  FineTuningMethod,
-  FineTuningConfig,
-  TrainingMetrics
-} from '../../../types/huggingface';
+import { PlayIcon, StopIcon, PauseIcon, DocumentTextIcon, ChartBarIcon, Cog6ToothIcon, ExclamationCircleIcon, CheckCircleIcon, ArrowUpIcon, CloudArrowDownIcon, BeakerIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { HuggingFaceModel, FineTuningCapabilities, FineTuningJob, FineTuningStatus, FineTuningMethod, FineTuningConfig, TrainingMetrics } from '../../../types/huggingface';
 
 interface FineTuningInterfaceProps {
   model: HuggingFaceModel;

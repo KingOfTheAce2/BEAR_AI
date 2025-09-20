@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import { 
+import { PaintBrushIcon, SunIcon, MoonIcon, ComputerDesktopIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useTheme, Theme, ColorMode } from '../../contexts/ThemeContext';
-
-  PaintBrushIcon, 
-  SunIcon, 
-  MoonIcon, 
-  ComputerDesktopIcon,
-  ChevronDownIcon 
-} from '@heroicons/react/24/outline';
 
 interface ThemeSelectorProps {
   className?: string;

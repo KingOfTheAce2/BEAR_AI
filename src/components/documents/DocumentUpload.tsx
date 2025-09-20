@@ -1,12 +1,7 @@
 import { useState, useRef } from 'react';
 import type { FC, DragEvent, ChangeEvent } from 'react';
 
-import {
-  CloudArrowUpIcon,
-  DocumentTextIcon,
-  XMarkIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline';
+import { CloudArrowUpIcon, DocumentTextIcon, XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface DocumentUploadProps {
   onUpload: (files: FileList) => void;

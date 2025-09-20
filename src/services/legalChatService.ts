@@ -1,18 +1,6 @@
 // Legal Chat Service - Specialized conversation service for legal professionals
 
-import { 
-  LegalCitation, 
-  CaseReference, 
-  StatuteReference, 
-  LegalContext,
-  LegalStreamingOptions,
-  LegalWritingAssistance,
-  LegalConversationMetrics,
-  PracticeArea,
-  Jurisdiction,
-  LegalResearchQuery,
-  ResearchFilters
-} from '../types/legal';
+import { LegalCitation, CaseReference, StatuteReference, LegalContext, LegalStreamingOptions, LegalWritingAssistance, LegalConversationMetrics, PracticeArea, Jurisdiction, LegalResearchQuery, ResearchFilters } from '../types/legal';
 import { Message, ChatSession } from '../types';
 import { CitationService } from './knowledge/citations/CitationService';
 import { streamingService } from './streamingService';
