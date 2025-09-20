@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 /**
  * BEAR AI Licensing System - Cryptographic Functions
  * Secure license generation, validation, and anti-tampering protection
