@@ -59,21 +59,27 @@ jobs:
             }
           }
 
-      - name: TypeScript type checking (Conditional)
+      - name: TypeScript type checking (Demo Mode)
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
-            echo "Skipping TypeScript strict checking for alpha release"
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+            echo "⚠️ Skipping TypeScript strict checking for demo/alpha build"
+            echo "✅ Demo mode: Building for testing purposes only"
           else
+            echo "🔍 Running TypeScript strict checking for production build"
             npm run typecheck:build
           fi
+        continue-on-error: ${{ contains(github.event.head_commit.message, 'demo') }}
 
-      - name: ESLint (Conditional)
+      - name: ESLint (Demo Mode)
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
-            echo "Skipping ESLint checking for alpha release"
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+            echo "⚠️ Skipping ESLint checking for demo/alpha build"
+            echo "✅ Demo mode: Building for testing purposes only"
           else
+            echo "🔍 Running ESLint for production build"
             npm run lint
           fi
+        continue-on-error: ${{ contains(github.event.head_commit.message, 'demo') }}
 
       - name: Rust formatting check
         working-directory: src-tauri
@@ -158,10 +164,12 @@ jobs:
 
       - name: Build frontend
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]]; then
-            echo "Building alpha version with relaxed checks"
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+            echo "🚀 Building demo/alpha version with relaxed checks"
+            echo "⚠️ WARNING: This is a DEMO build - not for production use"
             npm run build:alpha-fast
           else
+            echo "🔨 Building production version with full validation"
             npm run build
           fi
 

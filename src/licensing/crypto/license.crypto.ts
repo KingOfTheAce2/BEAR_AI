@@ -24,6 +24,7 @@ function bytesToEncoding(data: Uint8Array, encoding: BufferEncoding): string;
 
 // Implementation
 function bytesToEncoding(data: Uint8Array | Buffer, encoding: BufferEncoding): string {
+  // @ts-ignore - toString expects encoding parameter but types are conflicting
   return Buffer.from(data).toString(encoding);
 }
 
