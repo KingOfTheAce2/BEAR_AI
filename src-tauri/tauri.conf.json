@@ -6,7 +6,7 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "frontendDist": "../dist",
+    "frontendDist": "../build",
     "devUrl": "http://localhost:3000"
   },
   "app": {
@@ -85,7 +85,7 @@
       "webviewInstallMode": {
         "type": "downloadBootstrapper"
       },
-      "allowDowngrades": false,
+      "allowDowngrades": false
     },
     "macOS": {
       "frameworks": [
