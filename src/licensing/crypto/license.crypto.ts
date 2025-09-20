@@ -20,8 +20,7 @@ function bytesToEncoding(data: Uint8Array, encoding: BufferEncoding): string;
 
 // Implementation
 function bytesToEncoding(data: Uint8Array | Buffer, encoding: BufferEncoding): string {
-  const buf: Buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
-  return (buf as import('node:buffer').Buffer).toString(encoding);
+  return Buffer.from(data).toString(encoding);
 }
 
 const bytesToHex = (data: Uint8Array | Buffer): string => bytesToEncoding(data, 'hex');
