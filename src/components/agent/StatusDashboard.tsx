@@ -1,5 +1,4 @@
 import React from 'react'
-import {
 import { Agent, Task, DashboardConfig, WidgetConfig } from '../../types'
 import { AgentCard } from './AgentCard'
 import { Badge } from '../ui/Badge'
@@ -7,6 +6,7 @@ import { Button } from '../ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { cn } from '../../utils/cn'
 
+import {
   Activity,
   AlertCircle,
   CheckCircle,

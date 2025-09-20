@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import {
 
+import {
   GPUAccelerationService,
   GPUServiceConfig,
   HardwareInfo,

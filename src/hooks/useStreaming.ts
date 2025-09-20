@@ -1,6 +1,6 @@
-import {
 import { streamingService, StreamingService } from '../services/streamingService';
 
+import {
   StreamingMessage,
   StreamingChunk,
   ConnectionState,

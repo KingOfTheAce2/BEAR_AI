@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import {
 import { Badge } from './Badge'
 import { Button } from './Button'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { cn } from '../../utils/cn'
 import { ErrorFallbackProps } from '../../types/modelTypes'
 
+import {
   AlertTriangle,
   RefreshCw,
   Home,
