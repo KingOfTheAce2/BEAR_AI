@@ -132,7 +132,39 @@ jobs:
         if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            librsvg2-dev \
+            libglib2.0-dev \
+            libgobject-introspection-1.0-dev \
+            libgirepository1.0-dev \
+            libpango1.0-dev \
+            libatk1.0-dev \
+            libgdk-pixbuf-2.0-dev \
+            libcairo2-dev \
+            libsoup2.4-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libjavascriptcoregtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            pkg-config
+
+      - name: Verify pkg-config setup (Ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          echo "🔍 Verifying pkg-config setup for GLib dependencies..."
+          pkg-config --version
+          pkg-config --exists glib-2.0 && echo "✅ glib-2.0 found" || echo "❌ glib-2.0 missing"
+          pkg-config --exists gobject-2.0 && echo "✅ gobject-2.0 found" || echo "❌ gobject-2.0 missing"
+          pkg-config --exists gtk+-3.0 && echo "✅ gtk+-3.0 found" || echo "❌ gtk+-3.0 missing"
+          pkg-config --exists webkit2gtk-4.0 && echo "✅ webkit2gtk-4.0 found" || echo "❌ webkit2gtk-4.0 missing"
+          echo "📋 PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+          echo "📋 Available .pc files:"
+          find /usr/lib/pkgconfig /usr/share/pkgconfig -name "*.pc" | grep -E "(glib|gobject|gtk)" | head -10
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
@@ -177,6 +209,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+          PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+          CARGO_PROFILE_DEV_BUILD_OVERRIDE_DEBUG: true
         with:
           args: ${{ matrix.args }} ${{ (contains(github.ref, 'alpha') || contains(github.event.head_commit.message, 'alpha')) && '--config src-tauri/tauri.conf.alpha.json' || '' }}
 
