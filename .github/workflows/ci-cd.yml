@@ -268,7 +268,8 @@ jobs:
           GLIB_2_0_NO_PKG_CONFIG: 0
           GOBJECT_2_0_NO_PKG_CONFIG: 0
         with:
-          args: ${{ matrix.args }} ${{ (contains(github.ref, 'alpha') || contains(github.event.head_commit.message, 'alpha')) && '--config src-tauri/tauri.conf.alpha.json' || '' }}
+          args: ${{ matrix.args }}
+          configPath: ${{ (contains(github.ref, 'alpha') || contains(github.event.head_commit.message, 'alpha')) && 'src-tauri/tauri.conf.alpha.json' || 'src-tauri/tauri.conf.json' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
