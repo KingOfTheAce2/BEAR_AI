@@ -1,11 +1,12 @@
 import { ShieldCheckIcon, ScaleIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
-export const LoginPage: React.FC = () => {
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
+
+export const LoginPage: React.FC = () => {
 
   const { login, state } = useApp();
   const { config } = useTheme();
