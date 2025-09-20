@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+
   AnalyticsQuery,
   AnalyticsResult,
   KnowledgeBaseStats
@@ -51,7 +52,7 @@ export const KnowledgeAnalyticsComponent: React.FC = () => {
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   useEffect(() => {
     if (selectedQuery) {

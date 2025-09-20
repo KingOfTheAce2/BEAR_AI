@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { FC, DragEvent, ChangeEvent } from 'react';
 import {
+
   CloudArrowUpIcon,
   DocumentTextIcon,
   XMarkIcon,
@@ -117,7 +118,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
 
     // Show validation errors
     if (errors.length > 0) {
-      alert(errors.join('\n'));
+      window.alert(errors.join('\n'));
     }
 
     // Process valid files

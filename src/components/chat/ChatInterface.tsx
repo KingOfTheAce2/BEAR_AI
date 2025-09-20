@@ -1,9 +1,9 @@
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import React, { useState, useRef, useEffect } from 'react';
+import { ChatInput } from './ChatInput';
 import { ChatSession, Message } from '../../types';
 import { MessageBubble } from './MessageBubble';
-import { ChatInput } from './ChatInput';
 import { QuickActions } from './QuickActions';
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 interface ChatInterfaceProps {
   activeChat: ChatSession | null;
@@ -51,7 +51,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ activeChat }) => {
     if (messages.length === 0) {
       setMessages(mockMessages);
     }
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

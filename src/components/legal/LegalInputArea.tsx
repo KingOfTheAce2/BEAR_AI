@@ -1,7 +1,6 @@
-import { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import type { KeyboardEvent, ChangeEvent } from 'react';
-import { PracticeArea, Jurisdiction } from '../../types/legal';
 import './LegalInputArea.css';
+import { PracticeArea, Jurisdiction } from '../../types/legal';
 
 interface LegalInputAreaProps {
   onSendMessage: (content: string, messageType?: string) => Promise<void>;

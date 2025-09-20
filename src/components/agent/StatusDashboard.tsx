@@ -1,11 +1,12 @@
 import React from 'react'
-import { cn } from '../../utils/cn'
+import {
 import { Agent, Task, DashboardConfig, WidgetConfig } from '../../types'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { AgentCard } from './AgentCard'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
-import { AgentCard } from './AgentCard'
-import {
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { cn } from '../../utils/cn'
+
   Activity,
   AlertCircle,
   CheckCircle,

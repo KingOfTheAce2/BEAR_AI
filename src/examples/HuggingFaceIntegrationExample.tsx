@@ -53,7 +53,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
   // Initialize system
   useEffect(() => {
     initializeSystem();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   // Check compatibility when model changes
   useEffect(() => {
@@ -108,7 +108,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
     
     // Automatically check if model needs to be downloaded
     if (!model.localStatus.downloaded) {
-      const shouldDownload = window.confirm(
+      const shouldDownload = window.window.confirm(
         `Model ${model.modelId} is not downloaded locally. Download now?`
       );
       if (shouldDownload) {
@@ -126,13 +126,13 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       });
     } catch (error) {
       console.error('Model download failed:', error);
-      alert(`Failed to download ${model.modelId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      window.alert(`Failed to download ${model.modelId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const handleModelSwitch = async (model: HuggingFaceModel) => {
     if (!model.localStatus.downloaded) {
-      alert('Model must be downloaded before switching');
+      window.alert('Model must be downloaded before switching');
       return;
     }
 
@@ -149,7 +149,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       console.log('Model switch completed in', switchDuration, 'ms');
     } catch (error) {
       console.error('Model switch failed:', error);
-      alert(`Failed to switch to ${model.modelId}`);
+      window.alert(`Failed to switch to ${model.modelId}`);
     }
   };
 
@@ -174,7 +174,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
         latencyScore * 0.2 + throughputScore * 0.3 + accuracyScore * 0.5
       );
 
-      alert(
+      window.alert(
         `Benchmark completed! Estimated overall score: ${estimatedOverall}/100\n` +
           `Latency: ${result.metrics.latency.mean.toFixed(1)} ms • ` +
           `Throughput: ${result.metrics.throughput.tokensPerSecond.toFixed(2)} tokens/s`
@@ -182,7 +182,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
     } catch (error) {
       console.error('Benchmark failed:', error);
-      alert('Benchmark failed. Check console for details.');
+      window.alert('Benchmark failed. Check console for details.');
     }
   };
 
@@ -215,11 +215,11 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
         : [];
 
       if (automatedOptimizations.length === 0) {
-        alert('No automatic optimizations available');
+        window.alert('No automatic optimizations available');
         return;
       }
 
-      alert(
+      window.alert(
         'Suggested optimizations:\n' +
           automatedOptimizations
             .map(opt => `• ${opt.description}${opt.estimatedImprovement ? ` (≈${opt.estimatedImprovement}% improvement)` : ''}`)
@@ -230,7 +230,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
     } catch (error) {
       console.error('Optimization failed:', error);
-      alert('Failed to apply optimizations');
+      window.alert('Failed to apply optimizations');
     }
   };
 
@@ -259,7 +259,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
 
       console.log('Model recommendations:', recommendations);
 
-      alert(
+      window.alert(
         `Found ${recommendations.length} recommended models across ${categories.length} legal tasks.`
       );
 

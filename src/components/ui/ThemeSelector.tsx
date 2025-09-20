@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useTheme, Theme, ColorMode } from '../../contexts/ThemeContext';
 import { 
+import { useTheme, Theme, ColorMode } from '../../contexts/ThemeContext';
+
   PaintBrushIcon, 
   SunIcon, 
   MoonIcon, 

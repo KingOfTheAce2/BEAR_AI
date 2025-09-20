@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+
 // Styles now handled by unified App component
 import App from './App'
 import reportWebVitals from './reportWebVitals'

@@ -1,5 +1,3 @@
-import { Message, Thread, User, ChatSettings } from '../../types/chat';
-
 class ChatStorageService {
   private dbName = 'BearAI_Chat';
   private dbVersion = 1;

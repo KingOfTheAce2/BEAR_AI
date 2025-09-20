@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { LegalStreamingOptions, PracticeArea, Jurisdiction, StyleGuide } from '../../types/legal';
 import './LegalSettingsPanel.css';
+import { LegalStreamingOptions, PracticeArea, Jurisdiction, StyleGuide } from '../../types/legal';
 
 interface LegalSettingsPanelProps {
   options: LegalStreamingOptions;

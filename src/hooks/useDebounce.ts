@@ -6,8 +6,6 @@
  * @author BEAR AI Performance Team
  */
 
-import { useRef, useCallback, useEffect } from 'react';
-
 export interface DebounceOptions {
   leading?: boolean;  // Execute on the leading edge
   trailing?: boolean; // Execute on the trailing edge (default: true)
@@ -127,7 +125,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
         clearTimeout(maxTimeoutRef.current);
       }
     };
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
   
   // Add cancel and flush methods
   (debouncedFunction as any).cancel = () => {

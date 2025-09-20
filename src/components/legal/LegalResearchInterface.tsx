@@ -1,26 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Search,
-  BookOpen,
-  Scale,
-  FileText,
-  Filter,
-  Download,
-  Bookmark,
-  ExternalLink,
-  Calendar,
-  MapPin,
-  Users,
-  TrendingUp,
-  Star,
-  Eye,
-  Copy,
-  Share2,
-  Clock,
-  Lightbulb,
-  AlertCircle,
-  CheckCircle
-} from 'lucide-react';
 import { LegalComponentProps, CaseLaw, Statute, Citation } from '../../types/legal';
 import LegalResearchService from '../../services/legal/LegalResearchService';
 
@@ -96,7 +74,7 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
   useEffect(() => {
     loadSavedResearch();
     loadRecentSearches();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   const loadSavedResearch = async () => {
     // Load saved research from API or localStorage

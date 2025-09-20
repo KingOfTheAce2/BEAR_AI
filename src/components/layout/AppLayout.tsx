@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
-import { StatusBar } from './StatusBar';
 import { ChatInterface } from '../chat/ChatInterface';
 import { DocumentGrid } from '../documents/DocumentGrid';
-import { AppState, User, SystemStatus } from '../../types';
+import { Sidebar } from './Sidebar';
+import { StatusBar } from './StatusBar';
+import { TopBar } from './TopBar';
 
 interface AppLayoutProps {
   initialUser?: User;

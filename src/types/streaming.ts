@@ -1,4 +1,5 @@
 export interface StreamingMessage {
+
   id: string;
   content: string;
   timestamp: Date;

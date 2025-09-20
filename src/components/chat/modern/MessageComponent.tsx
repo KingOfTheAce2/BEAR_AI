@@ -1,9 +1,9 @@
-import React, { useState, forwardRef, useRef, useEffect } from 'react';
-import { Message } from '../../../types/chat';
-import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { useState, forwardRef, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './MessageComponent.css';
+import { Message } from '../../../types/chat';
 
 interface MessageComponentProps {
   message: Message;

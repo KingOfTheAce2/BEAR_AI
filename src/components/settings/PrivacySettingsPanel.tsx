@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import './SettingsPanel.css';
 import { usePrivacySettings } from '../../contexts/SettingsContext';
 import FormField from './FormField';
-import './SettingsPanel.css';
 
 const PrivacySettingsPanel: React.FC = () => {
   const { privacy, updatePrivacy } = usePrivacySettings();
@@ -23,10 +23,10 @@ const PrivacySettingsPanel: React.FC = () => {
   };
 
   const clearAllData = async () => {
-    if (window.confirm(
+    if (window.window.confirm(
       'This will permanently delete all local data including conversations, settings, and cached files. This action cannot be undone. Are you sure?'
     )) {
-      if (window.confirm('Are you absolutely certain? All your data will be lost forever.')) {
+      if (window.window.confirm('Are you absolutely certain? All your data will be lost forever.')) {
         try {
           // Clear various storage types
           localStorage.clear();
@@ -48,11 +48,11 @@ const PrivacySettingsPanel: React.FC = () => {
             );
           }
           
-          alert('All local data has been cleared. The application will now reload.');
+          window.alert('All local data has been cleared. The application will now reload.');
           window.location.reload();
         } catch (error) {
           console.error('Failed to clear all data:', error);
-          alert('Failed to clear some data. Please try again or clear manually.');
+          window.alert('Failed to clear some data. Please try again or clear manually.');
         }
       }
     }
@@ -72,7 +72,7 @@ const PrivacySettingsPanel: React.FC = () => {
 
   React.useEffect(() => {
     estimateStorageUsage();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   return (
     <div className="settings-section">

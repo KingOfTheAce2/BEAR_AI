@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Message } from '../../../types/chat';
 import './MessageInput.css';
+import { Message } from '../../../types/chat';
 
 interface MessageInputProps {
   onSendMessage: (content: string, type?: Message['type'], attachments?: any[]) => void;

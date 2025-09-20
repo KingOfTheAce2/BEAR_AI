@@ -1,10 +1,10 @@
-import { streamingService, createStreamingService, StreamingService } from './streamingService';
-import { streamingErrorRecovery, withErrorRecovery } from './errorRecovery';
+export class StreamingManager {
 import { chatStreamingIntegration } from './chatIntegration';
 import { getStreamingConfig, autoDetectStreamingConfig, StreamingEnvironment } from '../utils/streamingConfig';
 import { StreamingConfig, StreamingMetrics, ConnectionState } from '../types/streaming';
+import { streamingErrorRecovery, withErrorRecovery } from './errorRecovery';
+import { streamingService, createStreamingService, StreamingService } from './streamingService';
 
-export class StreamingManager {
   private services = new Map<string, StreamingService>();
   private activeService: StreamingService;
   private environment: StreamingEnvironment = 'development';

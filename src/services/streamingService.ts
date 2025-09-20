@@ -1,5 +1,6 @@
-import { EventEmitter } from 'events';
 import {
+import { EventEmitter } from 'events';
+
   StreamingMessage,
   StreamingChunk,
   StreamingConfig,

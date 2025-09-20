@@ -36,9 +36,7 @@ export class PluginAPIProvider extends EventEmitter {
   private bearAIInstance: BearAIAPI | null = null;
   private initialized: boolean = false;
 
-  constructor() {
-    super();
-  }
+  // Constructor removed - was empty
 
   async initialize(): Promise<void> {
     if (this.initialized) return;

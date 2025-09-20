@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-
 export interface BreakpointConfig {
+
   xs: number // 0
   sm: number // 640
   md: number // 768

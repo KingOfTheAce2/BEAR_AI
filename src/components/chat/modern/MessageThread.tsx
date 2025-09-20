@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import './MessageThread.css';
 import { Message } from '../../../types/chat';
 import MessageComponent from './MessageComponent';
-import './MessageThread.css';
 
 interface MessageThreadProps {
   messages: Message[];

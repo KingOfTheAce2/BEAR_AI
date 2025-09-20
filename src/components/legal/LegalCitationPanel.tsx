@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { LegalCitation, CaseReference, StatuteReference } from '../../types/legal';
 import './LegalCitationPanel.css';
+import { LegalCitation, CaseReference, StatuteReference } from '../../types/legal';
 
 interface LegalCitationPanelProps {
   citations: LegalCitation[];

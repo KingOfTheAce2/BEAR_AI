@@ -1,12 +1,13 @@
 import React from 'react'
-import { cn } from '../../utils/cn'
-import { Conversation, Message, Agent } from '../../types'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
-import { Button } from '../ui/Button'
-import { Input } from '../ui/Input'
+import {
 import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
-import {
+import { Button } from '../ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { cn } from '../../utils/cn'
+import { Conversation, Message, Agent } from '../../types'
+import { Input } from '../ui/Input'
+
   Send,
   Paperclip,
   Smile,
@@ -54,7 +55,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   // Focus input on mount
   React.useEffect(() => {
     inputRef.current?.focus()
-  }, [])
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps)
 
   const handleSendMessage = () => {
     if (!message.trim()) return

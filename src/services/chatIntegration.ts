@@ -1,5 +1,5 @@
-import { streamingService, createStreamingService } from './streamingService';
 import { StreamingOptions, StreamingMessage } from '../types/streaming';
+import { streamingService, createStreamingService } from './streamingService';
 
 // Integration with existing chat service
 export class ChatStreamingIntegration {

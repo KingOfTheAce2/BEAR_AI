@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useThemeSettings } from '../../contexts/SettingsContext';
-import { CustomTheme } from '../../types/settings';
-import FormField from './FormField';
-import ColorPicker from './ColorPicker';
 import './SettingsPanel.css';
+import { CustomTheme } from '../../types/settings';
+import { useThemeSettings } from '../../contexts/SettingsContext';
+import ColorPicker from './ColorPicker';
+import FormField from './FormField';
 
 const ThemeSettingsPanel: React.FC = () => {
   const { theme, updateTheme } = useThemeSettings();
@@ -84,7 +84,7 @@ const ThemeSettingsPanel: React.FC = () => {
   };
 
   const deleteCustomTheme = (themeId: string) => {
-    if (window.confirm('Are you sure you want to delete this custom theme?')) {
+    if (window.window.confirm('Are you sure you want to delete this custom theme?')) {
       const updatedThemes = theme.customThemes.filter(t => t.id !== themeId);
       updateTheme({ customThemes: updatedThemes });
     }

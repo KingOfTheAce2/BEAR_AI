@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useModelSettings } from '../../contexts/SettingsContext';
-import { ModelConfiguration } from '../../types/settings';
-import FormField from './FormField';
 import './SettingsPanel.css';
+import { ModelConfiguration } from '../../types/settings';
+import { useModelSettings } from '../../contexts/SettingsContext';
+import FormField from './FormField';
 
 const ModelSettingsPanel: React.FC = () => {
   const { models, updateModels } = useModelSettings();
@@ -62,7 +62,7 @@ const ModelSettingsPanel: React.FC = () => {
   };
 
   const deleteModel = (modelId: string) => {
-    if (window.confirm('Are you sure you want to delete this model configuration?')) {
+    if (window.window.confirm('Are you sure you want to delete this model configuration?')) {
       const updatedConfigurations = { ...models.modelConfigurations };
       delete updatedConfigurations[modelId];
       updateModels({ modelConfigurations: updatedConfigurations });

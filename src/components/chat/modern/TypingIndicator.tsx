@@ -1,6 +1,6 @@
 import React from 'react';
-import { TypingIndicator } from '../../../types/chat';
 import './TypingIndicator.css';
+import { TypingIndicator } from '../../../types/chat';
 
 interface TypingIndicatorProps {
   indicators: TypingIndicator[];

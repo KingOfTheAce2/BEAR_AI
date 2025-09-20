@@ -1,6 +1,7 @@
 import React from 'react';
-import { SearchResult } from '../../types';
 import {
+import { SearchResult } from '../../types';
+
   DocumentTextIcon,
   ScaleIcon,
   BookOpenIcon,

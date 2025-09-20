@@ -1,7 +1,7 @@
 import React from 'react';
+export interface LabelProps {
 import { cn } from '../../utils/cn';
 
-export interface LabelProps {
   className?: string;
   htmlFor?: string;
   id?: string;

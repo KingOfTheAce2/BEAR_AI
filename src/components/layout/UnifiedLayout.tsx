@@ -1,19 +1,19 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { useApp } from '../../contexts/AppContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { UnifiedSidebar } from './UnifiedSidebar';
-import { UnifiedTopBar } from './UnifiedTopBar';
-import { UnifiedStatusBar } from './UnifiedStatusBar';
+import React from 'react';
+export const UnifiedLayout: React.FC = () => {
 import { ChatInterface } from '../chat/ChatInterface';
+import { cn } from '../../utils/cn';
 import { DocumentGrid } from '../documents/DocumentGrid';
-import { SettingsPage } from '../pages/SettingsPage';
-import { SearchPage } from '../pages/SearchPage';
 import { HistoryPage } from '../pages/HistoryPage';
 import { ResearchPage } from '../pages/ResearchPage';
-import { cn } from '../../utils/cn';
+import { SearchPage } from '../pages/SearchPage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { UnifiedSidebar } from './UnifiedSidebar';
+import { UnifiedStatusBar } from './UnifiedStatusBar';
+import { UnifiedTopBar } from './UnifiedTopBar';
+import { useApp } from '../../contexts/AppContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
-export const UnifiedLayout: React.FC = () => {
   const { state, toggleSidebar, setCurrentView } = useApp();
   const { config } = useTheme();
 

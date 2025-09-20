@@ -1,8 +1,9 @@
+import { Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import React from 'react';
+import {
 import { cn } from '@utils/cn';
 import { ComponentProps } from '../../types';
-import { Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import {
+
   MemoryInfo,
   MemoryStatus,
   MemoryTrend,

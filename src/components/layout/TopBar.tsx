@@ -1,14 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { User } from '../../types';
 import { GlobalSearch } from '../search/GlobalSearch';
-import {
-  Bars3Icon,
-  BellIcon,
-  CogIcon,
-  UserCircleIcon,
-  ShieldCheckIcon,
-  ArrowRightOnRectangleIcon
-} from '@heroicons/react/24/outline';
 
 interface TopBarProps {
   user: User | null;

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useStreaming } from '../../hooks/useStreaming';
-import { StreamingMessage } from './StreamingMessage';
 import { ConnectionStatus } from './ConnectionStatus';
-import { TypingIndicator, StreamingProgress } from './StreamingMessage';
+import { StreamingMessage } from './StreamingMessage';
 import { StreamingMessage as IStreamingMessage, StreamingOptions } from '../../types/streaming';
+import { TypingIndicator, StreamingProgress } from './StreamingMessage';
+import { useStreaming } from '../../hooks/useStreaming';
 
 interface StreamingChatProps {
   autoConnect?: boolean;

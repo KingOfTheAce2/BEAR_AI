@@ -101,7 +101,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    if (confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
       try {
         await chatSessionService.deleteSession(sessionId);
         await loadSessions();
@@ -423,7 +423,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
               <h4>Dangerous Actions</h4>
               <button 
                 onClick={() => {
-                  if (confirm('This will permanently delete ALL chat history. This cannot be undone!')) {
+                  if (window.confirm('This will permanently delete ALL chat history. This cannot be undone!')) {
                     chatSessionService.clearAllSessions();
                     setSessions([]);
                   }

@@ -5,7 +5,6 @@
 
 import type { FC } from 'react';
 import type React from 'react';
-import { useState, useEffect, useMemo } from 'react';
 import { StoredDocument } from '../../services/localStorage';
 
 interface DocumentViewerProps {

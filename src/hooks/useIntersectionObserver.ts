@@ -12,8 +12,6 @@
  * @author BEAR AI Performance Team
  */
 
-import { useRef, useCallback, useEffect, useMemo } from 'react';
-
 export interface IntersectionObserverOptions {
   root?: Element | null;
   rootMargin?: string;

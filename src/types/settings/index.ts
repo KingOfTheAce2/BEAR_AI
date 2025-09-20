@@ -1,4 +1,5 @@
 export interface BaseSettings {
+
   version: string;
   lastModified: Date;
   schemaVersion: number;

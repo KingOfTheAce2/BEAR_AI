@@ -1,6 +1,7 @@
 import React from 'react';
-import { useApp } from '../../contexts/AppContext';
 import {
+import { useApp } from '../../contexts/AppContext';
+
   CheckCircleIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,

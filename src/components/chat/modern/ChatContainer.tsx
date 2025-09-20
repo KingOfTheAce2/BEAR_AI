@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Message, Thread, User, TypingIndicator } from '../../../types/chat';
-import { useChat } from '../../../hooks/chat/useChat';
-import ThreadSidebar from './ThreadSidebar';
-import MessageList from './MessageList';
-import MessageInput from './MessageInput';
-import SearchPanel from './SearchPanel';
-import VoiceControls from './VoiceControls';
-import FileUpload from './FileUpload';
-import TypingIndicatorComponent from './TypingIndicator';
 import './ChatContainer.css';
+import { useChat } from '../../../hooks/chat/useChat';
+import FileUpload from './FileUpload';
+import MessageInput from './MessageInput';
+import MessageList from './MessageList';
+import SearchPanel from './SearchPanel';
+import ThreadSidebar from './ThreadSidebar';
+import TypingIndicatorComponent from './TypingIndicator';
+import VoiceControls from './VoiceControls';
 
 interface ChatContainerProps {
   userId: string;

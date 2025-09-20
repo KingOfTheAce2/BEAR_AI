@@ -1,6 +1,5 @@
 // User Settings Service for BEAR AI - Manages user preferences and personalization
 import { EventEmitter } from 'events';
-import { UserPreferences, ConfigChangeEvent } from '../types/config';
 import { configManager } from './configManager';
 
 export interface UserSession {

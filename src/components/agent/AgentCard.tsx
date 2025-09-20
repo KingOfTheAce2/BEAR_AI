@@ -1,11 +1,12 @@
 import React from 'react'
-import { cn } from '../../utils/cn'
+import { 
 import { Agent } from '../../types'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
-import { Avatar } from '../ui/Avatar'
-import { 
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { cn } from '../../utils/cn'
+
   Activity, 
   Clock, 
   Cpu, 

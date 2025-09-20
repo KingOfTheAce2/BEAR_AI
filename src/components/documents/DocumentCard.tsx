@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Document } from '../../types';
 import {
+import { Document } from '../../types';
+
   DocumentTextIcon,
   EyeIcon,
   ArrowDownIcon,
@@ -98,7 +99,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, viewMode }
 
   const handleDelete = () => {
     // eslint-disable-next-line no-restricted-globals
-    if (confirm(`Are you sure you want to delete "${document.name}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${document.name}"?`)) {
       console.log('Delete document:', document.id);
     }
   };

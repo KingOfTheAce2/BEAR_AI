@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import './SettingsPanel.css';
 import { useSystemSettings } from '../../contexts/SettingsContext';
 import FormField from './FormField';
-import './SettingsPanel.css';
 
 type NavigatorWithMemory = Navigator & {
   deviceMemory?: number;
@@ -79,7 +79,7 @@ const SystemSettingsPanel: React.FC = () => {
     };
 
     updateSystem(optimizedSettings);
-    alert('Performance settings have been optimized for your system!');
+    window.alert('Performance settings have been optimized for your system!');
   };
 
   const runSystemDiagnostic = () => {
@@ -114,7 +114,7 @@ const SystemSettingsPanel: React.FC = () => {
   };
 
   const clearCache = () => {
-    if (window.confirm('This will clear all cached data. Continue?')) {
+    if (window.window.confirm('This will clear all cached data. Continue?')) {
       // Clear various caches
       if ('caches' in window) {
         caches.keys().then(names => {
@@ -133,7 +133,7 @@ const SystemSettingsPanel: React.FC = () => {
         });
       }
       
-      alert('Cache cleared successfully!');
+      window.alert('Cache cleared successfully!');
     }
   };
 

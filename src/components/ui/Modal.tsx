@@ -1,12 +1,12 @@
-import React from 'react'
 import { createPortal } from 'react-dom'
-import { cn, animations } from '../../utils/cn'
-import { useClickOutside } from '../../hooks/useClickOutside'
-import { ComponentProps } from '../../types'
-import { Button } from './Button'
 import { X } from 'lucide-react'
-
+import React from 'react'
 export interface ModalProps extends ComponentProps {
+import { Button } from './Button'
+import { cn, animations } from '../../utils/cn'
+import { ComponentProps } from '../../types'
+import { useClickOutside } from '../../hooks/useClickOutside'
+
   isOpen: boolean
   onClose: () => void
   title?: string

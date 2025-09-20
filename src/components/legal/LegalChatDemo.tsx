@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import './LegalChatDemo.css';
 import { LegalChatInterface } from './LegalChatInterface';
 import { PracticeArea, Jurisdiction, LegalCitation } from '../../types/legal';
-import './LegalChatDemo.css';
 
 interface LegalChatDemoProps {
   className?: string;
@@ -29,7 +29,7 @@ export const LegalChatDemo: React.FC<LegalChatDemoProps> = ({ className = '' }) 
   const handleCitationClick = (citation: LegalCitation) => {
     console.log('Citation clicked:', citation);
     // Could open citation details modal or navigate to source
-    alert(`Citation clicked: ${citation.title} - ${citation.citation}`);
+    window.alert(`Citation clicked: ${citation.title} - ${citation.citation}`);
   };
 
   const handleSettingsChange = (key: string, value: any) => {

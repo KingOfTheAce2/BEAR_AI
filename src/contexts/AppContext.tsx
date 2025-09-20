@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { User, SystemStatus, Document, ChatSession } from '../types';
 
 // Combined state from both GUI variants
 export interface AppState {

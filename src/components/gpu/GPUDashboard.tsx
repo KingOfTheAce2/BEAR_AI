@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useGPUAcceleration, useGPUPerformance } from './GPUAccelerationProvider';
 import { GPUBackend } from '../../services/gpu';
+import { useGPUAcceleration, useGPUPerformance } from './GPUAccelerationProvider';
 
 interface GPUDashboardProps {
   className?: string;

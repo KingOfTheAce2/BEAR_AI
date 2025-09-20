@@ -1,9 +1,9 @@
-export { default as SettingsPanel } from './SettingsPanel';
-export { default as UserPreferencesPanel } from './UserPreferencesPanel';
-export { default as ThemeSettingsPanel } from './ThemeSettingsPanel';
+export { default as BackupRestorePanel } from './BackupRestorePanel';
+export { default as ColorPicker } from './ColorPicker';
+export { default as FormField } from './FormField';
 export { default as ModelSettingsPanel } from './ModelSettingsPanel';
 export { default as PrivacySettingsPanel } from './PrivacySettingsPanel';
+export { default as SettingsPanel } from './SettingsPanel';
 export { default as SystemSettingsPanel } from './SystemSettingsPanel';
-export { default as BackupRestorePanel } from './BackupRestorePanel';
-export { default as FormField } from './FormField';
-export { default as ColorPicker } from './ColorPicker';
+export { default as ThemeSettingsPanel } from './ThemeSettingsPanel';
+export { default as UserPreferencesPanel } from './UserPreferencesPanel';

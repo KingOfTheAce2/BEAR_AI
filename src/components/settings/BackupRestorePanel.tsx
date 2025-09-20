@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { useSettings } from '../../contexts/SettingsContext';
+import './SettingsPanel.css';
 import { localSettingsService } from '../../services/settings';
 import { SettingsBackup } from '../../types/settings';
-import './SettingsPanel.css';
+import { useSettings } from '../../contexts/SettingsContext';
 
 const BackupRestorePanel: React.FC = () => {
   const { exportSettings, importSettings } = useSettings();
@@ -27,7 +27,7 @@ const BackupRestorePanel: React.FC = () => {
 
   React.useEffect(() => {
     loadBackups();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   const handleExport = async () => {
     try {
@@ -113,7 +113,7 @@ const BackupRestorePanel: React.FC = () => {
   };
 
   const handleRestoreBackup = async (backupPath: string) => {
-    if (!window.confirm('Are you sure you want to restore this backup? Current settings will be overwritten.')) {
+    if (!window.window.confirm('Are you sure you want to restore this backup? Current settings will be overwritten.')) {
       return;
     }
 

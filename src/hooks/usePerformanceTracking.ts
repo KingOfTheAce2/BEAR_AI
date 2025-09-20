@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import { usePerformance } from '../contexts/PerformanceContext';
 
 interface UsePerformanceTrackingOptions {

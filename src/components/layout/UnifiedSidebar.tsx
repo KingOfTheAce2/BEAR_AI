@@ -1,24 +1,7 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { cn } from '../../utils/cn';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import {
-  ChatBubbleOvalLeftIcon,
-  DocumentIcon,
-  MagnifyingGlassIcon,
-  ClockIcon,
-  BookOpenIcon,
-  CogIcon,
-  ScaleIcon,
-  FolderIcon,
-  UsersIcon,
-  CalendarIcon,
-  ChartBarIcon,
-  InformationCircleIcon,
-  Bars3Icon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
-import { cn } from '../../utils/cn';
 
 interface UnifiedSidebarProps {
   collapsed: boolean;

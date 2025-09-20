@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Message } from '../../types';
-import { LegalCitation, CaseReference, StatuteReference } from '../../types/legal';
 import './LegalMessageBubble.css';
+import { LegalCitation, CaseReference, StatuteReference } from '../../types/legal';
+import { Message } from '../../types';
 
 interface LegalMessageBubbleProps {
   message: Message;

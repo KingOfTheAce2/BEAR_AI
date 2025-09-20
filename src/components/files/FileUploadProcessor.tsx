@@ -3,7 +3,6 @@
  * Handles batch file upload and processing workflows
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
 import type { FC, DragEvent, ChangeEvent } from 'react';
 import { localFileSystemService, LocalFile } from '../../services/localFileSystem';
 import { documentParserService, ParsedDocument } from '../../services/documentParser';

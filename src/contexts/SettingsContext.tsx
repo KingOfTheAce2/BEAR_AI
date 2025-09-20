@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { localSettingsService } from '../services/settings';
 import { 
+import { localSettingsService } from '../services/settings';
+
   LocalSettingsConfig, 
   SettingsContext as ISettingsContext, 
   SettingsBackup, 

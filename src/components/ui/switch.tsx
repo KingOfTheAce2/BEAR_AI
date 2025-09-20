@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
+export interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 import { cn } from '../../utils/cn';
 
-export interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }

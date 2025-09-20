@@ -1,12 +1,13 @@
 import React from 'react'
-import { cn } from '../../utils/cn'
-import { Agent } from '../../types'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
-import { Button } from '../ui/Button'
-import { Input } from '../ui/Input'
-import { Badge } from '../ui/Badge'
-import { Form, useForm } from '../forms/Form'
 import {
+import { Agent } from '../../types'
+import { Badge } from '../ui/Badge'
+import { Button } from '../ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { cn } from '../../utils/cn'
+import { Form, useForm } from '../forms/Form'
+import { Input } from '../ui/Input'
+
   Settings,
   Save,
   RefreshCw,

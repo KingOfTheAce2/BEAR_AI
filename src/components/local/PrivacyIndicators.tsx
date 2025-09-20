@@ -1,37 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  Lock,
-  Unlock,
-  Eye,
-  EyeOff,
-  Wifi,
-  WifiOff,
-  Database,
-  HardDrive,
-  FileCheck,
-  FileX,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Fingerprint,
-  Key,
-  UserX,
-  Trash2,
-  Download,
-  Upload,
-  Globe,
-  Server,
-  Zap,
-  Info,
-  Settings
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';

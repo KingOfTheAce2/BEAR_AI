@@ -1,18 +1,11 @@
 import React from 'react';
+export const SettingsPage: React.FC = () => {
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Input } from '../ui/Input';
 import { ThemeSelector } from '../ui/ThemeSelector';
 import { useApp } from '../../contexts/AppContext';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import {
-  UserCircleIcon,
-  PaintBrushIcon,
-  ShieldCheckIcon,
-  BellIcon,
-  CogIcon
-} from '@heroicons/react/24/outline';
 
-export const SettingsPage: React.FC = () => {
   const { state, logout } = useApp();
 
   return (

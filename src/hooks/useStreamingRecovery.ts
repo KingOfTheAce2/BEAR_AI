@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useStreaming } from './useStreaming';
-import { streamingErrorRecovery } from '../services/errorRecovery';
 import { StreamingError } from '../types/streaming';
+import { streamingErrorRecovery } from '../services/errorRecovery';
+import { useStreaming } from './useStreaming';
 
 interface RecoveryState {
   isRecovering: boolean;

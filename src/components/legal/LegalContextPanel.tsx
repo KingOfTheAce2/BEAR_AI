@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { LegalContext, LegalEvent, LegalParty, PracticeArea, Jurisdiction } from '../../types/legal';
 import './LegalContextPanel.css';
+import { LegalContext, LegalEvent, LegalParty, PracticeArea, Jurisdiction } from '../../types/legal';
 
 interface LegalContextPanelProps {
   context: LegalContext;

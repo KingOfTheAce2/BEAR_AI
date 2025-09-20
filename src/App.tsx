@@ -1,14 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
+import './styles/unified.css';
 import { AppProvider } from './contexts/AppContext';
-import { UnifiedLayout } from './components/layout/UnifiedLayout';
 import { LoginPage } from './components/auth/LoginPage';
 import { NotificationCenter } from './components/common/NotificationCenter';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
-import { User } from './types';
-import './styles/unified.css';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { UnifiedLayout } from './components/layout/UnifiedLayout';
 
 // User data should be provided by authentication system
 

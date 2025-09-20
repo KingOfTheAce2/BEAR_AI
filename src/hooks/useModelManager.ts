@@ -3,7 +3,6 @@
  * Provides Ollama-style model management with performance monitoring
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ModelConfig,
   LoadedModel,

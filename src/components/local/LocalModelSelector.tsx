@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Download, HardDrive, Cpu, MemoryStick, Check, X, AlertCircle, Settings } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
 
 interface LocalModel {

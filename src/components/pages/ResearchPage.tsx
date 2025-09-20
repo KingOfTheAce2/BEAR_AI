@@ -1,7 +1,7 @@
-import React from 'react';
 import { BookOpenIcon } from '@heroicons/react/24/outline';
-
+import React from 'react';
 export const ResearchPage: React.FC = () => {
+
   return (
     <div className="p-6 h-full flex flex-col">
       <div className="mb-8">

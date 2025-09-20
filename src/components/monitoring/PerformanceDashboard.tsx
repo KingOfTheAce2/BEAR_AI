@@ -315,7 +315,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ monitor, config }) => {
   };
 
   const handleClearData = async () => {
-    if (window.confirm('Are you sure you want to clear all monitoring data? This action cannot be undone.')) {
+    if (window.window.confirm('Are you sure you want to clear all monitoring data? This action cannot be undone.')) {
       await monitor.clearAllData();
     }
   };

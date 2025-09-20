@@ -1,19 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Scale, 
-  FileText, 
-  Users, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock,
-  TrendingUp,
-  Search,
-  Plus,
-  Bell,
-  Calendar,
-  BookOpen,
-  Shield
-} from 'lucide-react';
 import { LegalComponentProps } from '../../types/legal';
 
 interface DashboardStats {

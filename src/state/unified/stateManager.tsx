@@ -429,7 +429,7 @@ export function createStateProvider<T extends BaseState>(
     React.useEffect(() => {
       const unsubscribe = stateManager.subscribe(setState);
       return unsubscribe;
-    }, []);
+    }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
     const contextValue = useMemo(() => ({
       state,

@@ -7,28 +7,8 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { AnimationUtils, MicroInteractions, useAnimation } from '../../design/animation-system';
-import {
-  ChatBubbleOvalLeftIcon,
-  DocumentIcon,
-  MagnifyingGlassIcon,
-  ClockIcon,
-  BookOpenIcon,
-  CogIcon,
-  ScaleIcon,
-  FolderIcon,
-  UsersIcon,
-  CalendarIcon,
-  ChartBarIcon,
-  InformationCircleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  HomeIcon,
-  BellIcon
-} from '@heroicons/react/24/outline';
-
 export interface NavigationItem {
   id: string;
   label: string;

@@ -128,21 +128,15 @@ export class InferenceError extends Error {
 }
 
 export class ModelLoadError extends InferenceError {
-  constructor(modelId: string, details?: any) {
-    super(`Failed to load model: ${modelId}`, 'MODEL_LOAD_ERROR', details);
-  }
+  // Constructor removed - was empty
 }
 
 export class QueueFullError extends InferenceError {
-  constructor() {
-    super('Request queue is full', 'QUEUE_FULL_ERROR');
-  }
+  // Constructor removed - was empty
 }
 
 export class StreamingError extends InferenceError {
-  constructor(message: string, details?: any) {
-    super(message, 'STREAMING_ERROR', details);
-  }
+  // Constructor removed - was empty
 }
 
 // WebSocket streaming handler
@@ -153,9 +147,7 @@ class StreamingHandler extends EventEmitter {
   private reconnectDelay = 1000;
   private heartbeatInterval: NodeJS.Timeout | null = null;
 
-  constructor(private wsEndpoint: string) {
-    super();
-  }
+  // Constructor removed - was empty
 
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {

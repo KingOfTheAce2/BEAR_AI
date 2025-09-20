@@ -1,6 +1,6 @@
+export interface ApiClientConfig {
 import { ApiError, AuthTokens, ApiResponse, RequestConfig, RateLimit } from '../../types/api';
 
-export interface ApiClientConfig {
   baseUrl: string;
   version?: string;
   timeout?: number;

@@ -1,7 +1,6 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useApp } from '../../contexts/AppContext';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { useApp } from '../../contexts/AppContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

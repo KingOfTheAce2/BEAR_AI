@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import './MessageList.css';
 import { Message } from '../../../types/chat';
 import MessageComponent from './MessageComponent';
 import MessageThread from './MessageThread';
-import './MessageList.css';
 
 interface MessageListProps {
   messages: Message[];

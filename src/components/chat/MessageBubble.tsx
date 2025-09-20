@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Message } from '../../types';
 import {
+import { Message } from '../../types';
+
   CheckIcon,
   ClockIcon,
   ExclamationCircleIcon,

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { localSettingsService } from '../services/settings';
 import { LocalSettingsConfig, SettingsCategory, SettingsValidationError } from '../types/settings';
+import { localSettingsService } from '../services/settings';
 
 interface UseLocalSettingsReturn {
   settings: LocalSettingsConfig | null;

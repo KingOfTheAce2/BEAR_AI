@@ -1,7 +1,6 @@
 import React from 'react';
-import { useUserPreferences } from '../../contexts/SettingsContext';
-import FormField from './FormField';
 import './SettingsPanel.css';
+import FormField from './FormField';
 
 const UserPreferencesPanel: React.FC = () => {
   const { preferences, updatePreferences } = useUserPreferences();

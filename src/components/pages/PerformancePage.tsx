@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { PerformanceMetrics } from '../dashboard/PerformanceMetrics';
-import { PerformanceAlertsList } from '../ui/PerformanceAlert';
 import { OptimizationSuggestionsList } from '../ui/OptimizationSuggestions';
-import { usePerformance } from '../../contexts/PerformanceContext';
+import { PerformanceAlertsList } from '../ui/PerformanceAlert';
+import { PerformanceMetrics } from '../dashboard/PerformanceMetrics';
 import { performanceOptimizer } from '../../services/performanceOptimizer';
+import { usePerformance } from '../../contexts/PerformanceContext';
 
 const PerformancePage: React.FC = () => {
   const { 
@@ -53,13 +53,13 @@ const PerformancePage: React.FC = () => {
       try {
         const success = await performanceOptimizer.applySuggestion(suggestion);
         if (success) {
-          alert('Optimization applied successfully!');
+          window.alert('Optimization applied successfully!');
         } else {
-          alert('Failed to apply optimization. Manual intervention may be required.');
+          window.alert('Failed to apply optimization. Manual intervention may be required.');
         }
       } catch (error) {
         console.error('Error applying suggestion:', error);
-        alert('Error applying optimization.');
+        window.alert('Error applying optimization.');
       }
     }
   };
@@ -75,7 +75,7 @@ const PerformancePage: React.FC = () => {
 
   const handleThresholdUpdate = () => {
     updateThresholds(thresholds);
-    alert('Thresholds updated successfully!');
+    window.alert('Thresholds updated successfully!');
   };
 
   const getHealthStatus = () => {

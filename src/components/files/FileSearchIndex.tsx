@@ -44,7 +44,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
 
   useEffect(() => {
     loadDocuments();
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   useEffect(() => {
     performSearch();

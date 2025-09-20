@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { cn } from '../../utils/cn'
 import {
+import { cn } from '../../utils/cn'
+
   Model,
   ModelStatus,
   ModelStatusType,

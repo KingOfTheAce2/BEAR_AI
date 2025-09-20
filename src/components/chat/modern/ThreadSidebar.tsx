@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { Thread, User } from '../../../types/chat';
 import './ThreadSidebar.css';
 
 interface ThreadSidebarProps {

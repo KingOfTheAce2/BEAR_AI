@@ -1,22 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FileText, 
-  Save, 
-  Eye, 
-  Download, 
-  Share2, 
-  Settings, 
-  Plus,
-  Search,
-  Filter,
-  BookOpen,
-  Sparkles,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  User,
-  Calendar
-} from 'lucide-react';
 import { LegalComponentProps, LegalDocumentType, LegalCategory } from '../../types/legal';
 import DocumentDraftingService, { DraftingTemplate, DraftingResult, DocumentAssemblyRequest } from '../../services/legal/DocumentDraftingService';
 

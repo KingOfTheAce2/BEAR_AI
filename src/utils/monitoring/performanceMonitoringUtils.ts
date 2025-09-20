@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { LocalPerformanceMonitor } from '../../services/monitoring/localPerformanceMonitor';
 import { ModelPerformanceMetrics, MonitoringConfig } from '../../types/monitoring';
 

@@ -1,17 +1,6 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import * as os from 'os';
-import { 
-  LocalSettingsConfig, 
-  SettingsBackup, 
-  SettingsValidationError,
-  UserPreferences,
-  ThemeSettings,
-  ModelSettings,
-  PrivacySettings,
-  SystemSettings,
-  SettingsCategory 
-} from '../../types/settings';
+import * as path from 'path';
 
 class LocalSettingsService {
   private settingsDir: string;

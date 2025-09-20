@@ -1,17 +1,8 @@
 import React, { useState } from 'react';
+import { cn } from '../../utils/cn';
+import { ThemeSelector } from '../ui/ThemeSelector';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { ThemeSelector } from '../ui/ThemeSelector';
-import {
-  MagnifyingGlassIcon,
-  Bars3Icon,
-  BellIcon,
-  UserCircleIcon,
-  ChevronDownIcon,
-  ArrowRightOnRectangleIcon
-} from '@heroicons/react/24/outline';
-import { cn } from '../../utils/cn';
-import { User } from '../../types';
 
 interface UnifiedTopBarProps {
   user: User | null;

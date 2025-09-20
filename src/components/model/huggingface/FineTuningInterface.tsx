@@ -3,7 +3,6 @@
  * Comprehensive interface for fine-tuning HuggingFace models for legal tasks
  */
 
-import { useState, useEffect, useCallback } from 'react';
 import type { FC, ChangeEvent } from 'react';
 import type React from 'react';
 import {
@@ -101,13 +100,13 @@ const DatasetUpload: FC<DatasetUploadProps> = ({
 
   const handleFile = async (file: File) => {
     if (file.size > maxSize * 1024 * 1024) {
-      alert(`File size must be less than ${maxSize}MB`);
+      window.alert(`File size must be less than ${maxSize}MB`);
       return;
     }
 
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     if (!acceptedFormats.includes(`.${fileExtension}`)) {
-      alert(`Unsupported format. Accepted formats: ${acceptedFormats.join(', ')}`);
+      window.alert(`Unsupported format. Accepted formats: ${acceptedFormats.join(', ')}`);
       return;
     }
 
@@ -129,7 +128,7 @@ const DatasetUpload: FC<DatasetUploadProps> = ({
       };
       reader.readAsText(file);
     } catch (error) {
-      alert('Upload failed');
+      window.alert('Upload failed');
     } finally {
       setUploading(false);
     }
@@ -772,7 +771,7 @@ export const FineTuningInterface: FC<FineTuningInterfaceProps> = ({
 
   const handleStartTraining = async () => {
     if (!datasetUploaded) {
-      alert('Please upload a dataset first');
+      window.alert('Please upload a dataset first');
       return;
     }
 
@@ -837,7 +836,7 @@ export const FineTuningInterface: FC<FineTuningInterfaceProps> = ({
       }, 1000);
       
     } catch (error) {
-      alert('Failed to start training');
+      window.alert('Failed to start training');
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { PracticeArea, Jurisdiction, LegalConversationMetrics } from '../../types/legal';
 import './LegalToolbar.css';
+import { PracticeArea, Jurisdiction, LegalConversationMetrics } from '../../types/legal';
 
 interface LegalToolbarProps {
   practiceArea: PracticeArea;

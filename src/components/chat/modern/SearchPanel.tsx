@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Message, SearchFilter } from '../../../types/chat';
 import './SearchPanel.css';
+import { Message, SearchFilter } from '../../../types/chat';
 
 interface SearchPanelProps {
   searchResults: Message[];
@@ -28,7 +28,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   useEffect(() => {
     // Debounced search

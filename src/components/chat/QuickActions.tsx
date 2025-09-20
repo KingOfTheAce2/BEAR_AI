@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { QuickAction } from '../../types';
 import {
+import { QuickAction } from '../../types';
+
   MagnifyingGlassIcon,
   DocumentTextIcon,
   PencilSquareIcon,

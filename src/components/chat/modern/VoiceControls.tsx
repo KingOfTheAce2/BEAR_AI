@@ -50,7 +50,7 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({
     return () => {
       speechSynthesis.onvoiceschanged = null;
     };
-  }, []);
+  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
 
   const handleListenToggle = () => {
     if (isListening) {

@@ -1,7 +1,7 @@
 import React from 'react';
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
 import { cn } from '../../utils/cn';
 
-export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
   /**
    * Whether the card should show hover/interaction styles and behave like a button.
    */

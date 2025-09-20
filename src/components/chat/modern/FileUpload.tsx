@@ -76,7 +76,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
 
     if (errors.length > 0) {
-      alert('Upload errors:\n' + errors.join('\n'));
+      window.alert('Upload errors:\n' + errors.join('\n'));
     }
 
     if (validFiles.length > 0) {

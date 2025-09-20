@@ -1,23 +1,5 @@
 // Configuration Manager for BEAR AI - Comprehensive configuration management system
 import { EventEmitter } from 'events';
-import {
-  ApplicationConfig,
-  ConfigSchema,
-  ConfigValidationRule,
-  ConfigChangeEvent,
-  ConfigManagerState,
-  ConfigExport,
-  ConfigImportResult,
-  HotReloadOptions,
-  Environment,
-  UserPreferences,
-  ModelConfig,
-  FeatureFlags,
-  ConfigEvent,
-  ConfigEventType,
-  isValidEnvironment
-} from '../types/config';
-
 export class ConfigManager extends EventEmitter {
   private state: ConfigManagerState;
   private schema: ConfigSchema | null = null;

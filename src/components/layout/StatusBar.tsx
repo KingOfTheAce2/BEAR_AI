@@ -1,6 +1,7 @@
 import React from 'react';
-import { SystemStatus } from '../../types';
 import {
+import { SystemStatus } from '../../types';
+
   WifiIcon,
   ShieldCheckIcon,
   ClockIcon,

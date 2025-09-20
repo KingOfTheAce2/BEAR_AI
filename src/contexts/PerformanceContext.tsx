@@ -1,12 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
-  performanceMonitor, 
-  SystemMetrics, 
-  ModelInferenceMetrics, 
-  UserInteractionMetrics, 
-  PerformanceAlert, 
-  OptimizationSuggestion 
-} from '../services/performanceMonitor';
 
 interface PerformanceContextType {
   // Monitoring state

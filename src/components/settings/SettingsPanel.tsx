@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useSettings } from '../../contexts/SettingsContext';
+import './SettingsPanel.css';
 import { SettingsCategory } from '../../types/settings';
-import UserPreferencesPanel from './UserPreferencesPanel';
-import ThemeSettingsPanel from './ThemeSettingsPanel';
+import { useSettings } from '../../contexts/SettingsContext';
+import BackupRestorePanel from './BackupRestorePanel';
 import ModelSettingsPanel from './ModelSettingsPanel';
 import PrivacySettingsPanel from './PrivacySettingsPanel';
 import SystemSettingsPanel from './SystemSettingsPanel';
-import BackupRestorePanel from './BackupRestorePanel';
-import './SettingsPanel.css';
+import ThemeSettingsPanel from './ThemeSettingsPanel';
+import UserPreferencesPanel from './UserPreferencesPanel';
 
 interface SettingsPanelProps {
   onClose?: () => void;
@@ -30,7 +30,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   ];
 
   const handleResetCategory = async () => {
-    if (window.confirm(`Are you sure you want to reset ${categories.find(c => c.key === activeCategory)?.label} to default values?`)) {
+    if (window.window.confirm(`Are you sure you want to reset ${categories.find(c => c.key === activeCategory)?.label} to default values?`)) {
       try {
         await resetSettings(activeCategory);
       } catch (err) {
@@ -40,7 +40,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   const handleResetAll = async () => {
-    if (window.confirm('Are you sure you want to reset ALL settings to default values? This cannot be undone.')) {
+    if (window.window.confirm('Are you sure you want to reset ALL settings to default values? This cannot be undone.')) {
       try {
         await resetSettings();
       } catch (err) {

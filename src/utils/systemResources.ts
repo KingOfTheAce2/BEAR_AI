@@ -1,4 +1,5 @@
 export interface SystemInfo {
+
   platform: string;
   cores: number;
   memory?: number;

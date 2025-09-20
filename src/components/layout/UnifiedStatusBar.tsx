@@ -1,7 +1,8 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { SystemStatus } from '../../types';
 import {
+import { SystemStatus } from '../../types';
+import { useTheme } from '../../contexts/ThemeContext';
+
   WifiIcon,
   ShieldCheckIcon,
   ClockIcon,
