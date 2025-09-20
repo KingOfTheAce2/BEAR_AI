@@ -1,7 +1,7 @@
 import React from 'react';
-import {
 import { NavigationItem } from '../../types';
 
+import {
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   MagnifyingGlassIcon,

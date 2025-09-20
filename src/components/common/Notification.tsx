@@ -1,12 +1,12 @@
 import { createPortal } from 'react-dom'
 import React from 'react'
-import {
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
 import { cn, animations } from '../../utils/cn'
 import { NotificationConfig, NotificationAction } from '../../types'
 
+import {
   CheckCircle,
   XCircle,
   AlertTriangle,

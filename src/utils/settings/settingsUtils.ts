@@ -1,5 +1,6 @@
-export class SettingsUtils {
 import { LocalSettingsConfig, SettingsBackup, SettingsValidationError } from '../../types/settings';
+
+export class SettingsUtils {
 
   /**
    * Validates settings against a schema

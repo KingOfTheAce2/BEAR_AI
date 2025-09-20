@@ -1,5 +1,4 @@
 import React from 'react'
-import {
 import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -8,6 +7,7 @@ import { cn } from '../../utils/cn'
 import { Conversation, Message, Agent } from '../../types'
 import { Input } from '../ui/Input'
 
+import {
   Send,
   Paperclip,
   Smile,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { 
 import { cn } from '../../utils/cn'
 
+import {
   PerformanceMetrics, 
   SystemMetrics, 
   ModelMetrics, 

@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import {
 import { Document } from '../../types';
 import { DocumentCard } from './DocumentCard';
 import { DocumentUpload } from './DocumentUpload';
 
+import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
   FolderIcon,
