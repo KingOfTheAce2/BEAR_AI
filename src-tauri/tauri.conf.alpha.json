@@ -15,7 +15,7 @@
       "active": true,
       "identifier": "com.bearai.legalassistant.alpha",
       "category": "Productivity",
-      "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
+      "copyright": "Copyright \u00a9 2025 BEAR AI Team. All rights reserved.",
       "shortDescription": "BEAR AI Legal Assistant Alpha Build",
       "longDescription": "BEAR AI Legal Assistant Alpha - Early access version for testing and development. This alpha version may contain bugs and incomplete features.",
       "icon": [
@@ -26,11 +26,8 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "targets": [
-        "all"
-      ],
+      "targets": "all",
       "publisher": "BEAR AI Team",
-      "homepage": "https://bear-ai.com",
       "resources": [
         "assets/**/*",
         "templates/**/*"
@@ -55,31 +52,29 @@
           "SystemConfiguration"
         ],
         "minimumSystemVersion": "10.13",
-        "hardenedRuntime": false,
-        "dmg": {
-          "background": "assets/dmg-background.png",
-          "windowSize": {
-            "width": 660,
-            "height": 400
-          },
-          "appPosition": {
-            "x": 180,
-            "y": 170
-          },
-          "applicationFolderPosition": {
-            "x": 480,
-            "y": 170
-          }
+        "hardenedRuntime": false
+      },
+      "dmg": {
+        "background": "assets/dmg-background.png",
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
         }
       },
-      "linux": {
-        "deb": {
-          "depends": [
-            "libwebkit2gtk-4.0-37",
-            "libgtk-3-0",
-            "libayatana-appindicator3-1"
-          ]
-        }
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.0-37",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ]
       }
     },
     "macOSPrivateApi": true,
@@ -123,101 +118,100 @@
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
-      "tooltip": "BEAR AI Legal Assistant (Alpha)",
       "title": "BEAR AI Alpha"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": false
     },
-    "plugins": {
-      "updater": {
-        "active": false
-      },
-      "stronghold": {
-        "path": ".stronghold"
-      },
-      "shell": {
-        "all": false,
-        "execute": false,
-        "sidecar": false,
-        "open": true
-      },
-      "window": {
-        "all": false,
-        "create": false,
-        "center": true,
-        "requestUserAttention": true,
-        "setResizable": true,
-        "setTitle": true,
-        "maximize": true,
-        "unmaximize": true,
-        "minimize": true,
-        "unminimize": true,
-        "show": true,
-        "hide": true,
-        "close": false,
-        "setDecorations": true,
-        "setAlwaysOnTop": true,
-        "setContentProtected": true,
-        "setSize": true,
-        "setMinSize": true,
-        "setMaxSize": true,
-        "setPosition": true,
-        "setFullscreen": true,
-        "setFocus": true,
-        "setIcon": true,
-        "setSkipTaskbar": true,
-        "setCursorGrab": false,
-        "setCursorVisible": true,
-        "setCursorIcon": true,
-        "setCursorPosition": false,
-        "setIgnoreCursorEvents": false,
-        "startDragging": false,
-        "print": true
-      },
-      "fs": {
-        "all": false,
-        "readFile": true,
-        "writeFile": true,
-        "readDir": true,
-        "copyFile": true,
-        "createDir": true,
-        "removeDir": true,
-        "removeFile": true,
-        "renameFile": true,
-        "exists": true
-      },
-      "path": {
-        "all": true
-      },
-      "os": {
-        "all": true
-      },
-      "process": {
-        "all": false,
-        "relaunch": true,
-        "exit": true
-      },
-      "dialog": {
-        "all": false,
-        "ask": true,
-        "confirm": true,
-        "message": true,
-        "open": true,
-        "save": true
-      },
-      "notification": {
-        "all": true
-      },
-      "globalShortcut": {
-        "all": false
-      },
-      "http": {
-        "all": true,
-        "request": true
-      },
-      "clipboard": {
-        "all": false,
-        "writeText": true,
-        "readText": true
-      }
+    "stronghold": {
+      "path": ".stronghold"
+    },
+    "shell": {
+      "all": false,
+      "execute": false,
+      "sidecar": false,
+      "open": true
+    },
+    "window": {
+      "all": false,
+      "create": false,
+      "center": true,
+      "requestUserAttention": true,
+      "setResizable": true,
+      "setTitle": true,
+      "maximize": true,
+      "unmaximize": true,
+      "minimize": true,
+      "unminimize": true,
+      "show": true,
+      "hide": true,
+      "close": false,
+      "setDecorations": true,
+      "setAlwaysOnTop": true,
+      "setContentProtected": true,
+      "setSize": true,
+      "setMinSize": true,
+      "setMaxSize": true,
+      "setPosition": true,
+      "setFullscreen": true,
+      "setFocus": true,
+      "setIcon": true,
+      "setSkipTaskbar": true,
+      "setCursorGrab": false,
+      "setCursorVisible": true,
+      "setCursorIcon": true,
+      "setCursorPosition": false,
+      "setIgnoreCursorEvents": false,
+      "startDragging": false,
+      "print": true
+    },
+    "fs": {
+      "all": false,
+      "readFile": true,
+      "writeFile": true,
+      "readDir": true,
+      "copyFile": true,
+      "createDir": true,
+      "removeDir": true,
+      "removeFile": true,
+      "renameFile": true,
+      "exists": true
+    },
+    "path": {
+      "all": true
+    },
+    "os": {
+      "all": true
+    },
+    "process": {
+      "all": false,
+      "relaunch": true,
+      "exit": true
+    },
+    "dialog": {
+      "all": false,
+      "ask": true,
+      "confirm": true,
+      "message": true,
+      "open": true,
+      "save": true
+    },
+    "notification": {
+      "all": true
+    },
+    "globalShortcut": {
+      "all": false
+    },
+    "http": {
+      "all": true,
+      "request": true
+    },
+    "clipboard": {
+      "all": false,
+      "writeText": true,
+      "readText": true
     }
   }
 }
