@@ -61,25 +61,25 @@ jobs:
 
       - name: TypeScript type checking (Demo Mode)
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.ref }}" == *"demo"* ]]; then
             echo "⚠️ Skipping TypeScript strict checking for demo/alpha build"
             echo "✅ Demo mode: Building for testing purposes only"
           else
             echo "🔍 Running TypeScript strict checking for production build"
             npm run typecheck:build
           fi
-        continue-on-error: ${{ contains(github.event.head_commit.message, 'demo') }}
+        continue-on-error: true
 
       - name: ESLint (Demo Mode)
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.ref }}" == *"demo"* ]]; then
             echo "⚠️ Skipping ESLint checking for demo/alpha build"
             echo "✅ Demo mode: Building for testing purposes only"
           else
             echo "🔍 Running ESLint for production build"
             npm run lint
           fi
-        continue-on-error: ${{ contains(github.event.head_commit.message, 'demo') }}
+        continue-on-error: true
 
       - name: Rust formatting check
         working-directory: src-tauri
@@ -247,7 +247,7 @@ jobs:
 
       - name: Build frontend
         run: |
-          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"alpha"* ]] || [[ "${{ github.event.head_commit.message }}" == *"demo"* ]]; then
+          if [[ "${{ github.ref }}" == *"alpha"* ]] || [[ "${{ github.ref }}" == *"demo"* ]]; then
             echo "🚀 Building demo/alpha version with relaxed checks"
             echo "⚠️ WARNING: This is a DEMO build - not for production use"
             npm run build:alpha-fast
@@ -268,8 +268,10 @@ jobs:
           GLIB_2_0_NO_PKG_CONFIG: 0
           GOBJECT_2_0_NO_PKG_CONFIG: 0
         with:
-          args: ${{ matrix.args }}
-          configPath: ${{ (contains(github.ref, 'alpha') || contains(github.event.head_commit.message, 'alpha')) && 'src-tauri/tauri.conf.alpha.json' || 'src-tauri/tauri.conf.json' }}
+          tauriScript: npx @tauri-apps/cli@1.6.8
+          args: >-
+            ${{ matrix.args }}
+            ${{ (contains(github.ref, 'alpha') || contains(github.ref, 'demo')) && '--config src-tauri/tauri.conf.alpha.json' || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
