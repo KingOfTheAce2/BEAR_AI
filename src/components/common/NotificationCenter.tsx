@@ -1,13 +1,46 @@
 import React from 'react';
 import {
-import { useApp } from '../../contexts/AppContext';
-
   CheckCircleIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
   XCircleIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '../../contexts/AppContext';
+
+type NotificationType = 'info' | 'success' | 'warning' | 'error';
+type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+interface NotificationColors {
+  border: string;
+  icon: string;
+}
+
+const typeToColors: Record<NotificationType, NotificationColors> = {
+  success: {
+    border: 'border-green-500',
+    icon: 'text-green-500'
+  },
+  warning: {
+    border: 'border-yellow-500',
+    icon: 'text-yellow-500'
+  },
+  error: {
+    border: 'border-red-500',
+    icon: 'text-red-500'
+  },
+  info: {
+    border: 'border-blue-500',
+    icon: 'text-blue-500'
+  }
+};
+
+const typeToIcon: Record<NotificationType, IconComponent> = {
+  success: CheckCircleIcon,
+  warning: ExclamationCircleIcon,
+  error: XCircleIcon,
+  info: InformationCircleIcon
+};
 
 export const NotificationCenter: React.FC = () => {
   const { state, removeNotification } = useApp();
@@ -18,9 +51,9 @@ export const NotificationCenter: React.FC = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
-      {state.notifications.map((notification) => {
-        const Icon = getNotificationIcon(notification.type);
-        const colorClasses = getNotificationColors(notification.type);
+      {state.notifications.map(notification => {
+        const Icon = typeToIcon[notification.type];
+        const colorClasses = typeToColors[notification.type];
 
         return (
           <div
@@ -46,6 +79,7 @@ export const NotificationCenter: React.FC = () => {
                 <button
                   onClick={() => removeNotification(notification.id)}
                   className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                  aria-label="Dismiss notification"
                 >
                   <XMarkIcon className="w-4 h-4" />
                 </button>
@@ -58,60 +92,25 @@ export const NotificationCenter: React.FC = () => {
   );
 };
 
-function getNotificationIcon(type: string) {
-  switch (type) {
-    case 'success':
-      return CheckCircleIcon;
-    case 'warning':
-      return ExclamationCircleIcon;
-    case 'error':
-      return XCircleIcon;
-    case 'info':
-    default:
-      return InformationCircleIcon;
-  }
-}
-
-function getNotificationColors(type: string) {
-  switch (type) {
-    case 'success':
-      return {
-        border: 'border-green-500',
-        icon: 'text-green-500'
-      };
-    case 'warning':
-      return {
-        border: 'border-yellow-500',
-        icon: 'text-yellow-500'
-      };
-    case 'error':
-      return {
-        border: 'border-red-500',
-        icon: 'text-red-500'
-      };
-    case 'info':
-    default:
-      return {
-        border: 'border-blue-500',
-        icon: 'text-blue-500'
-      };
-  }
-}
-
-function formatTimestamp(timestamp: Date): string {
+function formatTimestamp(timestamp: Date | string): string {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
   const now = new Date();
-  const diff = now.getTime() - timestamp.getTime();
+  const diff = now.getTime() - date.getTime();
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
 
   if (seconds < 60) {
     return 'just now';
-  } else if (minutes < 60) {
-    return `${minutes}m ago`;
-  } else if (hours < 24) {
-    return `${hours}h ago`;
-  } else {
-    return timestamp.toLocaleDateString();
   }
+
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+
+  if (hours < 24) {
+    return `${hours}h ago`;
+  }
+
+  return date.toLocaleDateString();
 }

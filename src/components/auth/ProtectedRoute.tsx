@@ -1,4 +1,5 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useApp } from '../../contexts/AppContext';
 
