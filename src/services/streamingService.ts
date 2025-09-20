@@ -1,15 +1,6 @@
 import { EventEmitter } from 'events';
 
-import {
-  StreamingMessage,
-  StreamingChunk,
-  StreamingConfig,
-  ConnectionState,
-  StreamingError,
-  StreamingOptions,
-  StreamingEvent,
-  StreamingMetrics
-} from '../types/streaming';
+import { StreamingMessage, StreamingChunk, StreamingConfig, ConnectionState, StreamingError, StreamingOptions, StreamingEvent, StreamingMetrics } from '../types/streaming';
 
 export class StreamingService extends EventEmitter {
   private config: StreamingConfig;

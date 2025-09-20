@@ -1,31 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-
-  Folder, 
-  File, 
-  ChevronRight, 
-  ChevronDown, 
-  Home, 
-  HardDrive, 
-  Search, 
-  Filter,
-  RefreshCw,
-  Lock,
-  Eye,
-  EyeOff,
-  FileText,
-  Image,
-  Video,
-  Music,
-  Archive,
-  Code,
-  Database,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Shield,
-  FileWarning
-} from 'lucide-react';
+import { Folder, File, ChevronRight, ChevronDown, Home, HardDrive, Search, Filter, RefreshCw, Lock, Eye, EyeOff, FileText, Image, Video, Music, Archive, Code, Database, AlertCircle, CheckCircle, Clock, Shield, FileWarning } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';

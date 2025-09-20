@@ -1,13 +1,5 @@
 
-import {
-  AnalyticsQuery,
-  AnalyticsResult,
-  AnalyticsDataPoint,
-  AnalyticsSummary,
-  KnowledgeBaseConfig,
-  KnowledgeBaseStats,
-  Document
-} from '../../../types/knowledge/types';
+import { AnalyticsQuery, AnalyticsResult, AnalyticsDataPoint, AnalyticsSummary, KnowledgeBaseConfig, KnowledgeBaseStats, Document } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 
 interface AnalyticsMetric {

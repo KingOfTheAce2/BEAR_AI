@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 import { Document } from '../../types';
 
-import {
-  DocumentTextIcon,
-  EyeIcon,
-  ArrowDownIcon,
-  TrashIcon,
-  PencilIcon,
-  ClockIcon,
-  TagIcon,
-  ExclamationCircleIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline';
+import { DocumentTextIcon, EyeIcon, ArrowDownIcon, TrashIcon, PencilIcon, ClockIcon, TagIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 interface DocumentCardProps {
   document: Document;

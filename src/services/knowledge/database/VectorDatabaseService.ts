@@ -1,11 +1,5 @@
 
-import {
-  Document,
-  DocumentChunk,
-  KnowledgeBaseConfig,
-  KnowledgeBaseStats,
-  VectorIndex
-} from '../../../types/knowledge/types';
+import { Document, DocumentChunk, KnowledgeBaseConfig, KnowledgeBaseStats, VectorIndex } from '../../../types/knowledge/types';
 
 interface DBSchema {
   documents: {

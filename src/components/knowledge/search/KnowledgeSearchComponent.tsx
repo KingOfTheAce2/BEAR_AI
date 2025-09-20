@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-
-  SearchQuery, 
-  SearchResult, 
-  FacetedSearchResult,
-  SearchFilters,
-  SearchOptions 
-} from '../../../types/knowledge/types';
+import { SearchQuery, SearchResult, FacetedSearchResult, SearchFilters, SearchOptions } from '../../../types/knowledge/types';
 import KnowledgeBaseService from '../../../services/knowledge/core/KnowledgeBaseService';
 import './KnowledgeSearch.css';
 

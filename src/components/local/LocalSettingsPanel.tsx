@@ -1,36 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import {
-  Settings,
-  Shield,
-  HardDrive,
-  Monitor,
-  Cpu,
-  MemoryStick,
-  Database,
-  Lock,
-  Eye,
-  EyeOff,
-  Download,
-  Upload,
-  Trash2,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  Folder,
-  FileText,
-  Bell,
-  BellOff,
-  Sun,
-  Volume2,
-  VolumeX,
-  Globe,
-  Wifi,
-  WifiOff,
-  Save,
-  RotateCcw
-} from 'lucide-react';
+import { Settings, Shield, HardDrive, Monitor, Cpu, MemoryStick, Database, Lock, Eye, EyeOff, Download, Upload, Trash2, RefreshCw, AlertTriangle, CheckCircle, Info, Folder, FileText, Bell, BellOff, Sun, Volume2, VolumeX, Globe, Wifi, WifiOff, Save, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';

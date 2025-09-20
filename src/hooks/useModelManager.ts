@@ -3,16 +3,7 @@
  * Provides Ollama-style model management with performance monitoring
  */
 
-import {
-  ModelConfig,
-  LoadedModel,
-  ModelInferenceOptions,
-  ModelInferenceResult,
-  ModelEventType,
-  ModelEvent,
-  MemoryStats,
-  ModelManagerStats
-} from '../types/modelTypes';
+import { ModelConfig, LoadedModel, ModelInferenceOptions, ModelInferenceResult, ModelEventType, ModelEvent, MemoryStats, ModelManagerStats } from '../types/modelTypes';
 import CoreModelManager, { type ModelPerformanceMetrics } from '../services/modelManager';
 
 export interface UseModelManagerOptions {

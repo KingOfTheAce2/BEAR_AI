@@ -7,20 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { LicenseCrypto } from '../crypto/license.crypto';
-import {
-  License,
-  LicenseTier,
-  LicenseStatus,
-  LicenseFeatures,
-  HardwareFingerprint,
-  LicenseValidationResult,
-  LicenseActivationRequest,
-  LicenseActivationResponse,
-  UsageTracking,
-  UsageQuota,
-  SecurityCheckResult,
-  LicenseAuditLog
-} from '../types/license.types';
+import { License, LicenseTier, LicenseStatus, LicenseFeatures, HardwareFingerprint, LicenseValidationResult, LicenseActivationRequest, LicenseActivationResponse, UsageTracking, UsageQuota, SecurityCheckResult, LicenseAuditLog } from '../types/license.types';
 
 export class LicenseManager {
   private static instance: LicenseManager;

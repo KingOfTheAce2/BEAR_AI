@@ -6,23 +6,7 @@ import { Button } from '../ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { cn } from '../../utils/cn'
 
-import {
-  Activity,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Cpu,
-  RefreshCw,
-  TrendingUp,
-  Users,
-  Zap,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Grid3X3,
-  List,
-  LayoutGrid
-} from 'lucide-react'
+import { Activity, AlertCircle, CheckCircle, Clock, Cpu, RefreshCw, TrendingUp, Users, Zap, BarChart3, PieChart, LineChart, Grid3X3, List, LayoutGrid } from 'lucide-react'
 
 export interface StatusDashboardProps {
   agents: Agent[]

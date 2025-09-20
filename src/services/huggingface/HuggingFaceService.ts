@@ -3,16 +3,7 @@
  * Handles API communication with HuggingFace Hub
  */
 
-import {
-  HuggingFaceModel,
-  ModelSearchFilters,
-  LegalCategory,
-  ModelRecommendation,
-  HuggingFaceConfig,
-  ModelMetadata,
-  ModelDownloadProgress,
-  CompatibilityResult
-} from '../../types/huggingface';
+import { HuggingFaceModel, ModelSearchFilters, LegalCategory, ModelRecommendation, HuggingFaceConfig, ModelMetadata, ModelDownloadProgress, CompatibilityResult } from '../../types/huggingface';
 
 export class HuggingFaceService {
   private config: HuggingFaceConfig;

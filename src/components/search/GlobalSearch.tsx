@@ -2,12 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SearchResult } from '../../types';
 import { SearchResults } from './SearchResults';
 
-import {
-  MagnifyingGlassIcon,
-  XMarkIcon,
-  AdjustmentsHorizontalIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, XMarkIcon, AdjustmentsHorizontalIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 interface GlobalSearchProps {
   onSearch: (query: string) => void;

@@ -1,11 +1,5 @@
 
-import {
-  Document,
-  DocumentChunk,
-  DocumentMetadata,
-  ChunkMetadata,
-  KnowledgeBaseConfig
-} from '../../../types/knowledge/types';
+import { Document, DocumentChunk, DocumentMetadata, ChunkMetadata, KnowledgeBaseConfig } from '../../../types/knowledge/types';
 import { EmbeddingService } from './EmbeddingService';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 

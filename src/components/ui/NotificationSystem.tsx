@@ -1,38 +1,11 @@
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react'
 import { cn } from '../../utils/cn'
 
-import {
-  Notification, 
-  NotificationAction, 
-  NotificationPosition, 
-  NotificationType,
-  NotificationStatus 
-} from '../../types/modelTypes'
+import { Notification, NotificationAction, NotificationPosition, NotificationType, NotificationStatus } from '../../types/modelTypes'
 import { Button } from './Button'
 import { Card } from './Card'
 import { LoadingSpinner } from './LoadingSpinner'
-import {
-  CheckCircle,
-  AlertTriangle,
-  AlertCircle,
-  Info,
-  X,
-  Clock,
-  Download,
-  Upload,
-  Zap,
-  RefreshCw,
-  ExternalLink,
-  Copy,
-  Bell,
-  BellOff,
-  Settings,
-  ChevronRight,
-  Pause,
-  Play,
-  Volume2,
-  VolumeX
-} from 'lucide-react'
+import { CheckCircle, AlertTriangle, AlertCircle, Info, X, Clock, Download, Upload, Zap, RefreshCw, ExternalLink, Copy, Bell, BellOff, Settings, ChevronRight, Pause, Play, Volume2, VolumeX } from 'lucide-react'
 
 interface NotificationContextType {
   notifications: Notification[]

@@ -3,11 +3,7 @@
  * Validates model compatibility with system requirements
  */
 
-import {
-  CompatibilityResult,
-  CompatibilityOptimization,
-  HuggingFaceModel
-} from '../../types/huggingface';
+import { CompatibilityResult, CompatibilityOptimization, HuggingFaceModel } from '../../types/huggingface';
 
 export interface SystemRequirements {
   memory: {

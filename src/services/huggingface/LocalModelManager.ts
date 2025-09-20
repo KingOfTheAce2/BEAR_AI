@@ -3,13 +3,7 @@
  * Handles downloading, caching, and managing HuggingFace models locally
  */
 
-import { 
-  HuggingFaceModel, 
-  ModelDownloadProgress, 
-  LocalModelStatus,
-  ModelFile,
-  HuggingFaceError
-} from '../../types/huggingface';
+import { HuggingFaceModel, ModelDownloadProgress, LocalModelStatus, ModelFile, HuggingFaceError } from '../../types/huggingface';
 
 export interface DownloadOptions {
   priority?: 'low' | 'normal' | 'high';

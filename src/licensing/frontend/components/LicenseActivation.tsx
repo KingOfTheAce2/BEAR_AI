@@ -4,19 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  KeyIcon,
-  ComputerDesktopIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline';
+import { KeyIcon, ComputerDesktopIcon, CheckCircleIcon, ExclamationCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { Copy } from 'lucide-react';
-import {
-  LicenseActivationRequest,
-  LicenseActivationResponse,
-  HardwareFingerprint
-} from '../../types/license.types';
+import { LicenseActivationRequest, LicenseActivationResponse, HardwareFingerprint } from '../../types/license.types';
 
 interface LicenseActivationProps {
   onActivationComplete?: (license: any) => void;

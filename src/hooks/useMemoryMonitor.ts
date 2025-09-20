@@ -1,13 +1,4 @@
-import { 
-
-  MemoryMonitor, 
-  MemoryInfo, 
-  MemoryStatus, 
-  MemoryTrend, 
-  MemoryMonitorConfig, 
-  getGlobalMemoryMonitor,
-  DEFAULT_MEMORY_CONFIG 
-} from '@utils/memoryMonitor';
+import { MemoryMonitor, MemoryInfo, MemoryStatus, MemoryTrend, MemoryMonitorConfig, getGlobalMemoryMonitor, DEFAULT_MEMORY_CONFIG } from '@utils/memoryMonitor';
 import { getSystemInfo, getOptimalConfig } from '@utils/systemResources';
 
 export interface UseMemoryMonitorOptions {

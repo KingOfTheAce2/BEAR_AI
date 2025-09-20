@@ -4,12 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginInstance,
-  PluginManifest,
-  PluginPackage,
-  PluginStatus
-} from '../core/types';
+import { PluginInstance, PluginManifest, PluginPackage, PluginStatus } from '../core/types';
 import { PluginRegistry } from '../registry/PluginRegistry';
 
 export class LocalMarketplace extends EventEmitter {

@@ -1,12 +1,6 @@
 // Performance Dashboard Component
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  SystemMetrics, 
-  ModelPerformanceMetrics, 
-  PerformanceAlert, 
-  OptimizationRecommendation,
-  MonitoringState 
-} from '../../types/monitoring';
+import { SystemMetrics, ModelPerformanceMetrics, PerformanceAlert, OptimizationRecommendation, MonitoringState } from '../../types/monitoring';
 import { LocalPerformanceMonitor } from '../../services/monitoring/localPerformanceMonitor';
 import { SystemMetricsChart } from './SystemMetricsChart';
 import { ModelMetricsChart } from './ModelMetricsChart';

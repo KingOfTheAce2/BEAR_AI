@@ -3,13 +3,7 @@
  * Demonstrates how to use the comprehensive local plugin system
  */
 
-import { 
-  BearPluginSystem, 
-  getBearPluginSystem, 
-  initializePluginSystem,
-  PluginPackage,
-  PluginManifest
-} from '../index';
+import { BearPluginSystem, getBearPluginSystem, initializePluginSystem, PluginPackage, PluginManifest } from '../index';
 
 /**
  * Basic Plugin System Usage Example

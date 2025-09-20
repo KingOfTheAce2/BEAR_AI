@@ -6,14 +6,7 @@ import { Card, CardContent } from '../ui/Card'
 import { cn, animations } from '../../utils/cn'
 import { NotificationConfig, NotificationAction } from '../../types'
 
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-  X,
-  Clock
-} from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, Info, X, Clock } from 'lucide-react'
 
 export interface NotificationProps extends NotificationConfig {
   id: string

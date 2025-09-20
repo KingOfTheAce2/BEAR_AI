@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { 
+import { LocalSettingsConfig, SettingsContext as ISettingsContext, SettingsBackup, SettingsValidationError, SettingsCategory } from '../types/settings';
 import { localSettingsService } from '../services/settings';
-
-  LocalSettingsConfig, 
-  SettingsContext as ISettingsContext, 
-  SettingsBackup, 
-  SettingsValidationError,
-  SettingsCategory 
-} from '../types/settings';
 
 const SettingsContext = createContext<ISettingsContext | undefined>(undefined);
 

@@ -6,12 +6,7 @@
  * @version 1.0.0
  */
 
-import {
-  ContractAnalysis,
-  LegalDocumentPlugin,
-  PluginManifest,
-  PluginContext
-} from './plugin-architecture'
+import { ContractAnalysis, LegalDocumentPlugin, PluginManifest, PluginContext } from './plugin-architecture'
 
 // Legal Document Types
 interface LegalDocument {

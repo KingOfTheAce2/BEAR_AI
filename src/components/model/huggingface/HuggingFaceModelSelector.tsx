@@ -4,31 +4,8 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  StarIcon,
-  ArrowDownIcon,
-  PlayIcon,
-  StopIcon,
-  ChartBarIcon,
-  ExclamationCircleIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  CpuChipIcon,
-  CloudIcon,
-  BookmarkIcon,
-  AdjustmentsHorizontalIcon
-} from '@heroicons/react/24/outline';
-import {
-  HuggingFaceModel,
-  ModelSearchFilters,
-  LegalCategory,
-  ModelSortOption,
-  CompatibilityResult,
-  ModelRecommendation,
-  FineTuningCapabilities
-} from '../../../types/huggingface';
+import { MagnifyingGlassIcon, FunnelIcon, StarIcon, ArrowDownIcon, PlayIcon, StopIcon, ChartBarIcon, ExclamationCircleIcon, CheckCircleIcon, ClockIcon, CpuChipIcon, CloudIcon, BookmarkIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { HuggingFaceModel, ModelSearchFilters, LegalCategory, ModelSortOption, CompatibilityResult, ModelRecommendation, FineTuningCapabilities } from '../../../types/huggingface';
 
 interface HuggingFaceModelSelectorProps {
   onModelSelect: (model: HuggingFaceModel) => void | Promise<void>;

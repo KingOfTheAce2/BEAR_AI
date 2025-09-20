@@ -1,16 +1,7 @@
 import React from 'react';
 import { NavigationItem } from '../../types';
 
-import {
-  ChatBubbleLeftRightIcon,
-  DocumentTextIcon,
-  MagnifyingGlassIcon,
-  ClockIcon,
-  CogIcon,
-  HomeIcon,
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon
-} from '@heroicons/react/24/outline';
+import { ChatBubbleLeftRightIcon, DocumentTextIcon, MagnifyingGlassIcon, ClockIcon, CogIcon, HomeIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
   collapsed: boolean;

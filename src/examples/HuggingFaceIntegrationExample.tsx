@@ -4,18 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  HuggingFaceModelSelector,
-  FineTuningInterface,
-  HuggingFaceService,
-  LocalModelManager,
-  ModelBenchmarking,
-  CompatibilityValidator,
-  HuggingFaceModel,
-  LegalCategory,
-  CompatibilityResult,
-  FineTuningConfig
-} from '../components/model/huggingface';
+import { HuggingFaceModelSelector, FineTuningInterface, HuggingFaceService, LocalModelManager, ModelBenchmarking, CompatibilityValidator, HuggingFaceModel, LegalCategory, CompatibilityResult, FineTuningConfig } from '../components/model/huggingface';
 import { CoreModelManager } from '../services/modelManager';
 
 interface HuggingFaceIntegrationExampleProps {

@@ -1,12 +1,4 @@
-import { 
-
-  Document, 
-  KnowledgeBaseConfig, 
-  KnowledgeBaseStats,
-  SearchQuery,
-  SearchResult,
-  FacetedSearchResult
-} from '../../../types/knowledge/types';
+import { Document, KnowledgeBaseConfig, KnowledgeBaseStats, SearchQuery, SearchResult, FacetedSearchResult } from '../../../types/knowledge/types';
 import { DocumentIndexer } from '../indexing/DocumentIndexer';
 import { SemanticSearchService } from '../search/SemanticSearchService';
 import { KnowledgeGraphService } from '../graph/KnowledgeGraphService';

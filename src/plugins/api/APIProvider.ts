@@ -4,28 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginInstance,
-  PluginManifest,
-  PluginAPI,
-  PluginStorageAPI,
-  PluginUIAPI,
-  PluginEventAPI,
-  PluginEventHandler,
-  PluginUtilsAPI,
-  BearAIAPI,
-  PluginConfigSchema,
-  ValidationResult,
-  ModelInfo,
-  ChatOptions,
-  ChatResponse,
-  AnalysisResult,
-  AppContext,
-  ModalOptions,
-  MenuItem,
-  ToolbarButton,
-  PanelConfig
-} from '../core/types';
+import { PluginInstance, PluginManifest, PluginAPI, PluginStorageAPI, PluginUIAPI, PluginEventAPI, PluginEventHandler, PluginUtilsAPI, BearAIAPI, PluginConfigSchema, ValidationResult, ModelInfo, ChatOptions, ChatResponse, AnalysisResult, AppContext, ModalOptions, MenuItem, ToolbarButton, PanelConfig } from '../core/types';
 
 export class PluginAPIProvider extends EventEmitter {
   private pluginAPIs: Map<string, PluginAPI> = new Map();

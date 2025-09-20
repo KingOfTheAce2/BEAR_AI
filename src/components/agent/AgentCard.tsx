@@ -5,18 +5,7 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { cn } from '../../utils/cn'
-import {
-  Activity,
-  Clock,
-  Cpu,
-  MessageCircle,
-  Settings,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Pause,
-} from 'lucide-react'
+import { Activity, Clock, Cpu, MessageCircle, Settings, Zap, CheckCircle, AlertCircle, XCircle, Pause } from 'lucide-react'
 
 export interface AgentCardProps {
   agent: Agent

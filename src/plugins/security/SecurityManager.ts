@@ -4,13 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import {
-  PluginPackage,
-  PluginInstance,
-  PluginPermission,
-  SecurityViolation,
-  PluginManifest
-} from '../core/types';
+import { PluginPackage, PluginInstance, PluginPermission, SecurityViolation, PluginManifest } from '../core/types';
 
 export class PluginSecurityManager extends EventEmitter {
   private violations: SecurityViolation[] = [];

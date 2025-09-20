@@ -1,23 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import {
-  FileText,
-  Upload,
-  Search,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Download,
-  Share2,
-  BarChart3,
-  Shield,
-  Scale,
-  Clock,
-  TrendingUp,
-  Filter,
-  Info
-} from 'lucide-react';
+import { FileText, Upload, Search, AlertTriangle, CheckCircle, XCircle, Eye, Download, Share2, BarChart3, Shield, Scale, Clock, TrendingUp, Filter, Info } from 'lucide-react';
 import { LegalComponentProps, RiskLevel } from '../../types/legal';
 import ContractAnalysisService, { 
   ContractAnalysisResult, 

@@ -3,27 +3,7 @@
  * Orchestrates model loading, unloading, and lifecycle management with memory awareness
  */
 
-import {
-  ModelConfig,
-  LoadedModel,
-  ModelManager,
-  ModelLoadOptions,
-  ModelInferenceOptions,
-  ModelInferenceResult,
-  MemoryStats,
-  ModelManagerConfig,
-  ModelManagerStats,
-  ModelStatus,
-  ModelStatusType,
-  ModelError,
-  ModelErrorCode,
-  ModelEvent,
-  ModelEventType,
-  ModelEventListener,
-  ModelPriority,
-  ModelType,
-  MemoryPressure
-} from '../types/modelTypes';
+import { ModelConfig, LoadedModel, ModelManager, ModelLoadOptions, ModelInferenceOptions, ModelInferenceResult, MemoryStats, ModelManagerConfig, ModelManagerStats, ModelStatus, ModelStatusType, ModelError, ModelErrorCode, ModelEvent, ModelEventType, ModelEventListener, ModelPriority, ModelType, MemoryPressure } from '../types/modelTypes';
 
 import MemoryAwareLoader from '../utils/memoryAwareLoader';
 import { GPT4ALLIntegration, GPT4ALLFactory } from './gpt4allIntegration';

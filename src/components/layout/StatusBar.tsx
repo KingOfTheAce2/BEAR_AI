@@ -1,14 +1,7 @@
 import React from 'react';
 import { SystemStatus } from '../../types';
 
-import {
-  WifiIcon,
-  ShieldCheckIcon,
-  ClockIcon,
-  CpuChipIcon,
-  ExclamationCircleIcon,
-  XCircleIcon
-} from '@heroicons/react/24/outline';
+import { WifiIcon, ShieldCheckIcon, ClockIcon, CpuChipIcon, ExclamationCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface StatusBarProps {
   systemStatus: SystemStatus;

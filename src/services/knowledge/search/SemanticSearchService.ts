@@ -1,16 +1,5 @@
 
-import {
-  SearchQuery,
-  SearchResult,
-  SearchChunk,
-  SearchHighlight,
-  FacetedSearchResult,
-  SearchFacet,
-  FacetValue,
-  Document,
-  DocumentChunk,
-  KnowledgeBaseConfig
-} from '../../../types/knowledge/types';
+import { SearchQuery, SearchResult, SearchChunk, SearchHighlight, FacetedSearchResult, SearchFacet, FacetValue, Document, DocumentChunk, KnowledgeBaseConfig } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 import { EmbeddingService } from '../indexing/EmbeddingService';
 

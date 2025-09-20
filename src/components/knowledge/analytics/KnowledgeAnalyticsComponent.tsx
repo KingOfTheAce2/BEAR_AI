@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import {
-  AnalyticsQuery,
-  AnalyticsResult,
-  KnowledgeBaseStats
-} from '../../../types/knowledge/types';
+import { AnalyticsQuery, AnalyticsResult, KnowledgeBaseStats } from '../../../types/knowledge/types';
 import KnowledgeBaseService from '../../../services/knowledge/core/KnowledgeBaseService';
 import './KnowledgeAnalytics.css';
 

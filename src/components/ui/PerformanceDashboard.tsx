@@ -1,57 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { cn } from '../../utils/cn'
 
-import {
-  PerformanceMetrics, 
-  SystemMetrics, 
-  ModelMetrics, 
-  Alert, 
-  AlertSeverity,
-  TimeRange,
-  TimeRangePreset 
-} from '../../types/modelTypes'
+import { PerformanceMetrics, SystemMetrics, ModelMetrics, Alert, AlertSeverity, TimeRange, TimeRangePreset } from '../../types/modelTypes'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { Button } from './Button'
 import { Badge } from './Badge'
 import { LoadingSpinner } from './LoadingSpinner'
-import {
-  Activity,
-  Cpu,
-  HardDrive,
-  MemoryStick,
-  Thermometer,
-  Zap,
-  Clock,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  AlertCircle,
-  Info,
-  CheckCircle,
-  RefreshCw,
-  Download,
-  Settings,
-  Eye,
-  EyeOff,
-  Maximize2,
-  Minimize2,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-  Calendar,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Monitor,
-  Server,
-  Gauge,
-  Target,
-  Users,
-  MessageSquare,
-  FileText,
-  Wifi,
-  WifiOff
-} from 'lucide-react'
+import { Activity, Cpu, HardDrive, MemoryStick, Thermometer, Zap, Clock, TrendingUp, TrendingDown, AlertTriangle, AlertCircle, Info, CheckCircle, RefreshCw, Download, Settings, Eye, EyeOff, Maximize2, Minimize2, Filter, ChevronDown, ChevronUp, Calendar, BarChart3, PieChart, LineChart, Monitor, Server, Gauge, Target, Users, MessageSquare, FileText, Wifi, WifiOff } from 'lucide-react'
 
 export interface PerformanceDashboardProps {
   metrics: PerformanceMetrics

@@ -3,12 +3,7 @@ import { Document } from '../../types';
 import { DocumentCard } from './DocumentCard';
 import { DocumentUpload } from './DocumentUpload';
 
-import {
-  MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
-  FolderIcon,
-  DocumentTextIcon
-} from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, FolderIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 interface DocumentGridProps {
   searchQuery?: string;

@@ -1,9 +1,5 @@
 
-import {
-  performanceMonitor,
-  OptimizationSuggestion,
-  PerformanceSummary
-} from './performanceMonitor';
+import { performanceMonitor, OptimizationSuggestion, PerformanceSummary } from './performanceMonitor';
 
 interface OptimizationStats {
   totalRules: number;

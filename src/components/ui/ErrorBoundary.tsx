@@ -5,20 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './Card'
 import { cn } from '../../utils/cn'
 import { ErrorFallbackProps } from '../../types/modelTypes'
 
-import {
-  AlertTriangle,
-  RefreshCw,
-  Home,
-  AlertCircle,
-  Copy,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Send,
-  FileText,
-  Shield,
-  Zap
-} from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, AlertCircle, Copy, ChevronDown, ChevronUp, ExternalLink, Send, FileText, Shield, Zap } from 'lucide-react'
 
 interface ErrorBoundaryState {
   hasError: boolean

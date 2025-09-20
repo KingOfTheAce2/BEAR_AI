@@ -1,10 +1,5 @@
 
-import {
-  Document,
-  DocumentVersion,
-  DocumentChange,
-  KnowledgeBaseConfig
-} from '../../../types/knowledge/types';
+import { Document, DocumentVersion, DocumentChange, KnowledgeBaseConfig } from '../../../types/knowledge/types';
 import { VectorDatabaseService } from '../database/VectorDatabaseService';
 
 export class DocumentVersioningService {

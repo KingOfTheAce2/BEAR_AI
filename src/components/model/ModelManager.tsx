@@ -4,18 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  PlayIcon, 
-  StopIcon, 
-  ArrowPathIcon, 
-  CpuChipIcon,
-  ClockIcon,
-  ExclamationCircleIcon,
-  CheckCircleIcon,
-  InformationCircleIcon,
-  Cog6ToothIcon,
-  ChartBarIcon
-} from '@heroicons/react/24/outline';
+import { PlayIcon, StopIcon, ArrowPathIcon, CpuChipIcon, ClockIcon, ExclamationCircleIcon, CheckCircleIcon, InformationCircleIcon, Cog6ToothIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { useModelManager } from '../../hooks/useModelManager';
 import { ModelStatus, ModelStatusType, ModelType } from '../../types/modelTypes';
 import ModelConfigManager from '../../services/modelConfigManager';
