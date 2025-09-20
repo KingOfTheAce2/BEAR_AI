@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
 import { SearchResult } from '../../types';
 import { SearchResults } from './SearchResults';
 
+import {
   MagnifyingGlassIcon,
   XMarkIcon,
   AdjustmentsHorizontalIcon,

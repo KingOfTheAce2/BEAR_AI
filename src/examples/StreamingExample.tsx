@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import {
 
+import {
   StreamingChat,
   CompactStreamingChat,
   ConnectionStatus,

@@ -1,22 +1,21 @@
 import React from 'react'
-import { 
 import { Agent } from '../../types'
 import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { cn } from '../../utils/cn'
-
-  Activity, 
-  Clock, 
-  Cpu, 
-  MessageCircle, 
-  Settings, 
+import {
+  Activity,
+  Clock,
+  Cpu,
+  MessageCircle,
+  Settings,
   Zap,
   CheckCircle,
   AlertCircle,
   XCircle,
-  Pause
+  Pause,
 } from 'lucide-react'
 
 export interface AgentCardProps {

@@ -1,5 +1,5 @@
-import {
 
+import {
   SearchQuery,
   SearchResult,
   SearchChunk,

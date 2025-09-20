@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import {
 import { Document } from '../../types';
 
+import {
   DocumentTextIcon,
   EyeIcon,
   ArrowDownIcon,
