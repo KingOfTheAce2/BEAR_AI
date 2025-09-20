@@ -1,0 +1,23 @@
+{
+  "name": "bear-ai-gui",
+  "version": "1.0.0",
+  "description": "BEAR AI Legal Assistant",
+  "private": true,
+  "dependencies": {
+    "@tauri-apps/api": "1.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "1.6.0",
+    "react-scripts": "^5.0.1",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "tauri": "npx tauri",
+    "tauri:dev": "npx tauri dev",
+    "tauri:build": "npx tauri build"
+  }
+}

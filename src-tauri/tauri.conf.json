@@ -52,7 +52,6 @@
           "SystemConfiguration"
         ],
         "minimumSystemVersion": "10.13",
-        "hardenedRuntime": true,
         "entitlements": "entitlements.plist"
       },
       "dmg": {
