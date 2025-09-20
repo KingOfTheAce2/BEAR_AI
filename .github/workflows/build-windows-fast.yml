@@ -180,7 +180,7 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tauriScript: npx @tauri-apps/cli@1.6.8
+          tauriScript: npx @tauri-apps/cli@1.6.3
           args: '--config src-tauri/tauri.conf.alpha.json'
 
       - name: 📁 Organize build artifacts

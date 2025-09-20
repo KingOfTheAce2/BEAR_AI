@@ -268,7 +268,7 @@ jobs:
           GLIB_2_0_NO_PKG_CONFIG: 0
           GOBJECT_2_0_NO_PKG_CONFIG: 0
         with:
-          tauriScript: npx @tauri-apps/cli@1.6.8
+          tauriScript: npx @tauri-apps/cli@1.6.3
           args: >-
             ${{ matrix.args }}
             ${{ (contains(github.ref, 'alpha') || contains(github.ref, 'demo')) && '--config src-tauri/tauri.conf.alpha.json' || '' }}
