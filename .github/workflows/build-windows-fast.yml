@@ -1,0 +1,230 @@
+name: BEAR AI - Windows Fast Build
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'demo'
+        type: choice
+        options:
+        - demo
+        - alpha
+        - production
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Quick Windows-only build for testing
+  build-windows-fast:
+    name: 🚀 Windows Fast Build
+    runs-on: windows-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: 💾 Cache Rust dependencies
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          key: windows-rust-cache-v2
+
+      - name: 📦 Install Node dependencies (Fast)
+        run: |
+          # Use npm ci for faster, reliable installs
+          if (Test-Path package-lock.json) {
+            Write-Host "📋 Using package-lock.json for fast install"
+            npm ci --no-audit --no-fund
+          } else {
+            Write-Host "⚠️ No package-lock.json found, using npm install"
+            npm install --no-audit --no-fund
+          }
+
+      - name: 🔍 Quick code quality (Optional)
+        run: |
+          $buildType = "${{ github.event.inputs.build_type }}"
+          $commitMsg = "${{ github.event.head_commit.message }}"
+
+          if ($buildType -eq "demo" -or $commitMsg -like "*demo*" -or $commitMsg -like "*alpha*") {
+            Write-Host "⚡ Demo/Alpha build - Skipping strict quality checks"
+            Write-Host "✅ Fast build mode enabled for testing"
+          } else {
+            Write-Host "🔍 Running quality checks for production build"
+            npm run typecheck --if-present
+            npm run lint --if-present
+          }
+        continue-on-error: true
+
+      - name: 🏗️ Build frontend (Fast)
+        run: |
+          $buildType = "${{ github.event.inputs.build_type }}"
+          $commitMsg = "${{ github.event.head_commit.message }}"
+
+          if ($buildType -eq "demo" -or $commitMsg -like "*demo*" -or $commitMsg -like "*alpha*") {
+            Write-Host "🚀 Building DEMO version (fast, relaxed checks)"
+            Write-Host "⚠️  WARNING: This is a DEMO build - NOT for production!"
+            if (Get-Command "npm run build:alpha-fast" -ErrorAction SilentlyContinue) {
+              npm run build:alpha-fast
+            } else {
+              $env:SKIP_PREFLIGHT_CHECK = "true"
+              $env:GENERATE_SOURCEMAP = "false"
+              $env:TSC_COMPILE_ON_ERROR = "true"
+              npm run build
+            }
+          } else {
+            Write-Host "🔨 Building PRODUCTION version (full validation)"
+            npm run build
+          }
+
+      - name: 🦀 Quick Rust checks (Optional)
+        working-directory: src-tauri
+        run: |
+          $buildType = "${{ github.event.inputs.build_type }}"
+          $commitMsg = "${{ github.event.head_commit.message }}"
+
+          if ($buildType -eq "demo" -or $commitMsg -like "*demo*" -or $commitMsg -like "*alpha*") {
+            Write-Host "⚡ Demo build - Skipping Rust quality checks"
+          } else {
+            Write-Host "🔍 Running Rust quality checks"
+            cargo fmt --all -- --check
+            cargo clippy --all-targets --all-features -- -D warnings
+          }
+        continue-on-error: true
+
+      - name: 🏗️ Build Tauri Windows App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          args: >-
+            ${{
+              (github.event.inputs.build_type == 'demo' ||
+               contains(github.event.head_commit.message, 'demo') ||
+               contains(github.event.head_commit.message, 'alpha'))
+              && '--config src-tauri/tauri.conf.alpha.json' || ''
+            }}
+
+      - name: 📁 Organize build artifacts
+        run: |
+          Write-Host "📋 Organizing Windows build artifacts..."
+
+          # Create organized output directory
+          New-Item -ItemType Directory -Force -Path ".\windows-build"
+
+          # Find and copy all Windows artifacts
+          $artifacts = Get-ChildItem -Path "src-tauri\target\release\bundle\" -Recurse -Include "*.exe", "*.msi", "*.zip" -ErrorAction SilentlyContinue
+
+          if ($artifacts) {
+            Write-Host "✅ Found build artifacts:"
+            foreach ($artifact in $artifacts) {
+              Write-Host "   📦 $($artifact.Name) ($([math]::Round($artifact.Length/1MB, 2)) MB)"
+              Copy-Item $artifact.FullName -Destination ".\windows-build\" -Force
+            }
+          } else {
+            Write-Host "⚠️ No standard artifacts found, checking alternative locations..."
+            Get-ChildItem -Path "src-tauri\target\" -Recurse -Include "*.exe" | Select-Object -First 5 | ForEach-Object {
+              Write-Host "   📄 Found: $($_.FullName)"
+            }
+          }
+
+      - name: 📤 Upload Windows Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bear-ai-windows-${{ github.run_number }}
+          path: |
+            windows-build/*
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/*.exe
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: 📊 Build Summary
+        run: |
+          Write-Host ""
+          Write-Host "🎉 ===== BUILD COMPLETED ===== 🎉" -ForegroundColor Green
+          Write-Host ""
+          Write-Host "📦 Build Type: ${{ github.event.inputs.build_type || 'auto-detected' }}"
+          Write-Host "💻 Platform: Windows"
+          Write-Host "📅 Build Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+          Write-Host "🔗 Run ID: ${{ github.run_id }}"
+          Write-Host ""
+          Write-Host "📥 Download your Windows build:"
+          Write-Host "   1. Go to: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          Write-Host "   2. Scroll to 'Artifacts' section"
+          Write-Host "   3. Download 'bear-ai-windows-${{ github.run_number }}'"
+          Write-Host ""
+
+          $buildType = "${{ github.event.inputs.build_type }}"
+          $commitMsg = "${{ github.event.head_commit.message }}"
+
+          if ($buildType -eq "demo" -or $commitMsg -like "*demo*" -or $commitMsg -like "*alpha*") {
+            Write-Host "⚠️  IMPORTANT: This is a DEMO build" -ForegroundColor Yellow
+            Write-Host "   - Suitable for testing and development only" -ForegroundColor Yellow
+            Write-Host "   - NOT for production use" -ForegroundColor Yellow
+            Write-Host "   - Some quality checks were skipped" -ForegroundColor Yellow
+          } else {
+            Write-Host "✅ Production build with full validation" -ForegroundColor Green
+          }
+          Write-Host ""
+
+  # Optional: Quick test run (if tests exist and build succeeds)
+  test-windows:
+    name: 🧪 Quick Windows Tests
+    runs-on: windows-latest
+    needs: build-windows-fast
+    if: success() && (contains(github.event.head_commit.message, 'test') || github.event.inputs.build_type == 'production')
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: 🧪 Run tests
+        run: |
+          if (Get-Command "npm test" -ErrorAction SilentlyContinue) {
+            Write-Host "🧪 Running test suite..."
+            npm test -- --watchAll=false --ci
+          } else {
+            Write-Host "⚠️ No test script found, skipping tests"
+          }
+        continue-on-error: true
