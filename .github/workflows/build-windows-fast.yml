@@ -100,7 +100,18 @@ jobs:
                   Write-Host "✅ Fresh npm install succeeded"
                   $success = $true
                 } else {
-                  Write-Host "❌ All npm strategies failed"
+                  Write-Host "⚠️ Fresh install failed, trying dependency resolution fix..."
+
+                  # Strategy 4: Fix specific dependency issues
+                  Write-Host "🔧 Installing specific dependencies to resolve conflicts..."
+                  npm install ajv@^8.12.0 --legacy-peer-deps 2>&1 | Out-Null
+                  npm install --no-audit --no-fund --legacy-peer-deps 2>&1 | Out-String
+                  if ($LASTEXITCODE -eq 0) {
+                    Write-Host "✅ Dependency resolution fix succeeded"
+                    $success = $true
+                  } else {
+                    Write-Host "❌ All npm strategies failed"
+                  }
                 }
               }
             }
