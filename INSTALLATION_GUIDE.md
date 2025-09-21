@@ -32,6 +32,7 @@
 - **npm**: 8.0.0 or higher  
 - **Rust**: 1.70.0+ (for building Tauri app)
 - **Visual Studio Build Tools** (Windows only)
+- **Linux desktop libraries**: `pkg-config libgtk-3-dev libglib2.0-dev libwebkit2gtk-4.0-dev`
 - **Git**: For cloning repository
 
 ### Step-by-Step Development Setup
@@ -68,7 +69,7 @@ npm run lint             # ESLint code quality
 
 # Desktop App Development
 tauri dev                # Launch desktop app (development)
-tauri build              # Build desktop app + installer
+npm run tauri:build       # Build desktop app + installer with dependency checks
 tauri info               # Show Tauri environment info
 
 # Full Stack Development
@@ -89,7 +90,7 @@ npm install
 npm run build
 
 # Build Tauri desktop app + Windows installer
-tauri build
+npm run tauri:build
 ```
 
 **Output:**
@@ -158,6 +159,13 @@ tauri dev
 | Antivirus blocks installer | Add BEAR_AI.exe to antivirus exceptions |
 | Missing Visual C++ libraries | Install Visual Studio Build Tools |
 | Permission errors | Ensure user has write access to Program Files |
+
+#### Linux Issues
+| Issue | Solution |
+|-------|----------|
+| `glib-2.0` or `gobject-2.0` missing during build | Install WebKit dependencies: `sudo apt-get install pkg-config libgtk-3-dev libglib2.0-dev libwebkit2gtk-4.0-dev` |
+| `npm run tauri:build` skips desktop build | The new build wrapper falls back to a headless Rust build when dependencies are missing. Install the packages above or set `FORCE_TAURI_BUILD=1` after installing them to force a full desktop build. |
+| WebView crashes on startup | Ensure GPU drivers are up to date and WebKit2GTK packages are installed. |
 
 #### Development Issues
 | Issue | Solution |
