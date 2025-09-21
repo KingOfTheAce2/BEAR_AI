@@ -1,13 +1,13 @@
 // Tauri commands for LLM Management System
 use crate::llm_manager::{
-    LlmManagerRef, ModelInfo, ModelPullRequest, GenerateRequest, ChatRequest,
-    EmbeddingRequest, ModelCreateRequest, RunningModel, GpuInfo, LlmConfig,
-    initialize_llm_manager, GenerateResponse, ChatResponse, EmbeddingResponse
+    initialize_llm_manager, ChatRequest, ChatResponse, EmbeddingRequest, EmbeddingResponse,
+    GenerateRequest, GenerateResponse, GpuInfo, LlmConfig, LlmManagerRef, ModelCreateRequest,
+    ModelInfo, ModelPullRequest, RunningModel,
 };
-use tauri::State;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::Result;
+use tauri::State;
 
 // Command response wrappers
 #[derive(Serialize, Deserialize)]
@@ -52,7 +52,9 @@ pub async fn llm_initialize(
     config: Option<LlmConfig>,
 ) -> Result<CommandResult<String>, String> {
     match initialize_llm_manager(manager.inner().clone(), config).await {
-        Ok(_) => Ok(CommandResult::success("LLM Manager initialized successfully".to_string())),
+        Ok(_) => Ok(CommandResult::success(
+            "LLM Manager initialized successfully".to_string(),
+        )),
         Err(e) => Ok(CommandResult::error(e.to_string())),
     }
 }
@@ -66,7 +68,9 @@ pub async fn llm_list_models(
         let result = llm_manager.list_models().await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -80,7 +84,9 @@ pub async fn llm_show_model(
         let result = llm_manager.show_model(&name).await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -92,11 +98,15 @@ pub async fn llm_pull_model(
     let manager_guard = manager.read().await;
     if let Some(ref llm_manager) = *manager_guard {
         match llm_manager.pull_model(request).await {
-            Ok(_) => Ok(CommandResult::success("Model pulled successfully".to_string())),
+            Ok(_) => Ok(CommandResult::success(
+                "Model pulled successfully".to_string(),
+            )),
             Err(e) => Ok(CommandResult::error(e.to_string())),
         }
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -110,7 +120,9 @@ pub async fn llm_delete_model(
         let result = llm_manager.delete_model(&name).await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -124,7 +136,9 @@ pub async fn llm_generate(
         let result = llm_manager.generate(request).await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -138,7 +152,9 @@ pub async fn llm_chat(
         let result = llm_manager.chat(request).await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -152,7 +168,9 @@ pub async fn llm_embeddings(
         let result = llm_manager.embeddings(request).await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -164,11 +182,15 @@ pub async fn llm_create_model(
     let manager_guard = manager.read().await;
     if let Some(ref llm_manager) = *manager_guard {
         match llm_manager.create_model(request).await {
-            Ok(_) => Ok(CommandResult::success("Model created successfully".to_string())),
+            Ok(_) => Ok(CommandResult::success(
+                "Model created successfully".to_string(),
+            )),
             Err(e) => Ok(CommandResult::error(e.to_string())),
         }
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -181,11 +203,15 @@ pub async fn llm_copy_model(
     let manager_guard = manager.read().await;
     if let Some(ref llm_manager) = *manager_guard {
         match llm_manager.copy_model(&source, &destination).await {
-            Ok(_) => Ok(CommandResult::success("Model copied successfully".to_string())),
+            Ok(_) => Ok(CommandResult::success(
+                "Model copied successfully".to_string(),
+            )),
             Err(e) => Ok(CommandResult::error(e.to_string())),
         }
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -198,7 +224,9 @@ pub async fn llm_list_running_models(
         let result = llm_manager.list_running_models().await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -211,7 +239,9 @@ pub async fn llm_system_info(
         let result = llm_manager.get_system_info().await;
         Ok(result.into())
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -235,7 +265,9 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
     let library = vec![
         ModelLibraryEntry {
             name: "codellama:7b".to_string(),
-            description: "Code Llama 7B - Specialized for code generation and legal document automation".to_string(),
+            description:
+                "Code Llama 7B - Specialized for code generation and legal document automation"
+                    .to_string(),
             size: "3.8GB".to_string(),
             tags: vec!["code".to_string(), "legal".to_string(), "7b".to_string()],
             use_cases: vec![
@@ -250,7 +282,8 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
         },
         ModelLibraryEntry {
             name: "llama3:8b".to_string(),
-            description: "Llama 3 8B - General purpose model excellent for legal analysis".to_string(),
+            description: "Llama 3 8B - General purpose model excellent for legal analysis"
+                .to_string(),
             size: "4.7GB".to_string(),
             tags: vec!["general".to_string(), "legal".to_string(), "8b".to_string()],
             use_cases: vec![
@@ -265,9 +298,14 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
         },
         ModelLibraryEntry {
             name: "phi3:3.8b".to_string(),
-            description: "Phi-3 Mini - Microsoft's efficient model for legal document processing".to_string(),
+            description: "Phi-3 Mini - Microsoft's efficient model for legal document processing"
+                .to_string(),
             size: "2.3GB".to_string(),
-            tags: vec!["efficient".to_string(), "legal".to_string(), "3.8b".to_string()],
+            tags: vec![
+                "efficient".to_string(),
+                "legal".to_string(),
+                "3.8b".to_string(),
+            ],
             use_cases: vec![
                 "Legal document summarization".to_string(),
                 "Fast legal queries".to_string(),
@@ -282,7 +320,11 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
             name: "mistral:7b".to_string(),
             description: "Mistral 7B - High performance model for legal reasoning".to_string(),
             size: "4.1GB".to_string(),
-            tags: vec!["reasoning".to_string(), "legal".to_string(), "7b".to_string()],
+            tags: vec![
+                "reasoning".to_string(),
+                "legal".to_string(),
+                "7b".to_string(),
+            ],
             use_cases: vec![
                 "Legal reasoning".to_string(),
                 "Case law analysis".to_string(),
@@ -297,7 +339,11 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
             name: "gemma:7b".to_string(),
             description: "Gemma 7B - Google's model optimized for professional use".to_string(),
             size: "5.0GB".to_string(),
-            tags: vec!["professional".to_string(), "legal".to_string(), "7b".to_string()],
+            tags: vec![
+                "professional".to_string(),
+                "legal".to_string(),
+                "7b".to_string(),
+            ],
             use_cases: vec![
                 "Professional legal writing".to_string(),
                 "Legal document review".to_string(),
@@ -316,7 +362,8 @@ pub async fn llm_get_model_library() -> Result<CommandResult<Vec<ModelLibraryEnt
 #[tauri::command]
 pub async fn llm_get_recommended_models() -> Result<CommandResult<Vec<ModelLibraryEntry>>, String> {
     let library = llm_get_model_library().await?.data.unwrap_or_default();
-    let recommended: Vec<_> = library.into_iter()
+    let recommended: Vec<_> = library
+        .into_iter()
         .filter(|model| model.recommended_for_legal)
         .collect();
 
@@ -345,28 +392,31 @@ pub async fn llm_get_performance_metrics(
     let manager_guard = manager.read().await;
     if let Some(ref _llm_manager) = *manager_guard {
         // TODO: Implement actual performance tracking
-        let metrics = vec![
-            ModelPerformanceMetrics {
-                model_name: "llama3:8b".to_string(),
-                avg_tokens_per_second: 15.2,
-                avg_response_time_ms: 2500,
-                memory_usage_mb: 4096,
-                gpu_utilization: 78.5,
-                total_requests: 1250,
-                error_count: 5,
-                uptime_seconds: 86400,
-            }
-        ];
+        let metrics = vec![ModelPerformanceMetrics {
+            model_name: "llama3:8b".to_string(),
+            avg_tokens_per_second: 15.2,
+            avg_response_time_ms: 2500,
+            memory_usage_mb: 4096,
+            gpu_utilization: 78.5,
+            total_requests: 1250,
+            error_count: 5,
+            uptime_seconds: 86400,
+        }];
 
         let filtered_metrics = if let Some(name) = model_name {
-            metrics.into_iter().filter(|m| m.model_name == name).collect()
+            metrics
+                .into_iter()
+                .filter(|m| m.model_name == name)
+                .collect()
         } else {
             metrics
         };
 
         Ok(CommandResult::success(filtered_metrics))
     } else {
-        Ok(CommandResult::error("LLM Manager not initialized".to_string()))
+        Ok(CommandResult::error(
+            "LLM Manager not initialized".to_string(),
+        ))
     }
 }
 
@@ -395,7 +445,7 @@ pub async fn llm_get_system_resources() -> Result<CommandResult<SystemResourceUs
         total_memory_gb,
         used_memory_gb,
         available_memory_gb,
-        cpu_usage_percent: 0.0, // Would need real-time CPU monitoring
+        cpu_usage_percent: 0.0,  // Would need real-time CPU monitoring
         gpu_memory_used_gb: 0.0, // Would need GPU monitoring
         gpu_memory_total_gb: 0.0,
         disk_space_used_gb: 0.0, // Would need disk space calculation

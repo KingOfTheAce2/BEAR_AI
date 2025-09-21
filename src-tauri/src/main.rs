@@ -1,30 +1,48 @@
 // Prevents additional console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg(feature = "desktop")]
 use std::collections::HashMap;
+#[cfg(feature = "desktop")]
+use std::sync::{Arc, Mutex};
+#[cfg(feature = "desktop")]
 use tauri::{
     CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem,
-    Window, WindowBuilder, WindowUrl,
+    Window,
 };
 
+#[cfg(feature = "desktop")]
 mod chat_export;
+#[cfg(feature = "desktop")]
 mod document_analyzer;
+#[cfg(feature = "desktop")]
 mod huggingface;
+#[cfg(feature = "desktop")]
 mod licensing;
+#[cfg(feature = "desktop")]
+mod llm_commands;
+#[cfg(feature = "desktop")]
 mod llm_manager;
+#[cfg(feature = "desktop")]
 mod local_api;
+#[cfg(feature = "desktop")]
 mod mcp_server;
+#[cfg(feature = "desktop")]
 mod security;
 
+#[cfg(feature = "desktop")]
+use llm_commands::*;
+#[cfg(feature = "desktop")]
 use local_api::*;
-use std::sync::{Arc, Mutex};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+#[cfg(feature = "desktop")]
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 async fn get_system_info() -> Result<HashMap<String, String>, String> {
     let mut info = HashMap::new();
@@ -36,6 +54,7 @@ async fn get_system_info() -> Result<HashMap<String, String>, String> {
     Ok(info)
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 async fn show_window(window: Window) -> Result<(), String> {
     window.show().map_err(|e| e.to_string())?;
@@ -43,6 +62,7 @@ async fn show_window(window: Window) -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(feature = "desktop")]
 #[tauri::command]
 async fn hide_window(window: Window) -> Result<(), String> {
     window.hide().map_err(|e| e.to_string())?;
@@ -50,6 +70,7 @@ async fn hide_window(window: Window) -> Result<(), String> {
 }
 
 // Initialize logging
+#[cfg(feature = "desktop")]
 fn init_logging() {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Info)
@@ -57,6 +78,7 @@ fn init_logging() {
 }
 
 // Create system tray
+#[cfg(feature = "desktop")]
 fn create_tray() -> SystemTray {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit BEAR AI");
     let show = CustomMenuItem::new("show".to_string(), "Show Window");
@@ -72,6 +94,7 @@ fn create_tray() -> SystemTray {
 }
 
 // Handle system tray events
+#[cfg(feature = "desktop")]
 fn handle_tray_event(app: &tauri::AppHandle, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick {
@@ -106,6 +129,7 @@ fn handle_tray_event(app: &tauri::AppHandle, event: SystemTrayEvent) {
     }
 }
 
+#[cfg(feature = "desktop")]
 fn main() {
     init_logging();
 
@@ -224,4 +248,11 @@ fn main() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(not(feature = "desktop"))]
+fn main() {
+    println!(
+        "BEAR AI headless build: desktop features are disabled. Enable the `desktop` feature to build the full Tauri application."
+    );
 }
