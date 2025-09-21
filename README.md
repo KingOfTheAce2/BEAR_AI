@@ -1,6 +1,6 @@
 # BEAR AI Legal Assistant 🐻⚖️
 
-**B**ridge for **E**xpertise, **A**udit and **R**esearch - **Version 2.0.0**
+**B**ridge for **E**xpertise, **A**udit and **R**esearch - **Version 1.0.0**
 
 > 🚀 **Professional AI-powered desktop application** for legal document analysis and assistance built with React/TypeScript and Rust/Tauri
 
