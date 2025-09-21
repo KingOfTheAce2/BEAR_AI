@@ -1,0 +1,243 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  schedule:
+    # Run security audit daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  npm-security-audit:
+    runs-on: ubuntu-latest
+    name: NPM Security Audit
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+
+    - name: Check for high severity vulnerabilities
+      run: |
+        echo "Checking for high severity vulnerabilities..."
+        if npm audit --audit-level=high --json | jq '.vulnerabilities | length' | grep -v '^0$'; then
+          echo "❌ High severity vulnerabilities found!"
+          npm audit --audit-level=high
+          exit 1
+        else
+          echo "✅ No high severity vulnerabilities found"
+        fi
+
+    - name: Generate security report
+      if: always()
+      run: |
+        echo "# Security Audit Report" > security-report.md
+        echo "Generated: $(date)" >> security-report.md
+        echo "" >> security-report.md
+        echo "## NPM Audit Results" >> security-report.md
+        npm audit --audit-level=low || true >> security-report.md
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-security-report
+        path: security-report.md
+        retention-days: 30
+
+  cargo-security-audit:
+    runs-on: ubuntu-latest
+    name: Cargo Security Audit
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
+    - name: Cache Rust dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          src-tauri/target
+        key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Run cargo audit
+      working-directory: src-tauri
+      run: |
+        echo "Running Rust security audit..."
+        cargo audit --color=always
+
+    - name: Check for vulnerabilities with JSON output
+      working-directory: src-tauri
+      run: |
+        echo "Checking for Rust vulnerabilities..."
+        if cargo audit --json | jq '.vulnerabilities.list | length' | grep -v '^0$'; then
+          echo "❌ Rust vulnerabilities found!"
+          cargo audit
+          exit 1
+        else
+          echo "✅ No Rust vulnerabilities found"
+        fi
+
+    - name: Generate Rust security report
+      if: always()
+      working-directory: src-tauri
+      run: |
+        echo "# Rust Security Audit Report" > ../rust-security-report.md
+        echo "Generated: $(date)" >> ../rust-security-report.md
+        echo "" >> ../rust-security-report.md
+        echo "## Cargo Audit Results" >> ../rust-security-report.md
+        cargo audit || true >> ../rust-security-report.md
+
+    - name: Upload Rust security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: rust-security-report
+        path: rust-security-report.md
+        retention-days: 30
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    name: CodeQL Security Analysis
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript, typescript
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  security-summary:
+    runs-on: ubuntu-latest
+    name: Security Summary
+    needs: [npm-security-audit, cargo-security-audit]
+    if: always()
+
+    steps:
+    - name: Download security reports
+      uses: actions/download-artifact@v4
+      with:
+        path: security-reports
+
+    - name: Generate security summary
+      run: |
+        echo "# 🔒 BEAR AI Security Audit Summary" > security-summary.md
+        echo "**Generated**: $(date)" >> security-summary.md
+        echo "**Commit**: ${{ github.sha }}" >> security-summary.md
+        echo "" >> security-summary.md
+
+        # Check job statuses
+        NPM_STATUS="${{ needs.npm-security-audit.result }}"
+        RUST_STATUS="${{ needs.cargo-security-audit.result }}"
+
+        echo "## 📊 Audit Results" >> security-summary.md
+        echo "| Component | Status | Details |" >> security-summary.md
+        echo "|-----------|--------|---------|" >> security-summary.md
+        echo "| NPM Dependencies | $NPM_STATUS | $([ "$NPM_STATUS" = "success" ] && echo "✅ No high vulnerabilities" || echo "❌ Issues found") |" >> security-summary.md
+        echo "| Rust Dependencies | $RUST_STATUS | $([ "$RUST_STATUS" = "success" ] && echo "✅ No vulnerabilities" || echo "❌ Issues found") |" >> security-summary.md
+        echo "" >> security-summary.md
+
+        if [ "$NPM_STATUS" = "success" ] && [ "$RUST_STATUS" = "success" ]; then
+          echo "## ✅ Security Status: PASSED" >> security-summary.md
+          echo "All security audits passed successfully. The application is secure for deployment." >> security-summary.md
+        else
+          echo "## ❌ Security Status: FAILED" >> security-summary.md
+          echo "Security vulnerabilities detected. Please review and fix before deployment." >> security-summary.md
+        fi
+
+        echo "" >> security-summary.md
+        echo "---" >> security-summary.md
+        echo "*Automated security audit for BEAR AI Legal Assistant*" >> security-summary.md
+
+    - name: Upload security summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-summary
+        path: security-summary.md
+        retention-days: 90
+
+    - name: Comment security status on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('security-summary.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
