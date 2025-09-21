@@ -1,0 +1,48 @@
+{
+  "windows": {
+    "certificateFile": "certificates/windows-cert.p12",
+    "certificatePassword": "${WINDOWS_CERTIFICATE_PASSWORD}",
+    "timestampUrl": "http://timestamp.sectigo.com",
+    "signTool": "signtool.exe",
+    "hashAlgorithm": "SHA256",
+    "additionalArgs": [
+      "/fd", "SHA256",
+      "/tr", "http://timestamp.sectigo.com",
+      "/td", "SHA256",
+      "/a"
+    ]
+  },
+  "macos": {
+    "identity": "${APPLE_SIGNING_IDENTITY}",
+    "certificateFile": "certificates/apple-cert.p12",
+    "certificatePassword": "${APPLE_CERTIFICATE_PASSWORD}",
+    "teamId": "${APPLE_TEAM_ID}",
+    "appleId": "${APPLE_ID}",
+    "applePassword": "${APPLE_PASSWORD}",
+    "notarization": true,
+    "hardenedRuntime": true,
+    "entitlements": "src-tauri/Info.plist",
+    "additionalArgs": [
+      "--force",
+      "--verbose",
+      "--timestamp",
+      "--options", "runtime"
+    ]
+  },
+  "linux": {
+    "gpgKey": "${GPG_SIGNING_KEY}",
+    "gpgPassphrase": "${GPG_PASSPHRASE}",
+    "keyId": "${GPG_KEY_ID}",
+    "additionalArgs": [
+      "--detach-sign",
+      "--armor",
+      "--batch",
+      "--yes"
+    ]
+  },
+  "checksums": {
+    "algorithms": ["sha256", "sha512"],
+    "generateFile": true,
+    "filename": "{basename}.checksums"
+  }
+}

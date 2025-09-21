@@ -78,6 +78,12 @@ async fn get_system_info() -> Result<HashMap<String, String>, String> {
 
 #[cfg(feature = "desktop")]
 #[tauri::command]
+async fn get_env_var(key: String) -> Result<String, String> {
+    std::env::var(&key).map_err(|_| format!("Environment variable {} not found", key))
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
 async fn show_window(window: Window) -> Result<(), String> {
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
@@ -91,11 +97,23 @@ async fn hide_window(window: Window) -> Result<(), String> {
     Ok(())
 }
 
-// Initialize logging
+// Webhook endpoint for Stripe events
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn handle_stripe_webhook(
+    payload: String,
+    signature: String,
+    stripe_client: tauri::State<'_, Arc<Mutex<Option<stripe_integration_v2::StripeClient>>>>
+) -> Result<(), String> {
+    stripe_integration_v2::stripe_handle_webhook(payload, signature, stripe_client).await
+}
+
+// Initialize logging with enhanced configuration
 #[cfg(feature = "desktop")]
 fn init_logging() {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Info)
+        .format_timestamp_secs()
         .init();
 }
 
@@ -105,10 +123,13 @@ fn create_tray() -> SystemTray {
     let quit = CustomMenuItem::new("quit".to_string(), "Quit BEAR AI");
     let show = CustomMenuItem::new("show".to_string(), "Show Window");
     let hide = CustomMenuItem::new("hide".to_string(), "Hide Window");
+    let billing = CustomMenuItem::new("billing".to_string(), "Billing Dashboard");
 
     let tray_menu = SystemTrayMenu::new()
         .add_item(show)
         .add_item(hide)
+        .add_native_item(SystemTrayMenuItem::Separator)
+        .add_item(billing)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(quit);
 
@@ -145,6 +166,13 @@ fn handle_tray_event(app: &tauri::AppHandle, event: SystemTrayEvent) {
                 let window = app.get_window("main").unwrap();
                 let _ = window.hide();
             }
+            "billing" => {
+                let window = app.get_window("main").unwrap();
+                let _ = window.show();
+                let _ = window.set_focus();
+                // Navigate to billing dashboard
+                let _ = window.emit("navigate", "/billing");
+            }
             _ => {}
         },
         _ => {}
@@ -161,8 +189,10 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             get_system_info,
+            get_env_var,
             show_window,
             hide_window,
+            handle_stripe_webhook,
             // Local API Authentication commands
             local_auth_login,
             local_auth_logout,
@@ -208,13 +238,6 @@ fn main() {
             chat_export::export_chat_session,
             chat_export::get_export_formats,
             chat_export::create_export_options,
-            // Additional commands will be added later
-            // huggingface::search_models,
-            // document_analyzer::analyze_document,
-            // mcp_server::start_mcp_server,
-            // security::encrypt_document,
-            // licensing::validate_license
-
             // PII Detection commands
             detect_pii_rust,
             mask_pii_text,
@@ -222,8 +245,8 @@ fn main() {
             validate_dutch_rsin,
             get_pii_audit_log,
             export_pii_audit_log,
-            process_document_pii
-            // Stripe payment integration commands
+            process_document_pii,
+            // Enhanced Stripe payment integration commands
             stripe_init_client,
             stripe_create_customer,
             stripe_get_customer,
@@ -234,6 +257,10 @@ fn main() {
             stripe_create_payment_intent,
             stripe_get_invoices,
             stripe_handle_webhook,
+            // New enhanced Stripe commands from v2
+            stripe_create_team_subscription,
+            stripe_validate_test_payment,
+            stripe_configure_test_mode,
             // Enterprise management commands
             enterprise_create_account,
             enterprise_get_account,
@@ -241,27 +268,28 @@ fn main() {
             enterprise_remove_user,
             enterprise_list_users,
             enterprise_update_user_role,
-            // Model management commands
+            // Hardware detection commands
             hardware_detection::detect_hardware_capabilities,
             hardware_detection::get_recommended_model_config,
             hardware_detection::optimize_model_settings,
+            // Model management commands
             model_commands::download_model,
             model_commands::pause_model_download,
             model_commands::resume_model_download,
             model_commands::cancel_model_download,
             model_commands::compute_file_hash,
             model_commands::load_model,
-            // OCR processing commands
-            process_document_ocr,
-            extract_legal_entities_from_ocr,
-            get_ocr_capabilities,
             model_commands::unload_model,
             model_commands::benchmark_inference,
             model_commands::get_process_memory_usage,
             model_commands::get_vram_usage,
             model_commands::get_power_consumption,
             model_commands::get_cpu_temperature,
-            model_commands::detect_model_quantization
+            model_commands::detect_model_quantization,
+            // OCR processing commands
+            process_document_ocr,
+            extract_legal_entities_from_ocr,
+            get_ocr_capabilities
         ])
         .manage(SessionStorage::new(Mutex::new(HashMap::new())))
         .manage(ChatStorage::new(Mutex::new(HashMap::new())))
@@ -269,12 +297,9 @@ fn main() {
         .manage(MessageStorage::new(Mutex::new(HashMap::new())))
         .manage(create_llm_manager())
         .manage(create_stripe_client_manager())
+        .manage(stripe_integration_v2::create_stripe_client_manager())
         .manage(create_enterprise_manager())
         .manage(Arc::new(Mutex::new(HashMap::<String, model_commands::DownloadProgress>::new())))
-        // Additional managed state will be added later
-        // .manage(Arc::new(Mutex::new(huggingface::HuggingFaceClient::new().unwrap())))
-        // .manage(Arc::new(Mutex::new(document_analyzer::DocumentAnalyzer::new().unwrap())))
-        // .manage(Arc::new(Mutex::new(mcp_server::MCPServer::new().unwrap())))
         .setup(|app| {
             // Initialize chat exporter
             let app_data_dir = app.path_resolver().app_data_dir().unwrap();
@@ -286,11 +311,36 @@ fn main() {
             let ocr_processor = ocr_processor::OCRProcessor::new(&app_data_dir).unwrap();
             app.manage(Arc::new(ocr_processor));
 
-            // Initialize additional managers later
-            // let security_manager = security::SecurityManager::new(&app_data_dir).unwrap();
-            // app.manage(Arc::new(Mutex::new(security_manager)));
-            // let license_manager = licensing::LicenseManager::new(&app_data_dir).unwrap();
-            // app.manage(Arc::new(Mutex::new(license_manager)));
+            // Initialize Stripe client from environment variables if available
+            if let (Ok(secret_key), Ok(publishable_key), Ok(webhook_secret)) = (
+                std::env::var("STRIPE_SECRET_KEY"),
+                std::env::var("STRIPE_PUBLISHABLE_KEY"),
+                std::env::var("STRIPE_WEBHOOK_SECRET"),
+            ) {
+                let environment = std::env::var("STRIPE_ENVIRONMENT").unwrap_or_else(|_| "test".to_string());
+
+                let credentials = stripe_integration_v2::StripeCredentials {
+                    secret_key,
+                    publishable_key,
+                    webhook_secret,
+                    environment,
+                };
+
+                match stripe_integration_v2::StripeClient::new(credentials) {
+                    Ok(client) => {
+                        let stripe_manager = app.state::<Arc<Mutex<Option<stripe_integration_v2::StripeClient>>>>();
+                        if let Ok(mut client_guard) = stripe_manager.lock() {
+                            *client_guard = Some(client);
+                            log::info!("Stripe client initialized successfully from environment variables");
+                        }
+                    }
+                    Err(e) => {
+                        log::warn!("Failed to initialize Stripe client: {}", e);
+                    }
+                }
+            } else {
+                log::info!("Stripe environment variables not found - Stripe client will need to be initialized manually");
+            }
 
             // Configure the main window
             let window = app.get_window("main").unwrap();
@@ -299,7 +349,6 @@ fn main() {
             #[cfg(target_os = "windows")]
             {
                 use tauri::api::process::{Command, CommandEvent};
-
                 // Additional Windows-specific setup
                 log::info!("Setting up Windows-specific configurations");
             }
@@ -320,7 +369,7 @@ fn main() {
                 }
             });
 
-            log::info!("BEAR AI Legal Assistant started successfully");
+            log::info!("BEAR AI Legal Assistant started successfully with enhanced Stripe integration");
             Ok(())
         })
         .run(tauri::generate_context!())

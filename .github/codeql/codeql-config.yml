@@ -1,0 +1,25 @@
+name: "CodeQL Configuration"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+
+query-filters:
+  - exclude:
+      id: js/unused-local-variable
+
+paths-ignore:
+  - node_modules
+  - dist
+  - build
+  - coverage
+  - "**/*.test.js"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/jest.config.js"
+  - "**/webpack.config.js"
+
+paths:
+  - src
+  - src-tauri/src

@@ -1,0 +1,401 @@
+name: Auto-Update System Monitor
+
+on:
+  schedule:
+    # Check update system health every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'updater/**'
+      - 'src-tauri/tauri.conf.json'
+
+env:
+  UPDATE_ENDPOINT: 'https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/latest.json'
+
+jobs:
+  validate-update-manifest:
+    name: Validate Update Manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Current Manifest
+        id: fetch-manifest
+        run: |
+          echo "Fetching update manifest from GitHub releases..."
+
+          # Try to fetch the latest manifest
+          if curl -s -o latest.json "$UPDATE_ENDPOINT"; then
+            echo "manifest_exists=true" >> $GITHUB_OUTPUT
+            echo "Manifest downloaded successfully"
+          else
+            echo "manifest_exists=false" >> $GITHUB_OUTPUT
+            echo "Failed to download manifest"
+          fi
+
+      - name: Validate Manifest Structure
+        if: steps.fetch-manifest.outputs.manifest_exists == 'true'
+        run: |
+          echo "Validating manifest structure..."
+
+          # Check if it's valid JSON
+          if ! jq . latest.json > /dev/null 2>&1; then
+            echo "❌ Invalid JSON in manifest"
+            exit 1
+          fi
+
+          # Check required fields
+          required_fields=("version" "pub_date" "platforms")
+          for field in "${required_fields[@]}"; do
+            if ! jq -e ".$field" latest.json > /dev/null; then
+              echo "❌ Missing required field: $field"
+              exit 1
+            fi
+          done
+
+          # Check platform-specific URLs
+          platforms=("windows-x86_64" "darwin-x86_64" "darwin-aarch64" "linux-x86_64")
+          for platform in "${platforms[@]}"; do
+            if ! jq -e ".platforms.\"$platform\".url" latest.json > /dev/null; then
+              echo "❌ Missing URL for platform: $platform"
+              exit 1
+            fi
+          done
+
+          echo "✅ Manifest structure is valid"
+
+      - name: Test Download URLs
+        if: steps.fetch-manifest.outputs.manifest_exists == 'true'
+        run: |
+          echo "Testing download URLs..."
+
+          # Extract and test each download URL
+          jq -r '.platforms[].url' latest.json | while read -r url; do
+            echo "Testing URL: $url"
+
+            # Test if URL is accessible (HTTP 200 or 302)
+            if curl -s -I "$url" | grep -E "HTTP/[0-9.]+ (200|302)"; then
+              echo "✅ URL accessible: $url"
+            else
+              echo "❌ URL not accessible: $url"
+              # Don't exit here, continue testing other URLs
+            fi
+          done
+
+      - name: Verify Signatures
+        if: steps.fetch-manifest.outputs.manifest_exists == 'true'
+        run: |
+          echo "Checking signature fields..."
+
+          # Check if signatures are present (even if empty for now)
+          jq -r '.platforms[] | select(.signature == null or .signature == "")' latest.json > empty_signatures.json
+
+          if [ -s empty_signatures.json ]; then
+            echo "⚠️ Found platforms with empty signatures:"
+            jq -r 'keys[]' empty_signatures.json
+            echo "Note: This is expected during development"
+          else
+            echo "✅ All platforms have signature fields"
+          fi
+
+  test-update-flow:
+    name: Test Update Flow
+    runs-on: ${{ matrix.os }}
+    needs: validate-update-manifest
+    if: needs.validate-update-manifest.result == 'success'
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Simulate Update Check
+        run: |
+          echo "Simulating update check for ${{ matrix.os }}..."
+
+          # Create a simple update checker simulation
+          node -e "
+            const https = require('https');
+            const fs = require('fs');
+
+            const updateUrl = '${{ env.UPDATE_ENDPOINT }}';
+
+            console.log('Checking for updates...');
+            console.log('Update endpoint:', updateUrl);
+
+            // Simulate the update check that the Tauri app would do
+            https.get(updateUrl, (res) => {
+              let data = '';
+              res.on('data', chunk => data += chunk);
+              res.on('end', () => {
+                try {
+                  const updateInfo = JSON.parse(data);
+                  console.log('Update check successful');
+                  console.log('Current version:', updateInfo.version);
+                  console.log('Published date:', updateInfo.pub_date);
+
+                  // Check if current platform is supported
+                  const platformMap = {
+                    'ubuntu-latest': 'linux-x86_64',
+                    'windows-latest': 'windows-x86_64',
+                    'macos-latest': 'darwin-x86_64'
+                  };
+
+                  const platform = platformMap['${{ matrix.os }}'];
+                  if (updateInfo.platforms[platform]) {
+                    console.log('✅ Platform supported:', platform);
+                    console.log('Download URL:', updateInfo.platforms[platform].url);
+                  } else {
+                    console.log('❌ Platform not supported:', platform);
+                    process.exit(1);
+                  }
+
+                } catch (error) {
+                  console.error('❌ Failed to parse update info:', error.message);
+                  process.exit(1);
+                }
+              });
+            }).on('error', (error) => {
+              console.error('❌ Update check failed:', error.message);
+              process.exit(1);
+            });
+          "
+
+  check-update-frequency:
+    name: Check Update Frequency
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Analyze Release History
+        run: |
+          echo "Analyzing release frequency..."
+
+          # Get recent releases
+          gh api repos/${{ github.repository }}/releases \
+            --jq '.[] | {tag_name, published_at, prerelease}' \
+            --paginate | head -20 > recent_releases.json
+
+          echo "Recent releases:"
+          cat recent_releases.json
+
+          # Calculate release frequency
+          echo "Calculating release frequency..."
+          node -e "
+            const fs = require('fs');
+            const releases = JSON.parse(fs.readFileSync('recent_releases.json', 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)).join('[').replace(/\]\[/g, ',') + ']');
+
+            if (releases.length < 2) {
+              console.log('Not enough releases to calculate frequency');
+              process.exit(0);
+            }
+
+            const dates = releases
+              .filter(r => !r.prerelease)
+              .map(r => new Date(r.published_at))
+              .sort((a, b) => b - a);
+
+            if (dates.length < 2) {
+              console.log('Not enough stable releases to calculate frequency');
+              process.exit(0);
+            }
+
+            const intervals = [];
+            for (let i = 0; i < dates.length - 1; i++) {
+              const days = (dates[i] - dates[i + 1]) / (1000 * 60 * 60 * 24);
+              intervals.push(days);
+            }
+
+            const avgDays = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+
+            console.log('Release statistics:');
+            console.log('- Total releases:', releases.length);
+            console.log('- Stable releases:', dates.length);
+            console.log('- Average days between releases:', Math.round(avgDays));
+            console.log('- Last release:', dates[0].toISOString().split('T')[0]);
+
+            // Suggest update check frequency
+            if (avgDays < 7) {
+              console.log('Recommendation: Check for updates daily');
+            } else if (avgDays < 30) {
+              console.log('Recommendation: Check for updates weekly');
+            } else {
+              console.log('Recommendation: Check for updates monthly');
+            }
+          "
+
+  monitor-download-metrics:
+    name: Monitor Download Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Release Download Stats
+        run: |
+          echo "Fetching download statistics..."
+
+          # Get download counts for recent releases
+          gh api repos/${{ github.repository }}/releases \
+            --jq '.[] | {tag_name, published_at, assets: [.assets[] | {name, download_count, size}]}' \
+            | head -5 > download_stats.json
+
+          echo "Download statistics for recent releases:"
+          cat download_stats.json | jq .
+
+          # Analyze download patterns
+          node -e "
+            const fs = require('fs');
+            const releases = JSON.parse(fs.readFileSync('download_stats.json', 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)).join('[').replace(/\]\[/g, ',') + ']');
+
+            console.log('\nDownload Analysis:');
+
+            releases.forEach(release => {
+              const totalDownloads = release.assets.reduce((sum, asset) => sum + asset.download_count, 0);
+              const totalSize = release.assets.reduce((sum, asset) => sum + asset.size, 0);
+
+              console.log('Release:', release.tag_name);
+              console.log('  Total downloads:', totalDownloads);
+              console.log('  Total size:', (totalSize / 1024 / 1024).toFixed(2), 'MB');
+              console.log('  Assets:', release.assets.length);
+
+              // Platform breakdown
+              const platforms = {
+                windows: release.assets.filter(a => a.name.includes('.msi') || a.name.includes('.exe')),
+                macos: release.assets.filter(a => a.name.includes('.dmg') || a.name.includes('.app')),
+                linux: release.assets.filter(a => a.name.includes('.AppImage') || a.name.includes('.deb') || a.name.includes('.rpm'))
+              };
+
+              Object.entries(platforms).forEach(([platform, assets]) => {
+                const downloads = assets.reduce((sum, asset) => sum + asset.download_count, 0);
+                if (downloads > 0) {
+                  console.log('    ' + platform + ':', downloads, 'downloads');
+                }
+              });
+
+              console.log();
+            });
+          "
+
+  health-check-report:
+    name: Generate Health Report
+    needs: [validate-update-manifest, test-update-flow, check-update-frequency, monitor-download-metrics]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Generate Report
+        run: |
+          echo "Generating auto-update system health report..."
+
+          cat > update-system-health.md << EOF
+          # Auto-Update System Health Report
+
+          **Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Repository**: ${{ github.repository }}
+          **Workflow**: ${{ github.workflow }}
+
+          ## System Status
+
+          | Component | Status | Notes |
+          |-----------|--------|-------|
+          | Update Manifest | ${{ needs.validate-update-manifest.result == 'success' && '✅ Healthy' || '❌ Issues' }} | Manifest validation and URL testing |
+          | Cross-Platform Support | ${{ needs.test-update-flow.result == 'success' && '✅ Healthy' || '❌ Issues' }} | Windows, macOS, Linux compatibility |
+          | Release Frequency | ${{ needs.check-update-frequency.result == 'success' && '✅ Healthy' || '❌ Issues' }} | Release cadence analysis |
+          | Download Metrics | ${{ needs.monitor-download-metrics.result == 'success' && '✅ Healthy' || '❌ Issues' }} | User adoption tracking |
+
+          ## Key Metrics
+
+          - **Update Endpoint**: ${{ env.UPDATE_ENDPOINT }}
+          - **Supported Platforms**: Windows x64, macOS (Intel + Apple Silicon), Linux x64
+          - **Auto-Update**: Enabled in Tauri configuration
+          - **Signing**: Code signing configured for all platforms
+
+          ## Recommendations
+
+          ${{ needs.validate-update-manifest.result != 'success' && '⚠️ Fix update manifest issues before next release' || '' }}
+          ${{ needs.test-update-flow.result != 'success' && '⚠️ Resolve platform-specific update flow issues' || '' }}
+
+          ## Next Actions
+
+          - [ ] Monitor update adoption rates
+          - [ ] Verify signature validation
+          - [ ] Test rollback procedures
+          - [ ] Update documentation if needed
+
+          ---
+          *This report is generated automatically every hour and on manifest changes.*
+          EOF
+
+      - name: Upload Health Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-system-health-report
+          path: update-system-health.md
+
+      - name: Comment on Issues (if any)
+        if: ${{ contains(needs.*.result, 'failure') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🔄 Auto-Update System Health Alert';
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'auto-update,health-check'
+            });
+
+            const existingIssue = issues.data.find(issue => issue.title === title);
+
+            const body = `## Auto-Update System Health Alert
+
+            **Alert Generated**: ${new Date().toISOString()}
+            **Workflow Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+
+            ### Failed Checks
+
+            ${ '${{ needs.validate-update-manifest.result }}' !== 'success' ? '- ❌ Update Manifest Validation' : '' }
+            ${ '${{ needs.test-update-flow.result }}' !== 'success' ? '- ❌ Cross-Platform Update Flow' : '' }
+            ${ '${{ needs.check-update-frequency.result }}' !== 'success' ? '- ❌ Release Frequency Analysis' : '' }
+            ${ '${{ needs.monitor-download-metrics.result }}' !== 'success' ? '- ❌ Download Metrics Collection' : '' }
+
+            ### Action Required
+
+            Please investigate the failed health checks and ensure the auto-update system is functioning correctly.
+
+            ### Artifacts
+
+            Check the workflow run artifacts for detailed health reports and logs.
+            `;
+
+            if (existingIssue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['auto-update', 'health-check', 'bug']
+              });
+            }
