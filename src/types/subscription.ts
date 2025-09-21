@@ -239,25 +239,30 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
     id: 'professional',
     tier: SubscriptionTier.PROFESSIONAL,
     name: 'Professional',
-    description: 'Full featured plan with document analysis and priority support',
-    price: 2999, // $29.99
+    description: 'Full featured plan with enterprise-level AI agents and document analysis',
+    price: 5000, // $50.00
     currency: 'usd',
     interval: 'month',
     features: [
       'Everything in Free',
       'Advanced document analysis',
       'Unlimited chat sessions',
+      '64 specialized AI agents',
+      'Multi-agent swarm coordination',
       'Priority support',
       'API access',
       'Advanced export options',
-      'Custom model integration'
+      'Custom model integration',
+      'Enterprise-level agent capabilities',
+      'Parallel agent processing',
+      'Agent memory persistence'
     ],
     stripePriceId: 'price_professional_monthly',
     limits: {
       maxDocuments: null,
       maxAnalysisJobs: null,
       maxChatSessions: null,
-      maxFileSize: 100 * 1024 * 1024, // 100MB
+      maxFileSize: 500 * 1024 * 1024, // 500MB - Same as Enterprise
       documentAnalysis: true,
       prioritySupport: true,
       apiAccess: true,
