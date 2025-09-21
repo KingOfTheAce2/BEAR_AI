@@ -156,7 +156,7 @@ impl McpServer {
         }
 
         // Check agent limits
-        if self.agents.len() >= 50 { // TODO: Use config
+        if self.agents.len() >= self.config.max_agents {
             return Err(anyhow::anyhow!("Maximum agent limit reached"));
         }
 

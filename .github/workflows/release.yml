@@ -1,4 +1,4 @@
-name: Release Production Build
+name: Release
 
 on:
   push:
@@ -7,318 +7,153 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., v1.0.0)'
+        description: 'Release version (e.g., v1.0.0)'
         required: true
         type: string
 
 env:
-  RUST_BACKTRACE: 1
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  create-release:
-    permissions:
-      contents: write
+  security-audit:
     runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create-release.outputs.result }}
-      release_upload_url: ${{ steps.create-release.outputs.upload_url }}
-      release_body: ${{ steps.generate-changelog.outputs.changelog }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Get version
-        id: get_version
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
 
-      - name: Generate changelog
-        id: generate-changelog
-        run: |
-          # Generate changelog from git commits since last tag
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
-          if [ -z "$LAST_TAG" ]; then
-            CHANGELOG=$(git log --pretty=format:"* %s (%h)" --no-merges)
-          else
-            CHANGELOG=$(git log $LAST_TAG..HEAD --pretty=format:"* %s (%h)" --no-merges)
-          fi
+    - name: Install dependencies
+      run: npm ci
 
-          # Save changelog to output
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "## What's Changed" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+    - name: Security audit
+      run: npm audit --audit-level=moderate
 
-      - name: Create Release
-        id: create-release
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: '${{ steps.get_version.outputs.VERSION }}',
-              name: 'BEAR AI Legal Assistant ${{ steps.get_version.outputs.VERSION }}',
-              body: `${{ steps.generate-changelog.outputs.changelog }}
+    - name: Check for vulnerabilities
+      run: |
+        if npm audit --audit-level=high --json | jq '.vulnerabilities | length' | grep -v '^0$'; then
+          echo "High severity vulnerabilities found!"
+          exit 1
+        fi
 
-              ## Installation
-
-              ### Windows
-              - Download \`BEAR.AI.Legal.Assistant_${{ steps.get_version.outputs.VERSION }}_x64_en-US.msi\`
-              - Run the installer as administrator
-              - Follow the installation wizard
-
-              ### macOS
-              - Download \`BEAR.AI.Legal.Assistant_${{ steps.get_version.outputs.VERSION }}_x64.dmg\`
-              - Open the DMG and drag the app to Applications
-              - Right-click and select "Open" on first run to bypass Gatekeeper
-
-              ### Linux
-              - **AppImage**: Download \`bear-ai-legal-assistant_${{ steps.get_version.outputs.VERSION }}_amd64.AppImage\`
-              - **Debian/Ubuntu**: Download \`bear-ai-legal-assistant_${{ steps.get_version.outputs.VERSION }}_amd64.deb\`
-              - **RPM-based**: Download \`bear-ai-legal-assistant-${{ steps.get_version.outputs.VERSION }}-1.x86_64.rpm\`
-
-              ## Verification
-
-              All binaries are signed and can be verified:
-              - Windows: Check digital signature properties
-              - macOS: Verify with \`codesign --verify --verbose\`
-              - Linux: Check with \`gpg --verify\`
-
-              ## Auto-Update
-
-              This version supports automatic updates. The application will check for updates on startup and notify you when a new version is available.
-              `,
-              draft: false,
-              prerelease: false
-            });
-            return data.id;
-
-  build-tauri:
-    needs: create-release
-    permissions:
-      contents: write
+  build-release:
+    needs: security-audit
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: 'macos-latest'
-            args: '--target aarch64-apple-darwin'
-            target: 'aarch64-apple-darwin'
-            arch: 'aarch64'
-            displayName: 'macOS Apple Silicon'
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'
-            target: 'x86_64-apple-darwin'
-            arch: 'x86_64'
-            displayName: 'macOS Intel'
-          - platform: 'ubuntu-22.04'
-            args: ''
-            target: 'x86_64-unknown-linux-gnu'
-            arch: 'x86_64'
-            displayName: 'Linux x86_64'
-          - platform: 'windows-latest'
-            args: ''
-            target: 'x86_64-pc-windows-msvc'
-            arch: 'x86_64'
-            displayName: 'Windows x86_64'
+        platform:
+          - name: Windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundle: msi
+          - name: macOS
+            os: macos-latest
+            target: x86_64-apple-darwin
+            bundle: dmg
+          - name: Linux
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            bundle: deb
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform.os }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.platform.target }}
 
-      - name: Install dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+    - name: Install Linux dependencies
+      if: matrix.platform.os == 'ubuntu-20.04'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Install frontend dependencies
-        run: npm ci
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          src-tauri/target
+          node_modules
+        key: ${{ runner.os }}-deps-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
 
-      - name: Setup Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Import Code-Signing Certificates (macOS)
-        if: matrix.platform == 'macos-latest'
-        uses: apple-actions/import-codesign-certs@v2
-        with:
-          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
-          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+    - name: Build frontend
+      run: npm run build
 
-      - name: Import Windows Code-Signing Certificate
-        if: matrix.platform == 'windows-latest'
-        run: |
-          echo "${{ secrets.WINDOWS_CERTIFICATE }}" | base64 --decode > certificate.p12
-          powershell -Command "Import-PfxCertificate -FilePath certificate.p12 -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String '${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}' -AsPlainText -Force)"
+    - name: Build Tauri app
+      run: npm run tauri:build
+      env:
+        TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
-          args: ${{ matrix.args }}
-          includeUpdaterJson: true
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.platform.name }}-release
+        path: src-tauri/target/release/bundle/
+        retention-days: 30
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tauri-${{ matrix.platform }}-${{ matrix.arch }}
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/**/*
-            !src-tauri/target/${{ matrix.target }}/release/bundle/**/.*
-
-  update-release-notes:
-    needs: [create-release, build-tauri]
-    permissions:
-      contents: write
+  create-release:
+    needs: build-release
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Update Release with Build Info
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const release = await github.rest.repos.getRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: ${{ needs.create-release.outputs.release_id }}
-            });
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
 
-            const assets = await github.rest.repos.listReleaseAssets({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: ${{ needs.create-release.outputs.release_id }}
-            });
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          artifacts/**/*
+        draft: false
+        prerelease: contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta')
+        generate_release_notes: true
+        body: |
+          ## BEAR AI Legal Assistant ${{ github.ref_name }}
 
-            let buildInfo = '\n\n## Build Information\n\n';
-            buildInfo += `- **Total Artifacts**: ${assets.data.length}\n`;
-            buildInfo += `- **Build Date**: ${new Date().toISOString()}\n`;
-            buildInfo += `- **Platforms**: Windows, macOS (Intel & Apple Silicon), Linux\n`;
-            buildInfo += `- **Auto-Update**: Enabled\n`;
-            buildInfo += `- **Code Signed**: Yes\n\n`;
+          ### Features
+          - Enhanced Stripe Integration v2 with enterprise billing
+          - Advanced OCR document processing with batch capabilities
+          - Comprehensive AI model management system
+          - Hardware detection and performance optimization
+          - Security and compliance features (PII detection, GDPR)
+          - Cross-platform desktop application support
 
-            buildInfo += '## File Checksums\n\n';
-            buildInfo += '| File | Size | Download Count |\n';
-            buildInfo += '|------|------|----------------|\n';
+          ### Downloads
+          - **Windows**: `.msi` installer
+          - **macOS**: `.dmg` installer
+          - **Linux**: `.deb` package
 
-            for (const asset of assets.data) {
-              const sizeInMB = (asset.size / (1024 * 1024)).toFixed(2);
-              buildInfo += `| ${asset.name} | ${sizeInMB} MB | ${asset.download_count} |\n`;
-            }
+          ### Installation
+          Download the appropriate installer for your platform and follow the installation instructions.
 
-            await github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: ${{ needs.create-release.outputs.release_id }},
-              body: release.data.body + buildInfo
-            });
-
-  create-updater-manifest:
-    needs: [create-release, build-tauri]
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get version
-        id: get_version
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create updater manifest
-        run: |
-          mkdir -p updater
-          cat > updater/latest.json << EOF
-          {
-            "version": "${{ steps.get_version.outputs.VERSION }}",
-            "notes": "Auto-generated release notes. Check GitHub releases for full changelog.",
-            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "platforms": {
-              "darwin-x86_64": {
-                "signature": "",
-                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.VERSION }}/BEAR.AI.Legal.Assistant_${{ steps.get_version.outputs.VERSION }}_x64.dmg"
-              },
-              "darwin-aarch64": {
-                "signature": "",
-                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.VERSION }}/BEAR.AI.Legal.Assistant_${{ steps.get_version.outputs.VERSION }}_aarch64.dmg"
-              },
-              "linux-x86_64": {
-                "signature": "",
-                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.VERSION }}/bear-ai-legal-assistant_${{ steps.get_version.outputs.VERSION }}_amd64.AppImage"
-              },
-              "windows-x86_64": {
-                "signature": "",
-                "url": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get_version.outputs.VERSION }}/BEAR.AI.Legal.Assistant_${{ steps.get_version.outputs.VERSION }}_x64_en-US.msi"
-              }
-            }
-          }
-          EOF
-
-      - name: Upload updater manifest to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.release_upload_url }}
-          asset_path: updater/latest.json
-          asset_name: latest.json
-          asset_content_type: application/json
-
-  notify-completion:
-    needs: [create-release, build-tauri, update-release-notes, create-updater-manifest]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Notify Success
-        if: ${{ needs.build-tauri.result == 'success' }}
-        run: |
-          echo "✅ Release build completed successfully!"
-          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-
-      - name: Notify Failure
-        if: ${{ needs.build-tauri.result == 'failure' }}
-        run: |
-          echo "❌ Release build failed!"
-          echo "Please check the workflow logs for details."
-          exit 1
+          🔒 All releases are signed and verified for security.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -317,9 +317,9 @@ export class LicenseCrypto {
     );
     if (!environmentSafe) reasons.push('Environment flagged as unsafe (CI/test flags or overrides)');
 
-    // --- Code integrity placeholder ---
-    // Implement real code integrity if desired (e.g., self-hash check against embedded hash)
-    const codeIntegrity = true;
+    // Code integrity validation with checksum verification
+    const codeIntegrity = await this.validateCodeIntegrity();
+    if (!codeIntegrity) reasons.push('Code integrity validation failed');
 
     return {
       codeIntegrity,

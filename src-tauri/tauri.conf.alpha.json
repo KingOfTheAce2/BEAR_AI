@@ -1,83 +1,15 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "package": {
-    "productName": "BEAR AI Legal Assistant (Alpha)",
-    "version": "1.0.0-alpha"
-  },
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "BEAR AI Legal Assistant (Alpha)",
+  "version": "1.0.0-alpha",
+  "identifier": "com.bearai.legalassistant.alpha",
   "build": {
     "beforeBuildCommand": "npm run build:alpha-fast",
     "beforeDevCommand": "npm run dev",
     "distDir": "../build",
     "devPath": "http://localhost:3000"
   },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "identifier": "com.bearai.legalassistant.alpha",
-      "category": "Productivity",
-      "copyright": "Copyright \u00a9 2025 BEAR AI Team. All rights reserved.",
-      "shortDescription": "BEAR AI Legal Assistant Alpha Build",
-      "longDescription": "BEAR AI Legal Assistant Alpha - Early access version for testing and development. This alpha version may contain bugs and incomplete features.",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/256x256.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "targets": "all",
-      "publisher": "BEAR AI Team",
-      "resources": [
-        "assets/**/*",
-        "templates/**/*"
-      ],
-      "externalBin": [],
-      "windows": {
-        "digestAlgorithm": "sha256",
-        "timestampUrl": "http://timestamp.digicert.com",
-        "tsp": false,
-        "webviewInstallMode": {
-          "type": "downloadBootstrapper"
-        },
-        "allowDowngrades": true
-      },
-      "macOS": {
-        "frameworks": [
-          "Security",
-          "WebKit",
-          "Foundation",
-          "AppKit",
-          "CoreServices",
-          "SystemConfiguration"
-        ],
-        "minimumSystemVersion": "10.13",
-        "hardenedRuntime": false
-      },
-      "dmg": {
-        "background": "assets/dmg-background.png",
-        "windowSize": {
-          "width": 660,
-          "height": 400
-        },
-        "appPosition": {
-          "x": 180,
-          "y": 170
-        },
-        "applicationFolderPosition": {
-          "x": 480,
-          "y": 170
-        }
-      },
-      "deb": {
-        "depends": [
-          "libwebkit2gtk-4.0-37",
-          "libgtk-3-0",
-          "libayatana-appindicator3-1"
-        ]
-      }
-    },
-    "macOSPrivateApi": true,
+  "app": {
     "windows": [
       {
         "title": "BEAR AI Legal Assistant (Alpha)",
@@ -114,12 +46,35 @@
       "freezePrototype": false,
       "dangerousDisableAssetCspModification": true
     },
-    "systemTray": {
+    "trayIcon": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
       "title": "BEAR AI Alpha"
-    }
+    },
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
+    "shortDescription": "BEAR AI Legal Assistant Alpha Build",
+    "longDescription": "BEAR AI Legal Assistant Alpha - Early access version for testing and development. This alpha version may contain bugs and incomplete features.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/256x256.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "targets": "all",
+    "publisher": "BEAR AI Team",
+    "resources": [
+      "assets/**/*",
+      "templates/**/*"
+    ],
+    "externalBin": []
   },
   "plugins": {
     "updater": {

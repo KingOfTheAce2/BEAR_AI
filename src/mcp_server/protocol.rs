@@ -404,9 +404,10 @@ impl McpProtocolHandler {
         let tools = self.tools.read().await;
 
         if tools.contains_key(&name) {
-            // Execute tool (placeholder implementation)
+            // Execute tool with actual implementation
+            let result = self.execute_tool(&name, arguments).await?;
             let content = vec![ToolContent::Text {
-                text: format!("Tool {} executed with arguments: {}", name, arguments),
+                text: result,
             }];
 
             Ok(Some(McpMessage::CallToolResult {
