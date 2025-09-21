@@ -11,6 +11,7 @@ const path = require('path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const TAURI_DIR = path.join(PROJECT_ROOT, 'src-tauri');
+const RUN_TAURI_SCRIPT = path.join('scripts', 'run-tauri-build.js');
 
 // Build configuration
 const BUILD_CONFIG = {
@@ -130,7 +131,7 @@ class ProductionBuilder {
     this.log(`Building Tauri application${target ? ` for ${target}` : ''}...`);
 
     try {
-      let buildCommand = 'npx tauri build';
+      let buildCommand = `node ${RUN_TAURI_SCRIPT}`;
 
       if (target) {
         buildCommand += ` --target ${target}`;
