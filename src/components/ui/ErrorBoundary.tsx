@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Badge } from './Badge'
 import { Button } from './Button'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
@@ -52,8 +52,8 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError,
   retry
 }) => {
-  const [showDetails, setShowDetails] = React.useState(false)
-  const [showReport, setShowReport] = React.useState(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [showReport, setShowReport] = useState(false)
 
   const handleCopyError = () => {
     const errorText = `
@@ -253,8 +253,8 @@ const ErrorReportForm: React.FC<ErrorReportProps> = ({
   onSendReport,
   onClose
 }) => {
-  const [additionalInfo, setAdditionalInfo] = React.useState('')
-  const [sending, setSending] = React.useState(false)
+  const [additionalInfo, setAdditionalInfo] = useState('')
+  const [sending, setSending] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

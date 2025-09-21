@@ -1,0 +1,222 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "package": {
+    "productName": "BEAR AI Legal Assistant",
+    "version": "1.0.0"
+  },
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "distDir": "../build",
+    "devPath": "http://localhost:3000"
+  },
+  "tauri": {
+    "bundle": {
+      "active": true,
+      "identifier": "com.bearai.legalassistant",
+      "category": "Productivity",
+      "copyright": "Copyright \u00a9 2025 BEAR AI Team. All rights reserved.",
+      "shortDescription": "Professional AI-powered legal document analysis and assistance",
+      "longDescription": "BEAR AI Legal Assistant is a professional AI-powered application designed specifically for legal professionals. It provides comprehensive document analysis, legal research capabilities, case management, and intelligent assistance tools. Features include secure document processing, AI-powered legal research, compliance checking, contract analysis, and professional workflow management.",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/256x256.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "targets": "all",
+      "publisher": "BEAR AI Team",
+      "resources": [
+        "assets/**/*",
+        "templates/**/*"
+      ],
+      "externalBin": [],
+      "windows": {
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "http://timestamp.digicert.com",
+        "tsp": false,
+        "webviewInstallMode": {
+          "type": "downloadBootstrapper"
+        },
+        "allowDowngrades": false
+      },
+      "macOS": {
+        "frameworks": [
+          "Security",
+          "WebKit",
+          "Foundation",
+          "AppKit",
+          "CoreServices",
+          "SystemConfiguration"
+        ],
+        "minimumSystemVersion": "10.13",
+        "entitlements": "entitlements.plist"
+      },
+      "dmg": {
+        "background": "assets/dmg-background.png",
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        }
+      },
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.0-37",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ]
+      }
+    },
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "BEAR AI Legal Assistant",
+        "label": "main",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1000,
+        "minHeight": 700,
+        "maxWidth": 2560,
+        "maxHeight": 1440,
+        "center": true,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "contentProtected": false,
+        "skipTaskbar": false,
+        "theme": "Light",
+        "titleBarStyle": "Visible",
+        "hiddenTitle": false,
+        "acceptFirstMouse": false,
+        "tabbingIdentifier": "bear-ai-legal",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI",
+        "userAgent": "BEAR AI Legal Assistant v1.0.0"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-eval'; connect-src 'self' https: wss: ws:; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
+      "devCsp": "default-src 'self' localhost:3000; img-src 'self' data: https: localhost:3000; style-src 'self' 'unsafe-inline' localhost:3000; font-src 'self' data: localhost:3000; script-src 'self' 'unsafe-eval' 'unsafe-inline' localhost:3000; connect-src 'self' https: wss: ws: localhost:3000; media-src 'self' https: localhost:3000; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
+      "freezePrototype": true,
+      "dangerousDisableAssetCspModification": false
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false,
+      "title": "BEAR AI"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGMDY4MzJEMkJEQkY5NEI="
+    },
+    "stronghold": {
+      "path": ".stronghold"
+    },
+    "shell": {
+      "all": false,
+      "execute": false,
+      "sidecar": false,
+      "open": true
+    },
+    "window": {
+      "all": false,
+      "create": false,
+      "center": true,
+      "requestUserAttention": true,
+      "setResizable": true,
+      "setTitle": true,
+      "maximize": true,
+      "unmaximize": true,
+      "minimize": true,
+      "unminimize": true,
+      "show": true,
+      "hide": true,
+      "close": false,
+      "setDecorations": true,
+      "setAlwaysOnTop": true,
+      "setContentProtected": true,
+      "setSize": true,
+      "setMinSize": true,
+      "setMaxSize": true,
+      "setPosition": true,
+      "setFullscreen": true,
+      "setFocus": true,
+      "setIcon": true,
+      "setSkipTaskbar": true,
+      "setCursorGrab": false,
+      "setCursorVisible": true,
+      "setCursorIcon": true,
+      "setCursorPosition": false,
+      "setIgnoreCursorEvents": false,
+      "startDragging": false,
+      "print": true
+    },
+    "fs": {
+      "all": false,
+      "readFile": true,
+      "writeFile": true,
+      "readDir": true,
+      "copyFile": true,
+      "createDir": true,
+      "removeDir": true,
+      "removeFile": true,
+      "renameFile": true,
+      "exists": true
+    },
+    "path": {
+      "all": true
+    },
+    "os": {
+      "all": true
+    },
+    "process": {
+      "all": false,
+      "relaunch": true,
+      "exit": true
+    },
+    "dialog": {
+      "all": false,
+      "ask": true,
+      "confirm": true,
+      "message": true,
+      "open": true,
+      "save": true
+    },
+    "notification": {
+      "all": true
+    },
+    "globalShortcut": {
+      "all": false
+    },
+    "http": {
+      "all": true,
+      "request": true
+    },
+    "clipboard": {
+      "all": false,
+      "writeText": true,
+      "readText": true
+    }
+  }
+}

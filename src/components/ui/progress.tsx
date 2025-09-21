@@ -1,7 +1,7 @@
 import React from 'react';
-export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 import { cn } from '../../utils/cn';
 
+export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number;
   max?: number;
 }

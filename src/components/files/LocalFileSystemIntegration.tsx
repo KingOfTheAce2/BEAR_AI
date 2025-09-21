@@ -43,7 +43,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
     loadStats();
     
     return unsubscribe;
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const initializeServices = async () => {
     try {

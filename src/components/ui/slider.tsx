@@ -1,7 +1,7 @@
 import React from 'react';
-export interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
 import { cn } from '../../utils/cn';
 
+export interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: number;
   onValueChange?: (value: number) => void;
 }

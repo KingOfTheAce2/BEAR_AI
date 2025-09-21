@@ -28,7 +28,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Debounced search

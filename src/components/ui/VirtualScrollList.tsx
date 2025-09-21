@@ -22,6 +22,7 @@ import React, {
   useCallback,
   useMemo,
   useLayoutEffect,
+  useImperativeHandle,
   ReactElement,
   CSSProperties
 } from 'react';
@@ -292,7 +293,7 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
   }, [items, scrollToIndex]);
   
   // Expose methods via ref
-  React.useImperativeHandle(forwardedRef, () => ({
+  useImperativeHandle(forwardedRef, () => ({
     scrollToIndex,
     scrollToItem,
     scrollToTop: () => scrollToIndex(0),

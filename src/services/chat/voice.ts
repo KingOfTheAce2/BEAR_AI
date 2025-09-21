@@ -1,7 +1,8 @@
-export interface VoiceCommand {
-export type VoiceCommandAction = 'send_message' | 'new_thread' | 'search';
 import { VoiceSettings } from '../../types/chat';
 
+export type VoiceCommandAction = 'send_message' | 'new_thread' | 'search';
+
+export interface VoiceCommand {
   action: VoiceCommandAction;
   parameter?: string;
   originalText: string;

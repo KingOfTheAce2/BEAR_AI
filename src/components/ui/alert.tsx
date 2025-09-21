@@ -1,7 +1,9 @@
 import React from 'react';
-export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {}
 import { cn } from '../../utils/cn';
+
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
 
   ({ className, ...props }, ref) => (
     <div

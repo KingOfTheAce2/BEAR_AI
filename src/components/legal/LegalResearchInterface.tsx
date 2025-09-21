@@ -74,7 +74,7 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
   useEffect(() => {
     loadSavedResearch();
     loadRecentSearches();
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadSavedResearch = async () => {
     // Load saved research from API or localStorage

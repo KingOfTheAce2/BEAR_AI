@@ -1,12 +1,12 @@
+import React, { useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
-import React from 'react'
-export interface ModalProps extends ComponentProps {
 import { Button } from './Button'
 import { cn, animations } from '../../utils/cn'
 import { ComponentProps } from '../../types'
 import { useClickOutside } from '../../hooks/useClickOutside'
 
+export interface ModalProps extends ComponentProps {
   isOpen: boolean
   onClose: () => void
   title?: string
@@ -33,7 +33,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     className,
     ...props 
   }, ref) => {
-    const modalRef = React.useRef<HTMLDivElement>(null)
+    const modalRef = useRef<HTMLDivElement>(null)
 
     const sizes = {
       xs: 'max-w-xs',
@@ -57,7 +57,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     )
 
     // Handle escape key
-    React.useEffect(() => {
+    useEffect(() => {
       if (!isOpen || !closeOnEscape || preventClose) return
 
       const handleEscape = (e: KeyboardEvent) => {
@@ -71,7 +71,7 @@ const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     }, [isOpen, closeOnEscape, onClose, preventClose])
 
     // Prevent body scroll when modal is open
-    React.useEffect(() => {
+    useEffect(() => {
       if (isOpen) {
         document.body.style.overflow = 'hidden'
         return () => {

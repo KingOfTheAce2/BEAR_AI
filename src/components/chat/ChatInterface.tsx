@@ -51,7 +51,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ activeChat }) => {
     if (messages.length === 0) {
       setMessages(mockMessages);
     }
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -1,7 +1,8 @@
-export interface GPUServiceConfig {
-export type GPUBackend = 'cpu' | 'webgl' | 'webgpu';
 import type { PerformanceProfile } from '../utils/streamingConfig';
 
+export type GPUBackend = 'cpu' | 'webgl' | 'webgpu';
+
+export interface GPUServiceConfig {
   preferredBackend?: GPUBackend;
   enableWebGPU?: boolean;
   enableWebGL?: boolean;

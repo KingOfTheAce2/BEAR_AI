@@ -1,6 +1,7 @@
-import React from 'react';
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+import React, { useId } from 'react';
 import { cn } from '../../utils/cn';
+
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
 
   label?: string;
   error?: string;
@@ -27,7 +28,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const generatedId = React.useId();
+    const generatedId = useId();
     const inputId = id ?? (label ? `${generatedId}-input` : undefined);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

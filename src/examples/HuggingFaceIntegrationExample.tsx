@@ -42,7 +42,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
   // Initialize system
   useEffect(() => {
     initializeSystem();
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check compatibility when model changes
   useEffect(() => {

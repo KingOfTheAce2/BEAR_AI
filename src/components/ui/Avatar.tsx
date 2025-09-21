@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '../../utils/cn';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number;
@@ -65,7 +65,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
     },
     ref
   ) => {
-    const [hasError, setHasError] = React.useState(false);
+    const [hasError, setHasError] = useState(false);
 
     const resolvedSizeClass =
       typeof size === 'number' ? undefined : sizeToClass[size] ?? sizeToClass.md;

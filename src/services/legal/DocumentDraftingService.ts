@@ -1,6 +1,6 @@
-export interface TemplateVariable {
 import type { LegalDocumentType, LegalCategory, RiskLevel } from '../../types/legal';
 
+export interface TemplateVariable {
   name: string;
   type: 'text' | 'textarea' | 'date' | 'number' | 'select' | 'boolean';
   required: boolean;

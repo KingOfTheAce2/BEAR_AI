@@ -1,0 +1,389 @@
+import { PIIMatch, PIIType } from './PIIDetector';
+
+export interface DutchValidationResult {
+  isValid: boolean;
+  type: 'BSN' | 'RSIN' | 'PASSPORT' | 'ID_CARD';
+  confidence: number;
+  region?: string;
+}
+
+export class DutchComplianceValidator {
+  private bsnTestNumbers: string[] = [
+    '123456782', // Valid test BSN
+    '111222333', // Invalid test BSN
+  ];
+
+  /**
+   * Validate Dutch BSN (Burgerservicenummer) using the 11-test algorithm
+   */
+  public validateBSN(bsn: string): boolean {
+    // Remove any spaces or formatting
+    const cleanBSN = bsn.replace(/\s+/g, '');
+
+    // Must be exactly 9 digits
+    if (!/^\d{9}$/.test(cleanBSN)) {
+      return false;
+    }
+
+    // Check if it's a known test number (should be flagged but is technically valid)
+    if (this.bsnTestNumbers.includes(cleanBSN)) {
+      return true; // Test numbers are valid for testing purposes
+    }
+
+    // Apply the 11-test algorithm
+    return this.apply11Test(cleanBSN);
+  }
+
+  /**
+   * Validate Dutch RSIN (Rechtspersonen Samenwerkingsverbanden Informatie Nummer)
+   */
+  public validateRSIN(rsin: string): boolean {
+    // Remove any spaces or formatting
+    const cleanRSIN = rsin.replace(/\s+/g, '');
+
+    // Must be exactly 9 digits
+    if (!/^\d{9}$/.test(cleanRSIN)) {
+      return false;
+    }
+
+    // RSIN uses the same 11-test algorithm as BSN
+    return this.apply11Test(cleanRSIN);
+  }
+
+  /**
+   * Apply the Dutch 11-test algorithm
+   */
+  private apply11Test(number: string): boolean {
+    const digits = number.split('').map(Number);
+
+    // Calculate weighted sum
+    let sum = 0;
+    for (let i = 0; i < 8; i++) {
+      sum += digits[i] * (9 - i);
+    }
+
+    // Add the last digit multiplied by -1
+    sum += digits[8] * -1;
+
+    // The sum must be divisible by 11
+    return sum % 11 === 0;
+  }
+
+  /**
+   * Validate Dutch passport number
+   */
+  public validateDutchPassport(passport: string): DutchValidationResult {
+    // Dutch passport format: 2 letters + 7 digits
+    const passportPattern = /^[A-Z]{2}\d{7}$/;
+    const cleanPassport = passport.replace(/\s+/g, '').toUpperCase();
+
+    const isValid = passportPattern.test(cleanPassport);
+
+    return {
+      isValid,
+      type: 'PASSPORT',
+      confidence: isValid ? 0.95 : 0.1,
+      region: 'Netherlands'
+    };
+  }
+
+  /**
+   * Validate Dutch ID card number
+   */
+  public validateDutchIDCard(idCard: string): DutchValidationResult {
+    // Dutch ID card format: 2 letters + 7 digits (same as passport)
+    const idPattern = /^[A-Z]{2}\d{7}$/;
+    const cleanID = idCard.replace(/\s+/g, '').toUpperCase();
+
+    const isValid = idPattern.test(cleanID);
+
+    return {
+      isValid,
+      type: 'ID_CARD',
+      confidence: isValid ? 0.95 : 0.1,
+      region: 'Netherlands'
+    };
+  }
+
+  /**
+   * Detect Dutch PII patterns with validation
+   */
+  public detectDutchPII(text: string): PIIMatch[] {
+    const matches: PIIMatch[] = [];
+
+    // Detect BSN candidates
+    matches.push(...this.detectBSNPatterns(text));
+
+    // Detect RSIN candidates
+    matches.push(...this.detectRSINPatterns(text));
+
+    // Detect passport patterns
+    matches.push(...this.detectPassportPatterns(text));
+
+    // Detect ID card patterns
+    matches.push(...this.detectIDCardPatterns(text));
+
+    return matches;
+  }
+
+  /**
+   * Detect BSN patterns in text
+   */
+  private detectBSNPatterns(text: string): PIIMatch[] {
+    const matches: PIIMatch[] = [];
+
+    // Various BSN formats
+    const bsnPatterns = [
+      // 123456789
+      /\b\d{9}\b/g,
+      // 123 456 789
+      /\b\d{3}\s+\d{3}\s+\d{3}\b/g,
+      // 123-456-789
+      /\b\d{3}-\d{3}-\d{3}\b/g,
+      // BSN: 123456789
+      /\bBSN:?\s*\d{9}\b/gi,
+      // Burgerservicenummer: 123456789
+      /\bBurgerservicenummer:?\s*\d{9}\b/gi
+    ];
+
+    bsnPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const cleanBSN = match[0].replace(/\D/g, '');
+
+        if (cleanBSN.length === 9 && this.validateBSN(cleanBSN)) {
+          matches.push({
+            type: PIIType.BSN,
+            text: match[0],
+            start: match.index,
+            end: match.index + match[0].length,
+            confidence: 0.95,
+            hash: '', // Will be filled by PIIDetector
+            country: 'NL'
+          });
+        }
+      }
+    });
+
+    return matches;
+  }
+
+  /**
+   * Detect RSIN patterns in text
+   */
+  private detectRSINPatterns(text: string): PIIMatch[] {
+    const matches: PIIMatch[] = [];
+
+    const rsinPatterns = [
+      // RSIN: 123456789
+      /\bRSIN:?\s*\d{9}\b/gi,
+      // KvK: 123456789 (Kamer van Koophandel)
+      /\bKvK:?\s*\d{9}\b/gi,
+      // Chamber of Commerce: 123456789
+      /\bChamber\s+of\s+Commerce:?\s*\d{9}\b/gi
+    ];
+
+    rsinPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const cleanRSIN = match[0].replace(/\D/g, '');
+
+        if (cleanRSIN.length === 9 && this.validateRSIN(cleanRSIN)) {
+          matches.push({
+            type: PIIType.RSIN,
+            text: match[0],
+            start: match.index,
+            end: match.index + match[0].length,
+            confidence: 0.95,
+            hash: '', // Will be filled by PIIDetector
+            country: 'NL'
+          });
+        }
+      }
+    });
+
+    return matches;
+  }
+
+  /**
+   * Detect Dutch passport patterns
+   */
+  private detectPassportPatterns(text: string): PIIMatch[] {
+    const matches: PIIMatch[] = [];
+
+    const passportPatterns = [
+      // Dutch passport: AB1234567
+      /\b[A-Z]{2}\d{7}\b/g,
+      // Passport: AB1234567
+      /\bPassport:?\s*[A-Z]{2}\d{7}\b/gi,
+      // Nederlandse paspoort: AB1234567
+      /\b(?:Nederlandse\s+)?paspoort:?\s*[A-Z]{2}\d{7}\b/gi
+    ];
+
+    passportPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const passportNumber = match[0].replace(/\D/g, '').replace(/[A-Z]/g, '');
+        const fullMatch = match[0];
+
+        if (/[A-Z]{2}\d{7}/.test(fullMatch)) {
+          const validation = this.validateDutchPassport(fullMatch);
+
+          if (validation.isValid) {
+            matches.push({
+              type: PIIType.DUTCH_PASSPORT,
+              text: match[0],
+              start: match.index,
+              end: match.index + match[0].length,
+              confidence: validation.confidence,
+              hash: '', // Will be filled by PIIDetector
+              country: 'NL'
+            });
+          }
+        }
+      }
+    });
+
+    return matches;
+  }
+
+  /**
+   * Detect Dutch ID card patterns
+   */
+  private detectIDCardPatterns(text: string): PIIMatch[] {
+    const matches: PIIMatch[] = [];
+
+    const idPatterns = [
+      // ID card: AB1234567
+      /\bID(?:\s+card)?:?\s*[A-Z]{2}\d{7}\b/gi,
+      // Nederlandse identiteitskaart: AB1234567
+      /\b(?:Nederlandse\s+)?identiteitskaart:?\s*[A-Z]{2}\d{7}\b/gi,
+      // NIK: AB1234567
+      /\bNIK:?\s*[A-Z]{2}\d{7}\b/gi
+    ];
+
+    idPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const fullMatch = match[0];
+
+        if (/[A-Z]{2}\d{7}/.test(fullMatch)) {
+          const validation = this.validateDutchIDCard(fullMatch);
+
+          if (validation.isValid) {
+            matches.push({
+              type: PIIType.DUTCH_ID,
+              text: match[0],
+              start: match.index,
+              end: match.index + match[0].length,
+              confidence: validation.confidence,
+              hash: '', // Will be filled by PIIDetector
+              country: 'NL'
+            });
+          }
+        }
+      }
+    });
+
+    return matches;
+  }
+
+  /**
+   * Generate GDPR compliance report for Dutch PII
+   */
+  public generateGDPRComplianceReport(matches: PIIMatch[]): {
+    requiresConsent: boolean;
+    dataTypes: string[];
+    processingBasis: string[];
+    retentionPeriod: string;
+    recommendations: string[];
+  } {
+    const dutchMatches = matches.filter(m => m.country === 'NL');
+    const dataTypes = [...new Set(dutchMatches.map(m => m.type))];
+
+    const requiresConsent = dataTypes.some(type =>
+      [PIIType.BSN, PIIType.DUTCH_PASSPORT, PIIType.DUTCH_ID].includes(type as PIIType)
+    );
+
+    const processingBasis: string[] = [];
+    const recommendations: string[] = [];
+
+    if (dataTypes.includes(PIIType.BSN)) {
+      processingBasis.push('Legal obligation (BSN processing requires specific legal basis)');
+      recommendations.push('Ensure BSN processing is legally justified');
+      recommendations.push('Implement additional security measures for BSN data');
+    }
+
+    if (dataTypes.includes(PIIType.RSIN)) {
+      processingBasis.push('Legitimate interest (Business registration information)');
+      recommendations.push('Document legitimate interest for RSIN processing');
+    }
+
+    if (dataTypes.includes(PIIType.DUTCH_PASSPORT) || dataTypes.includes(PIIType.DUTCH_ID)) {
+      processingBasis.push('Consent or contract performance');
+      recommendations.push('Obtain explicit consent for identity document processing');
+      recommendations.push('Implement secure storage for identity documents');
+    }
+
+    if (requiresConsent) {
+      recommendations.push('Implement data subject rights procedures (access, rectification, erasure)');
+      recommendations.push('Conduct Data Protection Impact Assessment (DPIA)');
+      recommendations.push('Ensure data minimization and purpose limitation');
+    }
+
+    return {
+      requiresConsent,
+      dataTypes: dataTypes.map(type => type.toString()),
+      processingBasis,
+      retentionPeriod: requiresConsent ? 'As per legal requirements or consent duration' : 'Standard business retention',
+      recommendations
+    };
+  }
+
+  /**
+   * Check if BSN is a test number
+   */
+  public isBSNTestNumber(bsn: string): boolean {
+    const cleanBSN = bsn.replace(/\s+/g, '');
+    return this.bsnTestNumbers.includes(cleanBSN);
+  }
+
+  /**
+   * Format BSN for display (with masking)
+   */
+  public formatBSNMasked(bsn: string): string {
+    const cleanBSN = bsn.replace(/\s+/g, '');
+    if (cleanBSN.length !== 9) return '***-***-***';
+
+    return `${cleanBSN.substring(0, 3)}-***-${cleanBSN.substring(6)}`;
+  }
+
+  /**
+   * Format RSIN for display (with masking)
+   */
+  public formatRSINMasked(rsin: string): string {
+    const cleanRSIN = rsin.replace(/\s+/g, '');
+    if (cleanRSIN.length !== 9) return '***-***-***';
+
+    return `${cleanRSIN.substring(0, 2)}***${cleanRSIN.substring(7)}`;
+  }
+
+  /**
+   * Get Dutch privacy authority contact information
+   */
+  public getPrivacyAuthorityInfo(): {
+    name: string;
+    website: string;
+    contact: string;
+    reportingRequired: boolean;
+  } {
+    return {
+      name: 'Autoriteit Persoonsgegevens (AP)',
+      website: 'https://autoriteitpersoonsgegevens.nl',
+      contact: 'info@autoriteitpersoonsgegevens.nl',
+      reportingRequired: true
+    };
+  }
+}
+
+export default DutchComplianceValidator;

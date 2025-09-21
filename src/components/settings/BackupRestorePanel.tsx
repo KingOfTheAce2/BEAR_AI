@@ -27,7 +27,7 @@ const BackupRestorePanel: React.FC = () => {
 
   React.useEffect(() => {
     loadBackups();
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExport = async () => {
     try {

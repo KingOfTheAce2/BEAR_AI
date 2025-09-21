@@ -1,7 +1,9 @@
+import { useRef, useCallback } from 'react';
+
 /**
  * Enhanced debounce hook with performance optimizations
  * Optimized for high-frequency events like scrolling
- * 
+ *
  * @version 2.0.0
  * @author BEAR AI Performance Team
  */
@@ -125,7 +127,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
         clearTimeout(maxTimeoutRef.current);
       }
     };
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Add cancel and flush methods
   (debouncedFunction as any).cancel = () => {

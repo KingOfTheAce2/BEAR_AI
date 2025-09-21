@@ -1,83 +1,15 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "package": {
-    "productName": "BEAR AI Legal Assistant",
-    "version": "1.0.0"
-  },
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "BEAR AI Legal Assistant",
+  "version": "1.0.0",
+  "identifier": "com.bearai.legalassistant",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "distDir": "../build",
     "devPath": "http://localhost:3000"
   },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "identifier": "com.bearai.legalassistant",
-      "category": "Productivity",
-      "copyright": "Copyright \u00a9 2025 BEAR AI Team. All rights reserved.",
-      "shortDescription": "Professional AI-powered legal document analysis and assistance",
-      "longDescription": "BEAR AI Legal Assistant is a professional AI-powered application designed specifically for legal professionals. It provides comprehensive document analysis, legal research capabilities, case management, and intelligent assistance tools. Features include secure document processing, AI-powered legal research, compliance checking, contract analysis, and professional workflow management.",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/256x256.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "targets": "all",
-      "publisher": "BEAR AI Team",
-      "resources": [
-        "assets/**/*",
-        "templates/**/*"
-      ],
-      "externalBin": [],
-      "windows": {
-        "digestAlgorithm": "sha256",
-        "timestampUrl": "http://timestamp.digicert.com",
-        "tsp": false,
-        "webviewInstallMode": {
-          "type": "downloadBootstrapper"
-        },
-        "allowDowngrades": false
-      },
-      "macOS": {
-        "frameworks": [
-          "Security",
-          "WebKit",
-          "Foundation",
-          "AppKit",
-          "CoreServices",
-          "SystemConfiguration"
-        ],
-        "minimumSystemVersion": "10.13",
-        "entitlements": "entitlements.plist"
-      },
-      "dmg": {
-        "background": "assets/dmg-background.png",
-        "windowSize": {
-          "width": 660,
-          "height": 400
-        },
-        "appPosition": {
-          "x": 180,
-          "y": 170
-        },
-        "applicationFolderPosition": {
-          "x": 480,
-          "y": 170
-        }
-      },
-      "deb": {
-        "depends": [
-          "libwebkit2gtk-4.0-37",
-          "libgtk-3-0",
-          "libayatana-appindicator3-1"
-        ]
-      }
-    },
-    "macOSPrivateApi": true,
+  "app": {
     "windows": [
       {
         "title": "BEAR AI Legal Assistant",
@@ -114,12 +46,35 @@
       "freezePrototype": true,
       "dangerousDisableAssetCspModification": false
     },
-    "systemTray": {
+    "trayIcon": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
       "title": "BEAR AI"
-    }
+    },
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
+    "shortDescription": "Professional AI-powered legal document analysis and assistance",
+    "longDescription": "BEAR AI Legal Assistant is a professional AI-powered application designed specifically for legal professionals. It provides comprehensive document analysis, legal research capabilities, case management, and intelligent assistance tools. Features include secure document processing, AI-powered legal research, compliance checking, contract analysis, and professional workflow management.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/256x256.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "targets": "all",
+    "publisher": "BEAR AI Team",
+    "resources": [
+      "assets/**/*",
+      "templates/**/*"
+    ],
+    "externalBin": []
   },
   "plugins": {
     "updater": {
@@ -129,94 +84,6 @@
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGMDY4MzJEMkJEQkY5NEI="
-    },
-    "stronghold": {
-      "path": ".stronghold"
-    },
-    "shell": {
-      "all": false,
-      "execute": false,
-      "sidecar": false,
-      "open": true
-    },
-    "window": {
-      "all": false,
-      "create": false,
-      "center": true,
-      "requestUserAttention": true,
-      "setResizable": true,
-      "setTitle": true,
-      "maximize": true,
-      "unmaximize": true,
-      "minimize": true,
-      "unminimize": true,
-      "show": true,
-      "hide": true,
-      "close": false,
-      "setDecorations": true,
-      "setAlwaysOnTop": true,
-      "setContentProtected": true,
-      "setSize": true,
-      "setMinSize": true,
-      "setMaxSize": true,
-      "setPosition": true,
-      "setFullscreen": true,
-      "setFocus": true,
-      "setIcon": true,
-      "setSkipTaskbar": true,
-      "setCursorGrab": false,
-      "setCursorVisible": true,
-      "setCursorIcon": true,
-      "setCursorPosition": false,
-      "setIgnoreCursorEvents": false,
-      "startDragging": false,
-      "print": true
-    },
-    "fs": {
-      "all": false,
-      "readFile": true,
-      "writeFile": true,
-      "readDir": true,
-      "copyFile": true,
-      "createDir": true,
-      "removeDir": true,
-      "removeFile": true,
-      "renameFile": true,
-      "exists": true
-    },
-    "path": {
-      "all": true
-    },
-    "os": {
-      "all": true
-    },
-    "process": {
-      "all": false,
-      "relaunch": true,
-      "exit": true
-    },
-    "dialog": {
-      "all": false,
-      "ask": true,
-      "confirm": true,
-      "message": true,
-      "open": true,
-      "save": true
-    },
-    "notification": {
-      "all": true
-    },
-    "globalShortcut": {
-      "all": false
-    },
-    "http": {
-      "all": true,
-      "request": true
-    },
-    "clipboard": {
-      "all": false,
-      "writeText": true,
-      "readText": true
     }
   }
 }

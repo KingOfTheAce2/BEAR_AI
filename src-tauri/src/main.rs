@@ -29,11 +29,21 @@ mod local_api;
 mod mcp_server;
 #[cfg(feature = "desktop")]
 mod security;
+#[cfg(feature = "desktop")]
+mod stripe_integration;
+#[cfg(feature = "desktop")]
+mod enterprise_management;
+#[cfg(feature = "desktop")]
+mod pii_detector;
 
 #[cfg(feature = "desktop")]
 use llm_commands::*;
 #[cfg(feature = "desktop")]
 use local_api::*;
+#[cfg(feature = "desktop")]
+use stripe_integration::*;
+#[cfg(feature = "desktop")]
+use pii_detector::*;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[cfg(feature = "desktop")]
@@ -192,12 +202,41 @@ fn main() {
             // mcp_server::start_mcp_server,
             // security::encrypt_document,
             // licensing::validate_license
+
+            // PII Detection commands
+            detect_pii_rust,
+            mask_pii_text,
+            validate_dutch_bsn,
+            validate_dutch_rsin,
+            get_pii_audit_log,
+            export_pii_audit_log,
+            process_document_pii
+            // Stripe payment integration commands
+            stripe_init_client,
+            stripe_create_customer,
+            stripe_get_customer,
+            stripe_create_subscription,
+            stripe_get_subscription,
+            stripe_update_subscription,
+            stripe_cancel_subscription,
+            stripe_create_payment_intent,
+            stripe_get_invoices,
+            stripe_handle_webhook,
+            // Enterprise management commands
+            enterprise_create_account,
+            enterprise_get_account,
+            enterprise_add_user,
+            enterprise_remove_user,
+            enterprise_list_users,
+            enterprise_update_user_role
         ])
         .manage(SessionStorage::new(Mutex::new(HashMap::new())))
         .manage(ChatStorage::new(Mutex::new(HashMap::new())))
         .manage(DocumentStorage::new(Mutex::new(HashMap::new())))
         .manage(MessageStorage::new(Mutex::new(HashMap::new())))
         .manage(create_llm_manager())
+        .manage(create_stripe_client_manager())
+        .manage(create_enterprise_manager())
         // Additional managed state will be added later
         // .manage(Arc::new(Mutex::new(huggingface::HuggingFaceClient::new().unwrap())))
         // .manage(Arc::new(Mutex::new(document_analyzer::DocumentAnalyzer::new().unwrap())))

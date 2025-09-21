@@ -1,6 +1,6 @@
-export interface MemoryInfo {
 import { EventEmitter } from './EventEmitter';
 
+export interface MemoryInfo {
   used: number;
   total: number;
   available: number;

@@ -45,7 +45,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   // Focus input on mount
   React.useEffect(() => {
     inputRef.current?.focus()
-  }, [] // eslint-disable-line react-hooks/exhaustive-deps)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSendMessage = () => {
     if (!message.trim()) return
