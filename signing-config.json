@@ -1,0 +1,21 @@
+{
+  "windows": {
+    "certificateFile": "certificates/windows-cert.p12",
+    "certificatePassword": null,
+    "timestampUrl": "http://timestamp.sectigo.com",
+    "signTool": "signtool.exe"
+  },
+  "macos": {
+    "identity": "Developer ID Application",
+    "certificateFile": "certificates/apple-cert.p12",
+    "certificatePassword": null,
+    "teamId": null,
+    "appleId": null,
+    "applePassword": null,
+    "notarization": true
+  },
+  "linux": {
+    "gpgKey": "certificates/gpg-key.asc",
+    "gpgPassphrase": null
+  }
+}

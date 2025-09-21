@@ -315,79 +315,71 @@ jobs:
 ## 💰 Pricing Tiers & Capabilities
 
 ### 🆓 **Free Tier**
-**Target**: Individual users, students, small legal practices
+**Target**: Individual users, students, hobbyists
 
 **Core Features:**
-- ✅ Basic document analysis (up to 10 documents/month)
+- ✅ Full local AI model download and chat interface
+- ✅ Basic document analysis (unlimited local processing)
 - ✅ PII detection and redaction
-- ✅ Basic chat interface with local AI models
 - ✅ Standard legal document templates
 - ✅ Basic GDPR compliance tools
 - ✅ Single-user license
 
-**Limitations:**
-- 10 documents per month
-- Basic AI models only (Phi-2, small models)
-- No team collaboration
-- Community support only
-- Basic export formats
+**What's Included:**
+- Complete access to local AI models (Phi-2, Llama 2, CodeLlama)
+- Unlimited document processing (all local)
+- Basic OCR functionality
+- Community support via GitHub
 
-### 🚀 **Pro Tier** - $29/month
-**Target**: Solo practitioners, small law firms, consultants
+### 🚀 **Pro Tier** - $19/month
+**Target**: Legal professionals, consultants, small practices
 
 **Everything in Free, plus:**
-- ✅ Unlimited document analysis
 - ✅ Advanced OCR with batch processing
-- ✅ Premium AI models (Llama 2 7B, CodeLlama)
-- ✅ Advanced legal entity recognition
-- ✅ Custom document templates
+- ✅ Enhanced legal entity recognition
+- ✅ Advanced document templates and workflows
 - ✅ Priority email support
 - ✅ Advanced export formats (PDF, DOCX, etc.)
-- ✅ Subscription management via Stripe
-- ✅ Enhanced security features
+- ✅ Performance optimizations
+- ✅ Regular feature updates
 
-**AI Capabilities:**
-- Multiple model selection and optimization
-- Hardware-aware model recommendations
-- Context-aware legal document analysis
-- Advanced reasoning for legal research
+**Professional Features:**
+- Advanced document analysis algorithms
+- Custom template creation
+- Enhanced security features
+- Professional support
 
-### 🏢 **Enterprise Tier** - $99/month/seat
-**Target**: Large law firms, corporate legal departments, government agencies
+### 🏢 **Enterprise Tier** - $49/month/seat
+**Target**: Law firms, corporate legal departments (central billing only)
 
 **Everything in Pro, plus:**
-- ✅ Team subscription management
-- ✅ Multi-user administration
-- ✅ Advanced team collaboration tools
-- ✅ Enterprise billing and invoicing
-- ✅ Advanced audit trails and compliance
-- ✅ Custom integrations and API access
-- ✅ Priority phone and chat support
-- ✅ Advanced security and access controls
-- ✅ Custom deployment options
+- ✅ Central billing and license management
+- ✅ Bulk license purchasing
+- ✅ Enterprise support (phone/chat)
+- ✅ Volume discounts for 10+ seats
+- ✅ Advanced audit trails and reporting
+- ✅ Priority feature requests
 
 **Enterprise Features:**
-- Team subscription management (unlimited members)
-- Advanced billing cycle tracking
-- Enterprise-grade security compliance
-- Custom model fine-tuning options
-- Advanced analytics and reporting
-- White-label customization options
+- Centralized billing for multiple users
+- Volume licensing (10+ users get discounts)
+- Dedicated support channel
+- Advanced reporting for compliance
 
 ### 🔧 **Feature Matrix Comparison**
 
-| Feature | Free | Pro | Enterprise |
-|---------|------|-----|------------|
-| Document Analysis | 10/month | Unlimited | Unlimited |
-| AI Models | Basic | Premium | All + Custom |
-| OCR Processing | Basic | Advanced | Advanced + Batch |
-| Team Members | 1 | 1 | Unlimited |
-| Storage | 1GB | 50GB | 500GB |
-| Support | Community | Email | Phone/Chat |
-| Compliance | Basic GDPR | Full GDPR | Enterprise |
-| API Access | ❌ | Limited | Full |
-| Custom Integration | ❌ | ❌ | ✅ |
-| Advanced Analytics | ❌ | Basic | Advanced |
+| Feature | Free | Pro ($19/mo) | Enterprise ($49/mo/seat) |
+|---------|------|--------------|--------------------------|
+| Local AI Models | ✅ All Models | ✅ All Models | ✅ All Models |
+| Document Analysis | ✅ Unlimited | ✅ Unlimited | ✅ Unlimited |
+| OCR Processing | Basic | Advanced + Batch | Advanced + Batch |
+| Storage | Local Only | Local Only | Local Only |
+| Support | GitHub Community | Email | Phone/Chat |
+| Templates | Basic | Advanced + Custom | Advanced + Custom |
+| Export Formats | Basic | All Formats | All Formats |
+| Central Billing | ❌ | ❌ | ✅ Multi-user |
+| Volume Discounts | ❌ | ❌ | ✅ 10+ seats |
+| Audit Trails | Basic | Enhanced | Enterprise |
 
 ---
 
