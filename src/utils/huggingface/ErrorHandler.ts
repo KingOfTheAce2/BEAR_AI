@@ -55,14 +55,22 @@ export class HuggingFaceErrorHandler {
     const error = new Error(message) as HuggingFaceError;
     error.name = 'HuggingFaceError';
     error.type = type;
-    error.code = options.code;
+
+    if (options.code !== undefined) {
+      error.code = options.code;
+    }
+
     error.details = options.details;
     error.recoverable = options.recoverable ?? this.isRecoverableByDefault(type);
-    error.retryAfter = options.retryAfter;
-    error.suggestions = options.suggestions || this.getDefaultSuggestions(type);
+
+    if (options.retryAfter !== undefined) {
+      error.retryAfter = options.retryAfter;
+    }
+
+    error.suggestions = options.suggestions ?? this.getDefaultSuggestions(type);
 
     // Preserve original stack trace if available
-    if (options.originalError) {
+    if (options.originalError?.stack) {
       error.stack = options.originalError.stack;
     }
 
