@@ -1,4 +1,4 @@
-import { ApiError, AuthTokens, ApiResponse, RequestConfig, RateLimit } from '../../types/api';
+import { ApiError, AuthTokens, ApiResponse, RequestConfig } from '../../types/api';
 
 export interface ApiClientConfig {
   baseUrl: string;
@@ -72,13 +72,17 @@ export class ApiClient {
         const response = await fetch(url, {
           method: config.method,
           headers,
-          body: config.data ? JSON.stringify(config.data) : undefined,
+          body:
+            typeof config.data !== 'undefined' ? JSON.stringify(config.data) : undefined,
           signal: controller.signal
         });
 
         clearTimeout(timeoutId);
 
         const result = await response.json();
+        const rateLimitInfo = this.parseRateLimit(response.headers);
+        const requestId =
+          response.headers.get('X-Request-ID') ?? response.headers.get('x-request-id') ?? this.generateRequestId();
 
         if (!response.ok) {
           const error: ApiError = result.error || {
@@ -117,13 +121,13 @@ export class ApiClient {
           return { error };
         }
 
-        return { 
+        return {
           data: result.data || result,
           meta: {
             version: this.version,
             timestamp: new Date().toISOString(),
-            requestId: response.headers.get('X-Request-ID') || '',
-            rateLimit: this.extractRateLimit(response)
+            requestId,
+            rateLimit: rateLimitInfo
           }
         };
 
@@ -154,22 +158,35 @@ export class ApiClient {
   /**
    * Extract rate limit information from response headers
    */
-  private extractRateLimit(response: Response): RateLimitInfo | undefined {
-    const limit = response.headers.get('X-RateLimit-Limit');
-    const remaining = response.headers.get('X-RateLimit-Remaining');
-    const reset = response.headers.get('X-RateLimit-Reset');
-    const retryAfter = response.headers.get('Retry-After');
+  private parseRateLimit(headers: Headers): RateLimitInfo | undefined {
+    const limit = headers.get('x-ratelimit-limit');
+    const remaining = headers.get('x-ratelimit-remaining');
+    const reset = headers.get('x-ratelimit-reset');
+    const retryAfter = headers.get('retry-after');
 
-    if (limit && remaining && reset) {
-      return {
-        limit: parseInt(limit),
-        remaining: parseInt(remaining),
-        reset: parseInt(reset),
-        retryAfter: retryAfter ? parseInt(retryAfter) : undefined
-      };
+    if (!limit || !remaining || !reset) {
+      return undefined;
     }
 
-    return undefined;
+    return {
+      limit: parseInt(limit, 10),
+      remaining: parseInt(remaining, 10),
+      reset: parseInt(reset, 10),
+      retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined
+    };
+  }
+
+  private generateRequestId(): string {
+    try {
+      const cryptoRef = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
+      if (cryptoRef?.randomUUID) {
+        return cryptoRef.randomUUID();
+      }
+    } catch {
+      // Ignore errors and fall back to a timestamp-based ID
+    }
+
+    return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
   /**
@@ -208,35 +225,59 @@ export class ApiClient {
    * GET request
    */
   async get<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>({ method: 'GET', url, headers });
+    return this.makeRequest<T>({ method: 'GET', url, headers: headers || {} });
   }
 
   /**
    * POST request
    */
-  async post<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>({ method: 'POST', url, data, headers });
+  async post<T>(
+    url: string,
+    data?: any,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
+    const config: RequestConfig = { method: 'POST', url, headers: headers || {} };
+    if (typeof data !== 'undefined') {
+      config.data = data;
+    }
+    return this.makeRequest<T>(config);
   }
 
   /**
    * PUT request
    */
-  async put<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>({ method: 'PUT', url, data, headers });
+  async put<T>(
+    url: string,
+    data?: any,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
+    const config: RequestConfig = { method: 'PUT', url, headers: headers || {} };
+    if (typeof data !== 'undefined') {
+      config.data = data;
+    }
+    return this.makeRequest<T>(config);
   }
 
   /**
    * DELETE request
    */
   async delete<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>({ method: 'DELETE', url, headers });
+    return this.makeRequest<T>({ method: 'DELETE', url, headers: headers || {} });
   }
 
   /**
    * PATCH request
    */
-  async patch<T>(url: string, data?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>({ method: 'PATCH', url, data, headers });
+  async patch<T>(
+    url: string,
+    data?: any,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
+    const config: RequestConfig = { method: 'PATCH', url, headers: headers || {} };
+    if (typeof data !== 'undefined') {
+      config.data = data;
+    }
+    return this.makeRequest<T>(config);
   }
 }
 

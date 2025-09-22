@@ -1,9 +1,9 @@
-import React from 'react'
+import type { FC } from 'react'
 import { Agent } from '../../types'
-import { Avatar } from '../ui/Avatar'
-import { Badge } from '../ui/Badge'
-import { Button } from '../ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { Avatar } from '../ui/avatar'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { cn } from '../../utils/cn'
 import { Activity, Clock, Cpu, MessageCircle, Settings, Zap, CheckCircle, AlertCircle, XCircle, Pause } from 'lucide-react'
 
@@ -21,7 +21,7 @@ export interface AgentCardProps {
   key?: string
 }
 
-const AgentCard: React.FC<AgentCardProps> = ({
+const AgentCard: FC<AgentCardProps> = ({
   agent,
   onSelect,
   onConfigure,
@@ -95,10 +95,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Avatar 
-                src={agent.avatar}
+              <Avatar
+                src={agent.avatar ?? undefined}
                 alt={agent.name}
-                fallback={agent.name.charAt(0).toUpperCase()}
+                fallback={agent.name.charAt(0)}
                 size={compact ? 'sm' : 'md'}
               />
               <div className={cn(

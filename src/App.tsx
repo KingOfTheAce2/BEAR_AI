@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/unified.css';
 import { AppProvider } from './contexts/AppContext';
@@ -14,7 +13,7 @@ import { UnifiedLayout } from './components/layout/UnifiedLayout';
 function App() {
   return (
     <ThemeProvider initialTheme="professional" initialColorMode="light">
-      <AppProvider initialUser={undefined}>
+      <AppProvider>
         <Router>
           <div className="App min-h-screen bg-background text-text-primary font-primary">
             <Routes>
