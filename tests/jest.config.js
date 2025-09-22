@@ -3,6 +3,40 @@
 
 const path = require('path');
 
+const reporters = ['default'];
+
+const isCI = Boolean(process.env.CI);
+
+const addReporterIfAvailable = (name, options) => {
+  try {
+    require.resolve(name);
+    reporters.push(options ? [name, options] : name);
+  } catch (error) {
+    if (isCI) {
+      // eslint-disable-next-line no-console
+      console.warn(`Optional Jest reporter "${name}" is not installed. Skipping.`);
+    }
+  }
+};
+
+addReporterIfAvailable('jest-junit', {
+  outputDirectory: 'test-results',
+  outputName: 'junit.xml',
+  ancestorSeparator: ' › ',
+  uniqueOutputName: 'false',
+  suiteNameTemplate: '{displayName} {filepath}',
+  classNameTemplate: '{classname}',
+  titleTemplate: '{title}'
+});
+
+addReporterIfAvailable('jest-html-reporters', {
+  publicDir: 'test-results',
+  filename: 'test-report.html',
+  expand: true,
+  hideIcon: false,
+  pageTitle: 'BEAR AI Test Report'
+});
+
 module.exports = {
   // Root directory for the project
   rootDir: path.resolve(__dirname, '..'),
@@ -190,31 +224,7 @@ module.exports = {
   notifyMode: 'failure-change',
 
   // Reporter configuration
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: 'test-results',
-        outputName: 'junit.xml',
-        ancestorSeparator: ' › ',
-        uniqueOutputName: 'false',
-        suiteNameTemplate: '{displayName} {filepath}',
-        classNameTemplate: '{classname}',
-        titleTemplate: '{title}'
-      }
-    ],
-    [
-      'jest-html-reporters',
-      {
-        publicDir: 'test-results',
-        filename: 'test-report.html',
-        expand: true,
-        hideIcon: false,
-        pageTitle: 'BEAR AI Test Report'
-      }
-    ]
-  ],
+  reporters,
 
   // Custom matchers and utilities
   snapshotSerializers: [
