@@ -1,29 +1,34 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi } from 'vitest';
 import { usePIIDetection, useDocumentPIIScanning } from '../../hooks/usePIIDetection';
 import { PIIDetectionResult, PIIType } from '../../services/pii/PIIDetector';
 
-// Mock the PIIDetector
-jest.mock('../../services/pii/PIIDetector', () => ({
-  PIIDetector: jest.fn().mockImplementation(() => ({
-    detectPII: jest.fn(),
-    detectPIIRealTime: jest.fn(),
-    maskText: jest.fn(),
-    getAuditLog: jest.fn(),
-    clearAuditLog: jest.fn(),
-    updateConfig: jest.fn(),
-    getConfig: jest.fn()
-  })),
+const createDetectorMock = () => ({
+  detectPII: vi.fn(),
+  detectPIIRealTime: vi.fn(),
+  maskText: vi.fn(),
+  getAuditLog: vi.fn(),
+  clearAuditLog: vi.fn(),
+  updateConfig: vi.fn(),
+  getConfig: vi.fn().mockReturnValue({}),
+});
+
+const mockPIIDetectorConstructor = vi.fn().mockImplementation(createDetectorMock);
+
+vi.mock('../../services/pii/PIIDetector', () => ({
+  PIIDetector: mockPIIDetectorConstructor,
   PIIType: {
     EMAIL: 'email',
     SSN: 'ssn',
     PHONE: 'phone',
-    ATTORNEY_CLIENT_PRIVILEGE: 'attorney_client_privilege'
-  }
+    ATTORNEY_CLIENT_PRIVILEGE: 'attorney_client_privilege',
+  },
 }));
 
 describe('usePIIDetection Hook', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    mockPIIDetectorConstructor.mockImplementation(createDetectorMock);
   });
 
   describe('Basic Hook Functionality', () => {
@@ -77,15 +82,15 @@ describe('usePIIDetection Hook', () => {
       const [, actions] = result.current;
 
       // Mock the detector's detectPII method
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(mockResult),
-        detectPIIRealTime: jest.fn(),
-        maskText: jest.fn(),
-        getAuditLog: jest.fn(),
-        clearAuditLog: jest.fn(),
-        updateConfig: jest.fn(),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(mockResult),
+        detectPIIRealTime: vi.fn(),
+        maskText: vi.fn(),
+        getAuditLog: vi.fn(),
+        clearAuditLog: vi.fn(),
+        updateConfig: vi.fn(),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -105,10 +110,10 @@ describe('usePIIDetection Hook', () => {
       const [, actions] = result.current;
 
       // Mock the detector to throw an error
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockRejectedValue(new Error('Detection failed')),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockRejectedValue(new Error('Detection failed')),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -148,10 +153,10 @@ describe('usePIIDetection Hook', () => {
       const [, actions] = result.current;
 
       // Mock the detector's real-time method
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPIIRealTime: jest.fn().mockReturnValue(mockMatches),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPIIRealTime: vi.fn().mockReturnValue(mockMatches),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -198,10 +203,10 @@ describe('usePIIDetection Hook', () => {
         hash: 'hash123'
       }];
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        maskText: jest.fn().mockReturnValue('Contact me at *****'),
-        getConfig: jest.fn().mockReturnValue({})
+        maskText: vi.fn().mockReturnValue('Contact me at *****'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -214,10 +219,10 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection());
       const [, actions] = result.current;
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        maskText: jest.fn().mockReturnValue('No PII here'),
-        getConfig: jest.fn().mockReturnValue({})
+        maskText: vi.fn().mockReturnValue('No PII here'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -255,11 +260,11 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection());
       const [, actions] = result.current;
 
-      const mockUpdateConfig = jest.fn();
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockUpdateConfig = vi.fn();
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
         updateConfig: mockUpdateConfig,
-        getConfig: jest.fn().mockReturnValue({})
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -279,10 +284,10 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection());
       const [, actions] = result.current;
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        getAuditLog: jest.fn().mockReturnValue(mockAuditLog),
-        getConfig: jest.fn().mockReturnValue({})
+        getAuditLog: vi.fn().mockReturnValue(mockAuditLog),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -299,10 +304,10 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection());
       const [, actions] = result.current;
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        getAuditLog: jest.fn().mockReturnValue(mockAuditLog),
-        getConfig: jest.fn().mockReturnValue({})
+        getAuditLog: vi.fn().mockReturnValue(mockAuditLog),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       act(() => {
@@ -318,7 +323,7 @@ describe('usePIIDetection Hook', () => {
 
   describe('Callback Handling', () => {
     test('should call onPIIDetected callback', async () => {
-      const onPIIDetected = jest.fn();
+      const onPIIDetected = vi.fn();
       const mockResult: PIIDetectionResult = {
         hasPII: true,
         matches: [{
@@ -337,10 +342,10 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection({ onPIIDetected }));
       const [, actions] = result.current;
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(mockResult),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(mockResult),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -351,7 +356,7 @@ describe('usePIIDetection Hook', () => {
     });
 
     test('should call onHighRiskDetected callback', async () => {
-      const onHighRiskDetected = jest.fn();
+      const onHighRiskDetected = vi.fn();
       const mockResult: PIIDetectionResult = {
         hasPII: true,
         matches: [{
@@ -371,10 +376,10 @@ describe('usePIIDetection Hook', () => {
       const { result } = renderHook(() => usePIIDetection({ onHighRiskDetected }));
       const [, actions] = result.current;
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(mockResult),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(mockResult),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -388,7 +393,8 @@ describe('usePIIDetection Hook', () => {
 
 describe('useDocumentPIIScanning Hook', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    mockPIIDetectorConstructor.mockImplementation(createDetectorMock);
   });
 
   describe('Document Scanning', () => {
@@ -410,11 +416,11 @@ describe('useDocumentPIIScanning Hook', () => {
 
       const { result } = renderHook(() => useDocumentPIIScanning());
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(mockResult),
-        maskText: jest.fn().mockReturnValue('SSN: ***-**-****'),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(mockResult),
+        maskText: vi.fn().mockReturnValue('SSN: ***-**-****'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -447,11 +453,11 @@ describe('useDocumentPIIScanning Hook', () => {
 
       const { result } = renderHook(() => useDocumentPIIScanning());
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(lowRiskResult),
-        maskText: jest.fn().mockReturnValue('Email: *****'),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(lowRiskResult),
+        maskText: vi.fn().mockReturnValue('Email: *****'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {
@@ -486,22 +492,22 @@ describe('useDocumentPIIScanning Hook', () => {
 
       const { result } = renderHook(() => useDocumentPIIScanning());
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(mockResult),
-        maskText: jest.fn().mockReturnValue('SSN: ***-**-****'),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(mockResult),
+        maskText: vi.fn().mockReturnValue('SSN: ***-**-****'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       // Mock FileReader
       const mockFileReader = {
-        readAsText: jest.fn(),
+        readAsText: vi.fn(),
         onload: null,
         onerror: null,
         result: 'SSN: 123-45-6789'
       };
 
-      global.FileReader = jest.fn(() => mockFileReader) as any;
+      global.FileReader = vi.fn(() => mockFileReader) as any;
 
       await act(async () => {
         const preprocessResult = result.current.preprocessDocument(mockFile);
@@ -526,13 +532,13 @@ describe('useDocumentPIIScanning Hook', () => {
 
       // Mock FileReader that fails
       const mockFileReader = {
-        readAsText: jest.fn(),
+        readAsText: vi.fn(),
         onload: null,
         onerror: null,
         result: null
       };
 
-      global.FileReader = jest.fn(() => mockFileReader) as any;
+      global.FileReader = vi.fn(() => mockFileReader) as any;
 
       await act(async () => {
         const preprocessPromise = result.current.preprocessDocument(mockFile);
@@ -567,11 +573,11 @@ describe('useDocumentPIIScanning Hook', () => {
         auditHash: 'audit123'
       };
 
-      const mockDetector = require('../../services/pii/PIIDetector').PIIDetector;
+      const mockDetector = mockPIIDetectorConstructor;
       mockDetector.mockImplementation(() => ({
-        detectPII: jest.fn().mockResolvedValue(criticalResult),
-        maskText: jest.fn().mockReturnValue('****'),
-        getConfig: jest.fn().mockReturnValue({})
+        detectPII: vi.fn().mockResolvedValue(criticalResult),
+        maskText: vi.fn().mockReturnValue('****'),
+        getConfig: vi.fn().mockReturnValue({})
       }));
 
       await act(async () => {

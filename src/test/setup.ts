@@ -51,6 +51,15 @@ configure({
 
 const globalAny = globalThis as any;
 
+globalAny.getComputedStyle = (_element: Element) => ({
+  getPropertyValue: () => '',
+  getPropertyPriority: () => '',
+  item: () => '',
+  length: 0,
+  removeProperty: () => '',
+  setProperty: () => undefined,
+});
+
 if (!globalAny.matchMedia) {
   globalAny.matchMedia = vi.fn().mockImplementation((query: string) => ({
     matches: false,
