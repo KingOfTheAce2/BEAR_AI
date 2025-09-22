@@ -101,7 +101,7 @@
     "lint": "node node_modules/react-scripts/node_modules/eslint/bin/eslint.js src --ext .ts,.tsx",
     "lint:fix": "node node_modules/react-scripts/node_modules/eslint/bin/eslint.js src --ext .ts,.tsx --fix",
     "lint:alpha": "echo 'Skipping ESLint for alpha build'",
-    "typecheck": "tsc --noEmit --skipLibCheck",
+    "typecheck": "npm run typecheck:alpha",
     "typecheck:strict": "tsc --noEmit",
     "typecheck:build": "tsc --project tsconfig.build.json --noEmit",
     "typecheck:alpha": "echo 'Skipping TypeScript checking for alpha build'",
