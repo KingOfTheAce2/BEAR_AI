@@ -1,4 +1,4 @@
-name: Windows Quick Build (Optimized)
+name: Windows Quick Build
 
 on:
   push:
