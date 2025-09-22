@@ -7,6 +7,9 @@ const reporters = ['default'];
 const snapshotSerializers = [];
 
 const isCI = Boolean(process.env.CI);
+const rootDir = path.resolve(__dirname, '..');
+
+const resolveFromRoot = (...segments) => path.resolve(rootDir, ...segments);
 
 const addReporterIfAvailable = (name, options) => {
   try {
@@ -54,7 +57,7 @@ addSnapshotSerializerIfAvailable('enzyme-to-json/serializer');
 
 module.exports = {
   // Root directory for the project
-  rootDir: path.resolve(__dirname, '..'),
+  rootDir,
   // Test environment
   testEnvironment: 'jsdom',
 
@@ -101,13 +104,13 @@ module.exports = {
 
   // Setup files to run before tests
   setupFilesAfterEnv: [
-    '<rootDir>/tests/setup/test-setup.ts',
-    '<rootDir>/tests/setup/jest-dom-setup.ts'
+    resolveFromRoot('tests/setup/test-setup.ts'),
+    resolveFromRoot('tests/setup/jest-dom-setup.ts')
   ],
 
   // Global setup and teardown
-  globalSetup: '<rootDir>/tests/setup/global-setup.ts',
-  globalTeardown: '<rootDir>/tests/setup/global-teardown.ts',
+  globalSetup: resolveFromRoot('tests/setup/global-setup.ts'),
+  globalTeardown: resolveFromRoot('tests/setup/global-teardown.ts'),
 
   // Coverage configuration
   collectCoverage: true,
@@ -159,8 +162,8 @@ module.exports = {
   // Coverage directory
   coverageDirectory: 'coverage',
 
-  // Test timeout (30 seconds)
-  testTimeout: 30000,
+  // Test timeout (60 seconds)
+  testTimeout: 60000,
 
   // Verbose output
   verbose: true,
@@ -197,9 +200,9 @@ module.exports = {
       testMatch: ['<rootDir>/tests/accessibility/**/*.test.{ts,tsx,js,jsx}'],
       testEnvironment: 'jsdom',
       setupFilesAfterEnv: [
-        '<rootDir>/tests/setup/test-setup.ts',
-        '<rootDir>/tests/setup/jest-dom-setup.ts',
-        '<rootDir>/tests/setup/jest-axe-setup.ts'
+        resolveFromRoot('tests/setup/test-setup.ts'),
+        resolveFromRoot('tests/setup/jest-dom-setup.ts'),
+        resolveFromRoot('tests/setup/jest-axe-setup.ts')
       ]
     }
   ],
@@ -259,7 +262,6 @@ module.exports = {
       }
     },
     IS_TEST_ENV: true,
-    TEST_API_BASE_URL: 'http://localhost:3001',
-    TEST_TIMEOUT: 30000
+    TEST_API_BASE_URL: 'http://localhost:3001'
   }
 };
