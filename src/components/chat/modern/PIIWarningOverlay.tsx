@@ -192,7 +192,7 @@ const PIIWarningOverlay: React.FC<PIIWarningOverlayProps> = ({
             className="action-button action-redact"
             onClick={onRedact}
           >
-            Redact &amp; Send
+            Redact & Send
           </button>
 
           <button

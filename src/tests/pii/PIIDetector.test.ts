@@ -323,7 +323,7 @@ describe('PIIDetector', () => {
     });
 
     test('should update configuration', () => {
-      const newConfig: Partial&lt;PIIDetectorConfig&gt; = {
+      const newConfig: Partial<PIIDetectorConfig> = {
         sensitivity: 'low',
         enableRealTime: false
       };

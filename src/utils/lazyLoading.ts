@@ -5,7 +5,7 @@
  * to optimize bundle size and improve application performance.
  */
 
-import { lazy, ComponentType, LazyExoticComponent } from 'react';
+import { lazy, ComponentType, LazyExoticComponent, createElement, useEffect } from 'react';
 import { RouteObject } from 'react-router-dom';
 
 /**
@@ -91,8 +91,8 @@ export function createLazyRoute(
 
   return {
     path,
-    element: <LazyComponent />,
-    errorElement: <div>Error loading page. Please try again.</div>
+    element: createElement(LazyComponent),
+    errorElement: createElement('div', null, 'Error loading page. Please try again.'),
   };
 }
 
@@ -244,11 +244,11 @@ export function withLoadingMetrics<T extends ComponentType<any>>(
   const WrappedComponent = (props: any) => {
     const startTime = Date.now();
 
-    React.useEffect(() => {
+    useEffect(() => {
       LazyLoadingMetrics.recordLoadTime(componentName, startTime);
     }, []);
 
-    return <Component {...props} />;
+    return createElement(Component, props);
   };
 
   WrappedComponent.displayName = `withLoadingMetrics(${componentName})`;

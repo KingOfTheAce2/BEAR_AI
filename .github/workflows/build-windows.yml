@@ -57,8 +57,10 @@ jobs:
       continue-on-error: true
 
     - name: Check TypeScript
-      run: npm run typecheck
-      continue-on-error: true
+      run: npm run typecheck -- --pretty
+      shell: bash
+      env:
+        FORCE_COLOR: '1'
 
     - name: Build frontend
       run: npm run build:alpha-fast

@@ -72,7 +72,7 @@ export class PIIDetector {
   private dutchValidator: DutchComplianceValidator;
   private auditLog: PIIMatch[] = [];
 
-  constructor(config: Partial&lt;PIIDetectorConfig&gt; = {}) {
+  constructor(config: Partial<PIIDetectorConfig> = {}) {
     this.config = {
       enableRealTime: true,
       sensitivity: 'high',
@@ -92,7 +92,7 @@ export class PIIDetector {
   /**
    * Main PII detection method
    */
-  public async detectPII(text: string, context?: { fileType?: string; source?: string }): Promise&lt;PIIDetectionResult&gt; {
+  public async detectPII(text: string, context?: { fileType?: string; source?: string }): Promise<PIIDetectionResult> {
     const matches: PIIMatch[] = [];
 
     // Core PII patterns
@@ -205,7 +205,7 @@ export class PIIDetector {
   /**
    * Detect Dutch compliance PII
    */
-  private async detectDutchPII(text: string): Promise&lt;PIIMatch[]&gt; {
+  private async detectDutchPII(text: string): Promise<PIIMatch[]> {
     const matches: PIIMatch[] = [];
 
     // BSN Pattern with validation
@@ -430,7 +430,7 @@ export class PIIDetector {
   /**
    * Update configuration
    */
-  public updateConfig(config: Partial&lt;PIIDetectorConfig&gt;): void {
+  public updateConfig(config: Partial<PIIDetectorConfig>): void {
     this.config = { ...this.config, ...config };
   }
 

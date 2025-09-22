@@ -39,7 +39,7 @@ export class TauriPIIBridge {
   /**
    * Check if Tauri PII detection is available
    */
-  static async checkAvailability(): Promise&lt;boolean&gt; {
+  static async checkAvailability(): Promise<boolean> {
     if (this.isAvailable !== null) {
       return this.isAvailable;
     }
@@ -59,7 +59,7 @@ export class TauriPIIBridge {
   /**
    * Detect PII using Rust backend
    */
-  static async detectPII(text: string, config?: Partial&lt;PIIDetectorConfig&gt;): Promise&lt;PIIDetectionResult&gt; {
+  static async detectPII(text: string, config?: Partial<PIIDetectorConfig>): Promise<PIIDetectionResult> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -91,7 +91,7 @@ export class TauriPIIBridge {
   /**
    * Mask PII text using Rust backend
    */
-  static async maskText(text: string, matches: PIIMatch[]): Promise&lt;string&gt; {
+  static async maskText(text: string, matches: PIIMatch[]): Promise<string> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -125,7 +125,7 @@ export class TauriPIIBridge {
   /**
    * Validate Dutch BSN using Rust backend
    */
-  static async validateDutchBSN(bsn: string): Promise&lt;boolean&gt; {
+  static async validateDutchBSN(bsn: string): Promise<boolean> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -144,7 +144,7 @@ export class TauriPIIBridge {
   /**
    * Validate Dutch RSIN using Rust backend
    */
-  static async validateDutchRSIN(rsin: string): Promise&lt;boolean&gt; {
+  static async validateDutchRSIN(rsin: string): Promise<boolean> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -163,7 +163,7 @@ export class TauriPIIBridge {
   /**
    * Get PII audit log from Rust backend
    */
-  static async getAuditLog(): Promise&lt;PIIMatch[]&gt; {
+  static async getAuditLog(): Promise<PIIMatch[]> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -182,7 +182,7 @@ export class TauriPIIBridge {
   /**
    * Export PII audit log from Rust backend
    */
-  static async exportAuditLog(): Promise&lt;string&gt; {
+  static async exportAuditLog(): Promise<string> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -204,15 +204,15 @@ export class TauriPIIBridge {
   static async processDocument(
     content: string,
     filename: string,
-    config?: Partial&lt;PIIDetectorConfig&gt;
-  ): Promise&lt;{
+    config?: Partial<PIIDetectorConfig>
+  ): Promise<{
     originalContent: string;
     scanResult: PIIDetectionResult;
     shouldBlock: boolean;
     redactedContent?: string;
     filename: string;
     processedAt: string;
-  }&gt; {
+  }> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
@@ -284,7 +284,7 @@ export class TauriPIIBridge {
   private static convertPIIType(tauriType: string): import('./PIIDetector').PIIType {
     const { PIIType } = require('./PIIDetector');
 
-    const typeMap: Record&lt;string, import('./PIIDetector').PIIType&gt; = {
+    const typeMap: Record<string, import('./PIIDetector').PIIType> = {
       'ssn': PIIType.SSN,
       'credit_card': PIIType.CREDIT_CARD,
       'email': PIIType.EMAIL,
@@ -314,7 +314,7 @@ export class TauriPIIBridge {
    * Convert Tauri risk level to TypeScript type
    */
   private static convertRiskLevel(tauriLevel: string): 'low' | 'medium' | 'high' | 'critical' {
-    const levelMap: Record&lt;string, 'low' | 'medium' | 'high' | 'critical'&gt; = {
+    const levelMap: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
       'low': 'low',
       'medium': 'medium',
       'high': 'high',
@@ -327,12 +327,12 @@ export class TauriPIIBridge {
   /**
    * Benchmark performance between Rust and TypeScript implementations
    */
-  static async benchmarkPerformance(text: string, iterations: number = 100): Promise&lt;{
+  static async benchmarkPerformance(text: string, iterations: number = 100): Promise<{
     rustTime: number;
     tsTime: number;
     speedupFactor: number;
     recommendation: string;
-  }&gt; {
+  }> {
     const isAvailable = await this.checkAvailability();
 
     if (!isAvailable) {
