@@ -84,14 +84,13 @@ postcard = "1.0"
 stripe = "0.23"
 serde_urlencoded = "0.7"
 hmac = "0.12"
-sha2 = "0.10"
 tokio-tungstenite = "0.20"
 futures-util = "0.3"
 
 [features]
 default = ["headless"]
 headless = []
-custom-protocol = ["dep:tauri", "tauri/custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
 desktop = ["custom-protocol"]
 # llm-management = ["llama-cpp", "llama-cpp-sys"]
 # gpu-cuda = ["tch", "ort"]

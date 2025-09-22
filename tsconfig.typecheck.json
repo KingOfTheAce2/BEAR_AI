@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/types/**/*.ts",
+    "src/types/**/*.d.ts",
+    "src/lib/**/*.ts",
+    "src/utils/cn.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "src-tauri"
+  ]
+}
