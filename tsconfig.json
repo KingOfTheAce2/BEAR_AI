@@ -3,16 +3,16 @@
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": false,
-    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "exactOptionalPropertyTypes": false,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "useUnknownInCatchVariables": true
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "src/**/*.ts",

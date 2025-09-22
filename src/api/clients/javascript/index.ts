@@ -69,13 +69,17 @@ export class ApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-        const response = await fetch(url, {
+        const requestInit: RequestInit = {
           method: config.method,
           headers,
-          body:
-            typeof config.data !== 'undefined' ? JSON.stringify(config.data) : undefined,
           signal: controller.signal
-        });
+        };
+
+        if (typeof config.data !== 'undefined') {
+          requestInit.body = JSON.stringify(config.data);
+        }
+
+        const response = await fetch(url, requestInit);
 
         clearTimeout(timeoutId);
 

@@ -1,7 +1,16 @@
+import { useEffect, useRef, useState } from 'react';
+
 import { chatStorage } from '../../services/chat/storage';
 import ChatWebSocketService from '../../services/chat/websocket';
 import CodeExecutionService from '../../utils/chat/codeExecution';
 import VoiceService, { VoiceCommand } from '../../services/chat/voice';
+import type {
+  ChatSettings,
+  Message,
+  Thread,
+  TypingIndicator,
+  User
+} from '../../types/chat';
 
 interface UseChatOptions {
   userId: string;
