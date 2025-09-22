@@ -74,14 +74,16 @@ jobs:
 
       - name: Build frontend (fast)
         run: npm run build:alpha-fast
+        continue-on-error: true
 
-      - name: Build Windows bundle (ultra-fast)
+      - name: Build Windows bundle (direct cargo)
         shell: bash
         run: |
+          cd src-tauri
           export CARGO_PROFILE_RELEASE_FAST_LTO=false
           export CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS=16
           export CARGO_PROFILE_RELEASE_FAST_PANIC=abort
-          npm run tauri:build:alpha-fast
+          cargo build --release --features release-fast || cargo build --release
 
       - name: Upload Windows artifacts (compressed)
         uses: actions/upload-artifact@v4

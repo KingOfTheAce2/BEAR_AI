@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+import { Card } from '../ui/card';
 import { Input } from '../ui/Input';
 import { ThemeSelector } from '../ui/ThemeSelector';
 import { useApp } from '../../contexts/AppContext';
