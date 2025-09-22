@@ -1,9 +1,9 @@
-# 🐻 BEAR AI Legal Assistant - v1.0.0 PRODUCTION RELEASE
+# 🐻 BEAR AI Legal Assistant - v1.0.1 PRODUCTION
 
-**B**ridge for **E**xpertise, **A**udit and **R**esearch - **READY TO SHIP**
+**B**ridge for **E**xpertise, **A**udit and **R**esearch - **SHIPPED TO PRODUCTION**
 
 [![Build Status](https://github.com/KingOfTheAce2/BEAR_AI/workflows/Windows%20Quick%20Build/badge.svg)](https://github.com/KingOfTheAce2/BEAR_AI/actions)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-green)](https://github.com/KingOfTheAce2/BEAR_AI/releases)
+[![Release](https://img.shields.io/badge/Release-v1.0.1-green)](https://github.com/KingOfTheAce2/BEAR_AI/releases/tag/v1.0.1)
 [![License](https://img.shields.io/badge/License-PROPRIETARY-red)](LICENSE)
 
 Professional AI-powered desktop application for legal document analysis and assistance built with React/TypeScript and Rust/Tauri
