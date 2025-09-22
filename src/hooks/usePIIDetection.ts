@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { PIIDetector, PIIDetectionResult, PIIMatch, PIIDetectorConfig } from '../services/pii/PIIDetector';
 
 export interface PIIDetectionHookOptions {
@@ -19,7 +19,7 @@ export interface PIIDetectionState {
 
 export interface PIIDetectionActions {
   scanText: (text: string) => Promise<PIIDetectionResult>;
-  scanRealTime: (text: string) => PIIMatch[];
+  scanRealTime: (text: string, callback?: (matches: PIIMatch[]) => void) => PIIMatch[];
   clearWarnings: () => void;
   updateConfig: (config: Partial<PIIDetectorConfig>) => void;
   maskText: (text: string, matches: PIIMatch[]) => string;
@@ -49,36 +49,50 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   const detectorRef = useRef<PIIDetector | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize detector
-  useEffect(() => {
-    detectorRef.current = new PIIDetector({
-      enableRealTime,
-      ...config
-    });
+  const resolvedConfig = useMemo<Partial<PIIDetectorConfig>>(() => ({
+    ...config,
+    enableRealTime
+  }), [config, enableRealTime]);
 
+  const getDetector = useCallback((): PIIDetector => {
+    if (!detectorRef.current) {
+      detectorRef.current = new PIIDetector(resolvedConfig);
+    }
+
+    return detectorRef.current;
+  }, [resolvedConfig]);
+
+  useEffect(() => {
+    if (detectorRef.current) {
+      detectorRef.current.updateConfig(resolvedConfig);
+    }
+  }, [resolvedConfig]);
+
+  useEffect(() => {
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
+
+      detectorRef.current = null;
     };
-  }, [enableRealTime, config]);
+  }, []);
 
   // Scan text for PII
   const scanText = useCallback(async (text: string): Promise<PIIDetectionResult> => {
-    if (!detectorRef.current || !text.trim()) {
-      return {
-        hasPII: false,
-        matches: [],
-        riskLevel: 'low',
-        suggestions: [],
-        auditHash: ''
-      };
+    if (!text.trim()) {
+      return createEmptyResult();
     }
 
     setState(prev => ({ ...prev, isScanning: true }));
 
     try {
-      const result = await detectorRef.current.detectPII(text);
+      const detector = getDetector();
+      const result = await detector.detectPII(text);
+
+      if (!result) {
+        throw new Error('PII detector returned no result');
+      }
 
       setState(prev => ({
         ...prev,
@@ -101,31 +115,49 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
       return result;
     } catch (error) {
       console.error('PII detection error:', error);
+      const fallbackResult = createEmptyResult(['Error occurred during scanning']);
+
       setState(prev => ({
         ...prev,
         isScanning: false,
+        lastResult: fallbackResult,
+        hasActivePII: false,
+        riskLevel: 'low',
         warningMessage: 'Error during PII scanning'
       }));
 
-      return {
-        hasPII: false,
-        matches: [],
-        riskLevel: 'low',
-        suggestions: ['Error occurred during scanning'],
-        auditHash: ''
-      };
+      return fallbackResult;
     }
-  }, [onPIIDetected, onHighRiskDetected]);
+  }, [getDetector, onPIIDetected, onHighRiskDetected]);
 
-  // Real-time PII detection (debounced)
-  const scanRealTime = useCallback((text: string): PIIMatch[] => {
-    if (!detectorRef.current || !enableRealTime || !text.trim()) {
+  const performRealTimeScan = useCallback((text: string): PIIMatch[] => {
+    const realTimeEnabled = resolvedConfig.enableRealTime ?? true;
+
+    if (!realTimeEnabled) {
+      setState(prev => ({
+        ...prev,
+        hasActivePII: false,
+        riskLevel: 'low',
+        warningMessage: null
+      }));
       return [];
     }
 
-    const matches = detectorRef.current.detectPIIRealTime(text);
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setState(prev => ({
+        ...prev,
+        hasActivePII: false,
+        riskLevel: 'low',
+        warningMessage: null
+      }));
+      return [];
+    }
 
-    // Update state for real-time feedback
+    const detector = getDetector();
+    const detectedMatches = detector.detectPIIRealTime(text);
+    const matches = Array.isArray(detectedMatches) ? detectedMatches : [];
+
     setState(prev => ({
       ...prev,
       hasActivePII: matches.length > 0,
@@ -134,21 +166,29 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
     }));
 
     return matches;
-  }, [enableRealTime]);
+  }, [getDetector, resolvedConfig.enableRealTime]);
 
-  // Debounced real-time scanning
-  const scanRealTimeDebounced = useCallback((text: string, callback?: (matches: PIIMatch[]) => void) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
+  const scanRealTime = useCallback((text: string, callback?: (matches: PIIMatch[]) => void): PIIMatch[] => {
+    if (callback) {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      if (debounceMs > 0) {
+        debounceTimeoutRef.current = setTimeout(() => {
+          const matches = performRealTimeScan(text);
+          callback(matches);
+        }, debounceMs);
+        return [];
+      }
+
+      const matches = performRealTimeScan(text);
+      callback(matches);
+      return matches;
     }
 
-    debounceTimeoutRef.current = setTimeout(() => {
-      const matches = scanRealTime(text);
-      if (callback) {
-        callback(matches);
-      }
-    }, debounceMs);
-  }, [scanRealTime, debounceMs]);
+    return performRealTimeScan(text);
+  }, [performRealTimeScan, debounceMs]);
 
   // Clear warnings
   const clearWarnings = useCallback(() => {
@@ -162,18 +202,22 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
 
   // Update detector configuration
   const updateConfig = useCallback((newConfig: Partial<PIIDetectorConfig>) => {
-    if (detectorRef.current) {
-      detectorRef.current.updateConfig(newConfig);
-    }
-  }, []);
+    const detector = getDetector();
+    detector.updateConfig(newConfig);
+  }, [getDetector]);
 
   // Mask text with PII matches
   const maskText = useCallback((text: string, matches: PIIMatch[]): string => {
     if (!matches.length) return text;
 
+    const detector = getDetector();
+
+    if (typeof detector.maskText === 'function') {
+      return detector.maskText(text, matches);
+    }
+
     let maskedText = text;
 
-    // Sort matches by start position (descending) to avoid index shifting
     const sortedMatches = [...matches].sort((a, b) => b.start - a.start);
 
     sortedMatches.forEach(match => {
@@ -186,12 +230,14 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
     });
 
     return maskedText;
-  }, []);
+  }, [getDetector]);
 
   // Get audit log
   const getAuditLog = useCallback((): PIIMatch[] => {
-    return detectorRef.current?.getAuditLog() || [];
-  }, []);
+    const detector = getDetector();
+    const auditLog = detector.getAuditLog?.();
+    return Array.isArray(auditLog) ? auditLog : [];
+  }, [getDetector]);
 
   // Export audit log
   const exportAuditLog = useCallback((): string => {
@@ -214,7 +260,7 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   // Actions object
   const actions: PIIDetectionActions = {
     scanText,
-    scanRealTime: scanRealTimeDebounced,
+    scanRealTime,
     clearWarnings,
     updateConfig,
     maskText,
@@ -250,6 +296,16 @@ function calculateQuickRiskLevel(matches: PIIMatch[]): 'low' | 'medium' | 'high'
   if (matches.some(m => m.confidence > 0.9)) return 'high';
   if (matches.length > 2) return 'medium';
   return 'low';
+}
+
+function createEmptyResult(suggestions: string[] = []): PIIDetectionResult {
+  return {
+    hasPII: false,
+    matches: [],
+    riskLevel: 'low',
+    suggestions,
+    auditHash: ''
+  };
 }
 
 // Hook for document preprocessing
