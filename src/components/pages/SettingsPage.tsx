@@ -1,10 +1,11 @@
 import React from 'react';
-export const SettingsPage: React.FC = () => {
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ThemeSelector } from '../ui/ThemeSelector';
 import { useApp } from '../../contexts/AppContext';
+
+export const SettingsPage: React.FC = () => {
 
   const { state, logout } = useApp();
 

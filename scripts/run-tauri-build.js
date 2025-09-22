@@ -111,5 +111,7 @@ if (isLinux) {
   }
 }
 
-const status = runCommand("npx", ["tauri", "build", ...args]);
+// Fix for npx not found in CI environment
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const status = runCommand(npmCmd, ["run", "tauri", "build", ...args]);
 process.exit(status);
