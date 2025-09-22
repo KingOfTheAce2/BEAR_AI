@@ -1,4 +1,5 @@
 // Core TypeScript interfaces for BEAR AI GUI
+import React from 'react';
 
 export interface User {
   id: string;

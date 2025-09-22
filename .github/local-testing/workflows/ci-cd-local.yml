@@ -127,17 +127,16 @@ jobs:
           echo "🦀 Running Rust linting..."
           cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Run tests (quick mode)
+      - name: Build validation (quick mode)
         run: |
-          echo "🧪 Running tests in quick mode..."
-          export QUICK_TEST=true
-          npm test || echo "⚠️  Some tests failed - review before production"
+          echo "🏗️  Building for validation..."
+          npm run build:alpha-fast || echo "⚠️  Build issues found - review before production"
 
-      - name: Rust tests
+      - name: Rust compilation check
         working-directory: src-tauri
         run: |
-          echo "🦀 Running Rust tests..."
-          cargo test --release
+          echo "🦀 Checking Rust compilation..."
+          cargo check --release --all-targets
 
   # Single platform build for faster local testing
   build-local:

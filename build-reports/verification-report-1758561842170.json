@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-09-22T17:24:02.158Z",
+  "summary": {
+    "total": 47,
+    "passed": 43,
+    "warnings": 1,
+    "errors": 3,
+    "success_rate": "91.49"
+  },
+  "results": {
+    "passed": [
+      "Node.js version v24.8.0 is supported",
+      "package.json exists",
+      "NPM script build found",
+      "NPM script tauri:build found",
+      "NPM script tauri:dev found",
+      "Package dependency @tauri-apps/api found",
+      "Package dependency @tauri-apps/cli found",
+      "Production script tauri:build:production found",
+      "Production script build:complete found",
+      "Tauri configuration exists",
+      "Tauri config has productName",
+      "Tauri config has version",
+      "Tauri config has identifier",
+      "Bundle configuration is active",
+      "Bundle icons configured",
+      "windows bundle configuration present",
+      "macOS bundle configuration present",
+      "linux bundle configuration present",
+      "CSP security policy configured",
+      "Auto-updater is enabled",
+      "Updater public key configured",
+      "Cargo.toml exists",
+      "Cargo dependency tauri found",
+      "Cargo dependency serde found",
+      "Cargo dependency serde_json found",
+      "Release profile configuration found",
+      "Build optimization: lto = true",
+      "Build optimization: opt-level",
+      "Build optimization: codegen-units = 1",
+      "Tauri build dependency found",
+      "Cargo build configuration exists",
+      "Platform-specific build configurations found",
+      "Production build script exists",
+      "Build optimization script exists",
+      "Rust build script exists",
+      "Installer hooks directory found",
+      "Icon 32x32.png found",
+      "Icon 128x128.png found",
+      "Icon 128x128@2x.png found",
+      "Icon icon.ico found",
+      "Icon icon.icns found",
+      "Capabilities directory found",
+      "macOS entitlements file found"
+    ],
+    "warnings": [
+      "Legal compliance capabilities missing"
+    ],
+    "errors": [
+      "Rust compiler not found",
+      "Cargo not found",
+      "Tauri CLI not found or not working"
+    ]
+  }
+}

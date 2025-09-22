@@ -1,0 +1,216 @@
+name: Emergency Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Emergency release tag (e.g., v1.2.3-hotfix)'
+        required: true
+        type: string
+      platform:
+        description: 'Target platform (windows/linux/macos/all)'
+        required: false
+        type: choice
+        options:
+          - all
+          - windows
+          - linux
+          - macos
+        default: 'all'
+      skip_all_checks:
+        description: 'Skip ALL quality checks (EMERGENCY ONLY)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  SKIP_PREFLIGHT_CHECK: true
+  GENERATE_SOURCEMAP: false
+  TSC_COMPILE_ON_ERROR: true
+  CARGO_INCREMENTAL: 1
+  CARGO_NET_RETRY: 10
+  CARGO_PROFILE_RELEASE_FAST_LTO: false
+  CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS: 16
+  CARGO_PROFILE_RELEASE_FAST_PANIC: abort
+
+jobs:
+  emergency-build:
+    name: Emergency Build (${{ matrix.platform.artifact }})
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        platform:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: windows
+            condition: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows'
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: macos
+            condition: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos'
+          - os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            artifact: linux
+            condition: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'linux'
+        exclude:
+          - platform:
+              condition: false
+    runs-on: ${{ matrix.platform.os }}
+    if: matrix.platform.condition
+
+    steps:
+      - name: Checkout repository (depth 1)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js (no cache validation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Setup Rust toolchain (minimal)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+          components: ''
+
+      - name: Aggressive cache restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+            node_modules/
+            ~/.npm
+          key: ${{ runner.os }}-emergency-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-emergency-
+            ${{ runner.os }}-prod-fast-
+            ${{ runner.os }}-windows-ultra-fast-
+            ${{ runner.os }}-
+
+      - name: Install Linux dependencies (minimal)
+        if: matrix.platform.os == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update -qq >/dev/null 2>&1
+          sudo apt-get install -y --no-install-recommends libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf >/dev/null 2>&1
+
+      - name: Install dependencies (emergency mode)
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set prefer-offline true
+          npm config set audit false
+          npm config set fund false
+          npm config set cache-max 3600
+          npm config set progress false
+          npm config set loglevel error
+          npm install --no-audit --no-fund --silent --legacy-peer-deps --force || npm ci --prefer-offline --no-audit --ignore-scripts --silent
+
+      - name: Skip quality checks warning
+        if: github.event.inputs.skip_all_checks == 'true'
+        run: echo "⚠️ WARNING: All quality checks skipped for emergency deployment"
+
+      - name: Minimal TypeScript check
+        if: github.event.inputs.skip_all_checks != 'true'
+        run: npm run typecheck:alpha || echo "TypeScript errors ignored for emergency build"
+
+      - name: Build frontend (emergency)
+        run: npm run build:alpha-fast
+
+      - name: Build Tauri bundle (emergency)
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        run: npm run tauri:build:alpha-fast
+
+      - name: Upload emergency artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: emergency-${{ matrix.platform.artifact }}-${{ github.event.inputs.version }}
+          path: src-tauri/target/**/bundle
+          retention-days: 7
+          compression-level: 1
+
+      - name: Cache save (background)
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+            node_modules/
+            ~/.npm
+          key: ${{ runner.os }}-emergency-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
+
+  emergency-release:
+    name: Emergency Release
+    needs: emergency-build
+    runs-on: ubuntu-latest
+    if: always() && needs.emergency-build.result == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download emergency artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: emergency-artifacts
+
+      - name: Create emergency tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = `${{ github.event.inputs.version }}`.trim();
+            try {
+              await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${version}`
+              });
+            } catch (error) {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${version}`,
+                sha: context.sha
+              });
+            }
+
+      - name: Create emergency GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: 🚨 EMERGENCY RELEASE ${{ github.event.inputs.version }}
+          body: |
+            # 🚨 Emergency Production Release
+
+            **Platform**: ${{ github.event.inputs.platform }}
+            **Quality Checks Skipped**: ${{ github.event.inputs.skip_all_checks }}
+            **Deployment Time**: ${{ github.run_started_at }}
+
+            ⚠️ This is an emergency release with minimal quality checks.
+
+            **Changes**: Please refer to commit history for details.
+          files: |
+            emergency-artifacts/**/*
+          draft: false
+          prerelease: true

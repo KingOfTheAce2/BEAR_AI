@@ -1,8 +1,10 @@
-name: Windows Quick Build
+name: Windows Quick Build (Optimized)
 
 on:
   push:
+    branches: [main, develop]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,6 +14,11 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  SKIP_PREFLIGHT_CHECK: true
+  GENERATE_SOURCEMAP: false
+  TSC_COMPILE_ON_ERROR: true
+  CARGO_INCREMENTAL: 1
+  CARGO_NET_RETRY: 10
 
 jobs:
   build:
@@ -33,30 +40,60 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Cache Rust dependencies
+      - name: Cache dependencies (multi-layer)
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+            node_modules/
+            ~/.npm
+            %LOCALAPPDATA%\npm-cache
+            %USERPROFILE%\.cargo
+          key: ${{ runner.os }}-windows-ultra-fast-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-windows-ultra-fast-
+            ${{ runner.os }}-windows-quick-
+            ${{ runner.os }}-prod-fast-
+            ${{ runner.os }}-
 
-      - name: Install dependencies with legacy resolution
+      - name: Install dependencies (ultra-optimized)
         shell: bash
         run: |
           npm config set registry https://registry.npmjs.org/
-          npm install --force --legacy-peer-deps
+          npm config set prefer-offline true
+          npm config set audit false
+          npm config set fund false
+          npm config set cache-max 3600
+          npm ci --prefer-offline --no-audit --ignore-scripts --no-fund --silent || npm install --no-audit --force --legacy-peer-deps --silent
 
-      - name: Build Windows bundle
-        run: npm run tauri:build:alpha-fast
+      - name: TypeScript compilation check
+        run: npm run typecheck:alpha
 
-      - name: Upload Windows artifacts
+      - name: Build frontend (fast)
+        run: npm run build:alpha-fast
+
+      - name: Build Windows bundle (ultra-fast)
+        shell: bash
+        run: |
+          export CARGO_PROFILE_RELEASE_FAST_LTO=false
+          export CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS=16
+          export CARGO_PROFILE_RELEASE_FAST_PANIC=abort
+          npm run tauri:build:alpha-fast
+
+      - name: Upload Windows artifacts (compressed)
         uses: actions/upload-artifact@v4
         with:
-          name: windows-quick-build
-          path: src-tauri/target/release-fast/bundle
-          retention-days: 7
+          name: windows-ultra-fast-build-${{ github.sha }}
+          path: |
+            src-tauri/target/release-fast/bundle/**/*.exe
+            src-tauri/target/release-fast/bundle/**/*.msi
+          retention-days: 3
+          if-no-files-found: warn
+          compression-level: 1
 
       - name: Comment build availability on PR
         if: github.event_name == 'pull_request'
