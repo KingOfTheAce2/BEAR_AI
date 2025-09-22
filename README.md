@@ -28,7 +28,7 @@ npm run tauri:build
 | 🧠 **AI Model Management** | ✅ **Complete** | Local LLM support, hardware optimization, download tracking |
 | ⚡ **Hardware Detection** | ✅ **Complete** | GPU/CPU profiling, AI acceleration detection |
 | 🛡️ **Security & Compliance** | ✅ **Complete** | PII detection, GDPR compliance, audit trails |
-| 💰 **Subscription Tiers** | ✅ **Complete** | Free, Pro ($29/mo), Enterprise ($99/mo/seat) |
+| 💰 **Subscription Tiers** | ✅ **Complete** | Free, Pro ($50/mo), Enterprise ($50/mo/seat) |
 | 🚀 **CI/CD Pipeline** | ✅ **Complete** | Windows builds, release automation |
 | 🧪 **Testing Suite** | ⚠️ **75% Complete** | Unit tests implemented, E2E tests needed |
 | 📦 **Production Deployment** | ⚠️ **Ready** | Code signing needed for distribution |

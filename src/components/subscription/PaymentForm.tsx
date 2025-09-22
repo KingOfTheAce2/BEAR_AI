@@ -296,12 +296,12 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
 
   if (paymentSuccess) {
     return (
-      <div className=\"text-center p-8 bg-green-50 rounded-lg border border-green-200\">
-        <CheckCircle className=\"w-16 h-16 text-green-500 mx-auto mb-4\" />
-        <h3 className=\"text-xl font-semibold text-green-800 mb-2\">
+      <div className="text-center p-8 bg-green-50 rounded-lg border border-green-200">
+        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-green-800 mb-2">
           Payment Successful!
         </h3>
-        <p className=\"text-green-600\">
+        <p className="text-green-600">
           Your {isTeamSubscription ? 'team ' : ''}subscription to {planName} has been activated.
         </p>
       </div>
@@ -309,85 +309,85 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className=\"space-y-6 max-w-md mx-auto\">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {/* Security indicator */}
-      <div className=\"flex items-center justify-center space-x-2 text-gray-600 bg-gray-50 p-3 rounded-lg\">
-        <Shield className=\"w-5 h-5\" />
-        <Lock className=\"w-4 h-4\" />
-        <span className=\"text-sm\">Secured by Stripe</span>
+      <div className="flex items-center justify-center space-x-2 text-gray-600 bg-gray-50 p-3 rounded-lg">
+        <Shield className="w-5 h-5" />
+        <Lock className="w-4 h-4" />
+        <span className="text-sm">Secured by Stripe</span>
       </div>
 
       {/* Plan summary */}
-      <div className=\"bg-blue-50 p-4 rounded-lg border border-blue-200\">
-        <div className=\"flex justify-between items-center\">
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="flex justify-between items-center">
           <div>
-            <h4 className=\"font-semibold text-blue-800\">{planName}</h4>
+            <h4 className="font-semibold text-blue-800">{planName}</h4>
             {isTeamSubscription && teamDetails && (
-              <p className=\"text-sm text-blue-600\">
+              <p className="text-sm text-blue-600">
                 Team: {teamDetails.teamName} (up to {teamDetails.maxMembers} members)
               </p>
             )}
           </div>
-          <div className=\"text-right\">
-            <div className=\"flex items-center space-x-1 text-blue-800 font-semibold\">
-              <DollarSign className=\"w-4 h-4\" />
+          <div className="text-right">
+            <div className="flex items-center space-x-1 text-blue-800 font-semibold">
+              <DollarSign className="w-4 h-4" />
               <span>{amount}</span>
-              <span className=\"text-sm\">/{currency.toUpperCase()}</span>
+              <span className="text-sm">/{currency.toUpperCase()}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Customer details */}
-      <div className=\"space-y-4\">
-        <h3 className=\"text-lg font-semibold flex items-center space-x-2\">
-          <CreditCard className=\"w-5 h-5\" />
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center space-x-2">
+          <CreditCard className="w-5 h-5" />
           <span>Billing Information</span>
         </h3>
 
         <div>
-          <label className=\"block text-sm font-medium text-gray-700 mb-1\">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Email Address *
           </label>
           <input
-            type=\"email\"
+            type="email"
             value={customerDetails.email}
             onChange={(e) => setCustomerDetails(prev => ({ ...prev, email: e.target.value }))}
             className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
               validationErrors.email ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder=\"your@email.com\"
+            placeholder="your@email.com"
             required
           />
           {validationErrors.email && (
-            <p className=\"text-red-500 text-sm mt-1\">{validationErrors.email}</p>
+            <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
           )}
         </div>
 
         <div>
-          <label className=\"block text-sm font-medium text-gray-700 mb-1\">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Full Name *
           </label>
           <input
-            type=\"text\"
+            type="text"
             value={customerDetails.name}
             onChange={(e) => setCustomerDetails(prev => ({ ...prev, name: e.target.value }))}
             className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
               validationErrors.name ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder=\"John Doe\"
+            placeholder="John Doe"
             required
           />
           {validationErrors.name && (
-            <p className=\"text-red-500 text-sm mt-1\">{validationErrors.name}</p>
+            <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
           )}
         </div>
       </div>
 
       {/* Payment element */}
-      <div className=\"space-y-4\">
-        <h3 className=\"text-lg font-semibold\">Payment Method</h3>
-        <div className=\"p-4 border border-gray-300 rounded-lg bg-white\">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Payment Method</h3>
+        <div className="p-4 border border-gray-300 rounded-lg bg-white">
           {clientSecret ? (
             <PaymentElement
               options={{
@@ -402,9 +402,9 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
               }}
             />
           ) : (
-            <div className=\"flex items-center justify-center py-8\">
-              <Loader2 className=\"w-6 h-6 animate-spin text-gray-400\" />
-              <span className=\"ml-2 text-gray-500\">Loading payment form...</span>
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              <span className="ml-2 text-gray-500">Loading payment form...</span>
             </div>
           )}
         </div>
@@ -412,15 +412,15 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
 
       {/* Error display */}
       {paymentError && (
-        <div className=\"flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700\">
-          <AlertCircle className=\"w-5 h-5 flex-shrink-0\" />
-          <span className=\"text-sm\">{paymentError}</span>
+        <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm">{paymentError}</span>
         </div>
       )}
 
       {/* Submit button */}
       <button
-        type=\"submit\"
+        type="submit"
         disabled={!stripe || processing || !clientSecret}
         className={`w-full py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors ${
           processing || !stripe || !clientSecret
@@ -430,12 +430,12 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
       >
         {processing ? (
           <>
-            <Loader2 className=\"w-5 h-5 animate-spin\" />
+            <Loader2 className="w-5 h-5 animate-spin" />
             <span>Processing...</span>
           </>
         ) : (
           <>
-            <Lock className=\"w-4 h-4\" />
+            <Lock className="w-4 h-4" />
             <span>
               {isTeamSubscription ? 'Subscribe Team' : 'Subscribe'} • ${amount}
             </span>
@@ -445,14 +445,14 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
 
       {/* Test mode indicator */}
       {import.meta.env.DEV && (
-        <div className=\"text-center\">
-          <p className=\"text-xs text-gray-500 mb-2\">
+        <div className="text-center">
+          <p className="text-xs text-gray-500 mb-2">
             Development Mode - Use test card 4242 4242 4242 4242
           </p>
           <button
-            type=\"button\"
+            type="button"
             onClick={handleTestPayment}
-            className=\"text-xs text-blue-600 hover:text-blue-800 underline\"
+            className="text-xs text-blue-600 hover:text-blue-800 underline"
           >
             Validate Test Payment
           </button>
@@ -460,7 +460,7 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
       )}
 
       {/* Security footer */}
-      <div className=\"text-center text-xs text-gray-500 mt-4\">
+      <div className="text-center text-xs text-gray-500 mt-4">
         <p>Your payment information is encrypted and secure.</p>
         <p>Powered by Stripe • PCI DSS Compliant</p>
       </div>
@@ -481,22 +481,22 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
 
   if (loading) {
     return (
-      <div className=\"flex items-center justify-center py-12\">
-        <Loader2 className=\"w-8 h-8 animate-spin text-blue-500\" />
-        <span className=\"ml-3 text-gray-600\">Loading payment system...</span>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <span className="ml-3 text-gray-600">Loading payment system...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className=\"text-center py-12\">
-        <AlertCircle className=\"w-12 h-12 text-red-500 mx-auto mb-4\" />
-        <h3 className=\"text-lg font-semibold text-red-800 mb-2\">Payment System Error</h3>
-        <p className=\"text-red-600 mb-4\">{error}</p>
+      <div className="text-center py-12">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-red-800 mb-2">Payment System Error</h3>
+        <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className=\"px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700\"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
         >
           Retry
         </button>
@@ -506,9 +506,9 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
 
   if (!stripePromise) {
     return (
-      <div className=\"text-center py-12\">
-        <AlertCircle className=\"w-12 h-12 text-red-500 mx-auto mb-4\" />
-        <p className=\"text-red-600\">Failed to load payment system</p>
+      <div className="text-center py-12">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <p className="text-red-600">Failed to load payment system</p>
       </div>
     );
   }

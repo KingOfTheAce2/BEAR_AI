@@ -1,6 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
 import React from 'react';
-export const UnifiedLayout: React.FC = () => {
+import { Routes, Route } from 'react-router-dom';
 import { ChatInterface } from '../chat/ChatInterface';
 import { cn } from '../../utils/cn';
 import { DocumentGrid } from '../documents/DocumentGrid';
@@ -13,6 +12,8 @@ import { UnifiedStatusBar } from './UnifiedStatusBar';
 import { UnifiedTopBar } from './UnifiedTopBar';
 import { useApp } from '../../contexts/AppContext';
 import { useTheme } from '../../contexts/ThemeContext';
+
+export const UnifiedLayout: React.FC = () => {
 
   const { state, toggleSidebar, setCurrentView } = useApp();
   const { config } = useTheme();
