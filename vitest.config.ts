@@ -31,8 +31,10 @@ export default defineConfig({
       },
     },
     // Mock Tauri APIs for testing
-    deps: {
-      inline: ['@tauri-apps/api'],
+    server: {
+      deps: {
+        inline: ['@tauri-apps/api'],
+      },
     },
     alias: {
       '@': resolve(__dirname, './src'),
