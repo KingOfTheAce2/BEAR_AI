@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { expect, vi } from 'vitest';
 import { configure } from '@testing-library/react';
-import { configure as configureUserEvent } from '@testing-library/user-event';
 import { toHaveNoViolations } from 'jest-axe';
 
 declare global {
@@ -49,10 +48,6 @@ configure({
   computedStyleSupportsPseudoElements: true,
 });
 
-configureUserEvent({
-  advanceTimers: vi.advanceTimersByTime,
-  delay: null,
-});
 
 const globalAny = globalThis as any;
 
