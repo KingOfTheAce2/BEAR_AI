@@ -81,7 +81,7 @@ safetensors = "0.4"
 bincode = "1.3"
 postcard = "1.0"
 # Stripe payment integration
-stripe = "0.23"
+# stripe = "0.23" # Removed - not available on crates.io, using REST API instead
 serde_urlencoded = "0.7"
 hmac = "0.12"
 tokio-tungstenite = "0.20"

@@ -111,7 +111,32 @@ if (isLinux) {
   }
 }
 
-// Fix for npx not found in CI environment
-const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const status = runCommand(npmCmd, ["run", "tauri", "build", ...args]);
-process.exit(status);
+// Direct Tauri build command - bypass npm wrapper issues
+const tauriCliPath = path.join(projectRoot, 'node_modules', '@tauri-apps', 'cli', 'bin', 'tauri.js');
+const nodeCmd = process.platform === 'win32' ? 'node.exe' : 'node';
+
+// Try direct node execution first
+try {
+  const status = runCommand(nodeCmd, [tauriCliPath, "build", ...args]);
+  process.exit(status);
+} catch (error) {
+  console.warn("Direct tauri.js execution failed, trying cargo directly...");
+
+  // Fallback to direct cargo build
+  const cargoArgs = ["build", "--release"];
+  if (args.includes("--profile")) {
+    const profileIndex = args.indexOf("--profile");
+    const profile = args[profileIndex + 1];
+    cargoArgs.push("--profile", profile);
+  }
+
+  const cargoStatus = runCommand("cargo", cargoArgs, {
+    cwd: tauriDir,
+    env: {
+      CARGO_PROFILE_RELEASE_FAST_LTO: 'false',
+      CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS: '16',
+      CARGO_PROFILE_RELEASE_FAST_PANIC: 'abort'
+    }
+  });
+  process.exit(cargoStatus);
+}
