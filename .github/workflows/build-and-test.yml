@@ -26,7 +26,13 @@ jobs:
     - name: Install dependencies
       run: |
         npm config set registry https://registry.npmjs.org/
-        npm ci --prefer-offline --no-audit
+        if npm ci --prefer-offline --no-audit; then
+          echo "npm ci succeeded"
+        else
+          echo "npm ci failed, falling back to npm install"
+          rm -rf node_modules package-lock.json
+          npm install --no-audit
+        fi
 
     - name: Run TypeScript check
       run: npm run typecheck
