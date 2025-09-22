@@ -9,7 +9,7 @@
     "distDir": "../build",
     "devPath": "http://localhost:3000"
   },
-  "app": {
+  "tauri": {
     "windows": [
       {
         "title": "BEAR AI Legal Assistant",
@@ -52,9 +52,8 @@
       "menuOnLeftClick": false,
       "title": "BEAR AI"
     },
-    "macOSPrivateApi": true
-  },
-  "bundle": {
+    "macOSPrivateApi": true,
+    "bundle": {
     "active": true,
     "category": "Productivity",
     "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
@@ -136,9 +135,7 @@
         ]
       },
       "useBootstrapper": true
-    }
-  },
-  "plugins": {
+    },
     "updater": {
       "active": true,
       "endpoints": [
