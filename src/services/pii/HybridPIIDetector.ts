@@ -10,14 +10,14 @@ export class HybridPIIDetector {
   private preferRust: boolean = true;
   private rustAvailable: boolean | null = null;
 
-  constructor(config: Partial&lt;PIIDetectorConfig&gt; = {}) {
+  constructor(config: Partial<PIIDetectorConfig> = {}) {
     this.tsDetector = new PIIDetector(config);
   }
 
   /**
    * Check if Rust backend is available
    */
-  private async checkRustAvailability(): Promise&lt;boolean&gt; {
+  private async checkRustAvailability(): Promise<boolean> {
     if (this.rustAvailable !== null) {
       return this.rustAvailable;
     }
@@ -34,7 +34,7 @@ export class HybridPIIDetector {
   /**
    * Main PII detection method with automatic fallback
    */
-  public async detectPII(text: string, context?: { fileType?: string; source?: string }): Promise&lt;PIIDetectionResult&gt; {
+  public async detectPII(text: string, context?: { fileType?: string; source?: string }): Promise<PIIDetectionResult> {
     // For small texts or when Rust is not preferred, use TypeScript
     if (!this.preferRust || text.length < 100) {
       return this.tsDetector.detectPII(text, context);
@@ -68,7 +68,7 @@ export class HybridPIIDetector {
   /**
    * Mask text with hybrid backend selection
    */
-  public async maskText(text: string, matches: PIIMatch[]): Promise&lt;string&gt; {
+  public async maskText(text: string, matches: PIIMatch[]): Promise<string> {
     const rustAvailable = await this.checkRustAvailability();
 
     if (rustAvailable && this.preferRust) {
@@ -85,7 +85,7 @@ export class HybridPIIDetector {
   /**
    * Validate Dutch BSN with hybrid backend selection
    */
-  public async validateDutchBSN(bsn: string): Promise&lt;boolean&gt; {
+  public async validateDutchBSN(bsn: string): Promise<boolean> {
     const rustAvailable = await this.checkRustAvailability();
 
     if (rustAvailable && this.preferRust) {
@@ -105,7 +105,7 @@ export class HybridPIIDetector {
   /**
    * Validate Dutch RSIN with hybrid backend selection
    */
-  public async validateDutchRSIN(rsin: string): Promise&lt;boolean&gt; {
+  public async validateDutchRSIN(rsin: string): Promise<boolean> {
     const rustAvailable = await this.checkRustAvailability();
 
     if (rustAvailable && this.preferRust) {
@@ -125,7 +125,7 @@ export class HybridPIIDetector {
   /**
    * Get audit log with hybrid backend selection
    */
-  public async getAuditLog(): Promise&lt;PIIMatch[]&gt; {
+  public async getAuditLog(): Promise<PIIMatch[]> {
     const rustAvailable = await this.checkRustAvailability();
 
     if (rustAvailable && this.preferRust) {
@@ -142,7 +142,7 @@ export class HybridPIIDetector {
   /**
    * Export audit log with hybrid backend selection
    */
-  public async exportAuditLog(): Promise&lt;string&gt; {
+  public async exportAuditLog(): Promise<string> {
     const rustAvailable = await this.checkRustAvailability();
 
     if (rustAvailable && this.preferRust) {
@@ -175,14 +175,14 @@ export class HybridPIIDetector {
   public async processDocument(
     content: string,
     filename: string
-  ): Promise&lt;{
+  ): Promise<{
     originalContent: string;
     scanResult: PIIDetectionResult;
     shouldBlock: boolean;
     redactedContent?: string;
     filename: string;
     processedAt: string;
-  }&gt; {
+  }> {
     const rustAvailable = await this.checkRustAvailability();
 
     // For large documents, prefer Rust for better performance
@@ -218,13 +218,13 @@ export class HybridPIIDetector {
   /**
    * Benchmark performance between implementations
    */
-  public async benchmarkPerformance(text: string): Promise&lt;{
+  public async benchmarkPerformance(text: string): Promise<{
     rustTime?: number;
     tsTime: number;
     speedupFactor?: number;
     recommendation: string;
     rustAvailable: boolean;
-  }&gt; {
+  }> {
     const rustAvailable = await this.checkRustAvailability();
 
     // Benchmark TypeScript
@@ -280,11 +280,11 @@ export class HybridPIIDetector {
   /**
    * Get current backend status
    */
-  public async getBackendStatus(): Promise&lt;{
+  public async getBackendStatus(): Promise<{
     rustAvailable: boolean;
     preferRust: boolean;
     currentBackend: 'rust' | 'typescript';
-  }&gt; {
+  }> {
     const rustAvailable = await this.checkRustAvailability();
     const currentBackend = (rustAvailable && this.preferRust) ? 'rust' : 'typescript';
 
@@ -298,7 +298,7 @@ export class HybridPIIDetector {
   /**
    * Update configuration for both backends
    */
-  public updateConfig(config: Partial&lt;PIIDetectorConfig&gt;): void {
+  public updateConfig(config: Partial<PIIDetectorConfig>): void {
     this.tsDetector.updateConfig(config);
     // Rust backend will use config when called
   }
@@ -321,7 +321,7 @@ export class HybridPIIDetector {
   /**
    * Force refresh of Rust availability check
    */
-  public async refreshRustAvailability(): Promise&lt;boolean&gt; {
+  public async refreshRustAvailability(): Promise<boolean> {
     this.rustAvailable = null;
     return this.checkRustAvailability();
   }

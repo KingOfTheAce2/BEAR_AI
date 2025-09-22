@@ -6,7 +6,7 @@ export interface PIIDetectionHookOptions {
   debounceMs?: number;
   onPIIDetected?: (result: PIIDetectionResult) => void;
   onHighRiskDetected?: (result: PIIDetectionResult) => void;
-  config?: Partial&lt;PIIDetectorConfig&gt;;
+  config?: Partial<PIIDetectorConfig>;
 }
 
 export interface PIIDetectionState {
@@ -18,10 +18,10 @@ export interface PIIDetectionState {
 }
 
 export interface PIIDetectionActions {
-  scanText: (text: string) => Promise&lt;PIIDetectionResult&gt;;
+  scanText: (text: string) => Promise<PIIDetectionResult>;
   scanRealTime: (text: string) => PIIMatch[];
   clearWarnings: () => void;
-  updateConfig: (config: Partial&lt;PIIDetectorConfig&gt;) => void;
+  updateConfig: (config: Partial<PIIDetectorConfig>) => void;
   maskText: (text: string, matches: PIIMatch[]) => string;
   getAuditLog: () => PIIMatch[];
   exportAuditLog: () => string;
@@ -37,7 +37,7 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   } = options;
 
   // State
-  const [state, setState] = useState&lt;PIIDetectionState&gt;({
+  const [state, setState] = useState<PIIDetectionState>({
     isScanning: false,
     lastResult: null,
     hasActivePII: false,
@@ -46,8 +46,8 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   });
 
   // Refs
-  const detectorRef = useRef&lt;PIIDetector | null&gt;(null);
-  const debounceTimeoutRef = useRef&lt;NodeJS.Timeout | null&gt;(null);
+  const detectorRef = useRef<PIIDetector | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize detector
   useEffect(() => {
@@ -64,7 +64,7 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   }, [enableRealTime, config]);
 
   // Scan text for PII
-  const scanText = useCallback(async (text: string): Promise&lt;PIIDetectionResult&gt; => {
+  const scanText = useCallback(async (text: string): Promise<PIIDetectionResult> => {
     if (!detectorRef.current || !text.trim()) {
       return {
         hasPII: false,
@@ -161,7 +161,7 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
   }, []);
 
   // Update detector configuration
-  const updateConfig = useCallback((newConfig: Partial&lt;PIIDetectorConfig&gt;) => {
+  const updateConfig = useCallback((newConfig: Partial<PIIDetectorConfig>) => {
     if (detectorRef.current) {
       detectorRef.current.updateConfig(newConfig);
     }
@@ -266,7 +266,7 @@ export const useDocumentPIIScanning = () => {
   const scanDocument = useCallback(async (
     content: string,
     metadata: { fileName: string; fileType: string; fileSize: number }
-  ): Promise&lt;PIIDetectionResult &amp; { shouldBlock: boolean; redactedContent?: string }&gt; => {
+  ): Promise<PIIDetectionResult & { shouldBlock: boolean; redactedContent?: string }> => {
     const result = await actions.scanText(content);
 
     const shouldBlock = result.riskLevel === 'critical' ||
@@ -286,13 +286,13 @@ export const useDocumentPIIScanning = () => {
 
   const preprocessDocument = useCallback(async (
     file: File
-  ): Promise&lt;{
+  ): Promise<{
     originalContent: string;
     scanResult: PIIDetectionResult;
     shouldBlock: boolean;
     redactedContent?: string;
     recommendations: string[];
-  }&gt; => {
+  }> => {
     // Read file content
     const content = await readFileContent(file);
 
@@ -334,7 +334,7 @@ export const useDocumentPIIScanning = () => {
 };
 
 // Helper function to read file content
-async function readFileContent(file: File): Promise&lt;string&gt; {
+async function readFileContent(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
