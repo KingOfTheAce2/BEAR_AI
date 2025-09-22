@@ -6,7 +6,7 @@
  */
 
 import { lazy, ComponentType, LazyExoticComponent, createElement, useEffect } from 'react';
-import { RouteObject } from 'react-router-dom';
+import type { ReactNode } from 'react';
 
 /**
  * Configuration options for lazy loading
@@ -22,6 +22,13 @@ export interface LazyLoadOptions {
   preload?: boolean;
 }
 
+export type LazyRoute = {
+  path: string;
+  element: ReactNode;
+  errorElement?: ReactNode;
+  children?: LazyRoute[];
+};
+
 /**
  * Enhanced lazy loading wrapper with error handling and retry logic
  */
@@ -31,7 +38,7 @@ export function createLazyComponent<T extends ComponentType<any>>(
 ): LazyExoticComponent<T> {
   const {
     minDelay = 200,
-    timeout = 10000,
+    timeout: timeoutMs = 10000,
     retries = 3,
   } = options;
 
@@ -40,8 +47,18 @@ export function createLazyComponent<T extends ComponentType<any>>(
   const enhancedImport = async (): Promise<{ default: T }> => {
     try {
       // Add minimum delay to prevent flash of loading state
+      const importPromise = importFn();
+      const timedImport = timeoutMs > 0
+        ? Promise.race([
+          importPromise,
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`Component loading timed out after ${timeoutMs}ms`)), timeoutMs)
+          )
+        ])
+        : importPromise;
+
       const [component] = await Promise.all([
-        importFn(),
+        timedImport,
         new Promise(resolve => setTimeout(resolve, minDelay))
       ]);
 
@@ -79,6 +96,32 @@ export function preloadComponent<T extends ComponentType<any>>(
   return Promise.resolve();
 }
 
+async function resolveComponent<T extends ComponentType<any>>(
+  importer: () => Promise<any>,
+  exportName?: string
+): Promise<{ default: T }> {
+  const module = await importer();
+  const resolved = exportName ? module[exportName] : module.default;
+  const component = resolved ?? module.default ?? (exportName ? module[exportName] : undefined);
+
+  if (!component) {
+    throw new Error(`Component ${exportName ?? 'default'} not found in module`);
+  }
+
+  return { default: component as T };
+}
+
+const createUnavailableLazyComponent = (resource: string) =>
+  () =>
+    createLazyComponent(async () => ({
+      default: (() =>
+        createElement(
+          'div',
+          { className: 'text-sm text-muted-foreground' },
+          `${resource} is not available in this build.`
+        )) as ComponentType<any>
+    }));
+
 /**
  * Create a lazy route with automatic error boundary
  */
@@ -86,7 +129,7 @@ export function createLazyRoute(
   path: string,
   importFn: () => Promise<{ default: ComponentType<any> }>,
   options: LazyLoadOptions = {}
-): RouteObject {
+): LazyRoute {
   const LazyComponent = createLazyComponent(importFn, options);
 
   return {
@@ -113,28 +156,35 @@ export const BundleSplitting = {
    * Lazy load pages/routes
    */
   pages: {
-    Dashboard: () => createLazyComponent(() => import('../components/Dashboard')),
-    Analysis: () => createLazyComponent(() => import('../components/Analysis')),
-    Settings: () => createLazyComponent(() => import('../components/Settings')),
-    Reports: () => createLazyComponent(() => import('../components/Reports')),
+    Dashboard: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/pages/PerformancePage'))),
+    Analysis: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/pages/ResearchPage'), 'ResearchPage')),
+    Settings: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/settings/SettingsPanel'))),
+    Reports: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/pages/HistoryPage'), 'HistoryPage')),
   },
 
   /**
    * Lazy load features/modules
    */
   features: {
-    DocumentProcessor: () => createLazyComponent(() => import('../components/DocumentProcessor')),
-    AIChat: () => createLazyComponent(() => import('../components/AIChat')),
-    DataVisualization: () => createLazyComponent(() => import('../components/DataVisualization')),
+    DocumentProcessor: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/documents/PIIDocumentProcessor'))),
+    AIChat: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/chat/ChatInterface'), 'ChatInterface')),
+    DataVisualization: () =>
+      createLazyComponent(() => resolveComponent(() => import('../components/monitoring/PerformanceDashboard'), 'PerformanceDashboard')),
   },
 
   /**
    * Lazy load third-party libraries
    */
   libraries: {
-    ChartLibrary: () => import('chart.js').then(module => ({ default: module })),
-    PDFViewer: () => import('react-pdf').then(module => ({ default: module })),
-    CodeEditor: () => import('@monaco-editor/react').then(module => ({ default: module })),
+    ChartLibrary: createUnavailableLazyComponent('Chart.js'),
+    PDFViewer: createUnavailableLazyComponent('react-pdf'),
+    CodeEditor: createUnavailableLazyComponent('Monaco editor'),
   }
 };
 

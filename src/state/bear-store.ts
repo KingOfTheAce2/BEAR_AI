@@ -13,7 +13,7 @@ export interface Agent {
   id: string
   type: 'legal-analyzer' | 'document-processor' | 'risk-assessor' | 'compliance-checker'
   status: 'idle' | 'busy' | 'error' | 'offline'
-  currentTask?: string
+  currentTask: string | null
   capabilities: string[]
   config: Record<string, any>
   lastActivity: Date
@@ -78,8 +78,8 @@ export interface LLMModel {
 
 export interface UIState {
   activeTab: 'documents' | 'analysis' | 'agents' | 'settings'
-  selectedDocumentId?: string
-  selectedAgentId?: string
+  selectedDocumentId: string | null
+  selectedAgentId: string | null
   isSettingsOpen: boolean
   isSidebarCollapsed: boolean
   theme: 'light' | 'dark' | 'auto'
@@ -130,7 +130,7 @@ interface BearState {
   settings: AppSettings
   isInitialized: boolean
   isLoading: boolean
-  error?: string
+  error: string | null
 }
 
 interface BearActions {
@@ -162,8 +162,8 @@ interface BearActions {
 
   // UI State
   setActiveTab: (tab: UIState['activeTab']) => void
-  setSelectedDocument: (id: string | undefined) => void
-  setSelectedAgent: (id: string | undefined) => void
+  setSelectedDocument: (id: string | null) => void
+  setSelectedAgent: (id: string | null) => void
   toggleSettings: () => void
   toggleSidebar: () => void
   setTheme: (theme: UIState['theme']) => void
@@ -216,8 +216,8 @@ const defaultSettings: AppSettings = {
 
 const defaultUIState: UIState = {
   activeTab: 'documents',
-  selectedDocumentId: undefined,
-  selectedAgentId: undefined,
+  selectedDocumentId: null,
+  selectedAgentId: null,
   isSettingsOpen: false,
   isSidebarCollapsed: false,
   theme: 'auto',
@@ -251,6 +251,7 @@ const mergeSettings = (base: AppSettings, updates?: Partial<AppSettings>): AppSe
 
 const hydrateAgent = (agent: Agent): Agent => ({
   ...agent,
+  currentTask: agent.currentTask ?? null,
   lastActivity: agent.lastActivity instanceof Date ? agent.lastActivity : new Date(agent.lastActivity),
   metrics: {
     tasksCompleted: agent.metrics?.tasksCompleted ?? 0,
@@ -359,7 +360,7 @@ export const useBearStore = create<BearStore>((set, get) => {
     settings: baseSettings,
     isInitialized: false,
     isLoading: false,
-    error: undefined,
+    error: null,
 
     // Agent Actions
     addAgent: (agent) =>
@@ -763,7 +764,7 @@ export const useBearStore = create<BearStore>((set, get) => {
         assignedAgentIds.forEach(agentId => {
           updateAgent(agentId, {
             status: 'idle',
-            currentTask: undefined
+            currentTask: null
           })
         })
 
@@ -815,8 +816,8 @@ export const useBearStore = create<BearStore>((set, get) => {
           agent.capabilities.some(cap => task.type.includes(cap))
         )
 
-        if (suitableAgents.length > 0) {
-          const selectedAgent = suitableAgents[0]
+        const selectedAgent = suitableAgents[0]
+        if (selectedAgent) {
           coordinateAgents(task.id, [selectedAgent.id])
         }
       })
@@ -826,7 +827,7 @@ export const useBearStore = create<BearStore>((set, get) => {
     initialize: async () => {
       typedSet(() => ({
         isLoading: true,
-        error: undefined
+        error: null
       }))
 
       try {
@@ -837,6 +838,7 @@ export const useBearStore = create<BearStore>((set, get) => {
             id: 'legal-analyzer-1',
             type: 'legal-analyzer',
             status: 'idle',
+            currentTask: null,
             capabilities: ['contract-analysis', 'legal-research'],
             config: {},
             lastActivity: new Date(),
@@ -846,6 +848,7 @@ export const useBearStore = create<BearStore>((set, get) => {
             id: 'document-processor-1',
             type: 'document-processor',
             status: 'idle',
+            currentTask: null,
             capabilities: ['text-extraction', 'format-conversion'],
             config: {},
             lastActivity: new Date(),

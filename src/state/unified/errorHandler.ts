@@ -55,13 +55,13 @@ export class BearError extends Error {
   public readonly code: string;
   public readonly category: ErrorCategory;
   public readonly severity: ErrorSeverity;
-  public readonly context?: ErrorContext;
-  public readonly originalError?: Error;
+  public readonly context: ErrorContext | undefined;
+  public readonly originalError: Error | undefined;
   public readonly recoverable: boolean;
-  public readonly userMessage?: string;
-  public readonly actionRequired?: string;
-  public readonly retryable?: boolean;
-  public readonly retryAfter?: number;
+  public readonly userMessage: string | undefined;
+  public readonly actionRequired: string | undefined;
+  public readonly retryable: boolean | undefined;
+  public readonly retryAfter: number | undefined;
   public readonly timestamp: Date;
 
   constructor(details: ErrorDetails) {
@@ -95,26 +95,41 @@ export class BearError extends Error {
    * Convert error to JSON for logging/transmission
    */
   toJSON(): Record<string, any> {
-    return {
+    const base: Record<string, any> = {
       name: this.name,
       code: this.code,
       message: this.message,
       category: this.category,
       severity: this.severity,
-      context: this.context,
       recoverable: this.recoverable,
-      userMessage: this.userMessage,
-      actionRequired: this.actionRequired,
-      retryable: this.retryable,
-      retryAfter: this.retryAfter,
       timestamp: this.timestamp.toISOString(),
-      stack: this.stack,
-      originalError: this.originalError ? {
+      stack: this.stack
+    };
+
+    if (this.context) {
+      base.context = this.context;
+    }
+    if (this.userMessage) {
+      base.userMessage = this.userMessage;
+    }
+    if (this.actionRequired) {
+      base.actionRequired = this.actionRequired;
+    }
+    if (this.retryable !== undefined) {
+      base.retryable = this.retryable;
+    }
+    if (this.retryAfter !== undefined) {
+      base.retryAfter = this.retryAfter;
+    }
+    if (this.originalError) {
+      base.originalError = {
         name: this.originalError.name,
         message: this.originalError.message,
         stack: this.originalError.stack
-      } : undefined
-    };
+      };
+    }
+
+    return base;
   }
 
   /**
@@ -161,8 +176,8 @@ class ErrorHandler {
    * Handle system errors
    */
   system(
-    message: string, 
-    code: string, 
+    message: string,
+    code: string,
     context?: ErrorContext,
     originalError?: Error
   ): BearError {
@@ -171,11 +186,11 @@ class ErrorHandler {
       message,
       category: ErrorCategory.SYSTEM,
       severity: ErrorSeverity.HIGH,
-      context,
-      originalError,
       recoverable: false,
       retryable: true,
-      retryAfter: 5000
+      retryAfter: 5000,
+      ...(context ? { context } : {}),
+      ...(originalError ? { originalError } : {})
     });
 
     this.handleError(error);
@@ -196,10 +211,10 @@ class ErrorHandler {
       message,
       category: ErrorCategory.USER,
       severity: ErrorSeverity.LOW,
-      context,
       recoverable: true,
       retryable: false,
-      userMessage
+      ...(context ? { context } : {}),
+      ...(userMessage ? { userMessage } : {})
     });
 
     this.handleError(error);
@@ -220,11 +235,11 @@ class ErrorHandler {
       message,
       category: ErrorCategory.NETWORK,
       severity: ErrorSeverity.MEDIUM,
-      context,
-      originalError,
       recoverable: true,
       retryable: true,
-      retryAfter: 3000
+      retryAfter: 3000,
+      ...(context ? { context } : {}),
+      ...(originalError ? { originalError } : {})
     });
 
     this.handleError(error);
@@ -245,10 +260,10 @@ class ErrorHandler {
       message,
       category: ErrorCategory.VALIDATION,
       severity: ErrorSeverity.LOW,
-      context,
       recoverable: true,
       retryable: false,
-      userMessage: userMessage || 'Please check your input and try again.'
+      userMessage: userMessage || 'Please check your input and try again.',
+      ...(context ? { context } : {})
     });
 
     this.handleError(error);
@@ -268,11 +283,11 @@ class ErrorHandler {
       message,
       category: ErrorCategory.AUTHENTICATION,
       severity: ErrorSeverity.HIGH,
-      context,
       recoverable: true,
       retryable: false,
       actionRequired: 'LOGIN_REQUIRED',
-      userMessage: 'Please log in to continue.'
+      userMessage: 'Please log in to continue.',
+      ...(context ? { context } : {})
     });
 
     this.handleError(error);
@@ -292,10 +307,10 @@ class ErrorHandler {
       message,
       category: ErrorCategory.AUTHORIZATION,
       severity: ErrorSeverity.MEDIUM,
-      context,
       recoverable: false,
       retryable: false,
-      userMessage: 'You do not have permission to perform this action.'
+      userMessage: 'You do not have permission to perform this action.',
+      ...(context ? { context } : {})
     });
 
     this.handleError(error);
@@ -316,10 +331,10 @@ class ErrorHandler {
       message,
       category: ErrorCategory.BUSINESS,
       severity: ErrorSeverity.MEDIUM,
-      context,
       recoverable: true,
       retryable: false,
-      userMessage
+      ...(context ? { context } : {}),
+      ...(userMessage ? { userMessage } : {})
     });
 
     this.handleError(error);
@@ -340,11 +355,11 @@ class ErrorHandler {
       message,
       category: ErrorCategory.EXTERNAL,
       severity: ErrorSeverity.MEDIUM,
-      context,
-      originalError,
       recoverable: true,
       retryable: true,
-      retryAfter: 10000
+      retryAfter: 10000,
+      ...(context ? { context } : {}),
+      ...(originalError ? { originalError } : {})
     });
 
     this.handleError(error);
@@ -455,7 +470,7 @@ class ErrorHandler {
    */
   private reportCriticalError(error: BearError): void {
     // In production, send to error monitoring service
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       // Example: Send to Sentry, Bugsnag, etc.
       console.error('Critical error reported:', error.toJSON());
     }

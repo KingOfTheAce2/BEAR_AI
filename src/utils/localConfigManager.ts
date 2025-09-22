@@ -691,7 +691,7 @@ export class LocalConfigManager {
   }
 
   // File system abstraction methods (would be implemented differently for web vs desktop)
-  private async findConfigFiles(directory: string): Promise<string[]> {
+  private async findConfigFiles(_directory: string): Promise<string[]> {
     // In a real implementation, this would recursively search for config files
     // For web, this would need to be provided through file inputs or directory scanning APIs
     try {
@@ -741,7 +741,7 @@ export class LocalConfigManager {
     }
   }
 
-  private async fileExists(filePath: string): Promise<boolean> {
+  private async fileExists(_filePath: string): Promise<boolean> {
     try {
       // For web, this is challenging - assume true for now
       return true;

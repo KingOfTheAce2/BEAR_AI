@@ -394,16 +394,7 @@ export class PIIDetector {
   /**
    * Log matches for GDPR audit trail
    */
-  private logForAudit(matches: PIIMatch[], context?: { fileType?: string; source?: string }): void {
-    const auditEntry = {
-      timestamp: new Date().toISOString(),
-      matchCount: matches.length,
-      types: matches.map(m => m.type),
-      hashes: matches.map(m => m.hash),
-      riskLevel: this.calculateRiskLevel(matches),
-      context
-    };
-
+  private logForAudit(matches: PIIMatch[], _context?: { fileType?: string; source?: string }): void {
     // Store in audit log (could be sent to logging service)
     this.auditLog.push(...matches);
 
@@ -439,6 +430,33 @@ export class PIIDetector {
    */
   public getConfig(): PIIDetectorConfig {
     return { ...this.config };
+  }
+
+  /**
+   * Mask sensitive portions of text based on detected matches
+   */
+  public maskText(text: string, matches: PIIMatch[]): string {
+    if (matches.length === 0) {
+      return text;
+    }
+
+    const sortedMatches = [...matches].sort((a, b) => b.start - a.start);
+    let maskedText = text;
+
+    for (const match of sortedMatches) {
+      const safeStart = Math.max(0, match.start);
+      const safeEnd = Math.min(maskedText.length, match.end);
+
+      if (safeEnd <= safeStart) {
+        continue;
+      }
+
+      const maskLength = Math.max(4, safeEnd - safeStart);
+      const replacement = '*'.repeat(maskLength);
+      maskedText = `${maskedText.slice(0, safeStart)}${replacement}${maskedText.slice(safeEnd)}`;
+    }
+
+    return maskedText;
   }
 }
 

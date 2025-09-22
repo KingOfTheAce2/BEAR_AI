@@ -253,11 +253,12 @@ export class LocalStorageBackupService {
       };
     } catch (error) {
       console.error('Failed to restore backup:', error);
+      const message = error instanceof Error ? error.message : String(error);
       return {
         success: false,
         imported: 0,
         errors: 1,
-        warnings: [error.message]
+        warnings: [message]
       };
     }
   }
@@ -363,7 +364,8 @@ export class LocalStorageBackupService {
       return updatedMetadata;
     } catch (error) {
       console.error('Failed to import backup file:', error);
-      throw new Error(`Import failed: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Import failed: ${message}`);
     }
   }
 
@@ -397,8 +399,8 @@ export class LocalStorageBackupService {
         totalBackups: manifest.length,
         totalSize,
         averageSize: totalSize / manifest.length,
-        oldestBackup: dates[0],
-        newestBackup: dates[dates.length - 1]
+        oldestBackup: dates[0] ?? null,
+        newestBackup: dates[dates.length - 1] ?? null
       };
     } catch (error) {
       console.error('Failed to get backup storage stats:', error);

@@ -117,14 +117,19 @@ export class OfflinePerformanceMonitor {
     }
 
     const data = this.modelData.get(toModel)!;
-    data.switches.push({
+    const switchEntry: ModelPerformanceData['switches'][number] = {
       from: fromModel,
       to: toModel,
       timestamp: new Date(),
       duration,
-      success: metadata.success !== false,
-      error: metadata.error
-    });
+      success: metadata.success !== false
+    };
+
+    if (metadata.error) {
+      switchEntry.error = metadata.error;
+    }
+
+    data.switches.push(switchEntry);
 
     // Maintain data size limit
     if (data.switches.length > this.maxDataPoints) {

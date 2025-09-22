@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { PIIDetectionResult, PIIMatch, PIIDetectorConfig } from './PIIDetector';
+import { PIIDetectionResult, PIIMatch, PIIDetectorConfig, PIIType } from './PIIDetector';
 
 export interface TauriPIIMatch {
   pii_type: string;
@@ -99,16 +99,26 @@ export class TauriPIIBridge {
     }
 
     try {
-      const tauriMatches: TauriPIIMatch[] = matches.map(match => ({
-        pii_type: match.type.toString(),
-        text: match.text,
-        start: match.start,
-        end: match.end,
-        confidence: match.confidence,
-        hash: match.hash,
-        is_legal_privileged: match.isLegalPrivileged,
-        country: match.country
-      }));
+      const tauriMatches: TauriPIIMatch[] = matches.map((match) => {
+        const base: TauriPIIMatch = {
+          pii_type: match.type.toString(),
+          text: match.text,
+          start: match.start,
+          end: match.end,
+          confidence: match.confidence,
+          hash: match.hash
+        };
+
+        if (match.isLegalPrivileged !== undefined) {
+          base.is_legal_privileged = match.isLegalPrivileged;
+        }
+
+        if (match.country !== undefined) {
+          base.country = match.country;
+        }
+
+        return base;
+      });
 
       const result: string = await invoke('mask_pii_text', {
         text,
@@ -235,14 +245,22 @@ export class TauriPIIBridge {
         config: tauriConfig
       });
 
-      return {
+      const baseResult = {
         originalContent: result.original_content,
         scanResult: this.convertTauriResult(result.scan_result),
         shouldBlock: result.should_block,
-        redactedContent: result.redacted_content,
         filename: result.filename,
         processedAt: result.processed_at
       };
+
+      if (result.redacted_content !== undefined) {
+        return {
+          ...baseResult,
+          redactedContent: result.redacted_content
+        };
+      }
+
+      return baseResult;
     } catch (error) {
       console.error('Tauri document processing error:', error);
       throw error;
@@ -266,25 +284,31 @@ export class TauriPIIBridge {
    * Convert Tauri match to TypeScript interface
    */
   private static convertTauriMatch(tauriMatch: TauriPIIMatch): PIIMatch {
-    return {
+    const baseMatch: PIIMatch = {
       type: this.convertPIIType(tauriMatch.pii_type),
       text: tauriMatch.text,
       start: tauriMatch.start,
       end: tauriMatch.end,
       confidence: tauriMatch.confidence,
-      hash: tauriMatch.hash,
-      isLegalPrivileged: tauriMatch.is_legal_privileged,
-      country: tauriMatch.country
+      hash: tauriMatch.hash
     };
+
+    if (tauriMatch.is_legal_privileged !== undefined) {
+      baseMatch.isLegalPrivileged = tauriMatch.is_legal_privileged;
+    }
+
+    if (tauriMatch.country !== undefined) {
+      baseMatch.country = tauriMatch.country;
+    }
+
+    return baseMatch;
   }
 
   /**
    * Convert Tauri PII type string to enum
    */
-  private static convertPIIType(tauriType: string): import('./PIIDetector').PIIType {
-    const { PIIType } = require('./PIIDetector');
-
-    const typeMap: Record<string, import('./PIIDetector').PIIType> = {
+  private static convertPIIType(tauriType: string): PIIType {
+    const typeMap: Record<string, PIIType> = {
       'ssn': PIIType.SSN,
       'credit_card': PIIType.CREDIT_CARD,
       'email': PIIType.EMAIL,

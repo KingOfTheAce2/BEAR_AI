@@ -1,4 +1,4 @@
-import { PIIDetector, PIIDetectionResult, PIIMatch, PIIDetectorConfig, PIIType } from './PIIDetector';
+import { PIIDetector, PIIDetectionResult, PIIMatch, PIIDetectorConfig } from './PIIDetector';
 import { TauriPIIBridge } from './TauriPIIBridge';
 
 /**
@@ -205,14 +205,22 @@ export class HybridPIIDetector {
       redactedContent = this.tsDetector.maskText(content, scanResult.matches);
     }
 
-    return {
+    const baseResult = {
       originalContent: content,
       scanResult,
       shouldBlock,
-      redactedContent,
       filename,
       processedAt: new Date().toISOString()
     };
+
+    if (redactedContent !== undefined) {
+      return {
+        ...baseResult,
+        redactedContent
+      };
+    }
+
+    return baseResult;
   }
 
   /**
