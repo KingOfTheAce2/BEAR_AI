@@ -74,7 +74,26 @@
       "assets/**/*",
       "templates/**/*"
     ],
-    "externalBin": []
+    "externalBin": [],
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com"
+    },
+    "macOS": {
+      "entitlements": "entitlements.plist",
+      "exceptionDomain": "",
+      "frameworks": [],
+      "minimumSystemVersion": "10.15"
+    },
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0"
+        ]
+      },
+      "useBootstrapper": true
+    }
   },
   "plugins": {
     "updater": {
