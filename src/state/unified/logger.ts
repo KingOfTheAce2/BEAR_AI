@@ -39,10 +39,10 @@ class Logger {
   constructor(context: string = 'App', config?: Partial<LoggerConfig>) {
     this.context = context;
     this.config = {
-      level: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
+      level: process.env['NODE_ENV'] === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
       enableConsole: true,
-      enableStorage: process.env.NODE_ENV === 'development',
-      enableRemote: process.env.NODE_ENV === 'production',
+      enableStorage: process.env['NODE_ENV'] === 'development',
+      enableRemote: process.env['NODE_ENV'] === 'production',
       maxStorageEntries: 1000,
       ...config
     };
@@ -100,14 +100,18 @@ class Logger {
       return;
     }
 
-    const entry: LogEntry = {
+    const baseEntry = {
       timestamp: new Date(),
       level,
       message,
       context: this.context,
-      data: this.sanitizeData(data),
-      error,
       correlationId: this.generateCorrelationId()
+    } as const;
+
+    const entry: LogEntry = {
+      ...baseEntry,
+      ...(data !== undefined ? { data: this.sanitizeData(data) } : {}),
+      ...(error ? { error } : {})
     };
 
     // Console logging

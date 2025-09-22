@@ -157,7 +157,8 @@ class CodeExecutionService {
   }
 
   async executeCode(code: string, language: string): Promise<CodeExecutionResult> {
-    if (!this.worker) {
+    const worker = this.worker;
+    if (!worker) {
       throw new Error('Code execution worker not initialized');
     }
 
@@ -168,7 +169,7 @@ class CodeExecutionService {
 
       const handleMessage = (event: MessageEvent) => {
         clearTimeout(timeout);
-        this.worker!.removeEventListener('message', handleMessage);
+        worker.removeEventListener('message', handleMessage);
 
         if (event.data.type === 'result') {
           resolve(event.data.data);
@@ -177,8 +178,8 @@ class CodeExecutionService {
         }
       };
 
-      this.worker.addEventListener('message', handleMessage);
-      this.worker.postMessage({ code, language });
+      worker.addEventListener('message', handleMessage);
+      worker.postMessage({ code, language });
     });
   }
 

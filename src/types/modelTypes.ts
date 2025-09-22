@@ -328,7 +328,9 @@ export class ModelError extends Error {
     this.code = code
     this.recoverable = options.recoverable ?? false
     this.suggestions = options.suggestions ?? []
-    this.metadata = options.metadata
+    if (options.metadata !== undefined) {
+      this.metadata = options.metadata
+    }
   }
 }
 

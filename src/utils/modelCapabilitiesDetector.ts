@@ -107,7 +107,7 @@ export class ModelCapabilitiesDetector {
     capabilities: string[];
     performance: number;
   }> {
-    const summaries = [];
+    const summaries: Array<{ modelId: string; name: string; capabilities: string[]; performance: number }> = [];
     
     for (const profile of this.profiles.values()) {
       summaries.push({
@@ -201,16 +201,16 @@ export class ModelCapabilitiesDetector {
     hardware: string[];
     frameworks: string[];
   } {
-    const hardware = ['CPU'];
-    const frameworks = ['GPT4All'];
+    const hardware: string[] = ['CPU'];
+    const frameworks: string[] = ['GPT4All'];
 
     // Check if GPU acceleration is possible
-    if (modelConfig.capabilities?.includes('gpu-acceleration')) {
+    if (Array.isArray(modelConfig.capabilities) && modelConfig.capabilities.includes('gpu-acceleration')) {
       hardware.push('GPU');
     }
 
     // Add framework support based on model type
-    if (modelConfig.metadata?.modelType === 'ggml') {
+    if (modelConfig.metadata?.['modelType'] === 'ggml') {
       frameworks.push('llama.cpp', 'ggml');
     }
 
@@ -221,15 +221,15 @@ export class ModelCapabilitiesDetector {
    * Extract features from model configuration
    */
   private extractFeatures(modelConfig: ModelConfig): string[] {
-    const features = [];
+    const features: string[] = [];
 
     if (Array.isArray(modelConfig.capabilities)) {
       features.push(...modelConfig.capabilities);
     } else if (modelConfig.capabilities) {
-      const capabilityObject = modelConfig.capabilities;
+      const capabilityObject = modelConfig.capabilities as Record<string, any>;
 
       if (Array.isArray(capabilityObject.features)) {
-        features.push(...capabilityObject.features);
+        features.push(...capabilityObject.features.filter((feature: unknown): feature is string => typeof feature === 'string'));
       }
 
       for (const [key, value] of Object.entries(capabilityObject)) {
@@ -240,7 +240,7 @@ export class ModelCapabilitiesDetector {
     }
 
     // Add features based on model metadata
-    if (modelConfig.metadata?.modelType === 'ggml') {
+    if (modelConfig.metadata?.['modelType'] === 'ggml') {
       features.push('quantized', 'efficient-inference');
     }
 
@@ -259,7 +259,7 @@ export class ModelCapabilitiesDetector {
    * Determine supported tasks
    */
   private determineSupportedTasks(modelConfig: ModelConfig): string[] {
-    const tasks = [];
+    const tasks: string[] = [];
 
     // Base tasks for most models
     tasks.push('text-generation', 'question-answering');
@@ -287,9 +287,9 @@ export class ModelCapabilitiesDetector {
    * Identify available optimizations
    */
   private identifyOptimizations(modelConfig: ModelConfig): string[] {
-    const optimizations = [];
+    const optimizations: string[] = [];
 
-    if (modelConfig.metadata?.modelType === 'ggml') {
+    if (modelConfig.metadata?.['modelType'] === 'ggml') {
       optimizations.push('quantization', 'memory-mapping');
     }
 
@@ -308,7 +308,7 @@ export class ModelCapabilitiesDetector {
    * Identify model limitations
    */
   private identifyLimitations(modelConfig: ModelConfig): string[] {
-    const limitations = [];
+    const limitations: string[] = [];
 
     const capabilityContextLength =
       typeof modelConfig.capabilities === 'object' && !Array.isArray(modelConfig.capabilities)
@@ -343,7 +343,7 @@ export class ModelCapabilitiesDetector {
     // Larger models are typically slower but more accurate
     const estimatedSpeed = Math.max(1, 10 - sizeGB); // 1-10 scale
     const accuracy = Math.min(10, 5 + sizeGB * 0.5); // Larger = more accurate
-    const memoryEfficiency = modelConfig.metadata?.modelType === 'ggml' ? 8 : 6;
+    const memoryEfficiency = modelConfig.metadata?.['modelType'] === 'ggml' ? 8 : 6;
 
     return {
       estimatedSpeed,
@@ -382,7 +382,7 @@ export class ModelCapabilitiesDetector {
    * Identify best use cases
    */
   private identifyBestUseCases(capabilities: ModelCapabilities): string[] {
-    const useCases = [];
+    const useCases: string[] = [];
 
     if (capabilities.features.includes('lightweight')) {
       useCases.push('mobile-apps', 'edge-computing');

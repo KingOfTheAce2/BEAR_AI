@@ -313,8 +313,7 @@ export class LocalModelStorage {
 
     const {
       olderThanDays = 30,
-      unusedForDays = 7,
-      maxStorageSize = 100 * 1024 * 1024 // 100MB
+      unusedForDays = 7
     } = options;
 
     const cutoffDate = new Date();
@@ -452,7 +451,7 @@ export class LocalModelStorage {
     };
   }
 
-  private async getFileSize(filePath: string): Promise<number> {
+  private async getFileSize(_filePath: string): Promise<number> {
     try {
       // In a real implementation, this would use filesystem APIs
       // For web, this would need to be provided by the discovery process
@@ -462,7 +461,7 @@ export class LocalModelStorage {
     }
   }
 
-  private async calculateChecksum(filePath: string): Promise<string> {
+  private async calculateChecksum(_filePath: string): Promise<string> {
     try {
       // In a real implementation, this would calculate file checksum
       // For web, this would be computed during discovery
@@ -472,7 +471,7 @@ export class LocalModelStorage {
     }
   }
 
-  private async calculateDirectorySize(directory: string): Promise<number> {
+  private async calculateDirectorySize(_directory: string): Promise<number> {
     try {
       // Calculate total size of all models in directory
       return 0; // Placeholder

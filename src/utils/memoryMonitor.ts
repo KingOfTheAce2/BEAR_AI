@@ -268,6 +268,9 @@ export class MemoryMonitor {
     const recent = this.history.slice(-windowSize);
     const first = recent[0];
     const last = recent[recent.length - 1];
+    if (!first || !last) {
+      return this.trend;
+    }
     const delta = last.used - first.used;
     const elapsed = last.timestamp - first.timestamp;
 

@@ -36,17 +36,14 @@ export interface InferenceStrategy {
 export class LocalInferenceOptimizer {
   private cache: Map<string, CacheEntry> = new Map();
   private metrics: OptimizationMetrics;
-  private config: ModelManagerConfig;
   private maxCacheSize: number;
   private currentCacheSize: number = 0;
-  
+
   // Optimization patterns
   private readonly commonPatterns = new Map<string, string>();
   private readonly responseTemplates = new Map<string, string>();
-  private readonly contextOptimizations = new Map<string, string>();
 
   constructor(config: ModelManagerConfig) {
-    this.config = config;
     this.maxCacheSize = config.cacheSize || 2 * 1024 * 1024 * 1024; // 2GB default
     
     this.metrics = {
@@ -209,7 +206,7 @@ export class LocalInferenceOptimizer {
 
     // Persist to localStorage if possible
     try {
-      this.persistCacheEntry(entry);
+      this.persistCache();
     } catch (error) {
       console.warn('Failed to persist cache entry:', error);
     }
@@ -273,7 +270,7 @@ export class LocalInferenceOptimizer {
    * Optimize streaming inference
    */
   private async optimizeStreamingInference(
-    modelId: string,
+    _modelId: string,
     prompt: string,
     options: ModelInferenceOptions,
     generateFunction: (prompt: string, options: ModelInferenceOptions) => Promise<ModelInferenceResult>
@@ -587,7 +584,7 @@ export class LocalInferenceOptimizer {
     }
   }
 
-  private persistCacheEntry(entry: CacheEntry): void {
+  private persistCache(): void {
     try {
       const allCache = Object.fromEntries(this.cache.entries());
       localStorage.setItem('BearAI_InferenceCache', JSON.stringify(allCache));

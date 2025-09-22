@@ -1,13 +1,19 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import type {
+  LocalSettingsConfig,
+  SettingsBackup,
+  SettingsCategory,
+  SettingsValidationError
+} from '../../types/settings';
 
 class LocalSettingsService {
   private settingsDir: string;
   private settingsFile: string;
   private backupDir: string;
   private currentSettings: LocalSettingsConfig | null = null;
-  private watchers: Map<string, fs.FSWatcher> = new Map();
+  private watchers: Map<string, ReturnType<typeof fs.watch>> = new Map();
   private listeners: Map<string, ((settings: LocalSettingsConfig) => void)[]> = new Map();
 
   constructor() {
@@ -23,11 +29,11 @@ class LocalSettingsService {
 
     switch (platform) {
       case 'win32':
-        return path.join(process.env.APPDATA || path.join(homeDir, 'AppData', 'Roaming'), 'BearAI', 'Settings');
+        return path.join(process.env['APPDATA'] || path.join(homeDir, 'AppData', 'Roaming'), 'BearAI', 'Settings');
       case 'darwin':
         return path.join(homeDir, 'Library', 'Application Support', 'BearAI', 'Settings');
       case 'linux':
-        return path.join(process.env.XDG_CONFIG_HOME || path.join(homeDir, '.config'), 'bear-ai', 'settings');
+        return path.join(process.env['XDG_CONFIG_HOME'] || path.join(homeDir, '.config'), 'bear-ai', 'settings');
       default:
         return path.join(homeDir, '.bear-ai', 'settings');
     }
@@ -335,7 +341,11 @@ class LocalSettingsService {
 
   async createBackup(description?: string): Promise<string> {
     const backup = await this.exportSettings();
-    backup.metadata.description = description;
+    if (description !== undefined) {
+      backup.metadata.description = description;
+    } else if ('description' in backup.metadata) {
+      delete backup.metadata.description;
+    }
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupFileName = `settings-backup-${timestamp}.json`;
@@ -495,8 +505,6 @@ class LocalSettingsService {
   }
 
   watchSettings(callback: (settings: LocalSettingsConfig) => void): () => void {
-    const id = Math.random().toString(36).substring(7);
-    
     if (!this.listeners.has('settings')) {
       this.listeners.set('settings', []);
     }

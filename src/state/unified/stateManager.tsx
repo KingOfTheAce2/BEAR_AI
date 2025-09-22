@@ -3,8 +3,8 @@
  * Consistent state patterns across all components and services
  */
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect, useMemo } from 'react';
-import { logger, createLogger } from '@/utils/unified/logger';
+import React, { createContext, useContext, useCallback, useEffect, useMemo } from 'react';
+import { createLogger } from '@/utils/unified/logger';
 import { errorHandler, BearError } from '@/utils/unified/errorHandler';
 
 // Base state interface
@@ -54,9 +54,9 @@ export class StateManager<T extends BaseState> {
 
   constructor(config: StateManagerConfig) {
     this.config = {
-      enableDevTools: process.env.NODE_ENV === 'development',
+      enableDevTools: process.env['NODE_ENV'] === 'development',
       enablePersistence: false,
-      enableLogging: process.env.NODE_ENV === 'development',
+      enableLogging: process.env['NODE_ENV'] === 'development',
       enableMetrics: true,
       middleware: [],
       ...config
@@ -377,7 +377,7 @@ export class StateManager<T extends BaseState> {
           const result = next(state);
           
           // Could integrate with analytics service here
-          if (process.env.NODE_ENV === 'production') {
+          if (process.env['NODE_ENV'] === 'production') {
             // Send metrics to monitoring service
             console.debug('State metrics:', {
               manager: this.config.name,
@@ -405,7 +405,7 @@ export class StateManager<T extends BaseState> {
 
   private updateDevTools(update: StateUpdate, newState: T): void {
     // Send state updates to DevTools
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       console.debug(`🔄 ${this.config.name}: ${update.type}`, {
         payload: update.payload,
         state: this.sanitizeState(newState)
@@ -426,7 +426,7 @@ export function createStateProvider<T extends BaseState>(
   const StateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [state, setState] = React.useState(stateManager.getState());
 
-    React.useEffect(() => {
+    useEffect(() => {
       const unsubscribe = stateManager.subscribe(setState);
       return unsubscribe;
     }, []); // eslint-disable-line react-hooks/exhaustive-deps

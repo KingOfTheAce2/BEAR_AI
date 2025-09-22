@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { LocalPerformanceMonitor } from '../../services/monitoring/localPerformanceMonitor';
 import { ModelPerformanceMetrics, MonitoringConfig } from '../../types/monitoring';
 
@@ -10,47 +11,73 @@ type HookResult = {
 let activeMonitor: LocalPerformanceMonitor | null = null;
 let initializing: Promise<LocalPerformanceMonitor> | null = null;
 
-const defaultConfig: Partial<MonitoringConfig> = {
+const defaultConfig: MonitoringConfig = {
   sampling: {
     systemMetricsInterval: 5000,
     modelMetricsInterval: 2000,
     alertCheckInterval: 10000
+  },
+  storage: {
+    maxHistoryDays: 7,
+    compressionEnabled: false,
+    autoCleanup: true
+  },
+  thresholds: {
+    cpu: { warning: 70, critical: 90 },
+    memory: { warning: 80, critical: 95 },
+    disk: { warning: 80, critical: 95 },
+    modelLatency: { warning: 3000, critical: 8000 },
+    modelMemory: { warning: 256, critical: 512 }
+  },
+  alerts: {
+    enabled: true,
+    soundEnabled: false,
+    notificationEnabled: false,
+    emailEnabled: false
+  },
+  privacy: {
+    localStorageOnly: true,
+    encryptData: false,
+    anonymizeData: false
   }
 };
 
 function mergeConfig(
-  base: Partial<MonitoringConfig> | undefined,
-  overrides: Partial<MonitoringConfig> | undefined
-): Partial<MonitoringConfig> | undefined {
-  if (!base && !overrides) {
-    return undefined;
-  }
+  base: MonitoringConfig,
+  overrides?: Partial<MonitoringConfig>
+): MonitoringConfig {
+  const thresholdOverrides = overrides?.thresholds ?? {};
 
   return {
     sampling: {
-      ...base?.sampling,
-      ...overrides?.sampling
+      ...base.sampling,
+      ...(overrides?.sampling ?? {})
     },
     storage: {
-      ...base?.storage,
-      ...overrides?.storage
+      ...base.storage,
+      ...(overrides?.storage ?? {})
     },
     thresholds: {
-      ...base?.thresholds,
-      ...overrides?.thresholds
+      cpu: { ...base.thresholds.cpu, ...(thresholdOverrides.cpu ?? {}) },
+      memory: { ...base.thresholds.memory, ...(thresholdOverrides.memory ?? {}) },
+      disk: { ...base.thresholds.disk, ...(thresholdOverrides.disk ?? {}) },
+      modelLatency: { ...base.thresholds.modelLatency, ...(thresholdOverrides.modelLatency ?? {}) },
+      modelMemory: { ...base.thresholds.modelMemory, ...(thresholdOverrides.modelMemory ?? {}) }
     },
     alerts: {
-      ...base?.alerts,
-      ...overrides?.alerts
+      ...base.alerts,
+      ...(overrides?.alerts ?? {})
     },
     privacy: {
-      ...base?.privacy,
-      ...overrides?.privacy
+      ...base.privacy,
+      ...(overrides?.privacy ?? {})
     }
   };
 }
 
 async function ensureMonitor(config?: Partial<MonitoringConfig>): Promise<LocalPerformanceMonitor> {
+  const resolvedConfig = mergeConfig(defaultConfig, config);
+
   if (activeMonitor) {
     if (config) {
       activeMonitor.updateConfig(config);
@@ -59,7 +86,7 @@ async function ensureMonitor(config?: Partial<MonitoringConfig>): Promise<LocalP
   }
 
   if (!initializing) {
-    const monitor = new LocalPerformanceMonitor(config ?? defaultConfig);
+    const monitor = new LocalPerformanceMonitor(resolvedConfig);
     initializing = (async () => {
       await monitor.start();
       activeMonitor = monitor;
@@ -73,8 +100,7 @@ async function ensureMonitor(config?: Partial<MonitoringConfig>): Promise<LocalP
 
 export const PerformanceMonitoringUtils = {
   async initialize(config?: Partial<MonitoringConfig>): Promise<LocalPerformanceMonitor> {
-    const mergedConfig = mergeConfig(defaultConfig, config);
-    return ensureMonitor(mergedConfig);
+    return ensureMonitor(config);
   },
 
   getMonitor(): LocalPerformanceMonitor | null {
@@ -99,11 +125,8 @@ export const PerformanceMonitoringUtils = {
       const [monitor, setMonitor] = useState<LocalPerformanceMonitor | null>(null);
       const [isLoading, setIsLoading] = useState(true);
       const [error, setError] = useState<string | null>(null);
-      const configRef = useRef(config);
-
-      const merged = useMemo(() => mergeConfig(mergeConfig(defaultConfig, defaults), config), [defaults, config]);
-
-      configRef.current = config;
+      const baseConfig = useMemo(() => mergeConfig(defaultConfig, defaults ?? {}), [defaults]);
+      const merged = useMemo(() => mergeConfig(baseConfig, config), [baseConfig, config]);
 
       useEffect(() => {
         let isMounted = true;
@@ -113,11 +136,8 @@ export const PerformanceMonitoringUtils = {
           setError(null);
 
           try {
-            const instance = await ensureMonitor(merged ?? defaultConfig);
+            const instance = await ensureMonitor(merged);
             if (isMounted) {
-              if (configRef.current && merged) {
-                instance.updateConfig(merged);
-              }
               setMonitor(instance);
             }
           } catch (err) {
