@@ -21,9 +21,7 @@ module.exports = {
   // Transform configuration
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest',
-    '^.+\\.css$': 'jest-transform-stub',
-    '^.+\\.(jpg|jpeg|png|gif|svg)$': 'jest-transform-stub'
+    '^.+\\.(js|jsx)$': 'babel-jest'
   },
 
   // Module file extensions
@@ -37,14 +35,15 @@ module.exports = {
   ],
 
   // Module name mapping for aliases and mocks
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@tests/(.*)$': '<rootDir>/tests/$1',
     '^components/(.*)$': '<rootDir>/src/components/$1',
     '^services/(.*)$': '<rootDir>/src/services/$1',
     '^utils/(.*)$': '<rootDir>/src/utils/$1',
     '^types/(.*)$': '<rootDir>/src/types/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': '<rootDir>/tests/__mocks__/fileMock.js'
   },
 
   // Setup files to run before tests
