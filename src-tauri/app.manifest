@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity
+    name="BEAR.AI.Legal.Assistant"
+    version="1.0.0.0"
+    processorArchitecture="*"
+    type="win32"/>
+
+  <description>BEAR AI Legal Assistant - Professional AI-powered legal document analysis and assistance</description>
+
+  <!-- Application Compatibility -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 and 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+      <!-- Windows 8.1 -->
+      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
+      <!-- Windows 8 -->
+      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
+      <!-- Windows 7 -->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
+    </application>
+  </compatibility>
+
+  <!-- DPI Awareness for High-DPI displays -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">permonitorv2,permonitor</dpiAwareness>
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+      <printerDriverIsolation xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</printerDriverIsolation>
+      <ultraHighResolutionScrolling xmlns="http://schemas.microsoft.com/SMI/2013/WindowsSettings">true</ultraHighResolutionScrolling>
+    </windowsSettings>
+  </application>
+
+  <!-- Request Administrator Privileges -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="highestAvailable" uiAccess="false"/>
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <!-- Dependency Information -->
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+        type="win32"
+        name="Microsoft.Windows.Common-Controls"
+        version="6.0.0.0"
+        processorArchitecture="*"
+        publicKeyToken="6595b64144ccf1df"
+        language="*"/>
+    </dependentAssembly>
+  </dependency>
+
+  <!-- Visual C++ Runtime Dependencies -->
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+        type="win32"
+        name="Microsoft.VC143.CRT"
+        version="14.30.0.0"
+        processorArchitecture="*"
+        publicKeyToken="1fc8b3b9a1e18e3b"/>
+    </dependentAssembly>
+  </dependency>
+
+  <!-- Windows 10/11 Features -->
+  <file name="bear-ai-legal-assistant.exe">
+    <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
+      <!-- Heap Corruption Detection -->
+      <ws2:heapType>SegmentHeap</ws2:heapType>
+
+      <!-- Active Code Page -->
+      <ws2:activeCodePage>UTF-8</ws2:activeCodePage>
+
+      <!-- High Performance Graphics -->
+      <ws2:gdiScaling>true</ws2:gdiScaling>
+
+      <!-- Mouse High Resolution -->
+      <ws2:highResolutionScrollingAware>true</ws2:highResolutionScrollingAware>
+    </windowsSettings>
+  </file>
+
+  <!-- Security and Privacy Settings -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <applicationRequestMinimum>
+        <defaultAssemblyRequest permissionSetReference="FullTrust"/>
+        <PermissionSet class="System.Security.NamedPermissionSet" version="1" Name="FullTrust"/>
+      </applicationRequestMinimum>
+    </security>
+  </trustInfo>
+
+  <!-- Resource Requirements -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <!-- Memory Management -->
+      <ws3:memoryManagement xmlns:ws3="http://schemas.microsoft.com/SMI/2020/WindowsSettings">
+        <ws3:heapType>SegmentHeap</ws3:heapType>
+      </ws3:memoryManagement>
+
+      <!-- Performance Settings -->
+      <ws3:performance xmlns:ws3="http://schemas.microsoft.com/SMI/2017/WindowsSettings">
+        <ws3:cpuArchitecture>x64</ws3:cpuArchitecture>
+        <ws3:memoryRequirement>4096</ws3:memoryRequirement>
+      </ws3:performance>
+    </windowsSettings>
+  </application>
+
+  <!-- Application Information -->
+  <asmv3:application xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+    <asmv3:windowsSettings>
+      <!-- Application Name for Task Manager -->
+      <asmv3:application-name>BEAR AI Legal Assistant</asmv3:application-name>
+
+      <!-- Application Description -->
+      <asmv3:application-description>Professional AI-powered legal document analysis and assistance tool for legal professionals</asmv3:application-description>
+
+      <!-- Company Information -->
+      <asmv3:company-name>BEAR AI Team</asmv3:company-name>
+
+      <!-- Product Information -->
+      <asmv3:product-name>BEAR AI Legal Assistant</asmv3:product-name>
+      <asmv3:product-version>1.0.0.0</asmv3:product-version>
+
+      <!-- Copyright -->
+      <asmv3:copyright>Copyright © 2025 BEAR AI Team. All rights reserved.</asmv3:copyright>
+
+      <!-- Support Information -->
+      <asmv3:support-url>https://github.com/KingOfTheAce2/BEAR_AI</asmv3:support-url>
+    </asmv3:windowsSettings>
+  </asmv3:application>
+
+  <!-- Windows Defender Compatibility -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Mark as compatible with Windows Defender -->
+      <maxversiontested Id="10.0.22000.0"/>
+    </application>
+  </compatibility>
+
+  <!-- File Association Capabilities -->
+  <capability>
+    <rescap:capability Name="documentsLibrary" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"/>
+    <rescap:capability Name="removableStorage" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"/>
+  </capability>
+
+  <!-- Performance and Security Optimizations -->
+  <asmv3:trustInfo xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+    <asmv3:security>
+      <asmv3:requestedPrivileges>
+        <!-- File System Access -->
+        <asmv3:requestedExecutionLevel level="asInvoker" uiAccess="false"/>
+      </asmv3:requestedPrivileges>
+
+      <!-- Security Settings -->
+      <asmv3:applicationRequestMinimum>
+        <asmv3:defaultAssemblyRequest permissionSetReference="FullTrust"/>
+      </asmv3:applicationRequestMinimum>
+    </asmv3:security>
+  </asmv3:trustInfo>
+
+</assembly>

@@ -67,7 +67,6 @@ jobs:
           npm config set prefer-offline true
           npm config set audit false
           npm config set fund false
-          npm config set cache-max 3600
           npm ci --prefer-offline --no-audit --ignore-scripts --no-fund --silent || npm install --no-audit --force --legacy-peer-deps --silent
 
       - name: TypeScript compilation check

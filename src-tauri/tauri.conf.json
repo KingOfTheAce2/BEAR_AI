@@ -77,7 +77,50 @@
     "externalBin": [],
     "windows": {
       "digestAlgorithm": "sha256",
-      "timestampUrl": "http://timestamp.digicert.com"
+      "timestampUrl": "http://timestamp.digicert.com",
+      "certificateThumbprint": "",
+      "signCommand": "powershell -ExecutionPolicy Bypass -File scripts/windows-signing.ps1",
+      "wix": {
+        "language": ["en-US"],
+        "template": "main.wxs",
+        "componentGroupRefs": ["MainComponentGroup"],
+        "componentRefs": [],
+        "featureGroupRefs": [],
+        "featureRefs": [],
+        "fragmentRefs": ["Directories"],
+        "mergeRefs": [],
+        "skipWebviewInstall": false,
+        "license": "LICENSE.rtf",
+        "enableElevatedUpdateTask": false,
+        "bannerPath": "assets/banner.bmp",
+        "dialogImagePath": "assets/dialog.bmp"
+      },
+      "nsis": {
+        "template": "installer.nsi",
+        "license": "LICENSE.txt",
+        "headerImage": "assets/header.bmp",
+        "sidebarImage": "assets/sidebar.bmp",
+        "installerIcon": "icons/icon.ico",
+        "installMode": "currentUser",
+        "allowDowngrades": false,
+        "allowElevation": true,
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "displayLanguageSelector": false,
+        "installerHooks": "installer-hooks",
+        "minimumWebview2Version": "95.0.1020.44",
+        "webview2InstallMode": "downloadBootstrapper",
+        "sections": {
+          "preInstall": "!include 'installer-hooks/before-install.nsh'",
+          "postInstall": "",
+          "preUninstall": "",
+          "postUninstall": ""
+        }
+      },
+      "webview": {
+        "fixedRuntimePath": "",
+        "automaticInstallation": true
+      }
     },
     "macOS": {
       "entitlements": "entitlements.plist",
@@ -99,10 +142,15 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/latest.json"
+        "https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/latest.json",
+        "https://api.bearai.com/updates/latest.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGMDY4MzJEMkJEQkY5NEI="
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGMDY4MzJEMkJEQkY5NEI=",
+      "windows": {
+        "installMode": "quiet",
+        "silent": false
+      }
     }
   }
 }
