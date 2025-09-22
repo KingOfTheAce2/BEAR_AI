@@ -4,6 +4,7 @@
 const path = require('path');
 
 const reporters = ['default'];
+const snapshotSerializers = [];
 
 const isCI = Boolean(process.env.CI);
 
@@ -15,6 +16,18 @@ const addReporterIfAvailable = (name, options) => {
     if (isCI) {
       // eslint-disable-next-line no-console
       console.warn(`Optional Jest reporter "${name}" is not installed. Skipping.`);
+    }
+  }
+};
+
+const addSnapshotSerializerIfAvailable = (name) => {
+  try {
+    require.resolve(name);
+    snapshotSerializers.push(name);
+  } catch (error) {
+    if (isCI) {
+      // eslint-disable-next-line no-console
+      console.warn(`Optional Jest snapshot serializer "${name}" is not installed. Skipping.`);
     }
   }
 };
@@ -36,6 +49,8 @@ addReporterIfAvailable('jest-html-reporters', {
   hideIcon: false,
   pageTitle: 'BEAR AI Test Report'
 });
+
+addSnapshotSerializerIfAvailable('enzyme-to-json/serializer');
 
 module.exports = {
   // Root directory for the project
@@ -227,9 +242,7 @@ module.exports = {
   reporters,
 
   // Custom matchers and utilities
-  snapshotSerializers: [
-    'enzyme-to-json/serializer'
-  ],
+  snapshotSerializers,
 
   // Performance and memory settings
   maxWorkers: '50%',
