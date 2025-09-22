@@ -176,8 +176,7 @@ export class CompatibilityValidator {
     // Browser environment detection
     if (typeof window !== 'undefined') {
       const memoryInfo = (performance as any).memory;
-      const connection = (navigator as any).connection;
-      
+
       return {
         memory: {
           total: memoryInfo?.jsHeapSizeLimit || 4 * 1024**3, // 4GB default
@@ -205,26 +204,53 @@ export class CompatibilityValidator {
     }
 
     // Node.js environment detection
-    if (typeof process !== 'undefined') {
-      const os = require('os');
-      const memUsage = process.memoryUsage();
-      
+    const nodeProcess = typeof globalThis !== 'undefined' ? (globalThis as any).process : undefined;
+
+    if (nodeProcess && typeof nodeProcess.memoryUsage === 'function') {
+      type NodeOsModule = {
+        totalmem?: () => number;
+        freemem?: () => number;
+        cpus?: () => Array<unknown>;
+        arch?: () => string;
+        platform?: () => string;
+      };
+
+      const nodeRequire = (globalThis as any).require as ((moduleId: string) => unknown) | undefined;
+      let os: NodeOsModule | undefined;
+
+      if (typeof nodeRequire === 'function') {
+        try {
+          os = nodeRequire('os') as NodeOsModule;
+        } catch {
+          os = undefined;
+        }
+      }
+
+      const memoryUsage = nodeProcess.memoryUsage();
+      const totalMemory = os?.totalmem?.() ?? memoryUsage?.heapTotal ?? 8 * 1024**3;
+      const availableMemory = os?.freemem?.() ?? Math.max(0, totalMemory - (memoryUsage?.heapUsed ?? 0));
+      const envCpuCount = Number.parseInt(nodeProcess.env?.NUMBER_OF_PROCESSORS ?? '', 10);
+      const cpuCores =
+        os?.cpus?.()?.length ?? (!Number.isNaN(envCpuCount) ? envCpuCount : undefined) ?? 4;
+      const architecture = os?.arch?.() ?? nodeProcess.arch ?? 'unknown';
+      const platform = os?.platform?.() ?? nodeProcess.platform ?? 'unknown';
+
       return {
         memory: {
-          total: os.totalmem(),
-          available: os.freemem()
+          total: totalMemory,
+          available: availableMemory
         },
         storage: {
           total: 100 * 1024**3, // Would need fs.statvfs
           available: 50 * 1024**3
         },
         cpu: {
-          cores: os.cpus().length,
-          architecture: os.arch()
+          cores: cpuCores,
+          architecture
         },
-        platform: os.platform(),
+        platform,
         node: {
-          version: process.version
+          version: nodeProcess.version
         }
       };
     }
@@ -253,7 +279,7 @@ export class CompatibilityValidator {
     message: string;
   } {
     const estimatedMemory = this.estimateModelMemory(model);
-    const available = this.systemRequirements.memory.available;
+    const available = this.systemRequirements.memory?.available ?? 0;
 
     if (estimatedMemory > available) {
       return {
@@ -329,7 +355,7 @@ export class CompatibilityValidator {
     };
   }
 
-  private checkArchitectureCompatibility(model: HuggingFaceModel): {
+  private checkArchitectureCompatibility(_model: HuggingFaceModel): {
     compatible: boolean;
     message: string;
   } {
@@ -343,7 +369,7 @@ export class CompatibilityValidator {
   private generateRecommendations(model: HuggingFaceModel): string[] {
     const recommendations: string[] = [];
     const estimatedMemory = this.estimateModelMemory(model);
-    const available = this.systemRequirements.memory.available;
+    const available = this.systemRequirements.memory?.available ?? 0;
 
     // Memory recommendations
     if (estimatedMemory > available * 0.6) {
@@ -415,7 +441,10 @@ export class CompatibilityValidator {
       });
     }
 
-    if (!this.systemRequirements.gpu?.available && model.resourceRequirements.gpuRequired) {
+    if (
+      !this.systemRequirements.gpu?.available &&
+      model.resourceRequirements?.gpuRequired
+    ) {
       optimizations.push({
         id: 'switch-to-cpu-mode',
         description: 'Use a CPU-optimized configuration or select a GPU-free variant of the model.',

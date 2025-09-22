@@ -50,7 +50,6 @@ export class ModelBenchmarking {
     model: HuggingFaceModel,
     onProgress?: (progress: { current: number; total: number; stage: string }) => void
   ): Promise<BenchmarkResult> {
-    const startTime = Date.now();
     const testConfigurations = this.generateTestConfigurations();
     
     let currentTest = 0;
@@ -141,11 +140,16 @@ export class ModelBenchmarking {
     const results: BenchmarkResult[] = [];
 
     for (let i = 0; i < models.length; i++) {
-      if (onProgress) {
-        onProgress(i + 1, models.length, models[i].id);
+      const model = models[i];
+      if (!model) {
+        continue;
       }
 
-      const result = await this.benchmarkModel(models[i]);
+      if (onProgress) {
+        onProgress(i + 1, models.length, model.id);
+      }
+
+      const result = await this.benchmarkModel(model);
       results.push(result);
     }
 
@@ -265,7 +269,7 @@ export class ModelBenchmarking {
     batchSize: number;
     sequenceLength: number;
   }> {
-    const configurations = [];
+    const configurations: Array<{ batchSize: number; sequenceLength: number }> = [];
     
     for (const batchSize of this.config.batchSizes) {
       for (const sequenceLength of this.config.sequenceLengths) {
@@ -277,7 +281,7 @@ export class ModelBenchmarking {
   }
 
   private async runBenchmarkTest(
-    model: HuggingFaceModel,
+    _model: HuggingFaceModel,
     config: { batchSize: number; sequenceLength: number }
   ): Promise<{
     latency: number;
@@ -305,21 +309,31 @@ export class ModelBenchmarking {
 
   private async calculateAccuracyScore(model: HuggingFaceModel): Promise<number> {
     // Simulate accuracy calculation based on model characteristics
-    const downloadScore = Math.min(model.downloads / 10000, 1);
-    const likeScore = Math.min(model.likes / 100, 1);
+    const downloads = model.downloads ?? 0;
+    const likes = model.likes ?? 0;
+    const downloadScore = Math.min(downloads / 10000, 1);
+    const likeScore = Math.min(likes / 100, 1);
     const baseAccuracy = 0.6 + downloadScore * 0.2 + likeScore * 0.15;
-    
+
     return Math.min(0.95, baseAccuracy + Math.random() * 0.1);
   }
 
   private calculateMean(values: number[]): number {
+    if (values.length === 0) {
+      return 0;
+    }
     return values.reduce((sum, val) => sum + val, 0) / values.length;
   }
 
   private calculatePercentile(values: number[], percentile: number): number {
+    if (values.length === 0) {
+      return 0;
+    }
+
     const sorted = [...values].sort((a, b) => a - b);
     const index = Math.ceil((percentile / 100) * sorted.length) - 1;
-    return sorted[Math.max(0, index)];
+    const safeIndex = Math.min(sorted.length - 1, Math.max(0, index));
+    return sorted[safeIndex] ?? 0;
   }
 
   private generateComparison(results: BenchmarkResult[]): {
@@ -328,9 +342,19 @@ export class ModelBenchmarking {
     mostEfficient: string;
     recommended: string;
   } {
-    let fastest = results[0];
-    let mostAccurate = results[0];
-    let mostEfficient = results[0];
+    const [firstResult] = results;
+    if (!firstResult) {
+      return {
+        fastest: 'unknown',
+        mostAccurate: 'unknown',
+        mostEfficient: 'unknown',
+        recommended: 'unknown'
+      };
+    }
+
+    let fastest: BenchmarkResult = firstResult;
+    let mostAccurate: BenchmarkResult = firstResult;
+    let mostEfficient: BenchmarkResult = firstResult;
 
     for (const result of results) {
       if (result.metrics.latency.mean < fastest.metrics.latency.mean) {
@@ -363,6 +387,10 @@ export class ModelBenchmarking {
   }
 
   private getHardwareInfo(): string {
+    if (typeof navigator === 'undefined') {
+      return 'unknown';
+    }
+
     return `${navigator.platform} - ${navigator.hardwareConcurrency || 4} cores`;
   }
 }
