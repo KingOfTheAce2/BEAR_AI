@@ -20,6 +20,9 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
     - name: Install dependencies
       run: |
         npm config set registry https://registry.npmjs.org/
@@ -27,6 +30,19 @@ jobs:
 
     - name: Run TypeScript check
       run: npm run typecheck
+
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: true
+
+    - name: Run Rust checks
+      working-directory: src-tauri
+      run: cargo check --all-targets
+      continue-on-error: true
+
+    - name: Run Tauri configuration validation
+      run: node scripts/verify-build-config.js
+      continue-on-error: true
 
     - name: Run tests
       run: npm test -- --watchAll=false
