@@ -1,7 +1,11 @@
 // Jest Configuration for BEAR AI Testing Suite
 // Comprehensive testing setup with coverage reporting and multiple test environments
 
+const path = require('path');
+
 module.exports = {
+  // Root directory for the project
+  rootDir: path.resolve(__dirname, '..'),
   // Test environment
   testEnvironment: 'jsdom',
 
