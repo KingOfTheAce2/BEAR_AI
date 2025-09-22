@@ -105,30 +105,6 @@ export const buildConfig = {
         inline: ['@tauri-apps/api']
       }
     },
-    
-    jest: {
-      testEnvironment: 'jsdom',
-      setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-      moduleNameMapping: {
-        '^@/(.*)$': '<rootDir>/src/$1',
-        '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
-      },
-      testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/build/'],
-      collectCoverageFrom: [
-        'src/**/*.{ts,tsx}',
-        '!src/**/*.d.ts',
-        '!src/test/**/*',
-        '!src/reportWebVitals.ts'
-      ],
-      coverageThreshold: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
-        }
-      }
-    },
 
     playwright: {
       testDir: './tests/e2e',

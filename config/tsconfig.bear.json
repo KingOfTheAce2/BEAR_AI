@@ -49,8 +49,7 @@
       "node",
       "vite/client",
       "@tauri-apps/api",
-      "vitest/globals",
-      "jest"
+      "vitest/globals"
     ]
   },
   "include": [
