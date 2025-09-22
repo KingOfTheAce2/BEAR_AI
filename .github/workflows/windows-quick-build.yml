@@ -83,7 +83,8 @@ jobs:
           export CARGO_PROFILE_RELEASE_FAST_LTO=false
           export CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS=16
           export CARGO_PROFILE_RELEASE_FAST_PANIC=abort
-          cargo build --release --features release-fast || cargo build --release
+          # Windows-specific build without macOS dependencies
+          cargo build --release --target x86_64-pc-windows-msvc || cargo build --release
 
       - name: Upload Windows artifacts (compressed)
         uses: actions/upload-artifact@v4

@@ -48,6 +48,7 @@ rand = "0.8"
 webpki = "0.22"
 # System integration
 windows = { version = "0.48", features = ["Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell"] }
+[target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.25"
 objc = "0.2"
 # LLM Management dependencies (optional, complex to compile)
