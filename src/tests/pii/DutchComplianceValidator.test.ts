@@ -69,8 +69,9 @@ describe('DutchComplianceValidator', () => {
     test('should validate correct RSIN numbers', () => {
       // RSIN uses same 11-test as BSN
       const validRSINs = [
-        '123456782',
-        '808888834',  // Example valid RSIN
+        '200001345',
+        '200001396',
+        '200001493',
       ];
 
       validRSINs.forEach(rsin => {
@@ -92,17 +93,16 @@ describe('DutchComplianceValidator', () => {
     });
 
     test('should handle RSIN formatting', () => {
-      expect(validator.validateRSIN('123 456 782')).toBe(true);
-      expect(validator.validateRSIN('123-456-782')).toBe(true);
+      expect(validator.validateRSIN('200 001 345')).toBe(true);
+      expect(validator.validateRSIN('200-001-345')).toBe(true);
     });
   });
 
   describe('Dutch Passport Validation', () => {
     test('should validate correct passport formats', () => {
       const validPassports = [
-        'AB1234567',
-        'XY9876543',
         'NL1234567',
+        'NL9876543',
       ];
 
       validPassports.forEach(passport => {
@@ -122,6 +122,7 @@ describe('DutchComplianceValidator', () => {
         'AB123456',   // Too short
         'AB12345678', // Too long
         'ab1234567',  // Lowercase
+        'AB1234567',  // Invalid country code
       ];
 
       invalidPassports.forEach(passport => {
@@ -131,7 +132,7 @@ describe('DutchComplianceValidator', () => {
     });
 
     test('should handle passport formatting', () => {
-      const result = validator.validateDutchPassport('ab 1234567');
+      const result = validator.validateDutchPassport('nl 9876543');
       expect(result.isValid).toBe(true);
     });
   });
@@ -184,9 +185,9 @@ describe('DutchComplianceValidator', () => {
 
     test('should detect valid RSIN patterns', () => {
       const texts = [
-        'RSIN: 123456782',
-        'KvK: 123456782',
-        'Chamber of Commerce: 123456782',
+        'RSIN: 200001345',
+        'KvK: 200001345',
+        'Chamber of Commerce: 200001345',
       ];
 
       texts.forEach(text => {
@@ -198,9 +199,9 @@ describe('DutchComplianceValidator', () => {
 
     test('should detect passport patterns', () => {
       const texts = [
-        'Passport: AB1234567',
-        'Nederlandse paspoort: AB1234567',
-        'paspoort AB1234567',
+        'Passport: NL1234567',
+        'Nederlandse paspoort: NL1234567',
+        'paspoort NL1234567',
       ];
 
       texts.forEach(text => {
@@ -236,9 +237,9 @@ describe('DutchComplianceValidator', () => {
   describe('GDPR Compliance Report', () => {
     test('should generate compliance report for BSN', () => {
       const matches = [
-        {
-          type: 'bsn' as any,
-          text: '123456782',
+          {
+            type: 'bsn' as any,
+            text: '123456782',
           start: 0,
           end: 9,
           confidence: 0.95,
@@ -257,9 +258,9 @@ describe('DutchComplianceValidator', () => {
 
     test('should generate compliance report for RSIN', () => {
       const matches = [
-        {
-          type: 'rsin' as any,
-          text: '123456782',
+          {
+            type: 'rsin' as any,
+            text: '200001345',
           start: 0,
           end: 9,
           confidence: 0.95,
@@ -278,7 +279,7 @@ describe('DutchComplianceValidator', () => {
       const matches = [
         {
           type: 'dutch_passport' as any,
-          text: 'AB1234567',
+          text: 'NL1234567',
           start: 0,
           end: 9,
           confidence: 0.95,
@@ -307,7 +308,7 @@ describe('DutchComplianceValidator', () => {
         },
         {
           type: 'dutch_passport' as any,
-          text: 'AB1234567',
+          text: 'NL1234567',
           start: 10,
           end: 19,
           confidence: 0.95,

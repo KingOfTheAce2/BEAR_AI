@@ -57,13 +57,35 @@ export class DutchComplianceValidator {
    * Validate Dutch RSIN (Rechtspersonen Samenwerkingsverbanden Informatie Nummer)
    */
   public validateRSIN(rsin: string | null | undefined): boolean {
-    const cleanRSIN = this.sanitizeDutchNumber(rsin);
-
-    if (!cleanRSIN || this.hasInvalidRepetition(cleanRSIN)) {
+    if (!rsin || typeof rsin !== 'string') {
       return false;
     }
 
-    return this.apply11Test(cleanRSIN);
+    const cleanRSIN = rsin.replace(/[\s\-.]/g, '');
+
+    if (!/^\d{9}$/.test(cleanRSIN) || this.hasInvalidRepetition(cleanRSIN)) {
+      return false;
+    }
+
+    return this.validateRSINChecksum(cleanRSIN);
+  }
+
+  private validateRSINChecksum(rsin: string): boolean {
+    const digits = rsin.split('').map(Number);
+    let sum = 0;
+
+    for (let i = 0; i < 8; i++) {
+      sum += digits[i] * (9 - i);
+    }
+
+    const remainder = sum % 11;
+
+    if (remainder === 1) {
+      return false;
+    }
+
+    const checkDigit = remainder === 0 ? 0 : 11 - remainder;
+    return checkDigit === digits[8];
   }
 
   /**
@@ -93,7 +115,7 @@ export class DutchComplianceValidator {
    * Validate Dutch passport number
    */
   public validateDutchPassport(passport: string | null | undefined): DutchValidationResult {
-    if (typeof passport !== 'string') {
+    if (!passport || typeof passport !== 'string') {
       return {
         isValid: false,
         type: 'PASSPORT',
@@ -102,16 +124,31 @@ export class DutchComplianceValidator {
       };
     }
 
-    const trimmed = passport.trim();
-    const hasInvalidCharacters = /[^A-Za-z0-9\s-]/.test(trimmed);
-    const normalized = trimmed.replace(/[\s-]/g, '').toUpperCase();
-    const passportPattern = /^[A-Z]{2}\d{7}$/;
-    const isValid = !hasInvalidCharacters && passportPattern.test(normalized);
+    const cleanPassport = passport.replace(/\s/g, '').toUpperCase();
+
+    if (!/^[A-Z]{2}\d{7}$/.test(cleanPassport)) {
+      return {
+        isValid: false,
+        type: 'PASSPORT',
+        confidence: 0.1,
+        region: 'Netherlands',
+      };
+    }
+
+    const countryCode = cleanPassport.substring(0, 2);
+    if (countryCode !== 'NL') {
+      return {
+        isValid: false,
+        type: 'PASSPORT',
+        confidence: 0.1,
+        region: 'Netherlands',
+      };
+    }
 
     return {
-      isValid,
+      isValid: true,
       type: 'PASSPORT',
-      confidence: isValid ? 0.95 : 0.1,
+      confidence: 0.95,
       region: 'Netherlands'
     };
   }
