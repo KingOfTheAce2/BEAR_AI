@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import type { User, SystemStatus, ChatSession, Document as AppDocument } from '../types';
 
 // Combined state from both GUI variants
 export interface AppState {
@@ -24,7 +25,7 @@ export interface AppState {
   searchQuery: string;
   activeChat: ChatSession | null;
   recentChats: ChatSession[];
-  documents: Document[];
+  documents: AppDocument[];
   
   // Loading states
   isLoading: boolean;
@@ -42,8 +43,8 @@ type AppAction =
   | { type: 'SET_ACTIVE_CHAT'; payload: ChatSession | null }
   | { type: 'SET_RECENT_CHATS'; payload: ChatSession[] }
   | { type: 'ADD_CHAT'; payload: ChatSession }
-  | { type: 'SET_DOCUMENTS'; payload: Document[] }
-  | { type: 'ADD_DOCUMENT'; payload: Document }
+  | { type: 'SET_DOCUMENTS'; payload: AppDocument[] }
+  | { type: 'ADD_DOCUMENT'; payload: AppDocument }
   | { type: 'ADD_NOTIFICATION'; payload: { type: 'info' | 'success' | 'warning' | 'error'; title: string; message: string } }
   | { type: 'REMOVE_NOTIFICATION'; payload: string }
   | { type: 'CLEAR_NOTIFICATIONS' }
@@ -192,14 +193,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialUser 
 
   // Auto-remove notifications after 5 seconds
   useEffect(() => {
-    state.notifications.forEach(notification => {
-      const timeoutId = setTimeout(() => {
+    const timeouts = state.notifications.map(notification =>
+      window.setTimeout(() => {
         dispatch({ type: 'REMOVE_NOTIFICATION', payload: notification.id });
-      }, 5000);
-      
-      return () => clearTimeout(timeoutId);
-    });
-  }, [state.notifications]);
+      }, 5000)
+    );
+
+    return () => {
+      timeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+    };
+  }, [state.notifications, dispatch]);
 
   // Persist authentication state
   useEffect(() => {
@@ -230,6 +233,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialUser 
     dispatch({ type: 'CLEAR_ERROR' });
     
     try {
+      if (!password.trim()) {
+        throw new Error('Password is required');
+      }
+
       // Mock login - replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       

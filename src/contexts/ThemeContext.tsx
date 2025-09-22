@@ -168,18 +168,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   // Handle system color mode changes
   useEffect(() => {
-    if (config.colorMode === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => {
-        setConfig(prev => ({
-          ...prev,
-          colors: getThemeColors(prev.theme, 'system')
-        }));
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    if (config.colorMode !== 'system') {
+      return;
     }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      setConfig(prev => ({
+        ...prev,
+        colors: getThemeColors(prev.theme, 'system')
+      }));
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [config.colorMode, config.theme]);
 
   const setTheme = (theme: Theme) => {
@@ -203,7 +205,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   const toggleColorMode = () => {
     const modes: ColorMode[] = ['light', 'dark', 'system'];
     const currentIndex = modes.indexOf(config.colorMode);
-    const nextMode = modes[(currentIndex + 1) % modes.length];
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % modes.length;
+    const nextMode = modes[nextIndex] ?? 'system';
     setColorMode(nextMode);
   };
 

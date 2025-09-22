@@ -72,7 +72,7 @@ export function withBearAI<P extends BaseComponentProps>(
         disabled = false,
         error,
         onError,
-        enableMetrics = process.env.NODE_ENV === 'development',
+        enableMetrics = process.env['NODE_ENV'] === 'development',
         performanceThreshold = 100,
         onPerformanceIssue,
         testId,
@@ -93,6 +93,8 @@ export function withBearAI<P extends BaseComponentProps>(
         errorCount: 0,
         lastRender: new Date()
       });
+
+      React.useDebugValue({ component: metadata.name, metrics });
 
       // Error boundary state
       const [componentError, setComponentError] = React.useState<BearError | null>(null);
@@ -182,7 +184,7 @@ export function withBearAI<P extends BaseComponentProps>(
                 <div className="mt-2 text-sm text-red-700">
                   <p>{displayError instanceof BearError ? displayError.message : String(displayError)}</p>
                 </div>
-                {process.env.NODE_ENV === 'development' && (
+                {process.env['NODE_ENV'] === 'development' && (
                   <div className="mt-2">
                     <button
                       onClick={() => {
@@ -333,6 +335,8 @@ export function useComponentMetrics(componentName: string) {
     errorCount: 0,
     lastRender: new Date()
   });
+
+  React.useDebugValue({ componentName, metrics });
 
   const recordRender = useCallback((duration: number) => {
     setMetrics(prev => ({

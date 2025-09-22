@@ -260,9 +260,19 @@ export class AnimationStateMachine {
     stateName: string,
     animation: AnimationConfig & { transform?: TransformValues; [key: string]: any }
   ): Promise<void> {
+    if (this.currentState === stateName) {
+      const runningAnimation = this.animations.get(stateName);
+      if (!runningAnimation) {
+        return Promise.resolve();
+      }
+
+      runningAnimation.cancel();
+      this.animations.delete(stateName);
+    }
+
     // Cancel any running animations
     this.cancelAnimations();
-    
+
     this.currentState = stateName;
     
     return new Promise((resolve) => {
@@ -354,7 +364,7 @@ export class AnimationStateMachine {
       if (transform.skewY !== undefined) transforms.push(`skewY(${transform.skewY}deg)`);
       
       if (transforms.length > 0) {
-        keyframe.transform = transforms.join(' ');
+        keyframe['transform'] = transforms.join(' ');
       }
     }
     

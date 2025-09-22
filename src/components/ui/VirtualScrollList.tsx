@@ -120,6 +120,8 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
     
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      if (!item) continue;
+
       const measuredHeight = measurementsRef.current.get(i);
       const height = measuredHeight || item.height || itemHeight;
       
@@ -137,9 +139,8 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
   }, [items, itemHeight, measurementsRef.current.size]);
   
   const totalHeight = useMemo(() => {
-    return itemPositions.length > 0 
-      ? itemPositions[itemPositions.length - 1].bottom 
-      : 0;
+    const lastPosition = itemPositions[itemPositions.length - 1];
+    return lastPosition ? lastPosition.bottom : 0;
   }, [itemPositions]);
   
   // Calculate visible range
@@ -158,7 +159,11 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
     while (startIndex <= endIndex) {
       const mid = Math.floor((startIndex + endIndex) / 2);
       const position = itemPositions[mid];
-      
+
+      if (!position) {
+        break;
+      }
+
       if (position.bottom <= viewportTop) {
         startIndex = mid + 1;
       } else if (position.top >= viewportTop) {
@@ -168,23 +173,28 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
         break;
       }
     }
-    
+
     // Find end index
     let visibleEndIndex = startIndex;
-    while (
-      visibleEndIndex < itemPositions.length && 
-      itemPositions[visibleEndIndex].top < viewportBottom
-    ) {
+    while (visibleEndIndex < itemPositions.length) {
+      const candidate = itemPositions[visibleEndIndex];
+      if (!candidate || candidate.top >= viewportBottom) {
+        break;
+      }
       visibleEndIndex++;
     }
     
     // Apply overscan
-    const overscanStart = Math.max(0, startIndex - overscan);
-    const overscanEnd = Math.min(itemPositions.length - 1, visibleEndIndex + overscan);
-    
+    const baseStartIndex = Math.max(0, Math.min(startIndex, itemPositions.length - 1));
+    const lastVisibleIndex = Math.max(baseStartIndex, Math.min(itemPositions.length - 1, visibleEndIndex - 1));
+    const overscanStart = Math.max(0, baseStartIndex - overscan);
+    const overscanEnd = Math.min(itemPositions.length - 1, lastVisibleIndex + overscan);
+
     // Get visible items
-    const visibleItems = itemPositions.slice(overscanStart, overscanEnd + 1);
-    
+    const visibleItems = overscanEnd >= overscanStart
+      ? itemPositions.slice(overscanStart, overscanEnd + 1)
+      : [];
+
     return {
       startIndex: overscanStart,
       endIndex: overscanEnd,
@@ -259,8 +269,9 @@ export const VirtualScrollList = React.forwardRef<VirtualScrollHandle, VirtualSc
   // Scroll to specific item
   const scrollToIndex = useCallback((index: number, align: 'start' | 'center' | 'end' = 'start') => {
     if (!containerRef.current || index < 0 || index >= itemPositions.length) return;
-    
+
     const position = itemPositions[index];
+    if (!position) return;
     let scrollTop = position.top;
     
     switch (align) {

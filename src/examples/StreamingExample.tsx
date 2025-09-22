@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 
-import { StreamingChat, CompactStreamingChat, ConnectionStatus, useStreaming, useStreamingRecovery, StreamingMessage, TypingIndicator } from '../components/streaming';
-import { streamingManager, setupStreaming } from '../services/streamingManager';
+import { StreamingChat, CompactStreamingChat, ConnectionStatus, useStreaming, useStreamingRecovery, TypingIndicator } from '../components/streaming';
+import { streamingManager } from '../services/streamingManager';
+
+interface StreamingServicesState {
+  connections: Record<string, any>;
+  metrics: Record<string, any>;
+  health: Record<string, { healthy?: boolean }>;
+}
 
 // Example 1: Basic Streaming Hook Usage
 export const BasicStreamingExample: React.FC = () => {
@@ -94,6 +100,16 @@ export const BasicStreamingExample: React.FC = () => {
         <div>Tokens: {metrics.totalTokens}</div>
         <div>Avg Latency: {Math.round(metrics.averageLatency)}ms</div>
         <div>Errors: {metrics.errorCount}</div>
+      </div>
+
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={disconnect}
+          disabled={!isConnected}
+          className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Disconnect
+        </button>
       </div>
     </div>
   );
@@ -260,18 +276,21 @@ export const RecoveryStreamingExample: React.FC = () => {
 
 // Example 4: Multiple Service Management
 export const MultiServiceExample: React.FC = () => {
-  const [services, setServices] = useState<Record<string, any>>({});
-  const [selectedService, setSelectedService] = useState('default');
+  const [services, setServices] = useState<StreamingServicesState>({
+    connections: {},
+    metrics: {},
+    health: {}
+  });
 
   const loadServiceStatus = async () => {
     const connectionStates = streamingManager.getConnectionStates();
     const metrics = streamingManager.getAllMetrics();
     const healthStatus = await streamingManager.healthCheck();
-    
+
     setServices({
       connections: connectionStates,
       metrics,
-      health: healthStatus
+      health: healthStatus || {}
     });
   };
 
@@ -347,7 +366,7 @@ export const MultiServiceExample: React.FC = () => {
                 {services.health?.[name] && (
                   <div className="flex justify-between">
                     <span>Health:</span>
-                    <span>{services.health[name].healthy ? '✅' : '❌'}</span>
+                    <span>{services.health?.[name]?.healthy ? '✅' : '❌'}</span>
                   </div>
                 )}
               </div>
