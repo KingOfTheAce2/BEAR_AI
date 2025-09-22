@@ -57,35 +57,13 @@ export class DutchComplianceValidator {
    * Validate Dutch RSIN (Rechtspersonen Samenwerkingsverbanden Informatie Nummer)
    */
   public validateRSIN(rsin: string | null | undefined): boolean {
-    if (!rsin || typeof rsin !== 'string') {
+    const cleanRSIN = this.sanitizeDutchNumber(rsin);
+
+    if (!cleanRSIN || cleanRSIN === '000000000' || this.hasInvalidRepetition(cleanRSIN)) {
       return false;
     }
 
-    const cleanRSIN = rsin.replace(/[\s\-.]/g, '');
-
-    if (!/^\d{9}$/.test(cleanRSIN) || this.hasInvalidRepetition(cleanRSIN)) {
-      return false;
-    }
-
-    return this.validateRSINChecksum(cleanRSIN);
-  }
-
-  private validateRSINChecksum(rsin: string): boolean {
-    const digits = rsin.split('').map(Number);
-    let sum = 0;
-
-    for (let i = 0; i < 8; i++) {
-      sum += digits[i] * (9 - i);
-    }
-
-    const remainder = sum % 11;
-
-    if (remainder === 1) {
-      return false;
-    }
-
-    const checkDigit = remainder === 0 ? 0 : 11 - remainder;
-    return checkDigit === digits[8];
+    return this.apply11Test(cleanRSIN);
   }
 
   /**
