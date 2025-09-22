@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PaintBrushIcon, SunIcon, MoonIcon, ComputerDesktopIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { PaintBrushIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
 import { useTheme, Theme, ColorMode } from '../../contexts/ThemeContext';
 
 interface ThemeSelectorProps {

@@ -8,7 +8,6 @@ import {
   SubscriptionUsage,
   SUBSCRIPTION_PLANS,
   FEATURE_GATES,
-  FeatureConfig,
   PaymentMethod,
   Invoice,
   EnterpriseAccount,
@@ -407,6 +406,13 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
       // Implementation would depend on your specific payment method update flow
       console.log('Payment method updated:', paymentMethodId);
+
+      setPaymentMethods(prevMethods =>
+        prevMethods.map(method => ({
+          ...method,
+          isDefault: method.id === paymentMethodId
+        }))
+      );
     } catch (error) {
       handleError(error, 'update payment method');
       throw error;
@@ -427,6 +433,20 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
       // Implementation would call backend to add user
       console.log('Adding enterprise user:', email, role);
+
+      setEnterpriseUsers(prev => [
+        ...prev,
+        {
+          id: `temp-${Date.now()}`,
+          accountId: enterpriseAccount.id,
+          email,
+          role,
+          permissions: [],
+          isActive: true,
+          lastLogin: null,
+          createdAt: new Date()
+        }
+      ]);
     } catch (error) {
       handleError(error, 'add enterprise user');
       throw error;
@@ -442,6 +462,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
       // Implementation would call backend to remove user
       console.log('Removing enterprise user:', userId);
+
+      setEnterpriseUsers(prev => prev.filter(user => user.id !== userId));
     } catch (error) {
       handleError(error, 'remove enterprise user');
       throw error;
@@ -457,6 +479,14 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
       // Implementation would call backend to update user
       console.log('Updating enterprise user:', userId, role);
+
+      setEnterpriseUsers(prev =>
+        prev.map(user =>
+          user.id === userId
+            ? { ...user, role }
+            : user
+        )
+      );
     } catch (error) {
       handleError(error, 'update enterprise user');
       throw error;
@@ -513,6 +543,10 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
   // Initialize from localStorage on mount
   useEffect(() => {
+    if (!autoInitialize) {
+      return;
+    }
+
     const loadFromStorage = () => {
       try {
         const storedSubscription = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
@@ -543,27 +577,45 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
     };
 
     loadFromStorage();
-  }, []);
+  }, [autoInitialize]);
+
+  useEffect(() => {
+    if (!autoInitialize) {
+      return;
+    }
+
+    refreshSubscription();
+    refreshUsage();
+    refreshInvoices();
+  }, [autoInitialize, refreshSubscription, refreshUsage, refreshInvoices]);
 
   // Listen for webhook events
   useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
+    let unlisten: (() => void) | undefined;
+
     const setupWebhookListener = async () => {
       try {
-        const unlisten = await listen('stripe-webhook-event', (event) => {
+        unlisten = await listen('stripe-webhook-event', (event) => {
           console.log('Received Stripe webhook event:', event.payload);
           // Refresh subscription data when webhooks are received
           refreshSubscription();
         });
-
-        return unlisten;
       } catch (error) {
         console.error('Error setting up webhook listener:', error);
       }
     };
 
-    if (initialized) {
-      setupWebhookListener();
-    }
+    setupWebhookListener();
+
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, [initialized, refreshSubscription]);
 
   // Context value

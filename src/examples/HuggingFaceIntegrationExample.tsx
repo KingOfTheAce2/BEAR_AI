@@ -23,8 +23,9 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
     filterNonCommercial: false
   } as const;
 
+  const huggingFaceApiKey = process.env['REACT_APP_HUGGINGFACE_TOKEN'] ?? '';
   const [hfService] = useState(() => new HuggingFaceService({
-    apiKey: process.env.REACT_APP_HUGGINGFACE_TOKEN,
+    apiKey: huggingFaceApiKey,
     downloadPath: './models',
     localCacheEnabled: true
   }));
@@ -38,6 +39,8 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
   const [compatibility, setCompatibility] = useState<CompatibilityResult | null>(null);
   const [activeView, setActiveView] = useState<'browse' | 'finetune' | 'benchmark'>('browse');
   const [downloadProgress, setDownloadProgress] = useState<Map<string, number>>(new Map());
+  const activeResourceRequirements = selectedModel?.resourceRequirements;
+  const selectorCurrentModel = selectedModel ?? currentModel ?? null;
 
   // Initialize system
   useEffect(() => {
@@ -96,8 +99,8 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
     onModelChange(model);
     
     // Automatically check if model needs to be downloaded
-    if (!model.localStatus.downloaded) {
-      const shouldDownload = window.window.confirm(
+    if (!model.localStatus?.downloaded) {
+      const shouldDownload = window.confirm(
         `Model ${model.modelId} is not downloaded locally. Download now?`
       );
       if (shouldDownload) {
@@ -120,7 +123,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
   };
 
   const handleModelSwitch = async (model: HuggingFaceModel) => {
-    if (!model.localStatus.downloaded) {
+    if (!model.localStatus?.downloaded) {
       window.alert('Model must be downloaded before switching');
       return;
     }
@@ -315,7 +318,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
           </button>
           <button
             onClick={() => setActiveView('finetune')}
-            disabled={!selectedModel?.localStatus.downloaded}
+            disabled={!((selectedModel?.localStatus?.downloaded) ?? false)}
             className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
               activeView === 'finetune'
                 ? 'border-blue-500 text-blue-600'
@@ -364,7 +367,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
             onModelSelect={handleModelSelect}
             onModelDownload={handleModelDownload}
             onModelSwitch={handleModelSwitch}
-            currentModel={selectedModel || undefined}
+            {...(selectorCurrentModel ? { currentModel: selectorCurrentModel } : {})}
             className="h-full"
           />
         )}
@@ -412,13 +415,13 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
           </div>
           
           <div className="flex items-center space-x-4">
-            {selectedModel && (
+            {activeResourceRequirements && (
               <>
                 <span>
-                  RAM Required: {selectedModel.resourceRequirements.recommendedRam}MB
+                  RAM Required: {activeResourceRequirements.recommendedRam}MB
                 </span>
                 <span>
-                  Model Size: {(selectedModel.resourceRequirements.modelSizeMB / 1024).toFixed(1)}GB
+                  Model Size: {(activeResourceRequirements.modelSizeMB / 1024).toFixed(1)}GB
                 </span>
               </>
             )}

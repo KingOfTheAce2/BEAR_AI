@@ -8,19 +8,8 @@
 
 import { ContractAnalysis, LegalDocumentPlugin, PluginManifest, PluginContext } from './plugin-architecture'
 
-// Legal Document Types
-interface LegalDocument {
-  id: string
-  content: string
-  type: 'contract' | 'agreement' | 'policy' | 'regulation' | 'correspondence' | 'other'
-  metadata: {
-    title?: string
-    parties?: string[]
-    jurisdiction?: string
-    date?: Date
-    language?: string
-    confidentiality?: 'public' | 'confidential' | 'restricted'
-  }
+type AgentCoordinator = {
+  recordAssignment: (agentId: string, analysisType: string) => void
 }
 
 
@@ -65,7 +54,7 @@ interface ComplianceCheckResult {
  * BEAR AI Legal Processing Extension
  */
 export class BearLegalProcessingExtension extends LegalDocumentPlugin {
-  private agentCoordinator?: any
+  private agentCoordinator?: AgentCoordinator
   private llmEngine?: any
   private memoryOptimizer?: any
   
@@ -367,6 +356,11 @@ export class BearLegalProcessingExtension extends LegalDocumentPlugin {
   private async initializeAgentCoordination(): Promise<void> {
     // Initialize agent coordination system
     // In real implementation, this would set up the agent coordination plugin
+    this.agentCoordinator = {
+      recordAssignment: (agentId, analysisType) => {
+        this.context.logger.info(`Assigned agent ${agentId} to ${analysisType} analysis`)
+      }
+    }
     this.context.logger.info('Agent coordination initialized')
   }
 
@@ -457,6 +451,7 @@ export class BearLegalProcessingExtension extends LegalDocumentPlugin {
       if (agent) {
         // Simulate agent processing
         await new Promise(resolve => setTimeout(resolve, 100))
+        this.agentCoordinator?.recordAssignment(agent, type)
         results[type] = `Analysis result from ${agent} for ${type}`
       }
     }

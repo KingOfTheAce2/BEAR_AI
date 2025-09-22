@@ -1,4 +1,12 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  performanceMonitor,
+  type SystemMetrics,
+  type ModelInferenceMetrics,
+  type UserInteractionMetrics,
+  type PerformanceAlert,
+  type OptimizationSuggestion
+} from '../services/performanceMonitor';
 
 interface PerformanceContextType {
   // Monitoring state
@@ -98,7 +106,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     performanceMonitor.on('optimization-suggestions', handleOptimizationSuggestions);
 
     // Update summary periodically
-    const summaryInterval = setInterval(() => {
+    const summaryInterval = window.setInterval(() => {
       setPerformanceSummary(performanceMonitor.getPerformanceSummary());
     }, 10000);
 
@@ -118,7 +126,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
       performanceMonitor.off('alert-resolved', handleAlertResolved);
       performanceMonitor.off('optimization-suggestions', handleOptimizationSuggestions);
       
-      clearInterval(summaryInterval);
+      window.clearInterval(summaryInterval);
     };
   }, [autoStart, monitoringInterval]);
 
@@ -294,8 +302,6 @@ export const useModelTracking = () => {
         memoryUsed = (performance as any).memory.usedJSHeapSize - memoryBefore;
       }
 
-      const success = !error;
-
       performance.recordModelInference({
         modelId: modelName,
         requestId,
@@ -307,7 +313,7 @@ export const useModelTracking = () => {
         error,
         inputTokens: metadata?.inputTokens || 0,
         outputTokens: metadata?.outputTokens || tokensGenerated,
-        success: !error,
+        success: error == null,
         latency: {
           firstToken: Math.min(duration, 100), // Estimate first token latency
           totalTime: duration,
