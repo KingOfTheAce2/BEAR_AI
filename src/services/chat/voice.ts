@@ -194,7 +194,7 @@ export default class VoiceService {
       const parameter = normalized.slice('send message'.length).trim();
       return {
         action: 'send_message',
-        parameter: parameter || undefined,
+        ...(parameter ? { parameter } : {}),
         originalText: normalized
       };
     }
@@ -214,7 +214,7 @@ export default class VoiceService {
       const parameter = normalized.replace(/search for/i, '').trim();
       return {
         action: 'search',
-        parameter: parameter || undefined,
+        ...(parameter ? { parameter } : {}),
         originalText: normalized
       };
     }

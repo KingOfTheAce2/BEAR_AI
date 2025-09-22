@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 /**
  * Enhanced debounce hook with performance optimizations

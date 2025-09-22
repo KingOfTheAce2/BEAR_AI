@@ -353,7 +353,6 @@ export class BearLLMEngine {
     modelId: string,
     overrideSettings?: Partial<LLMConfig>
   ): Promise<SessionInfo> {
-    const effectiveConfig = { ...this.config, ...overrideSettings }
     
     // Generate a random port for the model server
     const port = 8000 + Math.floor(Math.random() * 1000)
@@ -445,6 +444,9 @@ export class BearLLMEngine {
 
     while (index < bytes.length) {
       const byte1 = bytes[index++]
+      if (byte1 === undefined) {
+        break
+      }
       const byte2 = index < bytes.length ? bytes[index++] : undefined
       const byte3 = index < bytes.length ? bytes[index++] : undefined
 
@@ -468,12 +470,17 @@ export class BearLLMEngine {
     body: string,
     abortController?: AbortController
   ): AsyncIterable<any> {
-    const response = await fetch(url, {
+    const requestInit: RequestInit = {
       method: 'POST',
       headers,
-      body,
-      signal: abortController?.signal,
-    })
+      body
+    }
+
+    if (abortController) {
+      requestInit.signal = abortController.signal
+    }
+
+    const response = await fetch(url, requestInit)
 
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`)

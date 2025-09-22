@@ -1,3 +1,5 @@
+import type { Message, WebSocketMessage } from '../../types/chat';
+
 class ChatWebSocketService {
   private ws: WebSocket | null = null;
   private url: string;
