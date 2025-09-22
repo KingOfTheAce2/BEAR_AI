@@ -3,7 +3,7 @@
 
 ### Phase 1: Foundation & Integration Agents
 
-#### System Architect (`system-architect`)
+#### Legal Architecture Lead (`legal-architecture-lead`)
 **Primary Responsibilities:**
 - Design overall system architecture and integration patterns
 - Create Tauri-React IPC communication layer
@@ -22,9 +22,9 @@
 - `bear-ai/architecture/security-boundaries`
 
 **Dependencies:** None
-**Coordinates With:** `backend-dev`, `coder`, `security-manager`
+**Coordinates With:** `litigation-data-specialist`, `legal-workflow-designer`, `legal-security-director`
 
-#### Backend Developer (`backend-dev`)
+#### Litigation Data Specialist (`litigation-data-specialist`)
 **Primary Responsibilities:**
 - Complete OpenAI-compatible API server implementation
 - Integrate Python AI models with REST endpoints
@@ -43,11 +43,11 @@
 - `bear-ai/backend/model-integration`
 
 **Dependencies:** None
-**Coordinates With:** `system-architect`, `api-docs`, `security-manager`
+**Coordinates With:** `legal-architecture-lead`, `api-docs`, `legal-security-director`
 
 ### Phase 2: Core Features Agents
 
-#### ML Developer (`ml-developer`)
+#### Legal Intelligence Analyst (`legal-intelligence-analyst`)
 **Primary Responsibilities:**
 - Implement advanced PII detection and scrubbing algorithms
 - Create legal document analysis workflows
@@ -65,10 +65,10 @@
 - `bear-ai/ml/legal-analysis`
 - `bear-ai/ml/rag-system`
 
-**Dependencies:** `backend-dev` 80% complete
-**Coordinates With:** `security-manager`, `backend-dev`
+**Dependencies:** `litigation-data-specialist` 80% complete
+**Coordinates With:** `legal-security-director`, `litigation-data-specialist`
 
-#### Frontend Developer (`coder`)
+#### Legal Workflow Designer (`legal-workflow-designer`)
 **Primary Responsibilities:**
 - Complete real-time chat interface with streaming support
 - Implement professional document management UI
@@ -86,12 +86,12 @@
 - `bear-ai/frontend/document-ui`
 - `bear-ai/frontend/dashboard`
 
-**Dependencies:** `system-architect` 90% complete
-**Coordinates With:** `reviewer`, `tester`, `system-architect`
+**Dependencies:** `legal-architecture-lead` 90% complete
+**Coordinates With:** `compliance-reviewer`, `legal-quality-analyst`, `legal-architecture-lead`
 
 ### Phase 3: Advanced Features Agents
 
-#### Security Manager (`security-manager`)
+#### Legal Security Director (`legal-security-director`)
 **Primary Responsibilities:**
 - Implement comprehensive audit logging system
 - Set up encryption for sensitive legal documents
@@ -109,10 +109,10 @@
 - `bear-ai/security/encryption`
 - `bear-ai/security/access-control`
 
-**Dependencies:** `backend-dev`, `ml-developer` 80% complete
-**Coordinates With:** `backend-dev`, `code-analyzer`
+**Dependencies:** `litigation-data-specialist`, `legal-intelligence-analyst` 80% complete
+**Coordinates With:** `litigation-data-specialist`, `code-analyzer`
 
-#### Performance Analyzer (`perf-analyzer`)
+#### Legal Performance Analyst (`legal-performance-analyst`)
 **Primary Responsibilities:**
 - Implement comprehensive performance monitoring
 - Create memory optimization algorithms for AI models
@@ -135,7 +135,7 @@
 
 ### Phase 4: Testing and Deployment Agents
 
-#### Test Engineer (`tester`)
+#### Legal Quality Analyst (`legal-quality-analyst`)
 **Primary Responsibilities:**
 - Achieve >90% unit test coverage across all components
 - Implement comprehensive integration testing suite
@@ -154,9 +154,9 @@
 - `bear-ai/testing/e2e-scenarios`
 
 **Dependencies:** All feature development 90% complete
-**Coordinates With:** `production-validator`, `tdd-london-swarm`
+**Coordinates With:** `compliance-validator`, `tdd-london-swarm`
 
-#### CI/CD Engineer (`cicd-engineer`)
+#### Compliance Deployment Lead (`compliance-deployment-lead`)
 **Primary Responsibilities:**
 - Finalize Windows installer and cross-platform packaging
 - Set up automated deployment pipelines for all platforms
@@ -179,12 +179,12 @@
 
 ### Supporting Specialist Agents
 
-#### Code Reviewer (`reviewer`)
+#### Compliance Reviewer (`compliance-reviewer`)
 **Responsibilities:**
-- Review all code changes for quality and security
-- Ensure consistent coding standards and patterns
-- Validate architectural decisions and implementations
-- Provide feedback on performance and maintainability
+- Review all changes for legal, ethical, and security compliance
+- Ensure documentation and workflows align with legal practice standards
+- Validate architectural decisions against regulatory requirements
+- Provide feedback on performance and maintainability from a compliance perspective
 
 **Memory Keys:**
 - `bear-ai/reviews/code-quality`
@@ -201,7 +201,7 @@
 - `bear-ai/docs/api-specifications`
 - `bear-ai/docs/integration-guides`
 
-#### Production Validator (`production-validator`)
+#### Production Validator (`compliance-validator`)
 **Responsibilities:**
 - Validate production readiness across all components
 - Perform load testing and stress testing

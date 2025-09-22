@@ -163,7 +163,7 @@ mod stripe_payment_tests {
                     "object": {
                         "id": "in_test_123",
                         "customer": "cus_test_123",
-                        "amount_paid": 2999,
+                        "amount_paid": 1990,
                         "status": "paid"
                     }
                 }
@@ -186,7 +186,7 @@ mod stripe_payment_tests {
                     "object": {
                         "id": "in_test_456",
                         "customer": "cus_test_123",
-                        "amount_due": 2999,
+                        "amount_due": 1990,
                         "status": "open"
                     }
                 }
@@ -251,7 +251,7 @@ mod stripe_payment_tests {
         let custom_plan_request = json!({
             "company_id": "comp_test_123",
             "plan_name": "Acme Legal Custom Plan",
-            "monthly_amount": 15000, // $150 per user
+            "monthly_amount": 1990, // $19.90 per user
             "included_features": ["all_features", "custom_integration", "dedicated_support"],
             "user_limit": 50
         });
@@ -275,7 +275,7 @@ mod stripe_payment_tests {
                     "cvc": failed_card.cvc
                 }
             },
-            "amount": 2999,
+            "amount": 1990,
             "currency": "usd"
         });
 
@@ -302,11 +302,11 @@ mod stripe_payment_tests {
     /// Test subscription prorating and upgrades
     #[tokio::test]
     async fn test_subscription_proration() {
-        // Create basic subscription
-        let basic_plan = &TestFixtures::stripe_test_data().test_plans[0];
+        // Create professional subscription
+        let professional_plan = &TestFixtures::stripe_test_data().test_plans[0];
         let subscription_request = json!({
             "customer_email": "proration-test@bearai.com",
-            "plan_id": basic_plan.id,
+            "plan_id": professional_plan.id,
             "payment_method": "pm_card_visa"
         });
 
@@ -320,11 +320,11 @@ mod stripe_payment_tests {
             .and_then(|v| v.as_str())
             .expect("Subscription should have ID");
 
-        // Upgrade to professional plan
-        let pro_plan = &TestFixtures::stripe_test_data().test_plans[1];
+        // Upgrade to enterprise plan
+        let enterprise_plan = &TestFixtures::stripe_test_data().test_plans[1];
         let upgrade_request = json!({
             "subscription_id": subscription_id,
-            "new_plan_id": pro_plan.id,
+            "new_plan_id": enterprise_plan.id,
             "prorate": true
         });
 
@@ -352,7 +352,7 @@ mod stripe_payment_tests {
                 "postal_code": "94105",
                 "country": "US"
             },
-            "amount": 9999, // $99.99
+            "amount": 1990, // $19.90
             "currency": "usd"
         });
 
@@ -429,7 +429,7 @@ mod stripe_payment_tests {
         let payment_futures = (0..concurrent_payments).map(|i| {
             let payment_request = json!({
                 "payment_method": "pm_card_visa",
-                "amount": 2999,
+                "amount": 1990,
                 "currency": "usd",
                 "description": format!("Performance test payment {}", i)
             });

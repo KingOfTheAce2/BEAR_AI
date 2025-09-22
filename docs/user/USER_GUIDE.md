@@ -617,7 +617,7 @@ Elapsed: 00:08:45
 │ Agent Status                                                    │
 ├─────────────────────────────────────────────────────────────────┤
 │ Document Processor: ✅ Idle                                     │
-│ Legal Reviewer:     ✅ Idle                                     │
+│ Legal Compliance Compliance Reviewer:     ✅ Idle                                     │
 │ Risk Assessor:      🔄 Active (Risk Analysis)                   │
 │ Validator:          ⏳ Waiting                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -853,7 +853,7 @@ User Roles:
 │   ├── Workflow creation
 │   ├── Agent management
 │   └── Limited settings access
-├── Reviewer
+├── Compliance Compliance Reviewer
 │   ├── Document viewing
 │   ├── Workflow execution
 │   ├── Read-only access
@@ -1081,7 +1081,7 @@ Models:
 Services:
 • Workflow Engine: Running ✅
 • Agent Manager: Running ✅
-• Security Manager: Running ✅
+• Legal Security Director: Running ✅
 • API Server: Running on port 8000 ✅
 
 Recent Issues:

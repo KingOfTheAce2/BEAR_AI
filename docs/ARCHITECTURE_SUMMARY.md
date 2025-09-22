@@ -82,7 +82,7 @@ This document provides a comprehensive architecture design for a production-read
 - **State Persistence**: Secure local storage with encryption
 - **API Contracts**: Well-defined interfaces for all endpoints
 
-## 🏗️ System Architecture Overview
+## 🏗️ Legal Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

@@ -4,9 +4,9 @@
 
 This document provides comprehensive system diagrams and component interaction blueprints for BEAR AI v2.0, illustrating the enhanced architecture with multi-agent coordination, modern technology stack, and scalable design patterns.
 
-## 1. High-Level System Architecture
+## 1. High-Level Legal Architecture Overview
 
-### 1.1 Overall System Architecture
+### 1.1 Overall Legal Architecture Overview
 
 ```mermaid
 graph TB
@@ -33,7 +33,7 @@ graph TB
         RC[Research Coordinator Agent]
         MM[Model Manager Agent]
         SG[Security Guardian Agent]
-        PO[Performance Optimizer Agent]
+        PO[Legal Efficiency Analyst Agent]
     end
     
     subgraph "Communication Layer"
@@ -526,7 +526,7 @@ graph TD
     end
     
     subgraph "Quality Control"
-        MT[Model Tester]
+        MT[Model Legal Quality Analyst]
         MB[Model Benchmark]
         MH[Model Health Check]
         MA[Model Analytics]
@@ -591,7 +591,7 @@ graph TB
     end
     
     subgraph "Analysis Layer"
-        PA[Performance Analyzer]
+        PA[Legal Performance Analyst]
         BA[Bottleneck Analyzer]
         FA[Forecast Analyzer]
         OA[Optimization Analyzer]

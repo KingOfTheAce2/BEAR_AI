@@ -1,7 +1,7 @@
 # Component Architecture Diagram
 ## Enhanced Modern Local Web Interface
 
-### System Architecture Overview
+### Legal Architecture Overview
 
 ```mermaid
 graph TB

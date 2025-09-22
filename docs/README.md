@@ -91,7 +91,7 @@ Comprehensive testing strategies and procedures:
 2. Study [Migration Guide](migration/MIGRATION_GUIDE.md) for version upgrades
 3. Use [Troubleshooting Guide](troubleshooting/TROUBLESHOOTING_GUIDE.md) for maintenance
 
-### For API Developers
+### For Legal API Liaisons
 1. Start with [API Documentation](api/API_DOCUMENTATION.md) for endpoints
 2. Review [Architecture Documentation](architecture/ARCHITECTURE.md#api-documentation) for design patterns
 3. Check [Developer Guide](developer/DEVELOPER_GUIDE.md#testing-strategies) for testing

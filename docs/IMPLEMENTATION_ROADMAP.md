@@ -366,7 +366,7 @@ class LegalAnalystAgent extends BaseAgent {
 ### 3.2 Integration Testing Framework
 
 ```typescript
-class AgentIntegrationTester {
+class AgentIntegrationLegal Quality Analyst {
   private testSuites: Map<string, TestSuite> = new Map()
   private mockFramework: AgentMockFramework
   
@@ -714,26 +714,26 @@ Each phase includes formal milestone gates with go/no-go decisions:
 ```typescript
 interface TeamStructure {
   architecture: {
-    lead: 'Senior System Architect',
+    lead: 'Senior Legal Architecture Lead',
     members: ['Software Architect', 'AI/ML Architect'],
     responsibilities: ['System design', 'Technology decisions', 'Integration patterns']
   }
   
   development: {
     frontend: {
-      lead: 'Senior Frontend Developer',
-      members: ['React Developer', 'UI/UX Developer'],
+      lead: 'Senior Legal Workflow Designer',
+      members: ['Legal Interface Specialist', 'Legal Experience Strategist'],
       responsibilities: ['React UI', 'Tauri integration', 'User experience']
     }
     
     backend: {
-      lead: 'Senior Rust Developer',
-      members: ['Rust Developer', 'Python Developer'],
+      lead: 'Senior Legal Systems Specialist',
+      members: ['Legal Systems Specialist', 'Legal Data Automation Specialist'],
       responsibilities: ['Agent system', 'Performance optimization', 'Python bridge']
     }
     
     ai: {
-      lead: 'Senior AI Engineer',
+      lead: 'Senior Legal Intelligence Specialist',
       members: ['ML Engineer', 'Legal AI Specialist'],
       responsibilities: ['Agent intelligence', 'Model optimization', 'Legal workflows']
     }
@@ -747,7 +747,7 @@ interface TeamStructure {
   
   operations: {
     lead: 'DevOps Lead',
-    members: ['CI/CD Engineer', 'Security Engineer'],
+    members: ['Compliance Deployment Lead', 'Security Engineer'],
     responsibilities: ['Deployment pipeline', 'Monitoring', 'Security']
   }
 }

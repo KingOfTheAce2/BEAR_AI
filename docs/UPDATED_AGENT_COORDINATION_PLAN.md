@@ -14,15 +14,15 @@ This updated coordination plan reflects the restructured development phases with
 ```typescript
 interface AgentCoordinationStrategy {
   phase1_security_focus: {
-    lead_agent: 'security-manager',
+    lead_agent: 'legal-security-director',
     coordination_pattern: 'hierarchical-security-first',
     communication_frequency: 'real-time',
-    decision_authority: 'security-manager → system-architect → team',
+    decision_authority: 'legal-security-director → legal-architecture-lead → team',
     quality_gates: 'security-review-required'
   },
   
   phase2_feature_development: {
-    lead_agent: 'ml-developer',
+    lead_agent: 'legal-intelligence-analyst',
     coordination_pattern: 'collaborative-development',
     communication_frequency: 'daily-standups',
     decision_authority: 'consensus-based',
@@ -30,7 +30,7 @@ interface AgentCoordinationStrategy {
   },
   
   phase3_optimization: {
-    lead_agent: 'performance-analyzer',
+    lead_agent: 'legal-performance-analyst',
     coordination_pattern: 'specialized-teams',
     communication_frequency: 'milestone-based',
     decision_authority: 'technical-leads',
@@ -38,7 +38,7 @@ interface AgentCoordinationStrategy {
   },
   
   phase4_production: {
-    lead_agent: 'cicd-engineer',
+    lead_agent: 'compliance-deployment-lead',
     coordination_pattern: 'deployment-focused',
     communication_frequency: 'continuous-integration',
     decision_authority: 'release-manager',
@@ -56,7 +56,7 @@ interface AgentCoordinationStrategy {
 #### **Core Security Team (Primary):**
 ```typescript
 const SECURITY_CORE_TEAM = {
-  'security-manager': {
+  'legal-security-director': {
     role: 'Technical Lead & Security Architect',
     responsibilities: [
       'Overall security strategy and implementation',
@@ -68,7 +68,7 @@ const SECURITY_CORE_TEAM = {
     daily_commitment: '100%',
     coordination_pattern: 'leads_all_security_decisions',
     reports_to: 'project_lead',
-    coordinates_with: ['system-architect', 'privacy-auditor', 'backend-dev']
+    coordinates_with: ['legal-architecture-lead', 'privacy-auditor', 'litigation-data-specialist']
   },
   
   'privacy-auditor': {
@@ -83,10 +83,10 @@ const SECURITY_CORE_TEAM = {
     daily_commitment: '100%',
     coordination_pattern: 'reports_to_security_manager',
     specializes_in: 'privacy_protection',
-    coordinates_with: ['security-manager', 'ml-developer', 'coder']
+    coordinates_with: ['legal-security-director', 'legal-intelligence-analyst', 'legal-workflow-designer']
   },
   
-  'system-architect': {
+  'legal-architecture-lead': {
     role: 'Secure Architecture Designer',
     responsibilities: [
       'Offline-first architecture design',
@@ -97,11 +97,11 @@ const SECURITY_CORE_TEAM = {
     ],
     daily_commitment: '80%',
     coordination_pattern: 'technical_advisory',
-    reports_to: 'security-manager',
-    coordinates_with: ['backend-dev', 'coder', 'tester']
+    reports_to: 'legal-security-director',
+    coordinates_with: ['litigation-data-specialist', 'legal-workflow-designer', 'legal-quality-analyst']
   },
   
-  'backend-dev': {
+  'litigation-data-specialist': {
     role: 'Secure Backend Implementation',
     responsibilities: [
       'Secure API development',
@@ -112,8 +112,8 @@ const SECURITY_CORE_TEAM = {
     ],
     daily_commitment: '100%',
     coordination_pattern: 'implementation_focused',
-    reports_to: 'system-architect',
-    coordinates_with: ['security-manager', 'ml-developer', 'tester']
+    reports_to: 'legal-architecture-lead',
+    coordinates_with: ['legal-security-director', 'legal-intelligence-analyst', 'legal-quality-analyst']
   }
 }
 ```
@@ -121,7 +121,7 @@ const SECURITY_CORE_TEAM = {
 #### **Supporting Team (Secondary):**
 ```typescript
 const SECURITY_SUPPORT_TEAM = {
-  'tester': {
+  'legal-quality-analyst': {
     role: 'Security Testing Specialist',
     responsibilities: [
       'Security test case development',
@@ -132,10 +132,10 @@ const SECURITY_SUPPORT_TEAM = {
     ],
     daily_commitment: '60%',
     specializes_in: 'security_testing',
-    coordinates_with: ['security-manager', 'reviewer']
+    coordinates_with: ['legal-security-director', 'compliance-reviewer']
   },
   
-  'reviewer': {
+  'compliance-reviewer': {
     role: 'Security Code Review Specialist',
     responsibilities: [
       'Security-focused code reviews',
@@ -146,10 +146,10 @@ const SECURITY_SUPPORT_TEAM = {
     ],
     daily_commitment: '40%',
     specializes_in: 'security_review',
-    coordinates_with: ['security-manager', 'tester']
+    coordinates_with: ['legal-security-director', 'legal-quality-analyst']
   },
   
-  'coder': {
+  'legal-workflow-designer': {
     role: 'Security Implementation Support',
     responsibilities: [
       'Security feature UI development',
@@ -160,7 +160,7 @@ const SECURITY_SUPPORT_TEAM = {
     ],
     daily_commitment: '50%',
     specializes_in: 'secure_frontend',
-    coordinates_with: ['privacy-auditor', 'system-architect']
+    coordinates_with: ['privacy-auditor', 'legal-architecture-lead']
   }
 }
 ```
@@ -170,7 +170,7 @@ const SECURITY_SUPPORT_TEAM = {
 #### **Daily Security Standup (15 min):**
 ```typescript
 interface DailySecurityStandup {
-  participants: ['security-manager', 'privacy-auditor', 'system-architect', 'backend-dev']
+  participants: ['legal-security-director', 'privacy-auditor', 'legal-architecture-lead', 'litigation-data-specialist']
   schedule: 'daily_9am',
   agenda: {
     security_blockers: 'Any security implementation blockers',
@@ -187,7 +187,7 @@ interface DailySecurityStandup {
 #### **Weekly Security Architecture Review:**
 ```typescript
 interface WeeklySecurityReview {
-  participants: ['security-manager', 'system-architect', 'privacy-auditor', 'project-lead']
+  participants: ['legal-security-director', 'legal-architecture-lead', 'privacy-auditor', 'project-lead']
   schedule: 'weekly_friday_2pm',
   agenda: {
     architecture_validation: 'Security architecture compliance review',
@@ -197,7 +197,7 @@ interface WeeklySecurityReview {
     next_week_priorities: 'Security priorities for following week'
   },
   output: 'weekly_security_report',
-  decision_authority: 'security-manager'
+  decision_authority: 'legal-security-director'
 }
 ```
 
@@ -210,7 +210,7 @@ interface WeeklySecurityReview {
 #### **Feature Development Core Team:**
 ```typescript
 const FEATURE_CORE_TEAM = {
-  'ml-developer': {
+  'legal-intelligence-analyst': {
     role: 'AI/ML Implementation Lead',
     responsibilities: [
       'Local AI model integration',
@@ -221,11 +221,11 @@ const FEATURE_CORE_TEAM = {
     ],
     daily_commitment: '100%',
     coordination_pattern: 'technical_lead',
-    security_liaison: 'security-manager',
+    security_liaison: 'legal-security-director',
     reports_to: 'project_lead'
   },
   
-  'coder': {
+  'legal-workflow-designer': {
     role: 'Frontend Development Lead',
     responsibilities: [
       'React UI component development',
@@ -237,10 +237,10 @@ const FEATURE_CORE_TEAM = {
     daily_commitment: '100%',
     coordination_pattern: 'ui_focused',
     security_liaison: 'privacy-auditor',
-    reports_to: 'ml-developer'
+    reports_to: 'legal-intelligence-analyst'
   },
   
-  'backend-dev': {
+  'litigation-data-specialist': {
     role: 'API Development Specialist',
     responsibilities: [
       'Document processing APIs',
@@ -251,11 +251,11 @@ const FEATURE_CORE_TEAM = {
     ],
     daily_commitment: '80%',
     coordination_pattern: 'api_focused',
-    security_liaison: 'security-manager',
+    security_liaison: 'legal-security-director',
     continues_from: 'phase1_security_role'
   },
   
-  'system-architect': {
+  'legal-architecture-lead': {
     role: 'Integration Architecture',
     responsibilities: [
       'Component integration design',
@@ -266,7 +266,7 @@ const FEATURE_CORE_TEAM = {
     ],
     daily_commitment: '60%',
     coordination_pattern: 'architectural_oversight',
-    security_liaison: 'security-manager',
+    security_liaison: 'legal-security-director',
     continues_from: 'phase1_security_role'
   }
 }
@@ -275,7 +275,7 @@ const FEATURE_CORE_TEAM = {
 #### **Ongoing Security Oversight:**
 ```typescript
 const PHASE2_SECURITY_OVERSIGHT = {
-  'security-manager': {
+  'legal-security-director': {
     role: 'Continuous Security Validation',
     daily_commitment: '40%',
     responsibilities: [
@@ -300,7 +300,7 @@ const PHASE2_SECURITY_OVERSIGHT = {
 #### **Performance Optimization Team:**
 ```typescript
 const PERFORMANCE_TEAM = {
-  'performance-analyzer': {
+  'legal-performance-analyst': {
     role: 'Performance Optimization Lead',
     responsibilities: [
       'Performance bottleneck identification',
@@ -311,10 +311,10 @@ const PERFORMANCE_TEAM = {
     ],
     daily_commitment: '100%',
     coordination_pattern: 'performance_focused',
-    coordinates_with: ['ml-developer', 'backend-dev', 'system-architect']
+    coordinates_with: ['legal-intelligence-analyst', 'litigation-data-specialist', 'legal-architecture-lead']
   },
   
-  'system-architect': {
+  'legal-architecture-lead': {
     role: 'Optimization Architecture',
     daily_commitment: '80%',
     responsibilities: [
@@ -332,7 +332,7 @@ const PERFORMANCE_TEAM = {
 #### **Advanced Features Team:**
 ```typescript
 const ADVANCED_FEATURES_TEAM = {
-  'coder': {
+  'legal-workflow-designer': {
     role: 'Advanced UI Development',
     daily_commitment: '100%',
     responsibilities: [
@@ -344,7 +344,7 @@ const ADVANCED_FEATURES_TEAM = {
     ]
   },
   
-  'ml-developer': {
+  'legal-intelligence-analyst': {
     role: 'Advanced AI Features',
     daily_commitment: '80%',
     responsibilities: [
@@ -367,7 +367,7 @@ const ADVANCED_FEATURES_TEAM = {
 #### **Testing & Quality Assurance:**
 ```typescript
 const TESTING_TEAM = {
-  'tester': {
+  'legal-quality-analyst': {
     role: 'Comprehensive Testing Lead',
     daily_commitment: '100%',
     responsibilities: [
@@ -381,7 +381,7 @@ const TESTING_TEAM = {
     quality_gates: 'comprehensive_coverage'
   },
   
-  'reviewer': {
+  'compliance-reviewer': {
     role: 'Quality Assurance Specialist',
     daily_commitment: '100%',
     responsibilities: [
@@ -399,7 +399,7 @@ const TESTING_TEAM = {
 #### **Deployment & Release Management:**
 ```typescript
 const DEPLOYMENT_TEAM = {
-  'cicd-engineer': {
+  'compliance-deployment-lead': {
     role: 'Deployment Pipeline Lead',
     daily_commitment: '100%',
     responsibilities: [
@@ -410,7 +410,7 @@ const DEPLOYMENT_TEAM = {
       'Production monitoring setup'
     ],
     coordination_pattern: 'deployment_focused',
-    coordinates_with: ['security-manager', 'tester', 'reviewer']
+    coordinates_with: ['legal-security-director', 'legal-quality-analyst', 'compliance-reviewer']
   }
 }
 ```
@@ -423,7 +423,7 @@ const DEPLOYMENT_TEAM = {
 ```typescript
 interface SecurityGatewayReview {
   trigger: 'end_of_each_sprint',
-  participants: ['security-manager', 'privacy-auditor', 'phase-lead'],
+  participants: ['legal-security-director', 'privacy-auditor', 'phase-lead'],
   criteria: {
     security_validation: 'All security requirements met',
     privacy_compliance: 'Privacy impact assessment completed',
@@ -438,8 +438,8 @@ interface SecurityGatewayReview {
 ### **Architecture Decision Records (ADRs):**
 ```typescript
 interface ArchitectureDecisionRecord {
-  decision_authority: 'system-architect + security-manager',
-  review_board: ['security-manager', 'system-architect', 'phase-lead'],
+  decision_authority: 'legal-architecture-lead + legal-security-director',
+  review_board: ['legal-security-director', 'legal-architecture-lead', 'phase-lead'],
   documentation_required: true,
   security_impact_assessment: 'mandatory',
   privacy_impact_assessment: 'mandatory_if_data_related',
@@ -503,11 +503,11 @@ interface QualityGateRequirements {
 - **Retrospectives**: Security lessons learned focus (60 min)
 
 ### **Documentation & Knowledge Sharing:**
-- **Security Playbooks**: Maintained by security-manager
-- **Architecture Decisions**: Documented by system-architect
+- **Security Playbooks**: Maintained by legal-security-director
+- **Architecture Decisions**: Documented by legal-architecture-lead
 - **Implementation Guides**: Created by technical leads
 - **Compliance Checklists**: Maintained by privacy-auditor
-- **Testing Protocols**: Maintained by tester
+- **Testing Protocols**: Maintained by legal-quality-analyst
 
 ---
 

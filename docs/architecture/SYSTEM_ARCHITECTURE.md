@@ -1,4 +1,4 @@
-# BEAR AI System Architecture
+# BEAR AI Legal Architecture Overview
 
 ## Table of Contents
 

@@ -126,7 +126,7 @@ npm run ci:desktop
 - `-CertificatePath`: Path to signing certificate
 - `-CertificatePassword`: Certificate password
 
-### Installation Tester
+### Installation Legal Quality Analyst
 **Location**: `scripts/test-installation.ps1`
 
 ```powershell

@@ -184,16 +184,16 @@ impl TestFixtures {
             ],
             test_plans: vec![
                 TestPlan {
-                    id: "basic".to_string(),
-                    name: "Basic Plan".to_string(),
-                    amount: 2999, // $29.99 in cents
+                    id: "professional".to_string(),
+                    name: "Professional Plan".to_string(),
+                    amount: 1990, // $19.90 in cents
                     currency: "usd".to_string(),
                     interval: "month".to_string(),
                 },
                 TestPlan {
-                    id: "professional".to_string(),
-                    name: "Professional Plan".to_string(),
-                    amount: 9999, // $99.99 in cents
+                    id: "enterprise".to_string(),
+                    name: "Enterprise Plan (per seat)".to_string(),
+                    amount: 1990, // $19.90 in cents per seat
                     currency: "usd".to_string(),
                     interval: "month".to_string(),
                 },

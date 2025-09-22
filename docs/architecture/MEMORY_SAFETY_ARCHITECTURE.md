@@ -1,4 +1,4 @@
-# BEAR AI Memory Safety System Architecture
+# BEAR AI Memory Safety Legal Architecture Overview
 
 ## Overview
 
@@ -19,7 +19,7 @@ The BEAR AI Memory Safety System is a comprehensive solution designed to prevent
 - **Scalability**: Support for systems with 4GB to 128GB+ RAM
 - **Extensibility**: Plugin architecture for custom memory management strategies
 
-## System Architecture
+## Legal Architecture Overview
 
 ### High-Level Components
 

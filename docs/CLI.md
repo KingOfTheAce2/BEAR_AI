@@ -25,10 +25,10 @@ codex-flow init my-project
 codex-flow swarm create --topology mesh
 
 # Spawn agents
-codex-flow agent spawn coder --task "Build a REST API"
+codex-flow agent spawn legal-workflow-designer --task "Design client intake workflow"
 
 # Execute tasks
-codex-flow task execute "Create user authentication system"
+codex-flow task execute "Compile discovery summary"
 ```
 
 ## Commands
@@ -60,7 +60,7 @@ codex-flow init api-server -t api -y
 Spawn a new AI agent with specific capabilities.
 
 **Arguments:**
-- `type` - Agent type (coder, researcher, tester, planner, reviewer, architect, optimizer, coordinator)
+- `type` - Agent type (legal-workflow-designer, legal-researcher, legal-quality-analyst, legal-planner, compliance-reviewer, legal-architect, legal-efficiency-analyst, coordination-lead)
 
 **Options:**
 - `-n, --name <name>` - Agent name
@@ -74,8 +74,8 @@ Spawn a new AI agent with specific capabilities.
 
 **Examples:**
 ```bash
-codex-flow agent spawn coder --task "Implement user authentication"
-codex-flow agent spawn researcher -n "api-researcher" --priority high
+codex-flow agent spawn legal-workflow-designer --task "Draft contract summary"
+codex-flow agent spawn legal-researcher -n "case-researcher" --priority high
 ```
 
 #### `codex-flow agent list`
@@ -133,7 +133,7 @@ Create a new agent swarm with specified topology.
 
 **Examples:**
 ```bash
-codex-flow swarm create dev-team --topology mesh --max-agents 5
+codex-flow swarm create legal-team --topology mesh --max-agents 5
 codex-flow swarm create --topology hierarchical --auto-spawn
 ```
 
@@ -166,8 +166,8 @@ Orchestrate a task across the swarm.
 
 **Examples:**
 ```bash
-codex-flow swarm orchestrate dev-team "Build user management system"
-codex-flow swarm orchestrate swarm-123 "Optimize database queries" --priority high
+codex-flow swarm orchestrate legal-team "Prepare trial briefing package"
+codex-flow swarm orchestrate swarm-123 "Coordinate due diligence review" --priority high
 ```
 
 #### `codex-flow swarm scale <swarm-id> <target-agents>`
@@ -203,8 +203,8 @@ Execute a task with AI agents.
 
 **Examples:**
 ```bash
-codex-flow task execute "Create REST API endpoints" --agents coder tester
-codex-flow task execute "Analyze performance bottlenecks" -a researcher optimizer
+codex-flow task execute "Summarize opposing counsel filings" --agents legal-workflow-designer legal-quality-analyst
+codex-flow task execute "Assess compliance gaps" -a legal-researcher legal-efficiency-analyst
 ```
 
 #### `codex-flow task list`
@@ -428,14 +428,14 @@ cd my-webapp
 codex-flow swarm create dev-swarm --topology mesh --max-agents 4
 
 # 4. Spawn specialized agents
-codex-flow agent spawn coder --name frontend-dev
-codex-flow agent spawn coder --name backend-dev
-codex-flow agent spawn tester --name qa-engineer
-codex-flow agent spawn reviewer --name code-reviewer
+codex-flow agent spawn legal-workflow-designer --name intake-specialist
+codex-flow agent spawn legal-workflow-designer --name litigation-data-specialist
+codex-flow agent spawn legal-quality-analyst --name qa-engineer
+codex-flow agent spawn compliance-reviewer --name code-compliance-reviewer
 
 # 5. Execute coordinated tasks
 codex-flow task execute "Build user authentication system" \
-  --agents coder tester reviewer \
+  --agents legal-workflow-designer legal-quality-analyst compliance-reviewer \
   --strategy adaptive \
   --priority high
 
@@ -450,10 +450,10 @@ codex-flow task results <task-id> --format detailed
 
 ```bash
 # Set up AI models
-codex-flow config set agents.coder.model gpt-4
-codex-flow config set agents.coder.temperature 0.1
-codex-flow config set agents.researcher.model gpt-4
-codex-flow config set agents.researcher.temperature 0.3
+codex-flow config set agents.legal-workflow-designer.model gpt-4
+codex-flow config set agents.legal-workflow-designer.temperature 0.1
+codex-flow config set agents.legal-researcher.model gpt-4
+codex-flow config set agents.legal-researcher.temperature 0.3
 
 # Configure swarm defaults
 codex-flow config set swarm.defaultTopology mesh
