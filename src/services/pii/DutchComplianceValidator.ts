@@ -10,43 +10,59 @@ export interface DutchValidationResult {
 export class DutchComplianceValidator {
   private bsnTestNumbers: string[] = [
     '123456782', // Valid test BSN
-    '111222333', // Invalid test BSN
+    '111222333', // Valid synthetic BSN for testing
   ];
+
+  private sanitizeDutchNumber(value: string | null | undefined): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    // Allow spaces, periods and dashes as formatting characters only
+    if (/[^0-9\s.-]/.test(trimmed)) {
+      return null;
+    }
+
+    const digitsOnly = trimmed.replace(/[\s.-]/g, '');
+    return /^\d{9}$/.test(digitsOnly) ? digitsOnly : null;
+  }
+
+  private hasInvalidRepetition(value: string): boolean {
+    return /^(\d)\1{8}$/.test(value);
+  }
 
   /**
    * Validate Dutch BSN (Burgerservicenummer) using the 11-test algorithm
    */
-  public validateBSN(bsn: string): boolean {
-    // Remove any spaces or formatting
-    const cleanBSN = bsn.replace(/\s+/g, '');
+  public validateBSN(bsn: string | null | undefined): boolean {
+    const cleanBSN = this.sanitizeDutchNumber(bsn);
 
-    // Must be exactly 9 digits
-    if (!/^\d{9}$/.test(cleanBSN)) {
+    if (!cleanBSN || this.hasInvalidRepetition(cleanBSN) || cleanBSN === '000000000') {
       return false;
     }
 
-    // Check if it's a known test number (should be flagged but is technically valid)
     if (this.bsnTestNumbers.includes(cleanBSN)) {
-      return true; // Test numbers are valid for testing purposes
+      return true;
     }
 
-    // Apply the 11-test algorithm
     return this.apply11Test(cleanBSN);
   }
 
   /**
    * Validate Dutch RSIN (Rechtspersonen Samenwerkingsverbanden Informatie Nummer)
    */
-  public validateRSIN(rsin: string): boolean {
-    // Remove any spaces or formatting
-    const cleanRSIN = rsin.replace(/\s+/g, '');
+  public validateRSIN(rsin: string | null | undefined): boolean {
+    const cleanRSIN = this.sanitizeDutchNumber(rsin);
 
-    // Must be exactly 9 digits
-    if (!/^\d{9}$/.test(cleanRSIN)) {
+    if (!cleanRSIN || this.hasInvalidRepetition(cleanRSIN)) {
       return false;
     }
 
-    // RSIN uses the same 11-test algorithm as BSN
     return this.apply11Test(cleanRSIN);
   }
 
@@ -54,6 +70,10 @@ export class DutchComplianceValidator {
    * Apply the Dutch 11-test algorithm
    */
   private apply11Test(number: string): boolean {
+    if (!/^\d{9}$/.test(number)) {
+      return false;
+    }
+
     const digits = number.split('').map(Number);
 
     // Calculate weighted sum
@@ -72,12 +92,21 @@ export class DutchComplianceValidator {
   /**
    * Validate Dutch passport number
    */
-  public validateDutchPassport(passport: string): DutchValidationResult {
-    // Dutch passport format: 2 letters + 7 digits
-    const passportPattern = /^[A-Z]{2}\d{7}$/;
-    const cleanPassport = passport.replace(/\s+/g, '').toUpperCase();
+  public validateDutchPassport(passport: string | null | undefined): DutchValidationResult {
+    if (typeof passport !== 'string') {
+      return {
+        isValid: false,
+        type: 'PASSPORT',
+        confidence: 0.1,
+        region: 'Netherlands',
+      };
+    }
 
-    const isValid = passportPattern.test(cleanPassport);
+    const trimmed = passport.trim();
+    const hasInvalidCharacters = /[^A-Za-z0-9\s-]/.test(trimmed);
+    const normalized = trimmed.replace(/[\s-]/g, '').toUpperCase();
+    const passportPattern = /^[A-Z]{2}\d{7}$/;
+    const isValid = !hasInvalidCharacters && passportPattern.test(normalized);
 
     return {
       isValid,
@@ -90,12 +119,21 @@ export class DutchComplianceValidator {
   /**
    * Validate Dutch ID card number
    */
-  public validateDutchIDCard(idCard: string): DutchValidationResult {
-    // Dutch ID card format: 2 letters + 7 digits (same as passport)
-    const idPattern = /^[A-Z]{2}\d{7}$/;
-    const cleanID = idCard.replace(/\s+/g, '').toUpperCase();
+  public validateDutchIDCard(idCard: string | null | undefined): DutchValidationResult {
+    if (typeof idCard !== 'string') {
+      return {
+        isValid: false,
+        type: 'ID_CARD',
+        confidence: 0.1,
+        region: 'Netherlands',
+      };
+    }
 
-    const isValid = idPattern.test(cleanID);
+    const trimmed = idCard.trim();
+    const hasInvalidCharacters = /[^A-Za-z0-9\s-]/.test(trimmed);
+    const normalized = trimmed.replace(/[\s-]/g, '').toUpperCase();
+    const idPattern = /^[A-Z]{2}\d{7}$/;
+    const isValid = !hasInvalidCharacters && idPattern.test(normalized);
 
     return {
       isValid,
@@ -108,7 +146,11 @@ export class DutchComplianceValidator {
   /**
    * Detect Dutch PII patterns with validation
    */
-  public detectDutchPII(text: string): PIIMatch[] {
+  public detectDutchPII(text: string | null | undefined): PIIMatch[] {
+    if (typeof text !== 'string' || text.trim().length === 0) {
+      return [];
+    }
+
     const matches: PIIMatch[] = [];
 
     // Detect BSN candidates
@@ -223,23 +265,20 @@ export class DutchComplianceValidator {
     passportPatterns.forEach(pattern => {
       let match;
       while ((match = pattern.exec(text)) !== null) {
-        const passportNumber = match[0].replace(/\D/g, '').replace(/[A-Z]/g, '');
         const fullMatch = match[0];
+        const passportNumber = fullMatch.match(/[A-Z]{2}\d{7}/i)?.[0] ?? fullMatch;
+        const validation = this.validateDutchPassport(passportNumber);
 
-        if (/[A-Z]{2}\d{7}/.test(fullMatch)) {
-          const validation = this.validateDutchPassport(fullMatch);
-
-          if (validation.isValid) {
-            matches.push({
-              type: PIIType.DUTCH_PASSPORT,
-              text: match[0],
-              start: match.index,
-              end: match.index + match[0].length,
-              confidence: validation.confidence,
-              hash: '', // Will be filled by PIIDetector
-              country: 'NL'
-            });
-          }
+        if (validation.isValid) {
+          matches.push({
+            type: PIIType.DUTCH_PASSPORT,
+            text: match[0],
+            start: match.index,
+            end: match.index + match[0].length,
+            confidence: validation.confidence,
+            hash: '', // Will be filled by PIIDetector
+            country: 'NL'
+          });
         }
       }
     });
@@ -266,21 +305,19 @@ export class DutchComplianceValidator {
       let match;
       while ((match = pattern.exec(text)) !== null) {
         const fullMatch = match[0];
+        const idNumber = fullMatch.match(/[A-Z]{2}\d{7}/i)?.[0] ?? fullMatch;
+        const validation = this.validateDutchIDCard(idNumber);
 
-        if (/[A-Z]{2}\d{7}/.test(fullMatch)) {
-          const validation = this.validateDutchIDCard(fullMatch);
-
-          if (validation.isValid) {
-            matches.push({
-              type: PIIType.DUTCH_ID,
-              text: match[0],
-              start: match.index,
-              end: match.index + match[0].length,
-              confidence: validation.confidence,
-              hash: '', // Will be filled by PIIDetector
-              country: 'NL'
-            });
-          }
+        if (validation.isValid) {
+          matches.push({
+            type: PIIType.DUTCH_ID,
+            text: match[0],
+            start: match.index,
+            end: match.index + match[0].length,
+            confidence: validation.confidence,
+            hash: '', // Will be filled by PIIDetector
+            country: 'NL'
+          });
         }
       }
     });
@@ -343,17 +380,17 @@ export class DutchComplianceValidator {
   /**
    * Check if BSN is a test number
    */
-  public isBSNTestNumber(bsn: string): boolean {
-    const cleanBSN = bsn.replace(/\s+/g, '');
-    return this.bsnTestNumbers.includes(cleanBSN);
+  public isBSNTestNumber(bsn: string | null | undefined): boolean {
+    const cleanBSN = this.sanitizeDutchNumber(bsn);
+    return cleanBSN ? this.bsnTestNumbers.includes(cleanBSN) : false;
   }
 
   /**
    * Format BSN for display (with masking)
    */
-  public formatBSNMasked(bsn: string): string {
-    const cleanBSN = bsn.replace(/\s+/g, '');
-    if (cleanBSN.length !== 9) return '***-***-***';
+  public formatBSNMasked(bsn: string | null | undefined): string {
+    const cleanBSN = this.sanitizeDutchNumber(bsn);
+    if (!cleanBSN) return '***-***-***';
 
     return `${cleanBSN.substring(0, 3)}-***-${cleanBSN.substring(6)}`;
   }
@@ -361,11 +398,11 @@ export class DutchComplianceValidator {
   /**
    * Format RSIN for display (with masking)
    */
-  public formatRSINMasked(rsin: string): string {
-    const cleanRSIN = rsin.replace(/\s+/g, '');
-    if (cleanRSIN.length !== 9) return '***-***-***';
+  public formatRSINMasked(rsin: string | null | undefined): string {
+    const cleanRSIN = this.sanitizeDutchNumber(rsin);
+    if (!cleanRSIN) return '***-***-***';
 
-    return `${cleanRSIN.substring(0, 2)}***${cleanRSIN.substring(7)}`;
+    return `${cleanRSIN.substring(0, 2)}***${cleanRSIN.substring(cleanRSIN.length - 3)}`;
   }
 
   /**

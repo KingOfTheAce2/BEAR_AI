@@ -92,7 +92,23 @@ export class PIIDetector {
   /**
    * Main PII detection method
    */
-  public async detectPII(text: string, context?: { fileType?: string; source?: string }): Promise<PIIDetectionResult> {
+  public async detectPII(text: string | null | undefined, context?: { fileType?: string; source?: string }): Promise<PIIDetectionResult> {
+    if (typeof text !== 'string') {
+      const emptyResult: PIIDetectionResult = {
+        hasPII: false,
+        matches: [],
+        riskLevel: 'low',
+        suggestions: [],
+        auditHash: this.createAuditHash('', [])
+      };
+
+      if (this.config.enableAuditLogging) {
+        this.logForAudit([], context);
+      }
+
+      return emptyResult;
+    }
+
     const matches: PIIMatch[] = [];
 
     // Core PII patterns
@@ -111,8 +127,10 @@ export class PIIDetector {
     // Custom patterns
     matches.push(...this.detectCustomPatterns(text));
 
+    const dedupedMatches = this.deduplicateMatches(matches);
+
     // Filter out whitelisted terms
-    const filteredMatches = this.filterWhitelistedTerms(matches);
+    const filteredMatches = this.filterWhitelistedTerms(dedupedMatches);
 
     // Calculate risk level
     const riskLevel = this.calculateRiskLevel(filteredMatches);
@@ -206,40 +224,17 @@ export class PIIDetector {
    * Detect Dutch compliance PII
    */
   private async detectDutchPII(text: string): Promise<PIIMatch[]> {
-    const matches: PIIMatch[] = [];
-
-    // BSN Pattern with validation
-    const bsnPattern = /\b\d{9}\b/g;
-    const bsnCandidates = this.findMatches(text, bsnPattern, PIIType.BSN, 0.7);
-
-    for (const candidate of bsnCandidates) {
-      if (this.dutchValidator.validateBSN(candidate.text)) {
-        matches.push({
-          ...candidate,
-          confidence: 0.95,
-          country: 'NL',
-          hash: this.hashSensitiveData(candidate.text)
-        });
-      }
+    if (text.trim().length === 0) {
+      return [];
     }
 
-    // RSIN Pattern with validation
-    const rsinPattern = /\b\d{9}B\d{2}\b/g;
-    const rsinCandidates = this.findMatches(text, rsinPattern, PIIType.RSIN, 0.7);
+    const validatorMatches = this.dutchValidator.detectDutchPII(text);
 
-    for (const candidate of rsinCandidates) {
-      const rsinNumber = candidate.text.slice(0, 9);
-      if (this.dutchValidator.validateRSIN(rsinNumber)) {
-        matches.push({
-          ...candidate,
-          confidence: 0.95,
-          country: 'NL',
-          hash: this.hashSensitiveData(candidate.text)
-        });
-      }
-    }
-
-    return matches;
+    return validatorMatches.map(match => ({
+      ...match,
+      country: match.country ?? 'NL',
+      hash: this.hashSensitiveData(match.text)
+    }));
   }
 
   /**
@@ -314,6 +309,41 @@ export class PIIDetector {
     );
   }
 
+  private deduplicateMatches(matches: PIIMatch[]): PIIMatch[] {
+    if (matches.length <= 1) {
+      return matches;
+    }
+
+    const sorted = [...matches].sort((a, b) => {
+      if (b.confidence !== a.confidence) {
+        return b.confidence - a.confidence;
+      }
+
+      const lengthA = a.end - a.start;
+      const lengthB = b.end - b.start;
+      if (lengthB !== lengthA) {
+        return lengthB - lengthA;
+      }
+
+      return a.start - b.start;
+    });
+
+    const selected: PIIMatch[] = [];
+
+    for (const candidate of sorted) {
+      const overlaps = selected.some(existing => this.matchesOverlap(existing, candidate));
+      if (!overlaps) {
+        selected.push(candidate);
+      }
+    }
+
+    return selected.sort((a, b) => a.start - b.start);
+  }
+
+  private matchesOverlap(a: PIIMatch, b: PIIMatch): boolean {
+    return Math.max(a.start, b.start) < Math.min(a.end, b.end);
+  }
+
   /**
    * Calculate risk level based on matches
    */
@@ -321,12 +351,20 @@ export class PIIDetector {
     if (matches.length === 0) return 'low';
 
     const hasLegalPrivileged = matches.some(m => m.isLegalPrivileged);
-    const hasHighConfidenceMatches = matches.some(m => m.confidence > 0.9);
-    const hasMultipleTypes = new Set(matches.map(m => m.type)).size > 2;
+    if (hasLegalPrivileged) {
+      return 'critical';
+    }
 
-    if (hasLegalPrivileged) return 'critical';
-    if (hasHighConfidenceMatches && hasMultipleTypes) return 'high';
-    if (hasHighConfidenceMatches || matches.length > 3) return 'medium';
+    const highConfidenceCount = matches.filter(m => m.confidence >= 0.9).length;
+    const uniqueTypes = new Set(matches.map(m => m.type)).size;
+
+    if ((uniqueTypes >= 3 && highConfidenceCount > 0) || matches.length >= 4) {
+      return 'high';
+    }
+
+    if ((highConfidenceCount > 0 && matches.length > 1) || matches.length > 2) {
+      return 'medium';
+    }
 
     return 'low';
   }
@@ -342,7 +380,7 @@ export class PIIDetector {
     const types = new Set(matches.map(m => m.type));
 
     if (types.has(PIIType.ATTORNEY_CLIENT_PRIVILEGE)) {
-      suggestions.push('⚠️ Attorney-client privileged content detected. Consider removing or marking as confidential.');
+      suggestions.push('⚠️ attorney-client privileged content detected. Consider removing or marking as confidential.');
     }
 
     if (types.has(PIIType.SSN)) {
@@ -350,7 +388,7 @@ export class PIIDetector {
     }
 
     if (types.has(PIIType.CREDIT_CARD)) {
-      suggestions.push('Credit card number detected. This should be removed immediately.');
+      suggestions.push('credit card number detected. This should be removed immediately.');
     }
 
     if (types.has(PIIType.BSN)) {
