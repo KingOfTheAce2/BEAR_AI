@@ -28,7 +28,7 @@ describe('PII Detection Integration Tests', () => {
 
         Dutch Client Information:
         BSN: 123456782
-        RSIN: 808888834
+        RSIN: 200001345
         Passport: NL1234567
 
         Attorney Information:

@@ -3,27 +3,37 @@ import { vi } from 'vitest';
 import { usePIIDetection, useDocumentPIIScanning } from '../../hooks/usePIIDetection';
 import { PIIDetectionResult, PIIType } from '../../services/pii/PIIDetector';
 
-const createDetectorMock = () => ({
-  detectPII: vi.fn(),
-  detectPIIRealTime: vi.fn(),
-  maskText: vi.fn(),
-  getAuditLog: vi.fn(),
-  clearAuditLog: vi.fn(),
-  updateConfig: vi.fn(),
-  getConfig: vi.fn().mockReturnValue({}),
+const detectorMocks = vi.hoisted(() => {
+  const createDetectorMock = () => ({
+    detectPII: vi.fn(),
+    detectPIIRealTime: vi.fn(),
+    maskText: vi.fn(),
+    getAuditLog: vi.fn(),
+    clearAuditLog: vi.fn(),
+    updateConfig: vi.fn(),
+    getConfig: vi.fn().mockReturnValue({}),
+  });
+
+  const mockPIIDetectorConstructor = vi.fn().mockImplementation(createDetectorMock);
+
+  return {
+    createDetectorMock,
+    mockPIIDetectorConstructor,
+  };
 });
 
-const mockPIIDetectorConstructor = vi.fn().mockImplementation(createDetectorMock);
+vi.mock('../../services/pii/PIIDetector', async () => {
+  const actual = await vi.importActual<typeof import('../../services/pii/PIIDetector')>(
+    '../../services/pii/PIIDetector'
+  );
 
-vi.mock('../../services/pii/PIIDetector', () => ({
-  PIIDetector: mockPIIDetectorConstructor,
-  PIIType: {
-    EMAIL: 'email',
-    SSN: 'ssn',
-    PHONE: 'phone',
-    ATTORNEY_CLIENT_PRIVILEGE: 'attorney_client_privilege',
-  },
-}));
+  return {
+    ...actual,
+    PIIDetector: detectorMocks.mockPIIDetectorConstructor,
+  };
+});
+
+const { createDetectorMock, mockPIIDetectorConstructor } = detectorMocks;
 
 describe('usePIIDetection Hook', () => {
   beforeEach(() => {
