@@ -423,16 +423,16 @@ class LocalLegalDatabase {
     switch (type) {
       case 'case':
         return {
-          bluebook: `${data.plaintiff} v. ${data.defendant}, ${data.volume} ${data.reporter} ${data.page} (${data.court} ${data.year}).`,
-          alwd: `${data.plaintiff} v. ${data.defendant}, ${data.volume} ${data.reporter} ${data.page} (${data.court} ${data.year}).`,
-          chicago: `${data.plaintiff} v. ${data.defendant}, ${data.volume} ${data.reporter} ${data.page} (${data.court} ${data.year}).`
+          bluebook: `${data['plaintiff']} v. ${data['defendant']}, ${data['volume']} ${data['reporter']} ${data['page']} (${data['court']} ${data['year']}).`,
+          alwd: `${data['plaintiff']} v. ${data['defendant']}, ${data['volume']} ${data['reporter']} ${data['page']} (${data['court']} ${data['year']}).`,
+          chicago: `${data['plaintiff']} v. ${data['defendant']}, ${data['volume']} ${data['reporter']} ${data['page']} (${data['court']} ${data['year']}).`
         };
-        
+
       case 'statute':
         return {
-          bluebook: `${data.title} § ${data.section} (${data.year}).`,
-          alwd: `${data.title} § ${data.section} (${data.year}).`,
-          chicago: `${data.title} § ${data.section} (${data.year}).`
+          bluebook: `${data['title']} § ${data['section']} (${data['year']}).`,
+          alwd: `${data['title']} § ${data['section']} (${data['year']}).`,
+          chicago: `${data['title']} § ${data['section']} (${data['year']}).`
         };
         
       default:

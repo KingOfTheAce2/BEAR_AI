@@ -131,7 +131,6 @@ export class LocalApiRegistry {
     local_only: boolean;
     timestamp: string;
   }> {
-    const startTime = Date.now();
     const serviceStatuses: Record<string, { status: 'up' | 'down'; response_time?: number }> = {};
 
     // Test core services
@@ -187,6 +186,53 @@ export class LocalApiRegistry {
       local_only: true,
       timestamp: new Date().toISOString()
     };
+  }
+
+  async healthCheck(): Promise<Record<string, any>> {
+    const serviceStatuses: Record<string, any> = {};
+
+    try {
+      const authStatus = localAuth.isAuthenticated();
+      serviceStatuses['auth'] = {
+        status: 'up',
+        authenticated: authStatus
+      };
+    } catch (error) {
+      serviceStatuses['auth'] = {
+        status: 'down',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+
+    try {
+      const systemHealth = await localApiClient.getSystemHealth();
+      serviceStatuses['system'] = {
+        status: 'up',
+        details: systemHealth
+      };
+    } catch (error) {
+      serviceStatuses['system'] = {
+        status: 'down',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+
+    try {
+      const serverStatus = localApiServer.getStatus();
+      serviceStatuses['websocket'] = {
+        status: serverStatus.running ? 'up' : 'down',
+        port: serverStatus.port,
+        clients: serverStatus.clientCount,
+        sessions: serverStatus.sessionCount
+      };
+    } catch (error) {
+      serviceStatuses['websocket'] = {
+        status: 'down',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+
+    return serviceStatuses;
   }
 
   /**
@@ -394,6 +440,7 @@ export {
 export const api = {
   // System
   health: () => localApiRegistry.getHealthStatus(),
+  healthCheck: () => localApiRegistry.healthCheck(),
   initialize: () => localApiRegistry.initialize(),
   shutdown: () => localApiRegistry.shutdown(),
   documentation: () => localApiRegistry.getApiDocumentation(),

@@ -126,23 +126,32 @@ export const auth = {
     expiresIn?: number;
     error?: string;
   }> => {
-    // Convert email/password to username/password for local auth
     const response = await localAuthService.login({
-      username: email.split('@')[0], // Use part before @ as username
+      username: email,
       password
     });
 
+    if (response.success && response.session_id) {
+      return {
+        success: true,
+        token: response.token ?? undefined,
+        user: {
+          id: response.session_id,
+          email,
+          role: 'attorney',
+          firm: 'Local Firm'
+        },
+        expiresIn: response.expires_in ?? undefined,
+        error: undefined
+      };
+    }
+
     return {
-      success: response.success,
-      token: response.token,
-      user: response.success ? {
-        id: response.session_id,
-        email,
-        role: 'attorney',
-        firm: 'Local Firm'
-      } : undefined,
-      expiresIn: response.expires_in,
-      error: response.error
+      success: false,
+      token: undefined,
+      user: undefined,
+      expiresIn: undefined,
+      error: response.error || 'Authentication failed'
     };
   },
 
