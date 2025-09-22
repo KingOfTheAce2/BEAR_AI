@@ -224,10 +224,10 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
     ],
     stripePriceId: '',
     limits: {
-      maxDocuments: 10,
-      maxAnalysisJobs: 0,
-      maxChatSessions: 5,
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxDocuments: 1000,
+      maxAnalysisJobs: 100,
+      maxChatSessions: 50,
+      maxFileSize: 2 * 1024 * 1024 * 1024, // 2GB - Local storage
       documentAnalysis: false,
       prioritySupport: false,
       apiAccess: false,
@@ -262,7 +262,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
       maxDocuments: null,
       maxAnalysisJobs: null,
       maxChatSessions: null,
-      maxFileSize: 500 * 1024 * 1024, // 500MB - Same as Enterprise
+      maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB - Local storage
       documentAnalysis: true,
       prioritySupport: true,
       apiAccess: true,
@@ -293,7 +293,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
       maxDocuments: null,
       maxAnalysisJobs: null,
       maxChatSessions: null,
-      maxFileSize: 500 * 1024 * 1024, // 500MB
+      maxFileSize: 20 * 1024 * 1024 * 1024, // 20GB - Local storage enterprise
       documentAnalysis: true,
       prioritySupport: true,
       apiAccess: true,
