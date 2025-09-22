@@ -7,8 +7,8 @@ This document defines the testing strategy and validation framework for the BEAR
 ## Testing Strategy Hierarchy
 
 ### Level 1: Unit Testing (>90% Coverage Target)
-**Responsible Agent**: `tester`
-**Supporting Agents**: `coder`, `reviewer`
+**Responsible Agent**: `legal-quality-analyst`
+**Supporting Agents**: `legal-workflow-designer`, `compliance-reviewer`
 
 #### Frontend Unit Testing
 - **Framework**: Jest with React Testing Library
@@ -41,8 +41,8 @@ python -m pytest --cov=bear_ai     # Coverage report
 ```
 
 ### Level 2: Integration Testing
-**Responsible Agent**: `tester`
-**Supporting Agents**: `backend-dev`, `system-architect`
+**Responsible Agent**: `legal-quality-analyst`
+**Supporting Agents**: `litigation-data-specialist`, `legal-architecture-lead`
 
 #### API Integration Testing
 - **Framework**: Supertest for Express API testing
@@ -82,8 +82,8 @@ describe('Document Processing API', () => {
 ```
 
 ### Level 3: End-to-End (E2E) Testing  
-**Responsible Agent**: `tester`
-**Supporting Agents**: `production-validator`
+**Responsible Agent**: `legal-quality-analyst`
+**Supporting Agents**: `compliance-validator`
 
 #### E2E Testing Framework
 - **Framework**: Playwright for cross-browser testing
@@ -143,8 +143,8 @@ test('AI legal assistant chat interaction', async ({ page }) => {
 ```
 
 ### Level 4: Performance Testing
-**Responsible Agent**: `perf-analyzer`
-**Supporting Agents**: `production-validator`, `memory-coordinator`
+**Responsible Agent**: `legal-performance-analyst`
+**Supporting Agents**: `compliance-validator`, `memory-coordinator`
 
 #### Performance Testing Areas
 - **Load Testing**: Concurrent user simulation
@@ -172,8 +172,8 @@ performance_targets:
 ```
 
 ### Level 5: Security Testing
-**Responsible Agent**: `security-manager`
-**Supporting Agents**: `code-analyzer`, `production-validator`
+**Responsible Agent**: `legal-security-director`
+**Supporting Agents**: `code-analyzer`, `compliance-validator`
 
 #### Security Testing Framework
 - **Static Analysis**: ESLint security rules, Bandit for Python
@@ -204,7 +204,7 @@ describe('Security Validation', () => {
 ## Validation Framework
 
 ### Automated Quality Gates
-**Responsible Agent**: `production-validator`
+**Responsible Agent**: `compliance-validator`
 **Implementation**: CI/CD pipeline integration
 
 #### Pre-Commit Hooks
@@ -247,32 +247,32 @@ quality_checks:
 #### Agent Testing Responsibilities Matrix
 ```yaml
 testing_matrix:
-  system-architect:
+  legal-architecture-lead:
     - Architecture validation tests
     - Integration point testing
     - IPC communication validation
     
-  backend-dev:
+  litigation-data-specialist:
     - API endpoint testing
     - Database integration tests
     - Authentication flow tests
     
-  coder:
+  legal-workflow-designer:
     - Component unit tests
     - UI integration tests
     - User interaction tests
     
-  ml-developer:
+  legal-intelligence-analyst:
     - Model inference tests
     - PII detection validation
     - Document processing tests
     
-  security-manager:
+  legal-security-director:
     - Security penetration tests
     - Audit log validation
     - Encryption verification
     
-  perf-analyzer:
+  legal-performance-analyst:
     - Performance benchmarking
     - Load testing coordination
     - Memory usage validation
@@ -353,7 +353,7 @@ npx claude-flow@alpha memory store "bear-ai/testing/e2e-results" "15/16 scenario
 npx claude-flow@alpha hooks pre-task --description "Running test suite phase 1"
 
 # Post-test result sharing
-npx claude-flow@alpha hooks notify --message "Unit tests: 92% coverage achieved" --agents "reviewer,production-validator"
+npx claude-flow@alpha hooks notify --message "Unit tests: 92% coverage achieved" --agents "compliance-reviewer,compliance-validator"
 ```
 
 This comprehensive testing strategy ensures high-quality deliverables across all development phases with clear agent coordination and automated quality gates.

@@ -198,7 +198,7 @@ import PaymentForm from './components/subscription/PaymentForm';
   customerId="cus_..."
   priceId="price_..."
   planName="Professional Plan"
-  amount={29.99}
+  amount={19.90}
   currency="USD"
   onSuccess={(subscription) => console.log('Success:', subscription)}
   onError={(error) => console.error('Error:', error)}

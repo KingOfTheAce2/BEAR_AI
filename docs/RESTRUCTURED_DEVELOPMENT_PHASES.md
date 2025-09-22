@@ -404,17 +404,17 @@ class ComprehensiveAuditSystem {
 #### **Phase 1 - Security & Compliance Focus:**
 ```typescript
 const PHASE_1_AGENTS = {
-  lead: 'security-manager',
+  lead: 'legal-security-director',
   primary: [
-    'security-manager',      // Lead security implementation
-    'system-architect',      // Secure architecture design  
+    'legal-security-director',      // Lead security implementation
+    'legal-architecture-lead',      // Secure architecture design  
     'privacy-auditor',       // Privacy and compliance
-    'backend-dev'           // Secure backend services
+    'litigation-data-specialist'           // Secure backend services
   ],
   supporting: [
-    'tester',               // Security testing
-    'reviewer',             // Security code review
-    'coder'                 // Implementation support
+    'legal-quality-analyst',               // Security testing
+    'compliance-reviewer',             // Security code review
+    'legal-workflow-designer'                 // Implementation support
   ]
 }
 ```
@@ -422,17 +422,17 @@ const PHASE_1_AGENTS = {
 #### **Phase 2 - Core Features:**
 ```typescript
 const PHASE_2_AGENTS = {
-  lead: 'ml-developer',
+  lead: 'legal-intelligence-analyst',
   primary: [
-    'ml-developer',         // AI/ML implementation
-    'coder',                // Frontend development
-    'backend-dev',          // API development
-    'system-architect'      // Architecture decisions
+    'legal-intelligence-analyst',         // AI/ML implementation
+    'legal-workflow-designer',                // Frontend development
+    'litigation-data-specialist',          // API development
+    'legal-architecture-lead'      // Architecture decisions
   ],
   supporting: [
-    'tester',               // Feature testing
-    'reviewer',             // Code quality
-    'security-manager'      // Ongoing security review
+    'legal-quality-analyst',               // Feature testing
+    'compliance-reviewer',             // Code quality
+    'legal-security-director'      // Ongoing security review
   ]
 }
 ```
@@ -440,17 +440,17 @@ const PHASE_2_AGENTS = {
 #### **Phase 3 - Advanced Features:**
 ```typescript
 const PHASE_3_AGENTS = {
-  lead: 'system-architect',
+  lead: 'legal-architecture-lead',
   primary: [
-    'performance-analyzer', // Performance optimization
-    'coder',                // Advanced UI features
-    'ml-developer',         // Advanced AI features
-    'backend-dev'          // Backend optimization
+    'legal-performance-analyst', // Performance optimization
+    'legal-workflow-designer',                // Advanced UI features
+    'legal-intelligence-analyst',         // Advanced AI features
+    'litigation-data-specialist'          // Backend optimization
   ],
   supporting: [
-    'tester',               // Performance testing
-    'reviewer',             // Quality assurance
-    'security-manager'      // Security validation
+    'legal-quality-analyst',               // Performance testing
+    'compliance-reviewer',             // Quality assurance
+    'legal-security-director'      // Security validation
   ]
 }
 ```
@@ -458,17 +458,17 @@ const PHASE_3_AGENTS = {
 #### **Phase 4 - Production:**
 ```typescript
 const PHASE_4_AGENTS = {
-  lead: 'cicd-engineer',
+  lead: 'compliance-deployment-lead',
   primary: [
-    'tester',               // Comprehensive testing
-    'cicd-engineer',        // Deployment pipeline
-    'reviewer',             // Final quality gates
-    'security-manager'      // Security validation
+    'legal-quality-analyst',               // Comprehensive testing
+    'compliance-deployment-lead',        // Deployment pipeline
+    'compliance-reviewer',             // Final quality gates
+    'legal-security-director'      // Security validation
   ],
   supporting: [
-    'system-architect',     // Architecture validation
-    'performance-analyzer', // Performance validation
-    'coder'                // Bug fixes and polish
+    'legal-architecture-lead',     // Architecture validation
+    'legal-performance-analyst', // Performance validation
+    'legal-workflow-designer'                // Bug fixes and polish
   ]
 }
 ```

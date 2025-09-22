@@ -55,7 +55,7 @@ All GitHub stash fixes have been successfully applied and critical features have
 ### 2. **Stripe Payment Tiers** (BUSINESS CRITICAL)
 **Location**: `src/types/subscription.ts`, `src/components/subscription/`, `src-tauri/src/stripe_integration.rs`
 
-- ✅ **Three-tier system**: Free, Professional ($29.99), Enterprise ($99.99)
+- ✅ **Three-tier system**: Free, Professional ($19.90), Enterprise ($19.90/seat)
 - ✅ **Feature gating system** with `<FeatureGate>` component
 - ✅ **Secure Rust backend** for all Stripe operations
 - ✅ **Enterprise multi-account management** with central billing

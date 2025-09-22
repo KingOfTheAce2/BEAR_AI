@@ -11,23 +11,23 @@ This guide outlines the recommended swarm task distribution strategy for BEAR AI
 
 | Agent Type | Primary Focus | Key Skills | Recommended Tasks |
 |------------|---------------|------------|-------------------|
-| **Frontend Developer** | React/TypeScript UI | Component development, state management | UI components, theme system, responsive design |
-| **Backend Developer** | Python/Express APIs | Server-side logic, database design | API endpoints, authentication, data processing |
+| **Legal Workflow Designer** | React/TypeScript UI | Component development, state management | UI components, theme system, responsive design |
+| **Litigation Data Specialist** | Python/Express APIs | Server-side logic, database design | API endpoints, authentication, data processing |
 | **Tauri Specialist** | Desktop integration | Rust, native APIs, system integration | Desktop features, file system, system tray |
-| **AI Engineer** | Model integration | llama.cpp, GPU optimization, inference | Model management, performance optimization |
+| **Legal Intelligence Specialist** | Model integration | llama.cpp, GPU optimization, inference | Model management, performance optimization |
 | **Security Auditor** | Privacy & security | Encryption, PII detection, audit trails | Security features, compliance, vulnerability assessment |
-| **Performance Optimizer** | System efficiency | Profiling, caching, resource management | Performance monitoring, optimization, scalability |
+| **Legal Efficiency Analyst** | System efficiency | Profiling, caching, resource management | Performance monitoring, optimization, scalability |
 
 ### 1.2 Specialized Support Agents
 
 | Agent Type | Domain | Responsibilities |
 |------------|--------|------------------|
 | **Testing Coordinator** | Quality assurance | Unit tests, integration tests, E2E testing |
-| **Documentation Writer** | Technical communication | API docs, user guides, architectural documentation |
+| **Legal Documentation Writer** | Technical communication | API docs, user guides, architectural documentation |
 | **Accessibility Specialist** | WCAG compliance | Screen reader support, keyboard navigation, ARIA |
 | **Build Engineer** | DevOps | CI/CD pipelines, deployment automation, build optimization |
-| **UX Designer** | User experience | Interface design, user flows, usability testing |
-| **Code Reviewer** | Quality control | Code review, best practices, technical debt management |
+| **Legal Experience Designer** | User experience | Interface design, user flows, usability testing |
+| **Compliance Reviewer** | Quality control | Code review, best practices, technical debt management |
 
 ## 2. Task Distribution Strategy
 
@@ -38,7 +38,7 @@ This guide outlines the recommended swarm task distribution strategy for BEAR AI
 // Primary agents working in parallel
 const frontendTeam = [
   {
-    agent: "React Developer",
+    agent: "Legal Interface Specialist",
     tasks: [
       "Implement advanced chat interface components",
       "Develop unified layout system",
@@ -76,12 +76,12 @@ const frontendTeam = [
 ```python
 # Backend development coordination
 backend_assignments = {
-    "Python AI Engineer": [
+    "Python Legal Intelligence Specialist": [
         "Optimize llama.cpp inference pipeline",
         "Implement GPU acceleration fallback",
         "Develop model hot-swapping system"
     ],
-    "API Developer": [
+    "Legal API Liaison": [
         "Enhance Express.js middleware",
         "Implement rate limiting and caching",
         "Develop WebSocket for real-time updates"
@@ -91,7 +91,7 @@ backend_assignments = {
         "Audit logging system implementation",
         "Encryption key management system"
     ],
-    "Performance Optimizer": [
+    "Legal Efficiency Analyst": [
         "Memory usage optimization",
         "Response time monitoring",
         "Resource allocation algorithms"
@@ -108,12 +108,12 @@ struct TauriTeam {
         "File system permission management", 
         "Native notification system"
     ],
-    build_engineer: Vec<&str> = vec![
+    deployment_specialist: Vec<&str> = vec![
         "Cross-platform build optimization",
         "Installer script development",
         "Update mechanism implementation"
     ],
-    platform_tester: Vec<&str> = vec![
+    platform_quality_analyst: Vec<&str> = vec![
         "Windows compatibility testing",
         "macOS integration validation",
         "Linux distribution testing"
@@ -125,51 +125,51 @@ struct TauriTeam {
 
 #### High Priority (Immediate - 1-2 weeks)
 1. **GUI Consolidation Completion**
-   - Agent: Frontend Developer + Theme Architect
+   - Agent: Legal Workflow Designer + Theme Architect
    - Tasks: Complete unified interface, fix theme switching bugs
    - Blockers: None
    - Dependencies: Theme system architecture
 
 2. **Memory Management Enhancement**
-   - Agent: Performance Optimizer + AI Engineer
+   - Agent: Legal Efficiency Analyst + Legal Intelligence Specialist
    - Tasks: Real-time monitoring, optimization algorithms
    - Blockers: None
    - Dependencies: System metrics API
 
 3. **Security Audit Implementation**
-   - Agent: Security Auditor + Code Reviewer
+   - Agent: Security Auditor + Compliance Reviewer
    - Tasks: PII detection, audit trails, vulnerability assessment
    - Blockers: None
    - Dependencies: Authentication system
 
 #### Medium Priority (2-4 weeks)
 1. **GPU Acceleration Optimization**
-   - Agent: AI Engineer + Performance Optimizer
+   - Agent: Legal Intelligence Specialist + Legal Efficiency Analyst
    - Tasks: CUDA integration, fallback mechanisms, benchmarking
    - Blockers: Hardware availability for testing
    - Dependencies: Inference engine
 
 2. **Testing Framework Expansion**
-   - Agent: Testing Coordinator + Frontend Developer
+   - Agent: Testing Coordinator + Legal Workflow Designer
    - Tasks: Unit tests, integration tests, E2E automation
    - Blockers: None
    - Dependencies: Component architecture
 
 3. **Documentation System**
-   - Agent: Documentation Writer + API Developer
+   - Agent: Legal Documentation Writer + Legal API Liaison
    - Tasks: API documentation, user guides, developer docs
    - Blockers: None
    - Dependencies: API stability
 
 #### Lower Priority (4-8 weeks)
 1. **Plugin Architecture**
-   - Agent: Backend Developer + Frontend Developer
+   - Agent: Litigation Data Specialist + Legal Workflow Designer
    - Tasks: Plugin system design, SDK development, marketplace
    - Blockers: Architecture decisions needed
    - Dependencies: Core system stability
 
 2. **Advanced Analytics**
-   - Agent: Performance Optimizer + AI Engineer
+   - Agent: Legal Efficiency Analyst + Legal Intelligence Specialist
    - Tasks: Usage analytics, performance metrics, predictive optimization
    - Blockers: Privacy compliance review
    - Dependencies: Data collection framework
@@ -183,21 +183,21 @@ struct TauriTeam {
 coordination_topology:
   type: "hierarchical"
   lead_coordinators:
-    - "system-architect"
+    - "legal-architecture-lead"
     - "tech-lead" 
   
   development_clusters:
     frontend_cluster:
-      coordinator: "senior-frontend-dev"
-      agents: ["react-dev", "theme-architect", "ux-designer"]
+      coordinator: "senior-intake-specialist"
+      agents: ["legal-interface-specialist", "legal-theme-architect", "legal-experience-designer"]
       
     backend_cluster:
-      coordinator: "senior-backend-dev" 
-      agents: ["python-engineer", "api-developer", "security-auditor"]
+      coordinator: "senior-litigation-data-specialist" 
+      agents: ["legal-automation-specialist", "legal-api-liaison", "security-auditor"]
       
     platform_cluster:
       coordinator: "platform-lead"
-      agents: ["tauri-specialist", "build-engineer", "performance-optimizer"]
+      agents: ["tauri-specialist", "deployment-specialist", "legal-efficiency-analyst"]
 ```
 
 ### 3.2 Synchronization Points
@@ -234,7 +234,7 @@ const QUALITY_GATES: QualityGate[] = [
   {
     name: "Code Review Gate",
     trigger: "pull_request",
-    agents_required: ["code-reviewer", "security-auditor"],
+    agents_required: ["code-compliance-reviewer", "security-auditor"],
     criteria: {
       test_coverage: ">= 80%",
       security_scan: "no_high_vulnerabilities", 
@@ -244,7 +244,7 @@ const QUALITY_GATES: QualityGate[] = [
   {
     name: "Integration Gate", 
     trigger: "merge",
-    agents_required: ["testing-coordinator", "performance-optimizer"],
+    agents_required: ["testing-coordinator", "legal-efficiency-analyst"],
     criteria: {
       integration_tests: "all_passing",
       performance_benchmarks: "within_acceptable_range",
@@ -259,11 +259,11 @@ const QUALITY_GATES: QualityGate[] = [
 ### 4.1 Feature Development Cycle
 
 1. **Requirements Analysis**
-   - Agent: System Architect + Domain Expert
+   - Agent: Legal Architecture Lead + Domain Expert
    - Output: Technical specifications, acceptance criteria
 
 2. **Design Phase**
-   - Agent: UX Designer + Frontend Developer
+   - Agent: Legal Experience Designer + Legal Workflow Designer
    - Output: UI mockups, component specifications
 
 3. **Implementation Phase**
@@ -271,11 +271,11 @@ const QUALITY_GATES: QualityGate[] = [
    - Output: Functional code with tests
 
 4. **Integration Phase**
-   - Agent: Testing Coordinator + Performance Optimizer
+   - Agent: Testing Coordinator + Legal Efficiency Analyst
    - Output: Integrated feature with performance validation
 
 5. **Review & Polish**
-   - Agent: Code Reviewer + Security Auditor
+   - Agent: Compliance Reviewer + Security Auditor
    - Output: Production-ready feature
 
 ### 4.2 Bug Triage and Resolution
@@ -284,9 +284,9 @@ const QUALITY_GATES: QualityGate[] = [
 flowchart TD
     A[Bug Report] --> B[Bug Triage Agent]
     B --> C{Severity Assessment}
-    C -->|Critical| D[Security Auditor + Senior Developer]
-    C -->|High| E[Domain Specialist + Code Reviewer]
-    C -->|Medium| F[Junior Developer + Mentor]
+    C -->|Critical| D[Security Auditor + Senior Legal Technologist]
+    C -->|High| E[Domain Specialist + Compliance Reviewer]
+    C -->|Medium| F[Junior Legal Technologist + Mentor]
     C -->|Low| G[Community Contributor]
     
     D --> H[Immediate Fix]
@@ -353,10 +353,10 @@ flowchart TD
 
 | Risk | Probability | Impact | Mitigation Strategy | Responsible Agent |
 |------|-------------|---------|-------------------|-------------------|
-| **Integration Complexity** | High | High | Incremental integration, extensive testing | System Architect |
-| **Performance Degradation** | Medium | High | Continuous monitoring, optimization cycles | Performance Optimizer |
+| **Integration Complexity** | High | High | Incremental integration, extensive testing | Legal Architecture Lead |
+| **Performance Degradation** | Medium | High | Continuous monitoring, optimization cycles | Legal Efficiency Analyst |
 | **Security Vulnerabilities** | Medium | Critical | Regular audits, secure coding practices | Security Auditor |
-| **Technical Debt Accumulation** | High | Medium | Regular refactoring, code quality gates | Code Reviewer |
+| **Technical Debt Accumulation** | High | Medium | Regular refactoring, code quality gates | Compliance Reviewer |
 | **Agent Coordination Overhead** | Medium | Medium | Automated coordination tools, clear protocols | Tech Lead |
 
 ### 7.2 Contingency Planning
@@ -378,7 +378,7 @@ flowchart TD
 
 ---
 
-**Guide Prepared By:** System Architecture Designer  
+**Guide Prepared By:** Legal Architecture Overview Designer  
 **Last Updated:** January 11, 2025  
 **Version:** 1.0  
 **Target Audience:** Development teams, project managers, technical leads

@@ -38,7 +38,7 @@ Core Services Status:
 ├── Workflow Engine: ✅ Active
 ├── Agent Manager: ✅ Active
 ├── Model Manager: ✅ Active
-├── Security Manager: ✅ Active
+├── Legal Security Director: ✅ Active
 └── API Server: ✅ Running (Port 8000)
 
 Resource Status:

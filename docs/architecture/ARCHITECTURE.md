@@ -1,4 +1,4 @@
-# BEAR AI System Architecture
+# BEAR AI Legal Architecture Overview
 
 ## Table of Contents
 
@@ -217,7 +217,7 @@ class PluginSystem:
     """
 ```
 
-#### 6. Security Manager (`src/bear_ai/security.py`)
+#### 6. Legal Security Director (`src/bear_ai/security.py`)
 
 ```python
 class SecurityManager:
@@ -283,7 +283,7 @@ graph TD
     E2 --> PS
     E3 --> PS
     
-    V --> SM[Security Manager]
+    V --> SM[Legal Security Director]
     M --> PM[Performance Monitor]
     
     MM --> HO[Hardware Optimizer]

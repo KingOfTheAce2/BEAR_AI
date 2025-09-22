@@ -53,7 +53,7 @@ export PII_AUDIT_DIR=./logs/pii/
 export PII_CONFIDENCE_THRESHOLD=0.8
 ```
 
-## System Architecture
+## Legal Architecture Overview
 
 ### Core Components
 

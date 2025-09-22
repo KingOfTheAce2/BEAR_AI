@@ -2,29 +2,31 @@ import { test, expect, Page } from '@playwright/test';
 
 // Test payment plans and configurations
 const PAYMENT_PLANS = {
-  basic: {
-    id: 'basic',
-    name: 'Basic Plan',
-    price: 29.99,
-    currency: 'USD',
-    interval: 'month',
-    features: ['Document Analysis', 'Basic PII Detection', 'Email Support']
-  },
   professional: {
     id: 'professional',
     name: 'Professional Plan',
-    price: 99.99,
+    price: 19.9,
     currency: 'USD',
     interval: 'month',
-    features: ['Advanced Analysis', 'Real-time PII Detection', 'Priority Support', 'API Access']
+    features: [
+      'Advanced legal analysis',
+      'Real-time PII detection',
+      'Priority legal support',
+      'API access for case systems'
+    ]
   },
   enterprise: {
     id: 'enterprise',
     name: 'Enterprise Plan',
-    price: 299.99,
+    price: 19.9,
     currency: 'USD',
     interval: 'month',
-    features: ['All Features', 'Custom Integrations', 'Dedicated Support', 'On-premise Deployment']
+    features: [
+      'All Professional features',
+      'Custom legal integrations',
+      'Dedicated compliance liaison',
+      'On-premise deployment options'
+    ]
   }
 };
 
@@ -86,7 +88,7 @@ test.describe('Payment Flow System', () => {
     // Verify plan details in checkout
     const checkoutSummary = page.locator('[data-testid="checkout-summary"]');
     await expect(checkoutSummary).toContainText('Professional Plan');
-    await expect(checkoutSummary).toContainText('$99.99');
+    await expect(checkoutSummary).toContainText('$19.90');
 
     // Fill billing information
     await page.fill('[data-testid="billing-name"]', 'John Doe');
@@ -120,8 +122,8 @@ test.describe('Payment Flow System', () => {
   });
 
   test('should handle payment failures gracefully', async ({ page }) => {
-    // Select Basic plan
-    await page.click('[data-testid="plan-basic"] [data-testid="select-plan"]');
+    // Select Professional plan
+    await page.click('[data-testid="plan-professional"] [data-testid="select-plan"]');
     await page.waitForURL('**/checkout**');
 
     // Fill billing information
@@ -267,8 +269,8 @@ test.describe('Payment Flow System', () => {
   });
 
   test('should validate payment form inputs', async ({ page }) => {
-    // Select Basic plan
-    await page.click('[data-testid="plan-basic"] [data-testid="select-plan"]');
+    // Select Professional plan
+    await page.click('[data-testid="plan-professional"] [data-testid="select-plan"]');
     await page.waitForURL('**/checkout**');
 
     // Try to submit empty form

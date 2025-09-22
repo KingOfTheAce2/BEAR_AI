@@ -67,9 +67,9 @@ Based on your requirements, I have completely restructured the BEAR AI developme
 - 🔒 **Privacy dashboard** with real-time impact assessment
 
 #### **Agent Team (Phase 1):**
-- **Lead**: `security-manager` (100% commitment)
-- **Core**: `privacy-auditor`, `system-architect`, `backend-dev`
-- **Support**: `tester` (security testing), `reviewer` (security review)
+- **Lead**: `legal-security-director` (100% commitment)
+- **Core**: `privacy-auditor`, `legal-architecture-lead`, `litigation-data-specialist`
+- **Support**: `legal-quality-analyst` (security testing), `compliance-reviewer` (security review)
 
 ---
 
@@ -90,9 +90,9 @@ Based on your requirements, I have completely restructured the BEAR AI developme
 - 🔍 **Document search** and filtering capabilities
 
 #### **Agent Team (Phase 2):**
-- **Lead**: `ml-developer` (AI/ML implementation)
-- **Core**: `coder` (frontend), `backend-dev` (APIs), `system-architect`
-- **Security Oversight**: `security-manager` (40% ongoing validation)
+- **Lead**: `legal-intelligence-analyst` (AI/ML implementation)
+- **Core**: `legal-workflow-designer` (frontend), `litigation-data-specialist` (APIs), `legal-architecture-lead`
+- **Security Oversight**: `legal-security-director` (40% ongoing validation)
 
 ---
 
@@ -112,9 +112,9 @@ Based on your requirements, I have completely restructured the BEAR AI developme
 - 🔧 **Extension system** (plugin architecture + custom models)
 
 #### **Agent Team (Phase 3):**
-- **Lead**: `performance-analyzer` (optimization focus)
-- **Specialized**: `coder` (advanced UI), `ml-developer` (advanced AI)
-- **Support**: `system-architect` (architecture optimization)
+- **Lead**: `legal-performance-analyst` (optimization focus)
+- **Specialized**: `legal-workflow-designer` (advanced UI), `legal-intelligence-analyst` (advanced AI)
+- **Support**: `legal-architecture-lead` (architecture optimization)
 
 ---
 
@@ -132,9 +132,9 @@ Based on your requirements, I have completely restructured the BEAR AI developme
 - 📚 **Complete documentation** (user guides + API docs)
 
 #### **Agent Team (Phase 4):**
-- **Lead**: `cicd-engineer` (deployment pipeline)
-- **Core**: `tester` (comprehensive testing), `reviewer` (quality gates)
-- **Validation**: `security-manager` (final security validation)
+- **Lead**: `compliance-deployment-lead` (deployment pipeline)
+- **Core**: `legal-quality-analyst` (comprehensive testing), `compliance-reviewer` (quality gates)
+- **Validation**: `legal-security-director` (final security validation)
 
 ---
 
@@ -144,7 +144,7 @@ Based on your requirements, I have completely restructured the BEAR AI developme
 
 #### **Phase 1 - Hierarchical Security-First:**
 ```
-security-manager (Lead) → system-architect → [privacy-auditor, backend-dev] → [tester, reviewer, coder]
+legal-security-director (Lead) → legal-architecture-lead → [privacy-auditor, litigation-data-specialist] → [legal-quality-analyst, compliance-reviewer, legal-workflow-designer]
 ```
 - **Daily security standups** (15 min)
 - **Weekly architecture reviews** (60 min)
@@ -152,7 +152,7 @@ security-manager (Lead) → system-architect → [privacy-auditor, backend-dev] 
 
 #### **Phase 2-4 - Collaborative with Security Oversight:**
 ```
-phase-lead → core-team ← security-manager (oversight)
+phase-lead → core-team ← legal-security-director (oversight)
 ```
 - **Security validation** for all major features
 - **Continuous compliance** monitoring
@@ -241,14 +241,14 @@ phase-lead → core-team ← security-manager (oversight)
 ### **Immediate Actions Required:**
 
 1. **Review Documentation** - Validate the restructured phases align with your vision
-2. **Agent Initialization** - Begin Phase 1 with security-manager as lead
+2. **Agent Initialization** - Begin Phase 1 with legal-security-director as lead
 3. **Architecture Validation** - Confirm offline-first architecture approach
 4. **Timeline Approval** - Approve the extended Phase 1 timeline (3 months)
 5. **Resource Allocation** - Assign development resources to security-first priorities
 
 ### **Phase 1 Kickoff Checklist:**
 
-- [ ] **Security Team Assembly** - Assign security-manager, privacy-auditor, system-architect
+- [ ] **Security Team Assembly** - Assign legal-security-director, privacy-auditor, legal-architecture-lead
 - [ ] **Development Environment** - Set up secure development environment
 - [ ] **Architecture Review** - Validate offline-first architecture decisions
 - [ ] **Compliance Framework** - Initialize GDPR/CCPA compliance engines

@@ -4,7 +4,7 @@
 
 This document outlines the enhanced architecture for BEAR AI incorporating insights from jan-dev and modern development patterns. The new architecture transforms BEAR AI from a monolithic Python application into a modern, multi-agent, cross-platform system using Vite + TypeScript + Tauri, with advanced agent orchestration capabilities.
 
-## 1. System Architecture Overview
+## 1. Legal Architecture Overview
 
 ### 1.1 Current State Analysis
 
@@ -31,7 +31,7 @@ This document outlines the enhanced architecture for BEAR AI incorporating insig
 - Plugin/extension ecosystem for local functionality
 - Advanced performance monitoring with privacy protection
 
-## 2. Multi-Agent System Architecture
+## 2. Multi-Agent Legal Architecture Overview
 
 ### 2.1 Agent Taxonomy
 
@@ -79,7 +79,7 @@ graph TB
     subgraph "System Agents"
         RSM[Resource Monitor Agent]
         SG[Security Guardian Agent]
-        PO[Performance Optimizer Agent]
+        PO[Legal Efficiency Analyst Agent]
         WO[Workflow Orchestrator Agent]
     end
     
@@ -712,7 +712,7 @@ class QualityAssuranceSystem {
 
 ## 11. System Diagrams and Component Interactions
 
-### 11.1 High-Level System Architecture
+### 11.1 High-Level Legal Architecture Overview
 
 ```mermaid
 graph TB

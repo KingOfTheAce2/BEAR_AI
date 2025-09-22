@@ -303,10 +303,10 @@ Before creating a pull request:
 **For Authors:**
 - Write clear PR descriptions with context and testing instructions
 - Keep PRs focused and reasonably sized (< 500 lines when possible)
-- Respond promptly to reviewer feedback
+- Respond promptly to compliance-reviewer feedback
 - Update tests and documentation as needed
 
-**For Reviewers:**
+**For Compliance Compliance Reviewers:**
 - Focus on correctness, security, performance, and maintainability
 - Provide constructive feedback with suggestions
 - Test complex changes locally

@@ -240,7 +240,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
     tier: SubscriptionTier.PROFESSIONAL,
     name: 'Professional',
     description: 'Full featured plan with enterprise-level AI agents and document analysis',
-    price: 5000, // $50.00
+    price: 1990, // $19.90
     currency: 'usd',
     interval: 'month',
     features: [
@@ -275,7 +275,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
     tier: SubscriptionTier.ENTERPRISE,
     name: 'Enterprise',
     description: 'Professional features with multi-user management and central billing',
-    price: 9999, // $99.99
+    price: 1990, // $19.90 per seat
     currency: 'usd',
     interval: 'month',
     features: [

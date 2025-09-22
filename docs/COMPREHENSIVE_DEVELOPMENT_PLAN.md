@@ -41,8 +41,8 @@
 ## Phase 1: Foundation & Integration (Weeks 1-2)
 
 ### Task Group A: Tauri-React Integration
-**Primary Agent**: `system-architect`
-**Supporting Agents**: `coder`, `tester`
+**Primary Agent**: `legal-architecture-lead`
+**Supporting Agents**: `legal-workflow-designer`, `legal-quality-analyst`
 
 **Critical Tasks:**
 1. Complete Tauri IPC communication layer
@@ -54,8 +54,8 @@
 **Success Criteria**: Tauri app launches with full React integration
 
 ### Task Group B: Python Backend Integration
-**Primary Agent**: `backend-dev`
-**Supporting Agents**: `api-docs`, `security-manager`
+**Primary Agent**: `litigation-data-specialist`
+**Supporting Agents**: `api-docs`, `legal-security-director`
 
 **Critical Tasks:**
 1. Complete OpenAI-compatible API server
@@ -69,8 +69,8 @@
 ## Phase 2: Core Features Development (Weeks 2-4)
 
 ### Task Group C: Legal Document Processing
-**Primary Agent**: `ml-developer`
-**Supporting Agents**: `coder`, `security-manager`
+**Primary Agent**: `legal-intelligence-analyst`
+**Supporting Agents**: `legal-workflow-designer`, `legal-security-director`
 
 **Critical Tasks:**
 1. Implement advanced PII detection and scrubbing
@@ -82,8 +82,8 @@
 **Success Criteria**: Can process PDF/DOCX files with legal analysis
 
 ### Task Group D: Chat and UI Enhancement
-**Primary Agent**: `coder`
-**Supporting Agents**: `reviewer`, `tester`
+**Primary Agent**: `legal-workflow-designer`
+**Supporting Agents**: `compliance-reviewer`, `legal-quality-analyst`
 
 **Critical Tasks:**
 1. Complete real-time chat interface with streaming
@@ -97,8 +97,8 @@
 ## Phase 3: Advanced Features (Weeks 4-6)
 
 ### Task Group E: Security and Privacy
-**Primary Agent**: `security-manager`
-**Supporting Agents**: `backend-dev`, `code-analyzer`
+**Primary Agent**: `legal-security-director`
+**Supporting Agents**: `litigation-data-specialist`, `code-analyzer`
 
 **Critical Tasks:**
 1. Implement comprehensive audit logging
@@ -110,7 +110,7 @@
 **Success Criteria**: Passes security audit and compliance checks
 
 ### Task Group F: Performance and Monitoring
-**Primary Agent**: `perf-analyzer`
+**Primary Agent**: `legal-performance-analyst`
 **Supporting Agents**: `smart-agent`, `memory-coordinator`
 
 **Critical Tasks:**
@@ -125,8 +125,8 @@
 ## Phase 4: Testing and Deployment (Weeks 6-8)
 
 ### Task Group G: Comprehensive Testing
-**Primary Agent**: `tester`
-**Supporting Agents**: `production-validator`, `tdd-london-swarm`
+**Primary Agent**: `legal-quality-analyst`
+**Supporting Agents**: `compliance-validator`, `tdd-london-swarm`
 
 **Critical Tasks:**
 1. Complete unit test coverage (>90%)
@@ -138,7 +138,7 @@
 **Success Criteria**: All tests passing with comprehensive coverage
 
 ### Task Group H: Deployment and CI/CD
-**Primary Agent**: `cicd-engineer`
+**Primary Agent**: `compliance-deployment-lead`
 **Supporting Agents**: `workflow-automation`, `release-manager`
 
 **Critical Tasks:**
@@ -222,13 +222,13 @@ npx claude-flow@alpha hooks session-end --export-metrics true
 ## Resource Allocation
 
 ### Agent Assignments by Specialty
-- **Architecture**: `system-architect`, `repo-architect`
-- **Backend Development**: `backend-dev`, `api-docs`
-- **Frontend Development**: `coder`, `reviewer`
-- **Testing**: `tester`, `tdd-london-swarm`, `production-validator`
-- **Security**: `security-manager`, `code-analyzer`
-- **Performance**: `perf-analyzer`, `memory-coordinator`
-- **DevOps**: `cicd-engineer`, `workflow-automation`
+- **Architecture**: `legal-architecture-lead`, `repo-architect`
+- **Backend Development**: `litigation-data-specialist`, `api-docs`
+- **Frontend Development**: `legal-workflow-designer`, `compliance-reviewer`
+- **Testing**: `legal-quality-analyst`, `tdd-london-swarm`, `compliance-validator`
+- **Security**: `legal-security-director`, `code-analyzer`
+- **Performance**: `legal-performance-analyst`, `memory-coordinator`
+- **DevOps**: `compliance-deployment-lead`, `workflow-automation`
 - **Coordination**: `hierarchical-coordinator`, `task-orchestrator`
 
 ### Execution Timeline

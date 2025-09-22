@@ -654,9 +654,9 @@ BEAR AI Production Validation Team
 January 2025
 
 **Reviewed By:**  
-Senior System Architect  
+Senior Legal Architecture Lead  
 Legal Technology Compliance Officer  
-Information Security Manager
+Information Legal Security Director
 
 **Approved For Production Deployment:**  
 Chief Technology Officer  

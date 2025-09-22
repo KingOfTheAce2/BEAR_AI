@@ -36,21 +36,21 @@ npx claude-flow@alpha hooks session-restore --session-id "bear-ai-development-pl
 
 #### 2. Spawn Phase 1 Agents (Foundation & Integration)
 ```javascript
-Task("System Architect", `
+Task("Legal Architecture Lead", `
 Complete Tauri-React IPC communication layer and desktop integration.
 Read memory key: bear-ai/phases/phase1
-Coordinate with: backend-dev, security-manager
+Coordinate with: litigation-data-specialist, legal-security-director
 Success criteria: Desktop app launches with full React integration
 Use hooks: pre-task, post-edit, post-task
-`, "system-architect")
+`, "legal-architecture-lead")
 
-Task("Backend Developer", `
+Task("Litigation Data Specialist", `
 Implement OpenAI-compatible API server with all endpoints.
 Read memory key: bear-ai/backend/api-endpoints  
-Coordinate with: system-architect, api-docs, security-manager
+Coordinate with: legal-architecture-lead, api-docs, legal-security-director
 Success criteria: API server responds to all documented endpoints
 Use hooks: pre-task, post-edit, post-task
-`, "backend-dev")
+`, "litigation-data-specialist")
 ```
 
 #### 3. Monitor and Coordinate
@@ -97,22 +97,22 @@ npx claude-flow@alpha hooks notify --message "Phase 1 progress update" --agents 
 ### 📊 Development Phases
 
 #### Phase 1: Foundation & Integration (Weeks 1-2)
-- **Agents**: `system-architect`, `backend-dev`
+- **Agents**: `legal-architecture-lead`, `litigation-data-specialist`
 - **Key Tasks**: Tauri-React IPC, API server, file system access
 - **Success**: Desktop app launches with API connectivity
 
 #### Phase 2: Core Features (Weeks 2-4)  
-- **Agents**: `ml-developer`, `coder`
+- **Agents**: `legal-intelligence-analyst`, `legal-workflow-designer`
 - **Key Tasks**: Legal document processing, chat interface, RAG system
 - **Success**: Can process legal documents end-to-end
 
 #### Phase 3: Advanced Features (Weeks 4-6)
-- **Agents**: `security-manager`, `perf-analyzer`
+- **Agents**: `legal-security-director`, `legal-performance-analyst`
 - **Key Tasks**: Security audit logging, encryption, performance monitoring  
 - **Success**: Production-ready security and performance
 
 #### Phase 4: Testing & Deployment (Weeks 6-8)
-- **Agents**: `tester`, `cicd-engineer`
+- **Agents**: `legal-quality-analyst`, `compliance-deployment-lead`
 - **Key Tasks**: Comprehensive testing, CI/CD, installers
 - **Success**: Automated deployment and monitoring
 
