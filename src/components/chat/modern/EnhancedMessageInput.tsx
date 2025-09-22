@@ -15,7 +15,7 @@ interface EnhancedMessageInputProps {
   enablePIIDetection?: boolean;
 }
 
-const EnhancedMessageInput: React.FC&lt;EnhancedMessageInputProps&gt; = ({
+const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
   onSendMessage,
   onTyping,
   onStopTyping,
@@ -32,12 +32,12 @@ const EnhancedMessageInput: React.FC&lt;EnhancedMessageInputProps&gt; = ({
   const [showFormatting, setShowFormatting] = useState(false);
   const [showPIIWarning, setShowPIIWarning] = useState(false);
   const [pendingMessage, setPendingMessage] = useState('');
-  const [pendingMessageType, setPendingMessageType] = useState&lt;Message['type']&gt;('text');
-  const [realTimePIIMatches, setRealTimePIIMatches] = useState&lt;PIIMatch[]&gt;([]);
+  const [pendingMessageType, setPendingMessageType] = useState<Message['type']>('text');
+  const [realTimePIIMatches, setRealTimePIIMatches] = useState<PIIMatch[]>([]);
 
-  const textareaRef = useRef&lt;HTMLTextAreaElement&gt;(null);
-  const typingTimeoutRef = useRef&lt;number | null&gt;(null);
-  const commandsRef = useRef&lt;HTMLDivElement&gt;(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const typingTimeoutRef = useRef<number | null>(null);
+  const commandsRef = useRef<HTMLDivElement>(null);
 
   // PII Detection Hook
   const [piiState, piiActions] = usePIIDetection({
@@ -88,7 +88,7 @@ const EnhancedMessageInput: React.FC&lt;EnhancedMessageInputProps&gt; = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent&lt;HTMLTextAreaElement&gt;) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setMessage(value);
 
@@ -262,7 +262,7 @@ const EnhancedMessageInput: React.FC&lt;EnhancedMessageInputProps&gt; = ({
     }, 0);
   };
 
-  const handleKeyDown = useCallback((event: React.KeyboardEvent&lt;HTMLTextAreaElement&gt;) => {
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey && !isMobile) {
       event.preventDefault();
       handleSubmit(event as any);

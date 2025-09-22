@@ -5,7 +5,7 @@ import './PIISettings.css';
 
 interface PIISettingsProps {
   onConfigChange?: (config: PIIDetectorConfig) => void;
-  initialConfig?: Partial&lt;PIIDetectorConfig&gt;;
+  initialConfig?: Partial<PIIDetectorConfig>;
 }
 
 interface BackendStatus {
@@ -14,11 +14,11 @@ interface BackendStatus {
   currentBackend: 'rust' | 'typescript';
 }
 
-const PIISettings: React.FC&lt;PIISettingsProps&gt; = ({
+const PIISettings: React.FC<PIISettingsProps> = ({
   onConfigChange,
   initialConfig = {}
 }) => {
-  const [config, setConfig] = useState&lt;PIIDetectorConfig&gt;({
+  const [config, setConfig] = useState<PIIDetectorConfig>({
     enableRealTime: true,
     sensitivity: 'high',
     enableLegalPatterns: true,
@@ -30,9 +30,9 @@ const PIISettings: React.FC&lt;PIISettingsProps&gt; = ({
     ...initialConfig
   });
 
-  const [backendStatus, setBackendStatus] = useState&lt;BackendStatus | null&gt;(null);
+  const [backendStatus, setBackendStatus] = useState<BackendStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [testResults, setTestResults] = useState&lt;any&gt;(null);
+  const [testResults, setTestResults] = useState<any>(null);
   const [newWhitelistTerm, setNewWhitelistTerm] = useState('');
   const [newCustomPattern, setNewCustomPattern] = useState({
     name: '',
@@ -61,7 +61,7 @@ const PIISettings: React.FC&lt;PIISettingsProps&gt; = ({
     }
   };
 
-  const handleConfigChange = &lt;K extends keyof PIIDetectorConfig&gt;(
+  const handleConfigChange = <K extends keyof PIIDetectorConfig>(
     key: K,
     value: PIIDetectorConfig[K]
   ) => {
@@ -180,7 +180,7 @@ const PIISettings: React.FC&lt;PIISettingsProps&gt; = ({
     URL.revokeObjectURL(url);
   };
 
-  const handleImportConfig = (event: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+  const handleImportConfig = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

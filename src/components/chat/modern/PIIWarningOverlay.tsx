@@ -11,7 +11,7 @@ interface PIIWarningOverlayProps {
   onViewDetails: () => void;
 }
 
-const PIIWarningOverlay: React.FC&lt;PIIWarningOverlayProps&gt; = ({
+const PIIWarningOverlay: React.FC<PIIWarningOverlayProps> = ({
   isVisible,
   result,
   onContinue,
@@ -94,7 +94,7 @@ const PIIWarningOverlay: React.FC&lt;PIIWarningOverlayProps&gt; = ({
     }
     groups[type].push(match);
     return groups;
-  }, {} as Record&lt;PIIType, PIIMatch[]&gt;);
+  }, {} as Record<PIIType, PIIMatch[]>);
 
   const isLegalPrivileged = result.matches.some(m => m.isLegalPrivileged);
 

@@ -22,7 +22,7 @@ interface PIIDocumentProcessorProps {
   enableAutoRedaction?: boolean;
 }
 
-const PIIDocumentProcessor: React.FC&lt;PIIDocumentProcessorProps&gt; = ({
+const PIIDocumentProcessor: React.FC<PIIDocumentProcessorProps> = ({
   onDocumentProcessed,
   onDocumentBlocked,
   onDocumentApproved,
@@ -31,13 +31,13 @@ const PIIDocumentProcessor: React.FC&lt;PIIDocumentProcessorProps&gt; = ({
   enableAutoRedaction = true
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingQueue, setProcessingQueue] = useState&lt;File[]&gt;([]);
-  const [processedDocuments, setProcessedDocuments] = useState&lt;ProcessedDocument[]&gt;([]);
+  const [processingQueue, setProcessingQueue] = useState<File[]>([]);
+  const [processedDocuments, setProcessedDocuments] = useState<ProcessedDocument[]>([]);
   const [showResultModal, setShowResultModal] = useState(false);
-  const [currentResult, setCurrentResult] = useState&lt;ProcessedDocument | null&gt;(null);
+  const [currentResult, setCurrentResult] = useState<ProcessedDocument | null>(null);
 
-  const fileInputRef = useRef&lt;HTMLInputElement&gt;(null);
-  const dropZoneRef = useRef&lt;HTMLDivElement&gt;(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   const documentScanner = useDocumentPIIScanning();
 
@@ -97,7 +97,7 @@ const PIIDocumentProcessor: React.FC&lt;PIIDocumentProcessorProps&gt; = ({
     setProcessingQueue([]);
   };
 
-  const handleDrop = useCallback((e: React.DragEvent&lt;HTMLDivElement&gt;) => {
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -107,12 +107,12 @@ const PIIDocumentProcessor: React.FC&lt;PIIDocumentProcessorProps&gt; = ({
     }
   }, [handleFileSelect]);
 
-  const handleDragOver = useCallback((e: React.DragEvent&lt;HTMLDivElement&gt;) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
 
-  const handleFileInputChange = useCallback((e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       handleFileSelect(e.target.files);
       e.target.value = ''; // Reset input
