@@ -67,8 +67,8 @@
     "which": "^5.0.0"
   },
   "scripts": {
-    "start": "npx react-scripts start",
-    "build": "npx react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "build:unified": "react-scripts build",
     "build:with-typecheck": "npm run typecheck:build && react-scripts build",
     "build:alpha": "set SKIP_PREFLIGHT_CHECK=true && set GENERATE_SOURCEMAP=false && react-scripts build",
@@ -95,8 +95,8 @@
     "test:coverage": "jest --config tests/jest.config.js --coverage",
     "test:api:coverage": "jest --config jest.api.config.js --coverage",
     "eject": "react-scripts eject",
-    "lint": "npx eslint@8.57.0 src --ext .ts,.tsx",
-    "lint:fix": "npx eslint@8.57.0 src --ext .ts,.tsx --fix",
+    "lint": "node node_modules/react-scripts/node_modules/eslint/bin/eslint.js src --ext .ts,.tsx",
+    "lint:fix": "node node_modules/react-scripts/node_modules/eslint/bin/eslint.js src --ext .ts,.tsx --fix",
     "lint:alpha": "echo 'Skipping ESLint for alpha build'",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "typecheck:strict": "tsc --noEmit",

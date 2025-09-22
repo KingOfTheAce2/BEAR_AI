@@ -1,0 +1,35 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm config set registry https://registry.npmjs.org/
+        npm ci --prefer-offline --no-audit
+
+    - name: Run TypeScript check
+      run: npm run typecheck
+
+    - name: Run tests
+      run: npm test -- --watchAll=false
+
+    - name: Build application
+      run: npm run build
