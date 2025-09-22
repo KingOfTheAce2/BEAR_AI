@@ -44,8 +44,8 @@ jobs:
       run: node scripts/verify-build-config.js
       continue-on-error: true
 
-    - name: Run tests
-      run: npm test -- --watchAll=false
+    - name: Run frontend tests
+      run: npm run test:frontend
 
     - name: Build application
       run: npm run build

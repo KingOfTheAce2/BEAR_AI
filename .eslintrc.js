@@ -15,8 +15,7 @@ module.exports = {
   env: {
     browser: true,
     es2022: true,
-    node: true,
-    jest: true
+    node: true
   },
   parserOptions: {
     ecmaVersion: 2022,
@@ -81,7 +80,19 @@ module.exports = {
     {
       files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
       env: {
-        jest: true
+        browser: true,
+        node: true
+      },
+      globals: {
+        vi: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly'
       },
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',

@@ -2,7 +2,7 @@
 /**
  * Coverage Report Generator
  *
- * Generates comprehensive coverage reports combining Jest, Playwright,
+ * Generates comprehensive coverage reports combining Vitest, Playwright,
  * and Rust test coverage data into unified reporting.
  */
 
@@ -26,7 +26,7 @@ interface FileCoverage {
 }
 
 class CoverageReporter {
-  private jestCoverageDir = path.join(process.cwd(), 'coverage');
+  private vitestCoverageDir = path.join(process.cwd(), 'coverage');
   private rustCoverageDir = path.join(process.cwd(), 'src-tauri/target/coverage');
   private outputDir = path.join(process.cwd(), 'test-results');
 
@@ -41,11 +41,11 @@ class CoverageReporter {
       }
 
       // Collect coverage data
-      const jestCoverage = await this.collectJestCoverage();
+      const vitestCoverage = await this.collectVitestCoverage();
       const rustCoverage = await this.collectRustCoverage();
 
       // Generate unified report
-      const unifiedReport = this.createUnifiedReport(jestCoverage, rustCoverage);
+      const unifiedReport = this.createUnifiedReport(vitestCoverage, rustCoverage);
 
       // Write reports
       await this.writeHtmlReport(unifiedReport);
@@ -64,17 +64,17 @@ class CoverageReporter {
     }
   }
 
-  private async collectJestCoverage(): Promise<CoverageData | null> {
-    const coverageSummaryPath = path.join(this.jestCoverageDir, 'coverage-summary.json');
+  private async collectVitestCoverage(): Promise<CoverageData | null> {
+    const coverageSummaryPath = path.join(this.vitestCoverageDir, 'coverage-summary.json');
 
     if (!fs.existsSync(coverageSummaryPath)) {
-      console.log(chalk.yellow('⚠️ Jest coverage data not found, run tests with --coverage first'));
+      console.log(chalk.yellow('⚠️ Vitest coverage data not found, run tests with --coverage first'));
       return null;
     }
 
     try {
       const coverageData = JSON.parse(fs.readFileSync(coverageSummaryPath, 'utf8'));
-      console.log(chalk.green('📊 Jest coverage data collected'));
+      console.log(chalk.green('📊 Vitest coverage data collected'));
 
       return {
         statements: coverageData.total.statements,
@@ -83,7 +83,7 @@ class CoverageReporter {
         lines: coverageData.total.lines
       };
     } catch (error) {
-      console.warn(chalk.yellow('⚠️ Could not parse Jest coverage data:'), error);
+      console.warn(chalk.yellow('⚠️ Could not parse Vitest coverage data:'), error);
       return null;
     }
   }
@@ -136,17 +136,17 @@ class CoverageReporter {
     };
   }
 
-  private createUnifiedReport(jestCoverage: CoverageData | null, rustCoverage: CoverageData | null) {
+  private createUnifiedReport(vitestCoverage: CoverageData | null, rustCoverage: CoverageData | null) {
     const timestamp = new Date().toISOString();
 
     return {
       timestamp,
       summary: {
-        jest: jestCoverage ? {
-          statements: jestCoverage.statements.pct,
-          branches: jestCoverage.branches.pct,
-          functions: jestCoverage.functions.pct,
-          lines: jestCoverage.lines.pct
+        frontend: vitestCoverage ? {
+          statements: vitestCoverage.statements.pct,
+          branches: vitestCoverage.branches.pct,
+          functions: vitestCoverage.functions.pct,
+          lines: vitestCoverage.lines.pct
         } : null,
         rust: rustCoverage ? {
           statements: rustCoverage.statements.pct,
@@ -154,7 +154,7 @@ class CoverageReporter {
           functions: rustCoverage.functions.pct,
           lines: rustCoverage.lines.pct
         } : null,
-        overall: this.calculateOverallCoverage(jestCoverage, rustCoverage)
+        overall: this.calculateOverallCoverage(vitestCoverage, rustCoverage)
       },
       thresholds: {
         statements: 80,
@@ -163,17 +163,17 @@ class CoverageReporter {
         lines: 80
       },
       details: {
-        jest: jestCoverage,
+        frontend: vitestCoverage,
         rust: rustCoverage
       }
     };
   }
 
   private calculateOverallCoverage(
-    jestCoverage: CoverageData | null,
+    vitestCoverage: CoverageData | null,
     rustCoverage: CoverageData | null
   ) {
-    const coverageData = [jestCoverage, rustCoverage].filter(Boolean);
+    const coverageData = [vitestCoverage, rustCoverage].filter(Boolean);
 
     if (coverageData.length === 0) {
       return { statements: 0, branches: 0, functions: 0, lines: 0 };
@@ -270,7 +270,7 @@ class CoverageReporter {
                 </tr>
             </thead>
             <tbody>
-                ${report.summary.jest ? this.generateTableRow('Jest (Frontend)', report.summary.jest, report.thresholds) : ''}
+                ${report.summary.frontend ? this.generateTableRow('Vitest (Frontend)', report.summary.frontend, report.thresholds) : ''}
                 ${report.summary.rust ? this.generateTableRow('Rust (Backend)', report.summary.rust, report.thresholds) : ''}
             </tbody>
         </table>
@@ -370,12 +370,12 @@ Lines:      ${overall.lines.toFixed(1)}% (threshold: ${thresholds.lines}%) ${ove
 
 Coverage by Test Suite:
 ${'─'.repeat(30)}
-${report.summary.jest ? `Jest (Frontend):
-  Statements: ${report.summary.jest.statements.toFixed(1)}%
-  Branches:   ${report.summary.jest.branches.toFixed(1)}%
-  Functions:  ${report.summary.jest.functions.toFixed(1)}%
-  Lines:      ${report.summary.jest.lines.toFixed(1)}%
-` : 'Jest: No coverage data available'}
+${report.summary.frontend ? `Vitest (Frontend):
+  Statements: ${report.summary.frontend.statements.toFixed(1)}%
+  Branches:   ${report.summary.frontend.branches.toFixed(1)}%
+  Functions:  ${report.summary.frontend.functions.toFixed(1)}%
+  Lines:      ${report.summary.frontend.lines.toFixed(1)}%
+` : 'Frontend: No coverage data available'}
 
 ${report.summary.rust ? `Rust (Backend):
   Statements: ${report.summary.rust.statements.toFixed(1)}%
@@ -410,12 +410,12 @@ ${'='.repeat(50)}
     this.logMetric('Lines', overall.lines, thresholds.lines);
 
     // Suite breakdown
-    if (report.summary.jest || report.summary.rust) {
+    if (report.summary.frontend || report.summary.rust) {
       console.log('\n' + chalk.blue('By Test Suite:'));
 
-      if (report.summary.jest) {
-        console.log(chalk.cyan('  Jest (Frontend):'));
-        console.log(`    Lines: ${report.summary.jest.lines.toFixed(1)}%`);
+      if (report.summary.frontend) {
+        console.log(chalk.cyan('  Vitest (Frontend):'));
+        console.log(`    Lines: ${report.summary.frontend.lines.toFixed(1)}%`);
       }
 
       if (report.summary.rust) {
