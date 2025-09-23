@@ -47,13 +47,12 @@
       "freezePrototype": true,
       "dangerousDisableAssetCspModification": false
     },
-    "trayIcon": {
+    "systemTray": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
       "title": "BEAR AI"
     },
-    "macOSPrivateApi": true,
     "bundle": {
     "active": true,
     "identifier": "com.bearai.legalassistant",
