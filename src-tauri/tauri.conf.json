@@ -53,6 +53,9 @@
       "menuOnLeftClick": false,
       "title": "BEAR AI"
     },
+    "allowlist": {
+      "all": false
+    },
     "bundle": {
     "active": true,
     "identifier": "com.bearai.legalassistant",
