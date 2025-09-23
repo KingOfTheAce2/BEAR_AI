@@ -129,14 +129,11 @@
       "frameworks": [],
       "minimumSystemVersion": "10.15"
     },
-    "linux": {
-      "deb": {
-        "depends": [
-          "libwebkit2gtk-4.1-0",
-          "libgtk-3-0"
-        ]
-      },
-      "useBootstrapper": true
+    "deb": {
+      "depends": [
+        "libwebkit2gtk-4.1-0",
+        "libgtk-3-0"
+      ]
     }
     },
     "updater": {
