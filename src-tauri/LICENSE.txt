@@ -1,0 +1,7 @@
+BEAR AI Legal Assistant - End User License Agreement
+
+Copyright (c) 2025 BEAR AI Team. All rights reserved.
+
+This software is proprietary and confidential. Unauthorized copying, modification, distribution, or use of this software, in whole or in part, is strictly prohibited without prior written consent from the BEAR AI Team.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
