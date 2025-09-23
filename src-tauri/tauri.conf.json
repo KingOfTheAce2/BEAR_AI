@@ -1,12 +1,14 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "BEAR AI Legal Assistant",
-  "version": "1.0.0",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "distDir": "../build",
     "devPath": "http://localhost:3000"
+  },
+  "package": {
+    "productName": "BEAR AI Legal Assistant",
+    "version": "1.0.0"
   },
   "tauri": {
     "windows": [
