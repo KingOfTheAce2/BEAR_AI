@@ -83,25 +83,13 @@
       "signCommand": "powershell -ExecutionPolicy Bypass -File scripts/windows-signing.ps1",
       "wix": {
         "language": ["en-US"],
-        "skipWebviewInstall": false,
-        "license": "LICENSE.rtf",
-        "enableElevatedUpdateTask": false
+        "license": "LICENSE.rtf"
       },
       "nsis": {
         "license": "LICENSE.txt",
         "installerIcon": "icons/icon.ico",
         "installMode": "currentUser",
-        "allowDowngrades": false,
-        "allowElevation": true,
-        "createDesktopShortcut": true,
-        "createStartMenuShortcut": true,
-        "displayLanguageSelector": false,
-        "minimumWebview2Version": "95.0.1020.44",
-        "webview2InstallMode": "downloadBootstrapper"
-      },
-      "webview": {
-        "fixedRuntimePath": "",
-        "automaticInstallation": true
+        "displayLanguageSelector": false
       }
     },
     "macOS": {
