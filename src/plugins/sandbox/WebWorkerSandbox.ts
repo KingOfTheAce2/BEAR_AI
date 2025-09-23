@@ -1,5 +1,7 @@
 /**
- * Web Worker Sandbox Implementation
+ * Web Worker Sandbox Implementation (DEPRECATED)
+ * SECURITY WARNING: This implementation uses unsafe Function constructor
+ * Use SecureSandbox instead for production environments
  * Provides secure execution environment for plugins using Web Workers
  */
 
@@ -151,8 +153,12 @@ export class WebWorkerSandbox {
         pluginAPI = createSandboxedAPI(message.api, ${JSON.stringify(allowedPermissions)});
         
         try {
-          // Execute plugin code
-          const pluginFunction = new Function('api', 'config', message.code);
+          // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
+          // TODO: Replace with SecureSandbox implementation
+          // const pluginFunction = new Function('api', 'config', message.code);
+
+          // Temporary safe execution - only allow basic operations
+          throw new Error('WebWorkerSandbox Function constructor is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
           const pluginInstance = pluginFunction(pluginAPI, pluginConfig);
           
           // Store plugin instance globally

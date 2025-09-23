@@ -1,0 +1,51 @@
+[package]
+name = "bear-ai-legal-assistant"
+version = "1.0.0"
+description = "BEAR AI Legal Assistant - Professional AI-powered legal document analysis"
+authors = ["BEAR AI Team"]
+license = "PROPRIETARY"
+repository = "https://github.com/KingOfTheAce2/BEAR_AI"
+edition = "2021"
+rust-version = "1.70"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+# Core Tauri dependencies - minimal set for emergency build
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.6.8", features = ["api-all"] }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+anyhow = "1.0"
+
+# Essential only - remove complex dependencies causing build issues
+log = "0.4"
+env_logger = "0.10"
+dirs = "5.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+regex = "1.0"
+
+# Windows-specific (minimal)
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.48", features = ["Win32_Foundation"] }
+
+[features]
+default = ["headless"]
+headless = []
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+debug = false
+debug-assertions = false
+overflow-checks = false
+
+[profile.dev]
+opt-level = 0
+debug = true

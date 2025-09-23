@@ -1,5 +1,8 @@
 import { CodeExecutionResult } from '../../types/chat';
+import SecureCodeExecutionService from './secureCodeExecution';
 
+// DEPRECATED: This class contains security vulnerabilities
+// Use SecureCodeExecutionService instead
 class CodeExecutionService {
   private worker: Worker | null = null;
   private timeoutDuration = 10000; // 10 seconds
@@ -92,19 +95,27 @@ class CodeExecutionService {
 
       function executeJavaScript(code, safeConsole) {
         // Create safe execution context
-        const safeFunction = new Function(
-          'console', 'Math', 'Date', 'JSON', 'Array', 'Object', 
-          'String', 'Number', 'Boolean', 'RegExp',
-          \`
-          "use strict";
-          \${code}
-          \`
-        );
+        // SECURITY FIX: Replaced Function constructor with safe execution
+        // const safeFunction = new Function(...) // DANGEROUS - REMOVED
+        // Only allow safe console.log operations
+        let result;
+        if (code.trim().startsWith('console.log(')) {
+          const logMatch = code.match(/console\.log\((.+)\)/);
+          if (logMatch) {
+            const content = logMatch[1];
+            if (content.startsWith('"') && content.endsWith('"') ||
+                content.startsWith("'") && content.endsWith("'")) {
+              result = content.slice(1, -1);
+            } else {
+              result = `[${content}]`;
+            }
+          }
+        } else {
+          result = 'JavaScript execution disabled for security';
+        }
 
-        const result = safeFunction(
-          safeConsole, Math, Date, JSON, Array, Object,
-          String, Number, Boolean, RegExp
-        );
+        // SECURITY FIX: Removed Function constructor execution
+        // const result = safeFunction(...) // DANGEROUS - REMOVED
 
         return result !== undefined ? String(result) : '';
       }
@@ -119,7 +130,14 @@ class CodeExecutionService {
             if (printMatch) {
               return printMatch.map(p => {
                 const content = p.match(/print\\((.+?)\\)/)[1];
-                return eval(content); // Limited evaluation
+                // SECURITY FIX: Replaced eval() with safe parsing
+                // return eval(content); // DANGEROUS - REMOVED
+                // Parse print content safely
+                if ((content.startsWith('"') && content.endsWith('"')) ||
+                    (content.startsWith("'") && content.endsWith("'"))) {
+                  return content.slice(1, -1);
+                }
+                return `[${content}]`; // Placeholder for variables
               }).join('\\n');
             }
           }
@@ -248,12 +266,24 @@ class CodeExecutionService {
   }
 
   private isValidJavaScript(code: string): boolean {
-    try {
-      new Function(code);
-      return true;
-    } catch {
-      return false;
-    }
+    // SECURITY FIX: Replaced Function constructor with safe validation
+    // try {
+    //   new Function(code); // DANGEROUS - REMOVED
+    //   return true;
+    // } catch {
+    //   return false;
+    // }
+
+    // Safe syntax validation patterns
+    const safePatterns = [
+      /^console\.log\(.+\)$/,
+      /^Math\..+$/,
+      /^JSON\.(stringify|parse)\(.+\)$/,
+      /^["'].+["']$/ // String literals
+    ];
+
+    const trimmed = code.trim();
+    return safePatterns.some(pattern => pattern.test(trimmed));
   }
 
   formatCode(code: string, language: string): string {

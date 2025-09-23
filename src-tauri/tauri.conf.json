@@ -2,7 +2,6 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "BEAR AI Legal Assistant",
   "version": "1.0.0",
-  "identifier": "com.bearai.legalassistant",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
@@ -55,6 +54,7 @@
     "macOSPrivateApi": true,
     "bundle": {
     "active": true,
+    "identifier": "com.bearai.legalassistant",
     "category": "Productivity",
     "copyright": "Copyright © 2025 BEAR AI Team. All rights reserved.",
     "shortDescription": "Professional AI-powered legal document analysis and assistance",

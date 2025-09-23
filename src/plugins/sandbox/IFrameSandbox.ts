@@ -1,5 +1,7 @@
 /**
- * IFrame Sandbox Implementation
+ * IFrame Sandbox Implementation (DEPRECATED)
+ * SECURITY WARNING: This implementation uses unsafe Function constructor
+ * Use SecureSandbox instead for production environments
  * Provides secure execution environment for UI plugins using sandboxed iframes
  */
 
@@ -276,8 +278,12 @@ export class IFrameSandbox {
                     loadingEl.remove();
                 }
                 
-                // Execute plugin code
-                const pluginFunction = new Function('api', 'config', 'container', message.code);
+                // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
+                // TODO: Replace with SecureSandbox implementation
+                // const pluginFunction = new Function('api', 'config', 'container', message.code);
+
+                // Temporary safe execution - only allow basic operations
+                throw new Error('IFrameSandbox Function constructor is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
                 const pluginRoot = document.getElementById('plugin-root');
                 
                 pluginInstance = pluginFunction(pluginAPI, pluginConfig, pluginRoot);

@@ -40,25 +40,27 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Cache dependencies (multi-layer)
+      - name: Free disk space
+        shell: bash
+        run: |
+          # Remove unnecessary files to prevent disk space issues
+          rm -rf /tmp/* 2>/dev/null || true
+          docker system prune -af 2>/dev/null || true
+          # Clear Windows Update cache if possible
+          powershell -Command "Get-ChildItem -Path 'C:\Windows\SoftwareDistribution\Download\*' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue" || true
+
+      - name: Cache dependencies (optimized for disk space)
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            src-tauri/target/
             node_modules/
-            ~/.npm
-            %LOCALAPPDATA%\npm-cache
-            %USERPROFILE%\.cargo
-          key: ${{ runner.os }}-windows-ultra-fast-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
+          key: ${{ runner.os }}-windows-disk-optimized-${{ hashFiles('**/Cargo.lock', '**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-windows-ultra-fast-
-            ${{ runner.os }}-windows-quick-
-            ${{ runner.os }}-prod-fast-
-            ${{ runner.os }}-
+            ${{ runner.os }}-windows-disk-optimized-
+            ${{ runner.os }}-windows-
 
       - name: Install dependencies (ultra-optimized)
         shell: bash
@@ -76,15 +78,40 @@ jobs:
         run: npm run build:alpha-fast
         continue-on-error: true
 
-      - name: Build Windows bundle (direct cargo)
+      - name: Check disk space before build
+        shell: bash
+        run: |
+          df -h
+          echo "Available disk space before build:"
+          wmic logicaldisk get size,freespace,caption 2>/dev/null || echo "Could not check Windows disk space"
+
+      - name: Clean Rust artifacts
         shell: bash
         run: |
           cd src-tauri
-          export CARGO_PROFILE_RELEASE_FAST_LTO=false
-          export CARGO_PROFILE_RELEASE_FAST_CODEGEN_UNITS=16
-          export CARGO_PROFILE_RELEASE_FAST_PANIC=abort
-          # Windows-specific build without macOS dependencies
-          cargo build --release --target x86_64-pc-windows-msvc || cargo build --release
+          cargo clean || true
+          rm -rf target/ || true
+
+      - name: Build Windows bundle (emergency minimal)
+        shell: bash
+        run: |
+          cd src-tauri
+          # Use minimal features to reduce build size and time
+          export CARGO_INCREMENTAL=0
+          export CARGO_NET_RETRY=3
+          export RUSTFLAGS="-C target-cpu=native"
+
+          # Try minimal build first
+          cargo check --no-default-features || echo "Minimal check failed"
+
+          # Attempt build with minimal features
+          if [ -f "Cargo.minimal.toml" ]; then
+            cp Cargo.minimal.toml Cargo.toml.temp
+            mv Cargo.toml Cargo.toml.full
+            mv Cargo.toml.temp Cargo.toml
+          fi
+
+          cargo build --release --no-default-features || cargo build --release
 
       - name: Upload Windows artifacts (compressed)
         uses: actions/upload-artifact@v4

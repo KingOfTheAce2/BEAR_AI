@@ -15,6 +15,17 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional, Callable, Union, Awaitable
 
+# Import secure condition evaluator
+try:
+    from .secure_workflow_engine import SecureConditionEvaluator, SecurityError
+except ImportError:
+    # Fallback if secure module not available
+    class SecurityError(Exception):
+        pass
+    class SecureConditionEvaluator:
+        def evaluate(self, expr, ctx):
+            raise SecurityError("Secure evaluator not available")
+
 logger = logging.getLogger(__name__)
 
 
@@ -179,6 +190,8 @@ class Workflow:
 
 class WorkflowEngine:
     """Orchestrates workflow execution with intelligent agents"""
+    # SECURITY WARNING: This class has been updated to remove eval() vulnerabilities
+    # All condition evaluation now uses secure AST-based evaluation
     
     def __init__(self, max_workers: int = 4):
         self.max_workers = max_workers
@@ -482,12 +495,20 @@ class WorkflowEngine:
         if not condition:
             raise ValueError("Condition not specified for conditional step")
         
-        # Evaluate condition
+        # Evaluate condition securely
         if callable(condition):
             result = condition(workflow.context)
         else:
-            # Simple string evaluation (be careful with eval!)
-            result = eval(condition, {"context": workflow.context, "vars": workflow.context.variables})
+            # SECURITY FIX: Replaced eval() with secure evaluator
+            # result = eval(condition, {"context": workflow.context, "vars": workflow.context.variables}) # DANGEROUS - REMOVED
+            try:
+                secure_evaluator = SecureConditionEvaluator()
+                result = secure_evaluator.evaluate(condition, {
+                    "context": workflow.context,
+                    "vars": workflow.context.variables
+                })
+            except (SecurityError, NameError, ValueError) as e:
+                raise ValueError(f"Condition evaluation failed: {e}")
         
         if result:
             return true_action(workflow.context) if callable(true_action) else true_action

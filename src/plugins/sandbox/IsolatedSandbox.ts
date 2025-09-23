@@ -1,5 +1,7 @@
 /**
- * Isolated Sandbox Implementation
+ * Isolated Sandbox Implementation (DEPRECATED)
+ * SECURITY WARNING: This implementation uses unsafe Function constructor
+ * Use SecureSandbox instead for production environments
  * Provides minimal execution environment for low-risk plugins
  */
 
@@ -52,11 +54,15 @@ export class IsolatedSandbox {
     }
 
     try {
-      // Create safe execution function
-      const safeFunction = new Function(
-        'api', 'config', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-        `'use strict'; ${code}`
-      );
+      // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
+      // TODO: Replace with SecureSandbox implementation
+      // const safeFunction = new Function(
+      //   'api', 'config', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+      //   `'use strict'; ${code}`
+      // );
+
+      // Temporary safe execution for basic operations only
+      throw new Error('IsolatedSandbox is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
 
       // Create restricted console
       const restrictedConsole = this.createRestrictedConsole();

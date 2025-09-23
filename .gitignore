@@ -79,12 +79,41 @@ build/
 dist/
 *.tsbuildinfo
 
-# Environment files
+# Environment files - CRITICAL: Never commit these!
 .env
+.env.*
+!.env.example
+!.env.production.example
 .env.local
+.env.development
 .env.development.local
+.env.staging
+.env.staging.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
+
+# Environment backups and temp files
+.env.backup
+.env.bak
+.env.tmp
+.env.orig
+*.env.backup
+*.env.bak
+
+# Secret management files
+secrets/
+.secrets/
+secrets.json
+.secrets.json
+vault/
+.vault/
+
+# Configuration overrides
+config/local.json
+config/local.yaml
+config/secrets.json
 
 # Certificates and Keys
 certificates/
