@@ -177,10 +177,14 @@ pub async fn local_auth_login(
     sessions: State<'_, SessionStorage>,
 ) -> Result<AuthResponse, String> {
     // Simple local authentication - in production, use proper hashing/validation
+    let admin_user = std::env::var("ADMIN_USERNAME").unwrap_or_else(|_| "admin".to_string());
+    let admin_pass = std::env::var("ADMIN_PASSWORD").unwrap_or_else(|_| "changeme123".to_string());
+    let demo_user = std::env::var("DEMO_USER_EMAIL").unwrap_or_else(|_| "demo@lawfirm.com".to_string());
+    let demo_pass = std::env::var("DEMO_USER_PASSWORD").unwrap_or_else(|_| "changeme123".to_string());
+
     let is_valid = match credentials.username.as_str() {
-        "admin" if credentials.password == "admin123" => true,
-        "user" if credentials.password == "user123" => true,
-        "demo" if credentials.password == "demo123" => true,
+        u if u == admin_user && credentials.password == admin_pass => true,
+        u if u == demo_user && credentials.password == demo_pass => true,
         _ => false,
     };
 

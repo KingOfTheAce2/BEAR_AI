@@ -108,7 +108,7 @@ export class VectorDatabaseService {
   private setupErrorHandling(): void {
     if (this.db) {
       this.db.onerror = (event) => {
-        console.error('Database error:', event);
+        // Error logging disabled for production
       };
     }
   }
@@ -492,7 +492,7 @@ export class VectorDatabaseService {
       });
     }
     
-    console.log('Vector index optimized');
+    // Logging disabled for production
   }
 
   async clear(): Promise<void> {

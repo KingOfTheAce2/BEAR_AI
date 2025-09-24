@@ -29,7 +29,7 @@ export function GPUDashboard({ className = '', showDetailed = false }: GPUDashbo
     try {
       await switchBackend(backend);
     } catch (err) {
-      console.error('Failed to switch backend:', err);
+      // Error logging disabled for production
     }
   };
 
@@ -39,7 +39,7 @@ export function GPUDashboard({ className = '', showDetailed = false }: GPUDashbo
       const results = await runBenchmark();
       setBenchmarkResults(results);
     } catch (err) {
-      console.error('Benchmark failed:', err);
+      // Error logging disabled for production
     } finally {
       setIsBenchmarking(false);
     }

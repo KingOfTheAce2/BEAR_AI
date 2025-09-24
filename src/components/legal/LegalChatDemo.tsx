@@ -19,15 +19,15 @@ export const LegalChatDemo: React.FC<LegalChatDemoProps> = ({ className = '' }) 
 
   const handleSessionCreated = (sessionId: string) => {
     setActiveSession(sessionId);
-    console.log('Legal session created:', sessionId);
+    // Logging disabled for production
   };
 
   const handleMessageSent = (message: any) => {
-    console.log('Message sent:', message);
+    // Logging disabled for production
   };
 
   const handleCitationClick = (citation: LegalCitation) => {
-    console.log('Citation clicked:', citation);
+    // Logging disabled for production
     // Could open citation details modal or navigate to source
     window.alert(`Citation clicked: ${citation.title} - ${citation.citation}`);
   };

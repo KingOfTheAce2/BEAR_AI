@@ -54,35 +54,15 @@ export class IsolatedSandbox {
     }
 
     try {
-      // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
-      // TODO: Replace with SecureSandbox implementation
-      // const safeFunction = new Function(
-      //   'api', 'config', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      //   `'use strict'; ${code}`
-      // );
-
-      // Temporary safe execution for basic operations only
-      throw new Error('IsolatedSandbox is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
-
-      // Create restricted console
-      const restrictedConsole = this.createRestrictedConsole();
-      
-      // Create restricted timers
-      const timers = this.createRestrictedTimers();
-
-      // Execute in isolated context
-      const result = safeFunction.call(
-        this.isolatedGlobal,
-        api,
-        config,
-        restrictedConsole,
-        timers.setTimeout,
-        timers.clearTimeout,
-        timers.setInterval,
-        timers.clearInterval
+      // Use SecureSandbox for safe execution instead of Function constructor
+      const { SecureSandbox } = await import('./SecureSandbox');
+      const secureSandbox = new SecureSandbox(
+        { id: 'isolated', name: 'Isolated Plugin', version: '1.0.0', permissions: this.permissions },
+        this.permissions
       );
 
-      return result;
+      await secureSandbox.create();
+      return await secureSandbox.executeCode(code, api, config);
     } catch (error) {
       throw new Error(`Execution error: ${error.message}`);
     }

@@ -173,7 +173,8 @@ export function loadConfig(): AppConfig {
     const tauriDebug = getBooleanEnv('TAURI_DEBUG', nodeEnv === 'development');
 
     // API Configuration
-    const apiBaseUrl = getEnvVar('API_BASE_URL', 'http://localhost:1420');
+    const defaultApiBaseUrl = isProduction ? 'https://api.bear-ai.app' : 'http://localhost:1420';
+    const apiBaseUrl = getEnvVar('API_BASE_URL', defaultApiBaseUrl);
     const apiTimeout = getNumberEnv('API_TIMEOUT', 30000);
 
     // Stripe Configuration - only required in production
@@ -235,13 +236,17 @@ export function loadConfig(): AppConfig {
 
     // Warn about default admin email
     if (adminEmail === 'admin@example.com' && isProduction) {
-      console.warn('⚠️ WARNING: Using default admin email in production. Please update ADMIN_EMAIL.');
+      // Warning logging disabled for production
     }
 
     // Development Configuration
-    const websocketUrl = getEnvVar('WEBSOCKET_URL', 'ws://localhost:8080/chat');
-    const ollamaApiUrl = getEnvVar('OLLAMA_API_URL', 'http://localhost:11434/api/chat');
-    const streamingEndpoint = getEnvVar('STREAMING_ENDPOINT', 'ws://localhost:3001/api/stream');
+    const defaultWebsocketUrl = isProduction ? 'wss://ws.bear-ai.app/chat' : 'ws://localhost:8080/chat';
+    const defaultOllamaUrl = isProduction ? 'https://ollama.bear-ai.app/api/chat' : 'http://localhost:11434/api/chat';
+    const defaultStreamingUrl = isProduction ? 'wss://stream.bear-ai.app/api/stream' : 'ws://localhost:3001/api/stream';
+
+    const websocketUrl = getEnvVar('WEBSOCKET_URL', defaultWebsocketUrl);
+    const ollamaApiUrl = getEnvVar('OLLAMA_API_URL', defaultOllamaUrl);
+    const streamingEndpoint = getEnvVar('STREAMING_ENDPOINT', defaultStreamingUrl);
 
     // Collect missing required variables for production
     if (isProduction) {
@@ -268,7 +273,7 @@ export function loadConfig(): AppConfig {
         invalidVars
       );
     } else if (!isProduction && (missingVars.length > 0 || invalidVars.length > 0)) {
-      console.warn('⚠️ Configuration warnings (development mode):', {
+      // console.warn('⚠️ Configuration warnings (development mode):', {
         missing: missingVars,
         invalid: invalidVars,
         note: 'Using secure defaults for development'

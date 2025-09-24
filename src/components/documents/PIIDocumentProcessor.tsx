@@ -46,13 +46,13 @@ const PIIDocumentProcessor: React.FC<PIIDocumentProcessorProps> = ({
     const validFiles = fileArray.filter(file => {
       // Check file size
       if (file.size > maxFileSize) {
-        console.warn(`File ${file.name} exceeds size limit`);
+        // Warning logging disabled for production
         return false;
       }
 
       // Check file type
       if (!allowedTypes.includes(file.type) && !allowedTypes.some(type => file.name.endsWith(type.split('/')[1]))) {
-        console.warn(`File ${file.name} has unsupported type`);
+        // Warning logging disabled for production
         return false;
       }
 
@@ -89,7 +89,7 @@ const PIIDocumentProcessor: React.FC<PIIDocumentProcessorProps> = ({
         }
 
       } catch (error) {
-        console.error(`Error processing ${file.name}:`, error);
+        // Error logging disabled for production
       }
     }
 

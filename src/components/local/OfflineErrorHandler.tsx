@@ -264,7 +264,7 @@ export const OfflineErrorHandler: React.FC<OfflineErrorHandlerProps> = ({
         onErrorResolve?.(errorId);
       }
     } catch (err) {
-      console.error('Retry failed:', err);
+      // Error logging disabled for production
     } finally {
       setIsRecovering(false);
       setRecoveryProgress(0);
@@ -305,7 +305,7 @@ export const OfflineErrorHandler: React.FC<OfflineErrorHandlerProps> = ({
             label: 'Select Different Model',
             description: 'Choose a different compatible model',
             icon: <Cpu className="w-4 h-4" />,
-            action: async () => console.log('Open model selector')
+            action: async () => // console.log('Open model selector')
           }
         );
         break;
@@ -317,7 +317,7 @@ export const OfflineErrorHandler: React.FC<OfflineErrorHandlerProps> = ({
             label: 'Clear Cache',
             description: 'Free up space by clearing temporary files',
             icon: <HardDrive className="w-4 h-4" />,
-            action: async () => console.log('Clear cache'),
+            action: async () => // console.log('Clear cache'),
             isDestructive: true,
             requiresConfirmation: true
           },
@@ -326,7 +326,7 @@ export const OfflineErrorHandler: React.FC<OfflineErrorHandlerProps> = ({
             label: 'Change Storage Location',
             description: 'Move data to a different location with more space',
             icon: <Download className="w-4 h-4" />,
-            action: async () => console.log('Change storage location')
+            action: async () => // console.log('Change storage location')
           }
         );
         break;
@@ -345,7 +345,7 @@ export const OfflineErrorHandler: React.FC<OfflineErrorHandlerProps> = ({
             label: 'Choose Different File',
             description: 'Select a different file to work with',
             icon: <FileX className="w-4 h-4" />,
-            action: async () => console.log('Open file browser')
+            action: async () => // console.log('Open file browser')
           }
         );
         break;

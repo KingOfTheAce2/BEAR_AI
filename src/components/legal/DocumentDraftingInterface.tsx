@@ -87,7 +87,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
       const templatesData = await draftingService.getTemplates(filters);
       setTemplates(templatesData);
     } catch (error) {
-      console.error('Error loading templates:', error);
+      // Error logging disabled for production
       setTemplates([]);
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
       setGeneratedContent(result.content);
       setActiveTab('preview');
     } catch (error) {
-      console.error('Error generating document:', error);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }
@@ -163,7 +163,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
       setGeneratedContent(result.content);
       setActiveTab('preview');
     } catch (error) {
-      console.error('Error generating from prompt:', error);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }
@@ -177,7 +177,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
       const documentId = `doc_${Date.now()}`;
       onDocumentSaved?.(documentId);
     } catch (error) {
-      console.error('Error saving document:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -195,7 +195,7 @@ export const DocumentDraftingInterface: React.FC<DocumentDraftingInterfaceProps>
       
       onDocumentExported?.(draftingResult.documentId, format);
     } catch (error) {
-      console.error('Error exporting document:', error);
+      // Error logging disabled for production
     }
   };
 

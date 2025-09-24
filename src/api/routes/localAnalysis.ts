@@ -65,7 +65,7 @@ export class LocalAnalysisService {
         local_processing: true
       };
     } catch (error) {
-      console.error('Failed to analyze document:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

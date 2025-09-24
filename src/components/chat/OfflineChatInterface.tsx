@@ -70,7 +70,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
         await createNewSession();
       }
     } catch (err) {
-      console.error('Failed to initialize chat interface:', err);
+      // Error logging disabled for production
       setError('Failed to initialize chat. Some features may not work.');
     }
   };
@@ -91,7 +91,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
         setMessages(updatedMessages);
       }
     } catch (err) {
-      console.error('Failed to create new session:', err);
+      // Error logging disabled for production
       setError('Failed to create new chat session');
     }
   };
@@ -103,7 +103,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
       setMessages(sessionMessages);
       await chatSessionService.switchSession(session.id);
     } catch (err) {
-      console.error('Failed to load session:', err);
+      // Error logging disabled for production
       setError('Failed to load chat session');
     }
   };
@@ -134,7 +134,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
             setMessages(prev => [...prev, responseMessage]);
           }
         } catch (aiError) {
-          console.error('AI response error:', aiError);
+          // Error logging disabled for production
           
           // Add error message locally
           const errorMessage = await chatSessionService.addMessage(
@@ -158,7 +158,7 @@ export const OfflineChatInterface: React.FC<OfflineChatInterfaceProps> = ({
         }
       }
     } catch (err) {
-      console.error('Failed to send message:', err);
+      // Error logging disabled for production
       setError('Failed to send message. It may have been saved locally.');
     } finally {
       setIsLoading(false);

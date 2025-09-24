@@ -59,7 +59,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       await navigator.clipboard.writeText(message.content);
       // Could add a toast notification here
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      // Error logging disabled for production
     }
   };
 

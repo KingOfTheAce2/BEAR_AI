@@ -178,7 +178,7 @@ const BillingDashboard: React.FC<BillingDashboardProps> = ({
         });
         setSubscriptions(subscriptionData);
       } catch (err) {
-        console.warn('Failed to load subscriptions:', err);
+        // Failed to load subscriptions
         setSubscriptions([]);
       }
 
@@ -197,11 +197,11 @@ const BillingDashboard: React.FC<BillingDashboardProps> = ({
           });
           setTeamSubscription(teamData);
         } catch (err) {
-          console.warn('Failed to load team subscription:', err);
+          // Failed to load team subscription
         }
       }
     } catch (err) {
-      console.error('Failed to load billing data:', err);
+      // Failed to load billing data
       setError(err instanceof Error ? err.message : 'Failed to load billing data');
     } finally {
       setLoading(false);
@@ -222,7 +222,7 @@ const BillingDashboard: React.FC<BillingDashboardProps> = ({
       // Reload data to reflect changes
       await loadBillingData();
     } catch (err) {
-      console.error('Failed to cancel subscription:', err);
+      // Failed to cancel subscription
       setError('Failed to cancel subscription. Please try again.');
     }
   };

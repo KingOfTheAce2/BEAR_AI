@@ -170,7 +170,7 @@ export class MemoryAwareLoader {
           this.emit('memoryPressure', { pressure: memoryStats.pressure });
         }
       } catch (error) {
-        console.error('Memory check failed:', error);
+        // Error logging disabled for production
       }
     }, this.checkInterval);
   }
@@ -304,7 +304,7 @@ export class MemoryAwareLoader {
         try {
           listener(data);
         } catch (error) {
-          console.error(`Error in ${event} listener:`, error);
+          // Error logging disabled for production
         }
       });
     }

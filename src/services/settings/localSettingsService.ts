@@ -48,7 +48,7 @@ class LocalSettingsService {
         fs.mkdirSync(this.backupDir, { recursive: true });
       }
     } catch (error) {
-      console.error('Failed to create settings directories:', error);
+      // Error logging disabled for production
       throw new Error('Unable to initialize settings storage');
     }
   }
@@ -240,7 +240,7 @@ class LocalSettingsService {
       
       return validatedSettings;
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      // Error logging disabled for production
       const defaultSettings = this.getDefaultSettings();
       this.currentSettings = defaultSettings;
       return defaultSettings;
@@ -271,7 +271,7 @@ class LocalSettingsService {
       this.currentSettings = updatedSettings;
       this.notifyListeners(updatedSettings);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      // Error logging disabled for production
       throw new Error('Unable to save settings');
     }
   }
@@ -334,7 +334,7 @@ class LocalSettingsService {
       
       await this.saveSettings(migratedSettings);
     } catch (error) {
-      console.error('Failed to import settings:', error);
+      // Error logging disabled for production
       throw new Error('Invalid backup file or import failed');
     }
   }
@@ -365,7 +365,7 @@ class LocalSettingsService {
       const backup = JSON.parse(backupData) as SettingsBackup;
       await this.importSettings(backup);
     } catch (error) {
-      console.error('Failed to restore backup:', error);
+      // Error logging disabled for production
       throw new Error('Unable to restore backup');
     }
   }
@@ -399,7 +399,7 @@ class LocalSettingsService {
 
       return backups.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
     } catch (error) {
-      console.error('Failed to list backups:', error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -423,7 +423,7 @@ class LocalSettingsService {
       
       fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf-8');
     } catch (error) {
-      console.error('Failed to create auto backup:', error);
+      // Error logging disabled for production
       // Don't throw - auto backup failure shouldn't prevent settings save
     }
   }
@@ -441,7 +441,7 @@ class LocalSettingsService {
           try {
             fs.unlinkSync(backup.path);
           } catch (error) {
-            console.error('Failed to delete old backup:', error);
+            // Error logging disabled for production
           }
         });
       }
@@ -453,12 +453,12 @@ class LocalSettingsService {
           try {
             fs.unlinkSync(backup.path);
           } catch (error) {
-            console.error('Failed to delete old backup:', error);
+            // Error logging disabled for production
           }
         });
       }
     } catch (error) {
-      console.error('Failed to cleanup old backups:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -518,7 +518,7 @@ class LocalSettingsService {
             const updatedSettings = await this.loadSettings();
             this.notifyListeners(updatedSettings);
           } catch (error) {
-            console.error('Failed to reload settings after file change:', error);
+            // Error logging disabled for production
           }
         }
       });
@@ -549,7 +549,7 @@ class LocalSettingsService {
       try {
         callback(settings);
       } catch (error) {
-        console.error('Error in settings listener:', error);
+        // Error logging disabled for production
       }
     });
   }

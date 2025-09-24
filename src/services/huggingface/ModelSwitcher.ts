@@ -354,7 +354,7 @@ export class LocalModelManager {
         }
       }
     } catch (error) {
-      console.error('Failed to load local models from storage:', error);
+      // Error logging disabled for production
       this.localModels = new Map();
     }
   }
@@ -369,7 +369,7 @@ export class LocalModelManager {
 
       localStorage.setItem(this.storageKey, JSON.stringify(toStore));
     } catch (error) {
-      console.error('Failed to save local models to storage:', error);
+      // Error logging disabled for production
     }
   }
 }

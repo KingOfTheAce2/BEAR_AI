@@ -165,8 +165,11 @@ pub fn create_default_nemotron_config() -> nemotron_rag::NemotronConfig {
         embedding_model: "nv-embed-v2".to_string(),
         generation_model: "nemotron-4-340b-instruct".to_string(),
         vector_db_type: nemotron_rag::VectorDbType::Qdrant,
-        vector_db_url: "http://localhost:6333".to_string(),
-        redis_url: Some("redis://localhost:6379".to_string()),
+        vector_db_url: std::env::var("VECTOR_DB_URL")
+            .unwrap_or_else(|_| "http://localhost:6333".to_string()),
+        redis_url: std::env::var("REDIS_URL")
+            .ok()
+            .or_else(|| Some("redis://localhost:6379".to_string())),
         max_chunk_size: 512,
         chunk_overlap: 50,
         reranking_model: "nemotron-rerank".to_string(),

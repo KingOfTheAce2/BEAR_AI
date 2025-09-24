@@ -114,7 +114,7 @@ export class AnalyticsService {
         generatedAt: new Date()
       };
     } catch (error: unknown) {
-      console.error('Analytics query error:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Analytics query failed: ${message}`);
     }
@@ -801,7 +801,7 @@ export class AnalyticsService {
       const memoryUsage = (performance as any).memory ? (performance as any).memory.usedJSHeapSize : 0;
       await this.recordMetric('memory-usage', memoryUsage);
     } catch (error) {
-      console.error('Error collecting system metrics:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -819,9 +819,9 @@ export class AnalyticsService {
       await this.recordMetric('avg-search-time', avgSearchTime);
       await this.recordMetric('user-engagement', engagementScore);
       
-      console.log('Comprehensive metrics collected');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error collecting comprehensive metrics:', error);
+      // Error logging disabled for production
     }
   }
 

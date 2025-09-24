@@ -193,7 +193,7 @@ export const DocumentGrid: React.FC<DocumentGridProps> = ({ searchQuery = '' }) 
 
   const handleDocumentUpload = (files: FileList) => {
     // Handle document upload logic
-    console.log('Uploading files:', files);
+    // Logging disabled for production
   };
 
   return (

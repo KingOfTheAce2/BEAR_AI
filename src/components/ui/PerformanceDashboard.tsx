@@ -551,12 +551,12 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
 
   const handleAlertAcknowledge = (alertId: string) => {
     // Implementation would update alert status
-    console.log('Acknowledge alert:', alertId)
+    // console.log('Acknowledge alert:', alertId)
   }
 
   const handleAlertResolve = (alertId: string) => {
     // Implementation would resolve alert
-    console.log('Resolve alert:', alertId)
+    // console.log('Resolve alert:', alertId)
   }
 
   // Auto-refresh effect

@@ -185,7 +185,7 @@ export class MemoryMonitorService extends EventEmitter {
       }
     }, this.updateInterval)
 
-    console.log('Memory monitoring started')
+    // console.log('Memory monitoring started')
   }
 
   async stopMonitoring(): Promise<void> {
@@ -194,7 +194,7 @@ export class MemoryMonitorService extends EventEmitter {
       this.monitoringInterval = undefined
     }
     this.isMonitoring = false
-    console.log('Memory monitoring stopped')
+    // console.log('Memory monitoring stopped')
   }
 
   async getSystemMemory(): Promise<SystemMemoryInfo> {
@@ -528,7 +528,7 @@ export class ModelLifecycleController extends EventEmitter {
       // In real implementation, this would call the actual model unloader
       model.isLoaded = false
       this.emit('modelUnloaded', modelId)
-      console.log(`Model ${modelId} unloaded successfully`)
+      // console.log(`Model ${modelId} unloaded successfully`)
       return true
     } catch (error) {
       this.emit('modelUnloadError', { modelId, error })
@@ -594,7 +594,7 @@ export class MemoryNotificationSystem extends EventEmitter {
     this.addToHistory(fullAlert)
     
     this.emit('alertCreated', fullAlert)
-    console.log(`Memory alert created: ${fullAlert.title} (${fullAlert.level})`)
+    // console.log(`Memory alert created: ${fullAlert.title} (${fullAlert.level})`)
     
     return alertId
   }
@@ -614,7 +614,7 @@ export class MemoryNotificationSystem extends EventEmitter {
     if (alert) {
       this.activeAlerts.delete(alertId)
       this.emit('alertResolved', alert)
-      console.log(`Memory alert resolved: ${alert.title}`)
+      // console.log(`Memory alert resolved: ${alert.title}`)
       return true
     }
     return false
@@ -710,12 +710,12 @@ export class EmergencyCleanupSystem extends EventEmitter {
             totalMemorySaved += memorySaved
             proceduresExecuted.push(procedureName)
 
-            console.log(`Emergency cleanup: ${procedureName} saved ${this.formatBytes(memorySaved)}`)
+            // console.log(`Emergency cleanup: ${procedureName} saved ${this.formatBytes(memorySaved)}`)
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error)
           errors.push(`${procedureName}: ${errorMessage}`)
-          console.error(`Emergency cleanup error in ${procedureName}:`, error)
+          // console.error(`Emergency cleanup error in ${procedureName}:`, error)
         }
       }
 
@@ -753,28 +753,28 @@ export class EmergencyCleanupSystem extends EventEmitter {
   private async clearDocumentCache(): Promise<number> {
     // Mock implementation - would clear actual document cache
     const estimatedSavings = 512 * 1024 * 1024 // 512MB
-    console.log('Clearing document cache...')
+    // console.log('Clearing document cache...')
     return estimatedSavings
   }
 
   private async unloadUnusedModels(): Promise<number> {
     // Mock implementation - would unload unused LLM models
     const estimatedSavings = 2 * 1024 * 1024 * 1024 // 2GB
-    console.log('Unloading unused models...')
+    // console.log('Unloading unused models...')
     return estimatedSavings
   }
 
   private async clearTempFiles(): Promise<number> {
     // Mock implementation - would clear temporary files
     const estimatedSavings = 256 * 1024 * 1024 // 256MB
-    console.log('Clearing temporary files...')
+    // console.log('Clearing temporary files...')
     return estimatedSavings
   }
 
   private async compressActiveData(): Promise<number> {
     // Mock implementation - would compress active data structures
     const estimatedSavings = 128 * 1024 * 1024 // 128MB
-    console.log('Compressing active data structures...')
+    // console.log('Compressing active data structures...')
     return estimatedSavings
   }
 
@@ -817,13 +817,13 @@ export class MemorySafetyOrchestrator extends EventEmitter {
   async initialize(): Promise<void> {
     if (this.isActive) return
 
-    console.log('Initializing BEAR AI Memory Safety System...')
+    // console.log('Initializing BEAR AI Memory Safety System...')
     
     await this.memoryMonitor.startMonitoring()
     this.isActive = true
     
     this.emit('initialized')
-    console.log('Memory Safety System initialized successfully')
+    // console.log('Memory Safety System initialized successfully')
   }
 
   async shutdown(): Promise<void> {
@@ -833,7 +833,7 @@ export class MemorySafetyOrchestrator extends EventEmitter {
     this.isActive = false
     
     this.emit('shutdown')
-    console.log('Memory Safety System shutdown complete')
+    // console.log('Memory Safety System shutdown complete')
   }
 
   private setupEventHandlers(): void {
@@ -880,7 +880,7 @@ export class MemorySafetyOrchestrator extends EventEmitter {
             break
         }
       } catch (error) {
-        console.error(`Failed to execute memory action ${action.type}:`, error)
+        // console.error(`Failed to execute memory action ${action.type}:`, error)
       }
     }
   }

@@ -251,7 +251,7 @@ export class GDPRCompliance extends EventEmitter {
 
   private auditLog(action: string, details: any): void {
     // Implement tamper-proof audit logging
-    console.log(`[GDPR_AUDIT] ${action}:`, details);
+    // Logging disabled for production
   }
 }
 

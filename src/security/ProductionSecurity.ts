@@ -5,6 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import * as Express from 'express';
 import crypto from 'crypto';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -15,6 +16,14 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import https from 'https';
 import { createHash, createCipher, createDecipher } from 'crypto';
+
+// Define proper types for authenticated users
+interface AuthenticatedUser {
+  id: string;
+  roles: string[];
+  permissions?: string[];
+  [key: string]: string | string[] | undefined;
+}
 
 // Import security modules
 import { CertificatePinning } from './certificates/CertificatePinning';
@@ -339,7 +348,7 @@ export class ProductionSecurity {
   /**
    * Initialize security for Express application
    */
-  public initializeSecurity(app: any): void {
+  public initializeSecurity(app: Express.Application): void {
     // Apply helmet for basic security headers
     app.use(helmet({
       contentSecurityPolicy: this.config.headers.csp,
@@ -371,7 +380,7 @@ export class ProductionSecurity {
     return null;
   }
 
-  private async checkPermissions(user: any, resource: string, action: string): Promise<boolean> {
+  private async checkPermissions(user: AuthenticatedUser | null, resource: string, action: string): Promise<boolean> {
     // Implement role-based access control logic
     if (!user || !user.roles) return false;
 
@@ -462,8 +471,14 @@ export interface SecurityConfig {
     keyGenerator?: (req: Request) => string;
   };
   headers: {
-    csp: any;
-    hsts: any;
+    csp: {
+      directives: Record<string, string[]>;
+    };
+    hsts: {
+      maxAge: number;
+      includeSubDomains: boolean;
+      preload: boolean;
+    };
     frameOptions: string;
   };
   validation: {

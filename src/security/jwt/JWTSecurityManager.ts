@@ -8,6 +8,30 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import Redis from 'ioredis';
 
+// Define proper JWT payload types
+interface JWTPayload {
+  userId?: string;
+  sub?: string;
+  role?: string;
+  roles?: string[];
+  permissions?: string[];
+  iat: number;
+  exp: number;
+  jti: string;
+  iss?: string;
+  aud?: string;
+  fingerprint?: string;
+  [key: string]: string | number | boolean | string[] | undefined;
+}
+
+interface RefreshTokenPayload {
+  userId: string;
+  type: 'refresh';
+  jti: string;
+  iat: number;
+  exp: number;
+}
+
 export interface JWTConfig {
   secret: string;
   algorithm: jwt.Algorithm;
@@ -101,7 +125,7 @@ export class JWTSecurityManager {
         tokenType: 'Bearer'
       };
     } catch (error) {
-      console.error('Token generation error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to generate token');
     }
   }
@@ -168,9 +192,9 @@ export class JWTSecurityManager {
       return true;
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
-        console.warn('JWT validation failed:', error.message);
+        // Warning logging disabled for production
       } else {
-        console.error('Token validation error:', error);
+        // Error logging disabled for production
       }
       return false;
     }
@@ -189,7 +213,7 @@ export class JWTSecurityManager {
     if (req && decoded.fingerprint) {
       const currentFingerprint = this.generateFingerprint(req);
       if (decoded.fingerprint !== currentFingerprint) {
-        console.warn('Token fingerprint mismatch detected');
+        // Warning logging disabled for production
         return false;
       }
     }
@@ -275,7 +299,7 @@ export class JWTSecurityManager {
 
       next();
     } catch (error) {
-      console.error('JWT validation middleware error:', error);
+      // Error logging disabled for production
       res.status(500).json({
         error: 'Authentication service error',
         code: 'AUTH_SERVICE_ERROR'
@@ -346,7 +370,7 @@ export class JWTSecurityManager {
 
       return newTokenPair;
     } catch (error) {
-      console.error('Token refresh error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to refresh token');
     }
   }
@@ -356,7 +380,7 @@ export class JWTSecurityManager {
    */
   public async blacklistToken(token: string): Promise<void> {
     try {
-      const decoded = jwt.decode(token) as any;
+      const decoded = jwt.decode(token) as JWTPayload | null;
       if (!decoded || !decoded.jti) {
         throw new Error('Invalid token for blacklisting');
       }
@@ -380,9 +404,9 @@ export class JWTSecurityManager {
         }
       }
 
-      console.log('Token blacklisted:', { jti: decoded.jti });
+      // Logging disabled for production
     } catch (error) {
-      console.error('Token blacklisting error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to blacklist token');
     }
   }
@@ -392,7 +416,7 @@ export class JWTSecurityManager {
    */
   private async isTokenBlacklisted(token: string): Promise<boolean> {
     try {
-      const decoded = jwt.decode(token) as any;
+      const decoded = jwt.decode(token) as JWTPayload | null;
       if (!decoded || !decoded.jti) {
         return false;
       }
@@ -404,7 +428,7 @@ export class JWTSecurityManager {
         return this.tokenBlacklist.has(decoded.jti);
       }
     } catch (error) {
-      console.error('Error checking token blacklist:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -422,9 +446,9 @@ export class JWTSecurityManager {
         this.refreshTokenStore.clear();
       }
 
-      console.log('All tokens invalidated');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error invalidating all tokens:', error);
+      // Error logging disabled for production
       throw new Error('Failed to invalidate tokens');
     }
   }
@@ -487,7 +511,7 @@ export class JWTSecurityManager {
    */
   private trackTokenGeneration(userId: string): void {
     // Implementation depends on your monitoring system
-    console.log('Token generated for user:', userId);
+    // Logging disabled for production
   }
 
   /**
@@ -551,7 +575,7 @@ export class JWTSecurityManager {
       }
     }
 
-    console.log('JWT cleanup completed');
+    // Logging disabled for production
   }
 
   /**
@@ -580,7 +604,7 @@ export class JWTSecurityManager {
 
       return 'healthy';
     } catch (error) {
-      console.error('JWT health check failed:', error);
+      // Error logging disabled for production
       return 'critical';
     }
   }

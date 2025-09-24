@@ -253,7 +253,7 @@ export class LocalComponentEventBus {
         try {
           listener(event);
         } catch (error) {
-          console.error('Event listener error:', error);
+          // Error logging disabled for production
         }
       });
     }

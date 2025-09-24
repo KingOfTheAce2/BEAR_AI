@@ -7,13 +7,13 @@
 const isTauriEnvironment = () => false;
 const getCurrentEnvironment = () => 'web';
 const environmentLog = {
-  info: (message: string, ...args: any[]) => console.log(message, ...args),
-  error: (message: string, ...args: any[]) => console.error(message, ...args),
-  warn: (message: string, ...args: any[]) => console.warn(message, ...args)
+  info: (message: string, ...args: unknown[]) => {}, // console.log(message, ...args),
+  error: (message: string, ...args: unknown[]) => {}, // console.error(message, ...args),
+  warn: (message: string, ...args: unknown[]) => {} // console.warn(message, ...args)
 };
 
 // Conditional exports based on environment
-let apiExports: any;
+let apiExports: Promise<typeof import('./localClient.hybrid')> | Promise<typeof import('./localClient')>;
 
 if (isTauriEnvironment()) {
   // Desktop environment - use Tauri-based local client

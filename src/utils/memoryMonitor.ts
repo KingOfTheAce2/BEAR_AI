@@ -201,7 +201,7 @@ export class MemoryMonitor {
       try {
         callback(info);
       } catch (error) {
-        console.error('Memory monitor subscriber failed:', error);
+        // Error logging disabled for production
       }
     });
 
@@ -308,7 +308,7 @@ export class MemoryMonitor {
       });
       this.performanceObserver.observe({ entryTypes: ['gc'] as any });
     } catch (error) {
-      console.warn('Failed to initialize performance observer for memory monitoring:', error);
+      // Warning logging disabled for production
       this.performanceObserver = null;
     }
   }

@@ -63,7 +63,7 @@ export class LocalResearchService {
         local_search: true
       };
     } catch (error) {
-      console.error('Failed to perform research search:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

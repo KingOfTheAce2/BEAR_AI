@@ -15,7 +15,7 @@ export interface Agent {
   status: 'idle' | 'busy' | 'error' | 'offline'
   currentTask: string | null
   capabilities: string[]
-  config: Record<string, any>
+  config: Record<string, unknown>
   lastActivity: Date
   metrics: {
     tasksCompleted: number
@@ -34,7 +34,7 @@ export interface Document {
   processedAt?: Date
   status: 'uploaded' | 'processing' | 'processed' | 'error'
   analysis?: DocumentAnalysis
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
 }
 
 export interface DocumentAnalysis {
@@ -53,7 +53,7 @@ export interface Task {
   assignedAgents: string[]
   priority: 'low' | 'medium' | 'high' | 'critical'
   documentIds: string[]
-  result?: any
+  result?: DocumentAnalysis
   progress: number
   startedAt?: Date
   completedAt?: Date
@@ -149,7 +149,7 @@ interface BearActions {
   // Tasks
   addTask: (task: Task) => void
   updateTask: (id: string, updates: Partial<Task>) => void
-  completeTask: (id: string, result: any) => void
+  completeTask: (id: string, result: DocumentAnalysis) => void
   failTask: (id: string, error: string) => void
   getTasksByStatus: (status: Task['status']) => Task[]
 
@@ -299,7 +299,7 @@ const loadPersistedSnapshot = (): Partial<PersistedSnapshot> => {
 
     return hydrated
   } catch (error) {
-    console.warn('Failed to load persisted BEAR AI state:', error)
+    // console.warn('Failed to load persisted BEAR AI state:', error)
     return {}
   }
 }
@@ -322,7 +322,7 @@ const persistSnapshot = (state: Pick<BearState, 'settings' | 'ui' | 'models' | '
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
   } catch (error) {
-    console.warn('Failed to persist BEAR AI state:', error)
+    // console.warn('Failed to persist BEAR AI state:', error)
   }
 }
 
@@ -585,7 +585,7 @@ export const useBearStore = create<BearStore>((set, get) => {
           return { models }
         })
       } catch (error) {
-        console.error('Failed to unload model:', error)
+        // console.error('Failed to unload model:', error)
       }
     },
 

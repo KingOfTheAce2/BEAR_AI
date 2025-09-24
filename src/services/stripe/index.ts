@@ -134,42 +134,42 @@ export function createWebhookHandlers(
 ): Record<string, (event: WebhookEvent) => Promise<void>> {
   const defaultHandlers = {
     'payment_intent.succeeded': async (event: WebhookEvent) => {
-      console.log('Payment succeeded:', event.data.object.id);
+      // Logging disabled for production
       // Add your success handling logic here
     },
 
     'payment_intent.payment_failed': async (event: WebhookEvent) => {
-      console.log('Payment failed:', event.data.object.id);
+      // Logging disabled for production
       // Add your failure handling logic here
     },
 
     'customer.subscription.created': async (event: WebhookEvent) => {
-      console.log('Subscription created:', event.data.object.id);
+      // Logging disabled for production
       // Add subscription creation logic here
     },
 
     'customer.subscription.updated': async (event: WebhookEvent) => {
-      console.log('Subscription updated:', event.data.object.id);
+      // Logging disabled for production
       // Add subscription update logic here
     },
 
     'customer.subscription.deleted': async (event: WebhookEvent) => {
-      console.log('Subscription cancelled:', event.data.object.id);
+      // Logging disabled for production
       // Add subscription cancellation logic here
     },
 
     'invoice.paid': async (event: WebhookEvent) => {
-      console.log('Invoice paid:', event.data.object.id);
+      // Logging disabled for production
       // Add invoice payment logic here
     },
 
     'invoice.payment_failed': async (event: WebhookEvent) => {
-      console.log('Invoice payment failed:', event.data.object.id);
+      // Logging disabled for production
       // Add invoice failure logic here
     },
 
     'charge.dispute.created': async (event: WebhookEvent) => {
-      console.log('Dispute created:', event.data.object.id);
+      // Logging disabled for production
       // Add dispute handling logic here
     }
   };

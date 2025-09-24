@@ -944,7 +944,7 @@ export class StripeProduction {
       metadata: entry.metadata ? this.sanitizeMetadata(entry.metadata) : undefined
     };
 
-    console.log('AUDIT_LOG:', JSON.stringify(sanitizedEntry));
+    // Logging disabled for production
   }
 
   /**
@@ -959,7 +959,7 @@ export class StripeProduction {
       name: error.name
     };
 
-    console.error('STRIPE_ERROR:', JSON.stringify({
+    // console.error('STRIPE_ERROR:', JSON.stringify({
       error: sanitizedError,
       context: sanitizedContext,
       timestamp: new Date().toISOString()

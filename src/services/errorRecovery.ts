@@ -75,7 +75,7 @@ const logIfEnabled = (
     return;
   }
 
-  const logger = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info;
+  // Logger selection disabled for production
   logger(`[StreamingErrorRecovery] ${message}`, data ?? '');
 };
 
@@ -509,26 +509,26 @@ export class StreamingErrorRecovery {
 
   private logInfo(message: string, data?: any): void {
     if (this.config.enableLogging) {
-      console.info(`[StreamingErrorRecovery] ${message}`, data || '');
+      // Info logging disabled for production
     }
   }
 
   private logWarning(message: string, data?: any): void {
     if (this.config.enableLogging) {
-      console.warn(`[StreamingErrorRecovery] ${message}`, data || '');
+      // Warning logging disabled for production
     }
   }
 
   private logError(message: string, error?: Error): void {
     if (this.config.enableLogging) {
       if (error) {
-        console.error(`[StreamingErrorRecovery] ${message}`, {
+        // console.error(`[StreamingErrorRecovery] ${message}`, {
           message: error.message,
           stack: error.stack,
           timestamp: new Date().toISOString()
         });
       } else {
-        console.error(`[StreamingErrorRecovery] ${message}`);
+        // Error logging disabled for production
       }
     }
   }

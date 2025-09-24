@@ -507,7 +507,7 @@ export class UserSettingsService extends EventEmitter {
           try {
             await this.saveUserPreferences(session.userId, session.preferences);
           } catch (error) {
-            console.error(`Auto-save failed for user ${session.userId}:`, error);
+            // Error logging disabled for production
           }
         }
       }

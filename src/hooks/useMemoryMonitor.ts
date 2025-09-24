@@ -102,7 +102,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
 
       return { ...optimalConfig, ...userConfig };
     } catch (err) {
-      console.warn('Failed to get optimal config, using defaults:', err);
+      // Warning logging disabled for production
       return { ...DEFAULT_MEMORY_CONFIG, ...userConfig };
     }
   }, [useOptimal, userConfig]);
@@ -160,7 +160,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Memory update failed');
       setError(error);
-      console.error('Memory monitor update error:', error);
+      // Error logging disabled for production
     }
   }, [enableTrends, onStatusChange, onCriticalMemory, onMemoryWarning, executeCallback]);
 
@@ -200,7 +200,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to start monitoring');
       setError(error);
-      console.error('Failed to start memory monitoring:', error);
+      // Error logging disabled for production
     }
   }, [isMonitoring, initializeMonitor, handleMemoryUpdate]);
 
@@ -226,7 +226,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to stop monitoring');
       setError(error);
-      console.error('Failed to stop memory monitoring:', error);
+      // Error logging disabled for production
     }
   }, [isMonitoring]);
 
@@ -267,7 +267,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to update configuration');
       setError(error);
-      console.error('Failed to update memory monitor configuration:', error);
+      // Error logging disabled for production
     }
   }, [initializeMonitor, getOptimalConfiguration, isMonitoring]);
 
@@ -281,7 +281,7 @@ export function useMemoryMonitor(options: UseMemoryMonitorOptions = {}): UseMemo
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to refresh memory data');
       setError(error);
-      console.error('Failed to refresh memory monitoring:', error);
+      // Error logging disabled for production
     }
   }, []);
 

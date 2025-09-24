@@ -128,7 +128,7 @@ export const BatchProcessor: React.FC = () => {
     try {
       await processBatch(job);
     } catch (error) {
-      console.error('Batch processing failed:', error);
+      // Error logging disabled for production
       setJobs(prev => prev.map(j =>
         j.id === jobId
           ? { ...j, status: 'error', endTime: new Date() }
@@ -341,7 +341,7 @@ export const BatchProcessor: React.FC = () => {
 
   const saveResults = async (jobId: string, results: BatchJob['results']) => {
     // In a real implementation, this would save to a database
-    console.log(`Saving ${results.length} results for job ${jobId}`);
+    // Logging disabled for production
   };
 
   const getStatusIcon = (status: BatchJob['status']) => {

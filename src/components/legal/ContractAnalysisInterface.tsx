@@ -89,7 +89,7 @@ export const ContractAnalysisInterface: React.FC<ContractAnalysisInterfaceProps>
       setAnalysisResult(result);
       onAnalysisComplete?.(result);
     } catch (error) {
-      console.error('Error analyzing contract:', error);
+      // Error logging disabled for production
       
       // Fallback with mock data for demo
       setAnalysisResult({

@@ -114,7 +114,7 @@ export const usePIIDetection = (options: PIIDetectionHookOptions = {}) => {
 
       return result;
     } catch (error) {
-      console.error('PII detection error:', error);
+      // Error logging disabled for production
       const fallbackResult = createEmptyResult(['Error occurred during scanning']);
 
       setState(prev => ({

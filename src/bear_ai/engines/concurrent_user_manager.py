@@ -622,8 +622,11 @@ class ConcurrentUserManager:
         # In production, this would validate against a secure database
         # with proper password hashing (bcrypt, scrypt, etc.)
         
-        # Mock user for demonstration
-        if username == "demo@lawfirm.com" and password == "demo123":
+        # In development, use environment variables for demo credentials
+        demo_user = os.getenv('DEMO_USER_EMAIL', 'demo@lawfirm.com')
+        demo_pass = os.getenv('DEMO_USER_PASSWORD', 'changeme123')
+
+        if username == demo_user and password == demo_pass:
             return UserProfile(
                 user_id="user_12345",
                 username=username,
@@ -814,15 +817,15 @@ async def example_usage():
     
     # Create manager
     manager = create_user_manager(
-        secret_key="your-secret-key-here",
+        secret_key=os.getenv('JWT_SECRET', 'change-me-in-production'),
         storage_path="/data/bear-ai/workspaces",
         session_timeout=7200  # 2 hours
     )
     
     # Authenticate user
     token, profile = await manager.authenticate_user(
-        username="demo@lawfirm.com",
-        password="demo123",
+        username=os.getenv('DEMO_USER_EMAIL', 'demo@lawfirm.com'),
+        password=os.getenv('DEMO_USER_PASSWORD', 'changeme123'),
         ip_address="192.168.1.100",
         user_agent="Mozilla/5.0..."
     )

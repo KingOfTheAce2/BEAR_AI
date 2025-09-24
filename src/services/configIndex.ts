@@ -35,43 +35,43 @@ export async function initializeConfigSystem(options: ConfigSystemOptions = {}):
   } = options;
 
   try {
-    console.log('🚀 Initializing BEAR AI Configuration Management System...');
+    // console.log('🚀 Initializing BEAR AI Configuration Management System...');
 
     // Initialize environment config loader
-    console.log('📁 Setting up environment configuration loader...');
+    // console.log('📁 Setting up environment configuration loader...');
     // Environment config loader is already configured
 
     // Initialize main config manager
-    console.log('⚙️ Initializing configuration manager...');
+    // Logging disabled for production
     await configManager.initialize(environment);
 
     // Initialize user settings service
-    console.log('👤 Setting up user settings service...');
+    // console.log('👤 Setting up user settings service...');
     // User settings service is already initialized
 
     // Validate current configuration
     if (enableValidation) {
-      console.log('✅ Validating configuration...');
+      // Logging disabled for production
       const config = configManager.getConfig();
       const validation = await configValidator.validateConfiguration(config, environment);
       
       if (!validation.isValid) {
-        console.warn('⚠️ Configuration validation warnings:', validation.errors);
+        // Warning logging disabled for production
       } else {
-        console.log('✅ Configuration validation passed');
+        // Logging disabled for production
       }
     }
 
     // Enable hot reload if requested
     if (enableHotReload) {
-      console.log('🔄 Enabling configuration hot reload...');
+      // console.log('🔄 Enabling configuration hot reload...');
       configManager.enableHotReload();
     }
 
-    console.log('✅ Configuration Management System initialized successfully');
+    // Logging disabled for production
 
   } catch (error) {
-    console.error('❌ Failed to initialize Configuration Management System:', error);
+    // Error logging disabled for production
     throw error;
   }
 }
@@ -104,7 +104,7 @@ export function getConfigSystemStatus() {
  * Shutdown configuration system gracefully
  */
 export async function shutdownConfigSystem(): Promise<void> {
-  console.log('🛑 Shutting down Configuration Management System...');
+  // console.log('🛑 Shutting down Configuration Management System...');
   
   try {
     // Disable hot reload
@@ -113,16 +113,16 @@ export async function shutdownConfigSystem(): Promise<void> {
     // Save any pending changes
     const state = configManager.getState();
     if (state.pendingChanges.length > 0) {
-      console.log('💾 Saving pending configuration changes...');
+      // console.log('💾 Saving pending configuration changes...');
       // In a real implementation, this would save pending changes
     }
     
     // Clean up user settings service
     userSettingsService.destroy();
     
-    console.log('✅ Configuration Management System shutdown complete');
+    // Logging disabled for production
   } catch (error) {
-    console.error('❌ Error during Configuration Management System shutdown:', error);
+    // Error logging disabled for production
     throw error;
   }
 }

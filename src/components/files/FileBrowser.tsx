@@ -43,7 +43,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
       const docs = await localStorageService.getAllDocuments();
       setParsedDocuments(docs);
     } catch (error) {
-      console.error('Failed to load parsed documents:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -68,7 +68,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
           files.push(file);
           onFileSelect?.(file);
         } catch (error) {
-          console.error(`Failed to read file ${handle.name}:`, error);
+          // Error logging disabled for production
           onError?.(`Failed to read file ${handle.name}`);
         }
       }
@@ -79,7 +79,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
         // User cancelled, don't show error
         return;
       }
-      console.error('File selection failed:', error);
+      // Error logging disabled for production
       onError?.('Failed to select files');
     } finally {
       setLoading(false);
@@ -106,7 +106,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
       if (error instanceof Error && error.message === 'Directory selection cancelled') {
         return;
       }
-      console.error('Directory selection failed:', error);
+      // Error logging disabled for production
       onError?.('Failed to select directory');
     } finally {
       setLoading(false);
@@ -125,7 +125,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
         onDocumentParse?.(storedDoc);
       }
     } catch (error) {
-      console.error('Failed to parse document:', error);
+      // Error logging disabled for production
       onError?.(`Failed to parse document: ${file.name}`);
     } finally {
       setProcessingFile(null);
@@ -141,7 +141,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
       await localStorageService.deleteDocument(docId);
       setParsedDocuments(prev => prev.filter(d => d.id !== docId));
     } catch (error) {
-      console.error('Failed to remove document:', error);
+      // Error logging disabled for production
       onError?.('Failed to remove document');
     }
   }, [onError]);

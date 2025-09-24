@@ -22,7 +22,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         const loadedSettings = await localSettingsService.loadSettings();
         setSettings(loadedSettings);
       } catch (err) {
-        console.error('Failed to initialize settings:', err);
+        // Failed to initialize settings
         setError(err instanceof Error ? err.message : 'Failed to load settings');
       } finally {
         setLoading(false);

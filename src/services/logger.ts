@@ -299,7 +299,7 @@ export class Logger extends EventEmitter {
             try {
               await transport.write(entry);
             } catch (error) {
-              console.error(`Failed to write to transport ${transport.name}:`, error);
+              // Error logging disabled for production
             }
           }
         }
@@ -308,7 +308,7 @@ export class Logger extends EventEmitter {
           try {
             await transport.flush();
           } catch (error) {
-            console.error(`Failed to flush transport ${transport.name}:`, error);
+            // Error logging disabled for production
           }
         }
       })
@@ -331,7 +331,7 @@ export class Logger extends EventEmitter {
           try {
             await transport.close();
           } catch (error) {
-            console.error(`Failed to close transport ${transport.name}:`, error);
+            // Error logging disabled for production
           }
         }
       })
@@ -392,7 +392,7 @@ export class Logger extends EventEmitter {
     // Flush logs every 5 seconds
     this.flushInterval = setInterval(() => {
       this.flush().catch(error => {
-        console.error('Failed to flush logs:', error);
+        // Error logging disabled for production
       });
     }, 5000);
   }
@@ -453,17 +453,17 @@ class ConsoleTransport implements LogTransport {
     switch (entry.level) {
       case 'trace':
       case 'debug':
-        console.debug(formatted);
+        // Debug logging disabled for production
         break;
       case 'info':
-        console.info(formatted);
+        // Info logging disabled for production
         break;
       case 'warn':
-        console.warn(formatted);
+        // Warning logging disabled for production
         break;
       case 'error':
       case 'fatal':
-        console.error(formatted);
+        // Error logging disabled for production
         break;
     }
   }
@@ -524,10 +524,10 @@ class StructuredTransport implements LogTransport {
           body: JSON.stringify(structuredEntry)
         });
       } catch (error) {
-        console.error('Failed to send structured log:', error);
+        // Error logging disabled for production
       }
     } else {
-      console.log('STRUCTURED_LOG:', JSON.stringify(structuredEntry));
+      // Logging disabled for production
     }
   }
 }

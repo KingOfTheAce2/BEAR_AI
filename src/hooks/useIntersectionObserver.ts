@@ -101,7 +101,7 @@ export function useIntersectionObserver(
         statsRef.current.batchesProcessed += 1;
         
       } catch (error) {
-        console.error('Error processing intersection batch:', error);
+        // Error logging disabled for production
       }
       
       // Process next batch if needed
@@ -174,7 +174,7 @@ export function useIntersectionObserver(
       
       statsRef.current.observedElements = observedElementsRef.current.size;
     } catch (error) {
-      console.error('Failed to create IntersectionObserver:', error);
+      // Error logging disabled for production
     }
   }, [handleIntersection, observerOptions]);
   

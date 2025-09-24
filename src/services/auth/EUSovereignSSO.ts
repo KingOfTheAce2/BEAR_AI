@@ -327,7 +327,7 @@ export class EUSovereignSSOService {
         await this.openAuthWindow(logoutUrl.toString());
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      // Error logging disabled for production
     } finally {
       // Clear local session
       this.currentSession = null;
@@ -524,7 +524,7 @@ export class EUSovereignSSOService {
         revocationUrl: config.revocation_endpoint
       };
     } catch (error) {
-      console.error('OIDC discovery failed:', error);
+      // Error logging disabled for production
       return {};
     }
   }
@@ -692,7 +692,10 @@ export class EUSovereignSSOService {
   }
 
   private getRedirectUri(): string {
-    return process.env.SSO_REDIRECT_URI || 'http://localhost:1420/auth/callback';
+    const defaultUri = process.env.NODE_ENV === 'production'
+      ? 'https://api.bear-ai.app/auth/callback'
+      : 'http://localhost:1420/auth/callback';
+    return process.env.SSO_REDIRECT_URI || defaultUri;
   }
 
   private generateState(): string {

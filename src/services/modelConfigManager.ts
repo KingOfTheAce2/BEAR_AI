@@ -471,7 +471,7 @@ export class ModelConfigManager {
       }
       return false;
     } catch (error) {
-      console.error('Failed to import configurations:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -495,7 +495,7 @@ export class ModelConfigManager {
         this.configs = new Map(Object.entries(data));
       }
     } catch (error) {
-      console.error('Failed to load configurations:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -507,7 +507,7 @@ export class ModelConfigManager {
       const data = Object.fromEntries(this.configs);
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch (error) {
-      console.error('Failed to save configurations:', error);
+      // Error logging disabled for production
     }
   }
 

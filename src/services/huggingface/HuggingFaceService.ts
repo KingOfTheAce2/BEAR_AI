@@ -66,7 +66,7 @@ export class HuggingFaceService {
 
       return models;
     } catch (error) {
-      console.error('Failed to search models:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -102,7 +102,7 @@ export class HuggingFaceService {
 
       return model;
     } catch (error) {
-      console.error(`Failed to get model ${modelId}:`, error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -189,7 +189,7 @@ export class HuggingFaceService {
 
       return `${this.config.downloadPath}/${modelId}`;
     } catch (error) {
-      console.error(`Failed to download model ${modelId}:`, error);
+      // Error logging disabled for production
       throw error;
     }
   }

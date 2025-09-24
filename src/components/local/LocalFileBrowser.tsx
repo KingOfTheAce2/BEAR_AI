@@ -230,7 +230,7 @@ export const LocalFileBrowser: React.FC<LocalFileBrowserProps> = ({
       
     } catch (err) {
       setError('Failed to load directory. Check permissions and try again.');
-      console.error('Directory load error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }

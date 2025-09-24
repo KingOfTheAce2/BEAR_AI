@@ -74,7 +74,7 @@ export class MemoryOptimizer {
    * Initialize memory optimization
    */
   async initialize(): Promise<void> {
-    console.log('Initializing BEAR AI Memory Optimizer...')
+    // console.log('Initializing BEAR AI Memory Optimizer...')
     
     // Set up memory monitoring
     this.startMemoryMonitoring()
@@ -87,7 +87,7 @@ export class MemoryOptimizer {
     // Optimize system settings
     await this.optimizeSystemSettings()
     
-    console.log('Memory Optimizer initialized successfully')
+    // console.log('Memory Optimizer initialized successfully')
   }
 
   /**
@@ -135,7 +135,7 @@ export class MemoryOptimizer {
    */
   registerModelMemory(modelId: string, memoryUsage: number): void {
     this.modelMemoryUsage.set(modelId, memoryUsage)
-    console.log(`Registered model ${modelId} memory usage: ${this.formatBytes(memoryUsage)}`)
+    // console.log(`Registered model ${modelId} memory usage: ${this.formatBytes(memoryUsage)}`)
   }
 
   /**
@@ -143,7 +143,7 @@ export class MemoryOptimizer {
    */
   registerAgentMemory(agentId: string, memoryUsage: number): void {
     this.agentMemoryUsage.set(agentId, memoryUsage)
-    console.log(`Registered agent ${agentId} memory usage: ${this.formatBytes(memoryUsage)}`)
+    // console.log(`Registered agent ${agentId} memory usage: ${this.formatBytes(memoryUsage)}`)
   }
 
   /**
@@ -168,7 +168,7 @@ export class MemoryOptimizer {
     this.documentCache.set(key, entry)
     this.totalCacheSize += size
     
-    console.log(`Cached document ${key} (${this.formatBytes(size)}). Total cache: ${this.formatBytes(this.totalCacheSize)}`)
+    // console.log(`Cached document ${key} (${this.formatBytes(size)}). Total cache: ${this.formatBytes(this.totalCacheSize)}`)
   }
 
   /**
@@ -295,7 +295,7 @@ export class MemoryOptimizer {
     const memoryPerDocument = availableMemory / Math.min(batchSize, documentSizes.length) * 0.8
     const totalReserved = memoryPerDocument * batchSize
     
-    console.log(`Optimized document processing: ${batchSize} documents per batch, ${processingStrategy} strategy`)
+    // console.log(`Optimized document processing: ${batchSize} documents per batch, ${processingStrategy} strategy`)
     
     return {
       batchSize,
@@ -343,7 +343,7 @@ export class MemoryOptimizer {
       }
     }
     
-    console.log(`Memory cleanup completed. Freed: ${this.formatBytes(freedMemory)}`)
+    // console.log(`Memory cleanup completed. Freed: ${this.formatBytes(freedMemory)}`)
     
     return { freedMemory, actions }
   }
@@ -442,10 +442,10 @@ export class MemoryOptimizer {
       const memoryUsageRatio = stats.usedMemory / stats.totalMemory
       
       if (memoryUsageRatio > this.settings.memoryThreshold) {
-        console.warn(`High memory usage detected: ${(memoryUsageRatio * 100).toFixed(1)}%`)
+        // console.warn(`High memory usage detected: ${(memoryUsageRatio * 100).toFixed(1)}%`)
         
         if (memoryUsageRatio > 0.95) {
-          console.error('Critical memory usage! Performing emergency cleanup...')
+          // console.error('Critical memory usage! Performing emergency cleanup...')
           await this.performEmergencyCleanup()
         }
       }
@@ -484,7 +484,7 @@ export class MemoryOptimizer {
       process.setMaxListeners(50) // Increase listener limit for multi-agent scenarios
     }
     
-    console.log('System settings optimized for memory usage')
+    // console.log('System settings optimized for memory usage')
   }
 
   /**
@@ -525,7 +525,7 @@ export class MemoryOptimizer {
       const entry = this.documentCache.get(keyToEvict)!
       this.documentCache.delete(keyToEvict)
       this.totalCacheSize -= entry.size
-      console.log(`Evicted cache entry ${keyToEvict} (${this.formatBytes(entry.size)})`)
+      // console.log(`Evicted cache entry ${keyToEvict} (${this.formatBytes(entry.size)})`)
     }
   }
 
@@ -541,7 +541,7 @@ export class MemoryOptimizer {
     }
     
     const entriesRemoved = initialSize - this.documentCache.size
-    console.log(`Document cache cleanup: removed ${entriesRemoved} entries`)
+    // console.log(`Document cache cleanup: removed ${entriesRemoved} entries`)
     return entriesRemoved
   }
 
@@ -569,7 +569,7 @@ export class MemoryOptimizer {
    * Perform emergency cleanup
    */
   private async performEmergencyCleanup(): Promise<void> {
-    console.log('Performing emergency memory cleanup...')
+    // console.log('Performing emergency memory cleanup...')
     
     // Clear all document cache
     this.documentCache.clear()
@@ -583,7 +583,7 @@ export class MemoryOptimizer {
     // Unload all idle models
     await this.unloadIdleModels()
     
-    console.log('Emergency cleanup completed')
+    // console.log('Emergency cleanup completed')
   }
 
   /**
@@ -614,7 +614,7 @@ export class MemoryOptimizer {
     this.documentCache.clear()
     this.modelMemoryUsage.clear()
     this.agentMemoryUsage.clear()
-    console.log('Memory Optimizer disposed')
+    // console.log('Memory Optimizer disposed')
   }
 }
 

@@ -408,7 +408,8 @@ mod stripe_payment_tests {
 
         type HmacSha256 = Hmac<Sha256>;
 
-        let webhook_secret = "whsec_test_secret";
+        let webhook_secret = std::env::var("STRIPE_WEBHOOK_SECRET")
+            .unwrap_or_else(|_| "whsec_test_placeholder".to_string());
         let timestamp = chrono::Utc::now().timestamp();
         let signed_payload = format!("{}.{}", timestamp, payload);
 

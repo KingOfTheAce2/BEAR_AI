@@ -52,7 +52,7 @@ export const MemoryDashboard: React.FC<MemoryDashboardProps> = ({ className = ''
         modelSummary
       })
     } catch (error) {
-      console.error('Failed to fetch memory stats:', error)
+      // console.error('Failed to fetch memory stats:', error)
     } finally {
       setIsLoading(false)
     }

@@ -108,7 +108,7 @@ export class SqlInjectionPrevention {
 
       next();
     } catch (error) {
-      console.error('SQL injection prevention error:', error);
+      // Error logging disabled for production
       next();
     }
   }
@@ -321,7 +321,7 @@ export class SqlInjectionPrevention {
     this.detectionCount.set(clientIP, currentCount + 1);
 
     // Log the attack attempt
-    console.error('SQL Injection attempt detected:', {
+    // console.error('SQL Injection attempt detected:', {
       ip: clientIP,
       userAgent: req.get('User-Agent'),
       path: req.path,
@@ -344,7 +344,7 @@ export class SqlInjectionPrevention {
    * Log suspicious activity
    */
   private logSuspiciousActivity(req: Request, detection: SQLInjectionDetectionResult): void {
-    console.warn('Suspicious SQL patterns detected:', {
+    // console.warn('Suspicious SQL patterns detected:', {
       ip: req.ip,
       path: req.path,
       confidence: detection.confidence,
@@ -360,7 +360,7 @@ export class SqlInjectionPrevention {
     try {
       return sqlstring.format(query, params);
     } catch (error) {
-      console.error('Error creating parameterized query:', error);
+      // Error logging disabled for production
       throw new Error('Invalid query parameters');
     }
   }

@@ -39,7 +39,7 @@ export const BasicStreamingExample: React.FC = () => {
       setMessages(prev => [...prev, `You: ${input}`, `AI: ${response}`]);
       setInput('');
     } catch (error) {
-      console.error('Streaming failed:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -149,8 +149,8 @@ export const CompleteStreamingChatExample: React.FC = () => {
             temperature: 0.7,
             maxTokens: 2000
           }}
-          onMessageSent={(message) => console.log('Message sent:', message)}
-          onMessageReceived={(message) => console.log('Message received:', message)}
+          onMessageSent={(message) => // console.log('Message sent:', message)}
+          onMessageReceived={(message) => // console.log('Message received:', message)}
         />
       </div>
     </div>
@@ -191,7 +191,7 @@ export const RecoveryStreamingExample: React.FC = () => {
     try {
       await streamMessage('Test message for connection reliability');
     } catch (error) {
-      console.error('Test failed:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -311,7 +311,7 @@ export const MultiServiceExample: React.FC = () => {
       
       await loadServiceStatus();
     } catch (error) {
-      console.error('Failed to setup demo services:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -379,7 +379,7 @@ export const MultiServiceExample: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg border p-4">
         <h3 className="font-semibold mb-4">Quick Chat Test</h3>
         <CompactStreamingChat
-          onMessage={(message) => console.log('Quick message:', message)}
+          onMessage={(message) => // console.log('Quick message:', message)}
         />
       </div>
     </div>

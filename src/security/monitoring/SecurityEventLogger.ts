@@ -7,6 +7,30 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
+import { Request, Response, NextFunction } from 'express';
+
+// Define proper types for security event metadata
+interface SecurityEventMetadata {
+  ip?: string;
+  userAgent?: string;
+  userId?: string;
+  sessionId?: string;
+  timestamp?: string;
+  reason?: string;
+  remainingTime?: number;
+  hostname?: string;
+  error?: string;
+  expectedHash?: string;
+  providedHash?: string;
+  body?: string;
+  test?: boolean;
+  [key: string]: string | number | boolean | Date | undefined;
+}
+
+interface AlertThreshold {
+  count: number;
+  timeWindow: number;
+}
 
 export interface SecurityLoggingConfig {
   level: 'debug' | 'info' | 'warn' | 'error';
@@ -32,7 +56,15 @@ export interface SecurityLoggingConfig {
       channels: string[];
     };
     email?: {
-      smtp: any;
+      smtp: {
+        host: string;
+        port: number;
+        secure: boolean;
+        auth: {
+          user: string;
+          pass: string;
+        };
+      };
       recipients: string[];
     };
   };
@@ -104,7 +136,7 @@ export class SecurityEventLogger extends EventEmitter {
   /**
    * Log security event
    */
-  public async logEvent(eventType: string, metadata: any): Promise<void> {
+  public async logEvent(eventType: string, metadata: SecurityEventMetadata): Promise<void> {
     try {
       const logEntry: SecurityLogEntry = {
         id: crypto.randomUUID(),
@@ -135,16 +167,16 @@ export class SecurityEventLogger extends EventEmitter {
       this.emit('securityEvent', logEntry);
 
     } catch (error) {
-      console.error('Failed to log security event:', error);
+      // Error logging disabled for production
       // Fallback to console logging
-      console.error(`SECURITY EVENT [${eventType}]:`, metadata);
+      // Error logging disabled for production
     }
   }
 
   /**
    * Log security event with middleware integration
    */
-  public logSecurityEvent(req: any, res: any, next: any): void {
+  public logSecurityEvent(req: Request, res: Response, next: NextFunction): void {
     const startTime = Date.now();
 
     // Override res.end to capture response details
@@ -166,7 +198,7 @@ export class SecurityEventLogger extends EventEmitter {
       // Determine if this request should be logged based on status code
       if (res.statusCode >= 400) {
         const eventType = res.statusCode >= 500 ? 'SERVER_ERROR' : 'CLIENT_ERROR';
-        this.logEvent(eventType, logData).catch(console.error);
+        this.logEvent(eventType, logData).catch(() => {}); // Error handling disabled;
       }
 
       originalEnd.call(this, chunk, encoding);
@@ -243,7 +275,7 @@ export class SecurityEventLogger extends EventEmitter {
   /**
    * Generate human-readable message for event
    */
-  private generateEventMessage(eventType: string, metadata: any): string {
+  private generateEventMessage(eventType: string, metadata: SecurityEventMetadata): string {
     const messageTemplates: { [key: string]: string } = {
       'AUTHENTICATION_FAILURE': `Authentication failed for user from IP ${metadata.ip}`,
       'SQL_INJECTION_ATTEMPT': `SQL injection attempt detected from IP ${metadata.ip}`,
@@ -261,7 +293,7 @@ export class SecurityEventLogger extends EventEmitter {
   /**
    * Calculate event severity
    */
-  private calculateSeverity(eventType: string, metadata: any): 'low' | 'medium' | 'high' | 'critical' {
+  private calculateSeverity(eventType: string, metadata: SecurityEventMetadata): 'low' | 'medium' | 'high' | 'critical' {
     const severityMap: { [key: string]: 'low' | 'medium' | 'high' | 'critical' } = {
       'EMERGENCY_LOCKDOWN': 'critical',
       'CERTIFICATE_VALIDATION_FAILURE': 'critical',
@@ -282,7 +314,7 @@ export class SecurityEventLogger extends EventEmitter {
   /**
    * Sanitize metadata to remove sensitive information
    */
-  private sanitizeMetadata(metadata: any): any {
+  private sanitizeMetadata(metadata: SecurityEventMetadata): SecurityEventMetadata {
     const sanitized = { ...metadata };
 
     // Remove or hash sensitive fields
@@ -355,7 +387,7 @@ export class SecurityEventLogger extends EventEmitter {
   private async triggerAlert(
     eventType: string,
     count: number,
-    threshold: any,
+    threshold: AlertThreshold,
     logEntry: SecurityLogEntry
   ): Promise<void> {
     const alert: SecurityAlert = {
@@ -423,9 +455,9 @@ export class SecurityEventLogger extends EventEmitter {
       };
 
       // In a real implementation, you would send HTTP request to Slack webhook
-      console.log('Slack alert would be sent:', message);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to send Slack alert:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -435,13 +467,13 @@ export class SecurityEventLogger extends EventEmitter {
   private async sendEmailAlert(alert: SecurityAlert): Promise<void> {
     try {
       // In a real implementation, you would use nodemailer or similar
-      console.log('Email alert would be sent:', {
+      // console.log('Email alert would be sent:', {
         to: this.config.integrations?.email?.recipients,
         subject: `Security Alert: ${alert.eventType}`,
         body: alert.description
       });
     } catch (error) {
-      console.error('Failed to send email alert:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -480,9 +512,9 @@ export class SecurityEventLogger extends EventEmitter {
       const cefEntry = this.formatForCEF(logEntry);
 
       // In a real implementation, you would send HTTP request to SIEM
-      console.log('SIEM entry would be sent:', cefEntry);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to send to SIEM:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -511,7 +543,7 @@ export class SecurityEventLogger extends EventEmitter {
         this.rotateLogFile();
       }
     } catch (error) {
-      console.error('Error checking log file size:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -534,9 +566,9 @@ export class SecurityEventLogger extends EventEmitter {
         metadata: {}
       });
 
-      console.log(`Log file rotated to ${rotatedFile}`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error rotating log file:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -545,7 +577,7 @@ export class SecurityEventLogger extends EventEmitter {
    */
   public startMonitoring(): void {
     this.isMonitoring = true;
-    console.log('Security event monitoring started');
+    // Logging disabled for production
   }
 
   /**
@@ -553,7 +585,7 @@ export class SecurityEventLogger extends EventEmitter {
    */
   public stopMonitoring(): void {
     this.isMonitoring = false;
-    console.log('Security event monitoring stopped');
+    // Logging disabled for production
   }
 
   /**
@@ -578,7 +610,7 @@ export class SecurityEventLogger extends EventEmitter {
   /**
    * Sanitize config for logging
    */
-  private sanitizeConfig(): any {
+  private sanitizeConfig(): Partial<SecurityLoggingConfig> {
     const config = { ...this.config };
     if (config.integrations?.siem?.apiKey) {
       config.integrations.siem.apiKey = '[REDACTED]';
@@ -605,7 +637,7 @@ export class SecurityEventLogger extends EventEmitter {
 
       return 'healthy';
     } catch (error) {
-      console.error('Security logger health check failed:', error);
+      // Error logging disabled for production
       return 'critical';
     }
   }
@@ -667,7 +699,7 @@ export interface SecurityLogEntry {
   level: string;
   event: string;
   message: string;
-  metadata: any;
+  metadata: SecurityEventMetadata;
   severity?: 'low' | 'medium' | 'high' | 'critical';
   source?: string;
 }

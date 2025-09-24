@@ -50,7 +50,7 @@ export class TauriPIIBridge {
       this.isAvailable = true;
       return true;
     } catch (error) {
-      console.warn('Tauri PII detection not available, falling back to TypeScript implementation');
+      // Warning logging disabled for production
       this.isAvailable = false;
       return false;
     }
@@ -83,7 +83,7 @@ export class TauriPIIBridge {
 
       return this.convertTauriResult(result);
     } catch (error) {
-      console.error('Tauri PII detection error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -127,7 +127,7 @@ export class TauriPIIBridge {
 
       return result;
     } catch (error) {
-      console.error('Tauri PII masking error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -146,7 +146,7 @@ export class TauriPIIBridge {
       const result: boolean = await invoke('validate_dutch_bsn', { bsn });
       return result;
     } catch (error) {
-      console.error('Tauri BSN validation error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -165,7 +165,7 @@ export class TauriPIIBridge {
       const result: boolean = await invoke('validate_dutch_rsin', { rsin });
       return result;
     } catch (error) {
-      console.error('Tauri RSIN validation error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -184,7 +184,7 @@ export class TauriPIIBridge {
       const result: TauriPIIMatch[] = await invoke('get_pii_audit_log');
       return result.map(match => this.convertTauriMatch(match));
     } catch (error) {
-      console.error('Tauri audit log error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -203,7 +203,7 @@ export class TauriPIIBridge {
       const result: string = await invoke('export_pii_audit_log');
       return result;
     } catch (error) {
-      console.error('Tauri audit export error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -262,7 +262,7 @@ export class TauriPIIBridge {
 
       return baseResult;
     } catch (error) {
-      console.error('Tauri document processing error:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

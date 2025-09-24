@@ -35,7 +35,7 @@ export const useLocalSettings = (): UseLocalSettingsReturn => {
         setOriginalSettings(JSON.parse(JSON.stringify(loadedSettings))); // Deep clone
         setLastSaved(new Date());
       } catch (err) {
-        console.error('Failed to load settings:', err);
+        // Error logging disabled for production
         setError(err instanceof Error ? err.message : 'Failed to load settings');
       } finally {
         setLoading(false);

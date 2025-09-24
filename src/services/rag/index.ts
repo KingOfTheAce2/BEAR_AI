@@ -60,7 +60,7 @@ export async function createLegalRAGService(config: {
     nemoRetrieverUrl: config.nemoRetrieverUrl,
     embeddingModel: config.embeddingModel || 'nv-embed-v2',
     generationModel: config.generationModel || 'nemotron-4-340b-instruct',
-    vectorDatabaseUrl: config.vectorDbUrl || 'http://localhost:6333',
+    vectorDatabaseUrl: config.vectorDbUrl || process.env.VECTOR_DB_URL || 'http://localhost:6333',
     maxChunkSize: config.maxChunkSize || 512,
     chunkOverlap: config.chunkOverlap || 50,
     rerankingModel: 'nemotron-rerank',

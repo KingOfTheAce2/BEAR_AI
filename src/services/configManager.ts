@@ -536,7 +536,7 @@ export class ConfigManager extends EventEmitter {
       // For now, return empty config
       return {};
     } catch (error) {
-      console.warn(`Could not load config file ${filename}:`, error);
+      // Warning logging disabled for production
       return {};
     }
   }
@@ -553,7 +553,7 @@ export class ConfigManager extends EventEmitter {
         ]
       };
     } catch (error) {
-      console.warn('Could not load configuration schema:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -562,7 +562,7 @@ export class ConfigManager extends EventEmitter {
       // In a real implementation, this would load from database or file
       this.state.userPreferences = {};
     } catch (error) {
-      console.warn('Could not load user preferences:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -676,7 +676,7 @@ export class ConfigManager extends EventEmitter {
       try {
         await this.checkForChanges();
       } catch (error) {
-        console.error('Error checking for configuration changes:', error);
+        // Error logging disabled for production
       }
     }, this.hotReloadOptions.debounceMs);
   }
@@ -691,7 +691,7 @@ export class ConfigManager extends EventEmitter {
       // In a real implementation, this would save to filesystem
       this.state.lastUpdated = new Date();
     } catch (error) {
-      console.error('Failed to persist configuration:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -700,7 +700,7 @@ export class ConfigManager extends EventEmitter {
     try {
       // In a real implementation, this would save to database or file
     } catch (error) {
-      console.error('Failed to persist user preferences:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -711,9 +711,9 @@ export class ConfigManager extends EventEmitter {
     
     try {
       // In a real implementation, this would save backup to filesystem
-      console.log(`Configuration backup created: backup-${timestamp}.json`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to create configuration backup:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

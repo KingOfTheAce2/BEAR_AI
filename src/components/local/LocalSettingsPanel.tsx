@@ -165,7 +165,7 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
           setSettings({ ...settings, ...parsed });
         }
       } catch (error) {
-        console.error('Failed to load settings:', error);
+        // Error logging disabled for production
       }
     };
 
@@ -183,7 +183,7 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
         
         // Mock system info is already set in state
       } catch (error) {
-        console.error('Failed to get system info:', error);
+        // Error logging disabled for production
       }
     };
 
@@ -216,7 +216,7 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
       setHasUnsavedChanges(false);
       onSettingsChange?.(settings);
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -276,9 +276,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
       // - Model cache
       // - Chat history cache
       // - Temporary files
-      console.log('Cache cleared');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to clear cache:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -288,9 +288,9 @@ export const LocalSettingsPanel: React.FC<LocalSettingsPanelProps> = ({
       // - Export all settings and data
       // - Create encrypted backup
       // - Save to chosen location
-      console.log('Backup created');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to create backup:', error);
+      // Error logging disabled for production
     }
   };
 

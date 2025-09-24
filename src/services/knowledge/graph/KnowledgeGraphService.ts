@@ -64,9 +64,9 @@ export class KnowledgeGraphService {
       // Update statistics
       this.updateStatistics();
 
-      console.log(`Added document node: ${document.id} to knowledge graph`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error adding document node:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to add document node: ${error.message}`);
     }
   }
@@ -299,7 +299,7 @@ export class KnowledgeGraphService {
       // Add updated node
       await this.addDocumentNode(document);
     } catch (error) {
-      console.error('Error updating document node:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to update document node: ${error.message}`);
     }
   }
@@ -335,9 +335,9 @@ export class KnowledgeGraphService {
       // Update statistics
       this.updateStatistics();
 
-      console.log(`Removed document node: ${documentId} from knowledge graph`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error removing document node:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to remove document node: ${error.message}`);
     }
   }
@@ -374,7 +374,7 @@ export class KnowledgeGraphService {
     const docNode = this.graph.nodes.get(docNodeId);
     
     if (!docNode || !docNode.embedding) {
-      console.warn(`Document node not found or no embedding: ${documentId}`);
+      // Warning logging disabled for production
       return [];
     }
 
@@ -750,7 +750,7 @@ export class KnowledgeGraphService {
   }
 
   async optimize(): Promise<void> {
-    console.log('Optimizing knowledge graph...');
+    // Logging disabled for production
     
     // Remove weak connections
     this.graph.connections = this.graph.connections.filter(conn => conn.weight > 0.3);
@@ -768,7 +768,7 @@ export class KnowledgeGraphService {
     // Update statistics
     this.updateStatistics();
 
-    console.log('Knowledge graph optimization completed');
+    // Logging disabled for production
   }
 
   clear(): void {

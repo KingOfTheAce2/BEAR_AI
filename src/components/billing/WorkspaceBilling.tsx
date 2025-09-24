@@ -267,7 +267,7 @@ const SubscriptionManagement: React.FC<SubscriptionManagementProps> = ({ billing
         throw new Error(result.error);
       }
     } catch (error) {
-      console.error('Update subscription error:', error);
+      // Update subscription error logged
       alert(error instanceof Error ? error.message : 'Failed to update subscription');
     } finally {
       setLoading(false);
@@ -460,7 +460,7 @@ const BillingHistory: React.FC<{ domain: string }> = ({ domain }) => {
           setHistory(result.data || []);
         }
       } catch (error) {
-        console.error('Failed to load billing history:', error);
+        // Failed to load billing history
       } finally {
         setLoading(false);
       }
@@ -551,7 +551,7 @@ const ManageBillingButton: React.FC<{ domain: string }> = ({ domain }) => {
         window.open(result.actionUrl, '_blank');
       }
     } catch (error) {
-      console.error('Failed to open billing portal:', error);
+      // Failed to open billing portal
     } finally {
       setLoading(false);
     }
@@ -580,7 +580,7 @@ const UpgradePlanButton: React.FC<{
     <button
       onClick={() => {
         // Handle plan upgrade
-        console.log('Upgrade plan clicked');
+        // Upgrade plan clicked
       }}
       className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
     >
@@ -601,7 +601,7 @@ const AddMembersButton: React.FC<{
     <button
       onClick={() => {
         // Handle add members
-        console.log('Add members clicked');
+        // Add members clicked
       }}
       className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
     >

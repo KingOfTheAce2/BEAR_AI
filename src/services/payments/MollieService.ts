@@ -878,8 +878,8 @@ export const DEFAULT_MOLLIE_CONFIG: Record<string, PaymentFlowConfig> = {
         locale: 'en_US',
         defaultCurrency: 'EUR',
         enabledMethods: ['ideal', 'bancontact', 'directdebit', 'creditcard'],
-        redirectUrl: 'http://localhost:3000/payment/return',
-        webhookUrl: 'http://localhost:3000/webhooks/mollie'
+        redirectUrl: process.env.PAYMENT_REDIRECT_URL || 'http://localhost:3000/payment/return',
+        webhookUrl: process.env.PAYMENT_WEBHOOK_URL || 'http://localhost:3000/webhooks/mollie'
     },
     production: {
         environment: 'live',

@@ -731,13 +731,13 @@ export class EnvironmentManager {
       APP_URL: {
         required: true,
         type: 'url',
-        default: 'http://localhost:3000',
+        default: process.env.NODE_ENV === 'production' ? 'https://bear-ai.app' : 'http://localhost:3000',
         description: 'Application URL'
       },
       API_BASE_URL: {
         required: true,
         type: 'url',
-        default: 'http://localhost:1420',
+        default: process.env.NODE_ENV === 'production' ? 'https://api.bear-ai.app' : 'http://localhost:1420',
         description: 'API base URL'
       },
       API_TIMEOUT: {

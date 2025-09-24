@@ -19,7 +19,7 @@ export class PluginSystemExample {
    * Initialize and demonstrate the plugin system
    */
   async runExample(): Promise<void> {
-    console.log('🚀 Starting BEAR AI Plugin System Example');
+    // console.log('🚀 Starting BEAR AI Plugin System Example');
 
     try {
       // 1. Initialize the plugin system
@@ -40,9 +40,9 @@ export class PluginSystemExample {
       // 6. Show system management
       this.demonstrateSystemManagement();
 
-      console.log('✅ Plugin System Example completed successfully');
+      // Logging disabled for production
     } catch (error) {
-      console.error('❌ Example failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -50,7 +50,7 @@ export class PluginSystemExample {
    * Create and install a sample plugin
    */
   private async createSamplePlugin(): Promise<void> {
-    console.log('\n📦 Creating Sample Plugin...');
+    // console.log('\n📦 Creating Sample Plugin...');
 
     // Define plugin manifest
     const manifest: PluginManifest = {
@@ -91,7 +91,7 @@ export class PluginSystemExample {
         }
 
         async initialize() {
-          console.log('Sample Plugin initialized');
+          // Logging disabled for production
           
           // Load saved data
           this.data = await this.api.storage.get('plugin_data') || [];
@@ -104,7 +104,7 @@ export class PluginSystemExample {
         }
 
         async processData(inputData) {
-          console.log('Processing data:', inputData);
+          // Logging disabled for production
           
           const processedItem = {
             id: Date.now(),
@@ -133,11 +133,11 @@ export class PluginSystemExample {
 
         onConfigUpdate(newConfig) {
           this.config = newConfig;
-          console.log('Configuration updated:', newConfig);
+          // Logging disabled for production
         }
 
         destroy() {
-          console.log('Sample Plugin destroyed');
+          // Logging disabled for production
         }
       }
 
@@ -160,13 +160,13 @@ export class PluginSystemExample {
         enableImmediately: true
       });
       
-      console.log(`✅ Plugin installed successfully: ${pluginId}`);
+      // Logging disabled for production
       
       // Test plugin functionality
       await this.testSamplePlugin(pluginId);
       
     } catch (error) {
-      console.error('❌ Failed to create sample plugin:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -174,11 +174,11 @@ export class PluginSystemExample {
    * Test the sample plugin functionality
    */
   private async testSamplePlugin(pluginId: string): Promise<void> {
-    console.log(`🧪 Testing plugin: ${pluginId}`);
+    // console.log(`🧪 Testing plugin: ${pluginId}`);
 
     const plugin = this.pluginSystem.getPlugin(pluginId);
     if (!plugin) {
-      console.error('Plugin not found');
+      // Error logging disabled for production
       return;
     }
 
@@ -188,20 +188,20 @@ export class PluginSystemExample {
       maxDataItems: 100
     });
 
-    console.log('✅ Plugin configuration updated');
-    console.log(`📊 Plugin status: ${plugin.status}`);
+    // Logging disabled for production
+    // console.log(`📊 Plugin status: ${plugin.status}`);
   }
 
   /**
    * Demonstrate marketplace features
    */
   private async demonstrateMarketplace(): Promise<void> {
-    console.log('\n🏪 Marketplace Features Demo...');
+    // console.log('\n🏪 Marketplace Features Demo...');
 
     try {
       // Get marketplace statistics
       const stats = this.pluginSystem.getMarketplaceStats();
-      console.log('📊 Marketplace Statistics:', {
+      // console.log('📊 Marketplace Statistics:', {
         totalPlugins: stats.totalPlugins,
         totalCategories: stats.totalCategories,
         averageRating: stats.averageRating.toFixed(1)
@@ -209,22 +209,22 @@ export class PluginSystemExample {
 
       // Get featured plugins
       const featuredPlugins = this.pluginSystem.getFeaturedPlugins();
-      console.log(`⭐ Featured Plugins: ${featuredPlugins.length}`);
+      // Logging disabled for production
 
       // Search for plugins
       const searchResults = this.pluginSystem.searchMarketplace('utility');
-      console.log(`🔍 Search Results for 'utility': ${searchResults.length} found`);
+      // console.log(`🔍 Search Results for 'utility': ${searchResults.length} found`);
 
       // Get plugin details
       if (searchResults.length > 0) {
         const details = this.pluginSystem.getPluginDetails(searchResults[0].plugin.id);
         if (details) {
-          console.log(`📄 Plugin Details: ${details.info.manifest.name} - ${details.info.manifest.description}`);
+          // console.log(`📄 Plugin Details: ${details.info.manifest.name} - ${details.info.manifest.description}`);
         }
       }
 
     } catch (error) {
-      console.error('❌ Marketplace demo failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -232,7 +232,7 @@ export class PluginSystemExample {
    * Demonstrate development workflow
    */
   private async demonstrateDevelopmentWorkflow(): Promise<void> {
-    console.log('\n🛠️ Development Workflow Demo...');
+    // console.log('\n🛠️ Development Workflow Demo...');
 
     try {
       // Create a new development project
@@ -244,30 +244,30 @@ export class PluginSystemExample {
         category: 'utility'
       });
 
-      console.log(`✅ Development project created: ${projectId}`);
+      // Logging disabled for production
 
       // Generate a plugin template
       const template = this.pluginSystem.generateTemplate('basic');
-      console.log(`📝 Generated template with ${template.files.size} files`);
+      // console.log(`📝 Generated template with ${template.files.size} files`);
 
       // Build the project
       const buildResult = await this.pluginSystem.buildProject(projectId);
-      console.log(`🔨 Build ${buildResult.success ? 'successful' : 'failed'} in ${buildResult.buildTime}ms`);
+      // console.log(`🔨 Build ${buildResult.success ? 'successful' : 'failed'} in ${buildResult.buildTime}ms`);
 
       if (buildResult.success) {
         // Test the project
         const testResult = await this.pluginSystem.testProject(projectId);
-        console.log(`🧪 Tests ${testResult.success ? 'passed' : 'failed'} - ${testResult.tests.length} tests run`);
+        // console.log(`🧪 Tests ${testResult.success ? 'passed' : 'failed'} - ${testResult.tests.length} tests run`);
 
         // Install for testing
         if (testResult.success) {
           const testPluginId = await this.pluginSystem.installProjectForTesting(projectId);
-          console.log(`🚀 Installed for testing: ${testPluginId}`);
+          // console.log(`🚀 Installed for testing: ${testPluginId}`);
         }
       }
 
     } catch (error) {
-      console.error('❌ Development workflow demo failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -275,24 +275,24 @@ export class PluginSystemExample {
    * Demonstrate security features
    */
   private demonstrateSecurityFeatures(): void {
-    console.log('\n🔒 Security Features Demo...');
+    // console.log('\n🔒 Security Features Demo...');
 
     try {
       // Get security violations
       const violations = this.pluginSystem.getSecurityViolations();
-      console.log(`🚨 Security violations: ${violations.length}`);
+      // console.log(`🚨 Security violations: ${violations.length}`);
 
       // Show violation details if any exist
       violations.forEach((violation, index) => {
-        console.log(`  ${index + 1}. ${violation.type} violation in ${violation.pluginId}: ${violation.description}`);
+        // Logging disabled for production
       });
 
       if (violations.length === 0) {
-        console.log('✅ No security violations detected');
+        // Logging disabled for production
       }
 
     } catch (error) {
-      console.error('❌ Security demo failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -300,12 +300,12 @@ export class PluginSystemExample {
    * Demonstrate system management features
    */
   private demonstrateSystemManagement(): void {
-    console.log('\n⚙️ System Management Demo...');
+    // Logging disabled for production
 
     try {
       // Get system status
       const status = this.pluginSystem.getSystemStatus();
-      console.log('📊 System Status:', {
+      // console.log('📊 System Status:', {
         initialized: status.initialized,
         totalPlugins: status.totalPlugins,
         enabledPlugins: status.enabledPlugins,
@@ -316,16 +316,16 @@ export class PluginSystemExample {
       const enabledPlugins = this.pluginSystem.getPluginsByStatus('enabled');
       const installedPlugins = this.pluginSystem.getPluginsByStatus('installed');
       
-      console.log(`🟢 Enabled plugins: ${enabledPlugins.length}`);
-      console.log(`📦 Installed plugins: ${installedPlugins.length}`);
+      // console.log(`🟢 Enabled plugins: ${enabledPlugins.length}`);
+      // console.log(`📦 Installed plugins: ${installedPlugins.length}`);
 
       // List plugin details
       enabledPlugins.forEach(plugin => {
-        console.log(`  - ${plugin.metadata.name} (${plugin.metadata.category})`);
+        // Logging disabled for production
       });
 
     } catch (error) {
-      console.error('❌ System management demo failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -333,42 +333,42 @@ export class PluginSystemExample {
    * Demonstrate plugin interaction
    */
   async demonstratePluginInteraction(): Promise<void> {
-    console.log('\n🔗 Plugin Interaction Demo...');
+    // console.log('\n🔗 Plugin Interaction Demo...');
 
     // Set up event listeners
     this.pluginSystem.on('plugin:enabled', (data) => {
-      console.log(`🟢 Plugin enabled: ${data.pluginId}`);
+      // console.log(`🟢 Plugin enabled: ${data.pluginId}`);
     });
 
     this.pluginSystem.on('plugin:disabled', (data) => {
-      console.log(`🔴 Plugin disabled: ${data.pluginId}`);
+      // console.log(`🔴 Plugin disabled: ${data.pluginId}`);
     });
 
     this.pluginSystem.on('security:violation', (violation) => {
-      console.log(`🚨 Security violation: ${violation.description}`);
+      // console.log(`🚨 Security violation: ${violation.description}`);
     });
 
-    console.log('✅ Event listeners set up for plugin interactions');
+    // Logging disabled for production
   }
 
   /**
    * Export system configuration
    */
   async exportSystemData(): Promise<void> {
-    console.log('\n💾 Exporting System Data...');
+    // console.log('\n💾 Exporting System Data...');
 
     try {
       const exportData = await this.pluginSystem.exportSystem();
-      console.log(`✅ System data exported (${exportData.version})`);
-      console.log(`📅 Export timestamp: ${exportData.exportedAt}`);
+      // Logging disabled for production
+      // console.log(`📅 Export timestamp: ${exportData.exportedAt}`);
       
       // In a real application, you would save this to a file
       // For demo purposes, we'll just show the size
       const dataSize = JSON.stringify(exportData).length;
-      console.log(`📊 Export size: ${(dataSize / 1024).toFixed(1)} KB`);
+      // console.log(`📊 Export size: ${(dataSize / 1024).toFixed(1)} KB`);
       
     } catch (error) {
-      console.error('❌ Export failed:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -376,13 +376,13 @@ export class PluginSystemExample {
    * Clean up and shutdown
    */
   async cleanup(): Promise<void> {
-    console.log('\n🧹 Cleaning up...');
+    // console.log('\n🧹 Cleaning up...');
     
     try {
       await this.pluginSystem.shutdown();
-      console.log('✅ Plugin system shutdown complete');
+      // Logging disabled for production
     } catch (error) {
-      console.error('❌ Shutdown failed:', error);
+      // Error logging disabled for production
     }
   }
 }
@@ -472,7 +472,7 @@ export function createAdvancedPluginExample(): PluginPackage {
       }
 
       async initialize() {
-        console.log('Advanced Text Processor initialized');
+        // Logging disabled for production
         
         // Load cache if enabled
         if (this.config.enableCache) {

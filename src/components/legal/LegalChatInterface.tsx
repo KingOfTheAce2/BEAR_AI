@@ -110,7 +110,7 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
         setMetrics(sessionMetrics || null);
         
       } catch (error) {
-        console.error('Failed to initialize legal session:', error);
+        // Error logging disabled for production
       }
     };
     
@@ -198,7 +198,7 @@ export const LegalChatInterface: React.FC<LegalChatInterfaceProps> = ({
       setMetrics(updatedMetrics || null);
 
     } catch (error) {
-      console.error('Error sending legal message:', error);
+      // Error logging disabled for production
       
       const errorMessage: Message = {
         id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

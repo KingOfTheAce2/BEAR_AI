@@ -48,7 +48,7 @@ export class GPT4ALLIntegration implements GPT4AllInstance {
     try {
       // In a real implementation, this would load the actual GPT4All model
       // For now, we simulate the loading process
-      console.log(`Loading GPT4All model: ${this.modelInfo.name}`);
+      // Logging disabled for production
       
       // Simulate loading time
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -56,9 +56,9 @@ export class GPT4ALLIntegration implements GPT4AllInstance {
       this.isModelLoaded = true;
       this.memoryUsage = this.estimateMemoryUsage();
       
-      console.log(`GPT4All model loaded: ${this.modelInfo.name}`);
+      // Logging disabled for production
     } catch (error) {
-      console.error(`Failed to load GPT4All model: ${this.modelInfo.name}`, error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -73,14 +73,14 @@ export class GPT4ALLIntegration implements GPT4AllInstance {
 
     try {
       // In a real implementation, this would unload the actual GPT4All model
-      console.log(`Unloading GPT4All model: ${this.modelInfo.name}`);
+      // Logging disabled for production
       
       this.isModelLoaded = false;
       this.memoryUsage = 0;
       
-      console.log(`GPT4All model unloaded: ${this.modelInfo.name}`);
+      // Logging disabled for production
     } catch (error) {
-      console.error(`Failed to unload GPT4All model: ${this.modelInfo.name}`, error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -112,7 +112,7 @@ export class GPT4ALLIntegration implements GPT4AllInstance {
         timestamp: new Date()
       };
     } catch (error) {
-      console.error(`Generation failed for model: ${this.modelInfo.name}`, error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -140,7 +140,7 @@ export class GPT4ALLIntegration implements GPT4AllInstance {
         };
       }
     } catch (error) {
-      console.error(`Streaming generation failed for model: ${this.modelInfo.name}`, error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -266,10 +266,10 @@ export class GPT4ALLFactory {
         models.push(config);
       }
 
-      console.log(`Discovered ${models.length} GPT4All models in ${directory}`);
+      // Logging disabled for production
       return models;
     } catch (error) {
-      console.error(`Failed to discover GPT4All models in ${directory}:`, error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -297,10 +297,10 @@ export class GPT4ALLFactory {
   static async validateModel(filePath: string): Promise<boolean> {
     try {
       // In a real implementation, this would check file existence and integrity
-      console.log(`Validating GPT4All model: ${filePath}`);
+      // Logging disabled for production
       return true;
     } catch (error) {
-      console.error(`Model validation failed: ${filePath}`, error);
+      // Error logging disabled for production
       return false;
     }
   }

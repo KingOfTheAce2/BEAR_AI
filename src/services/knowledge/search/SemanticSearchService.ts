@@ -24,7 +24,7 @@ export class SemanticSearchService {
       const cacheKey = this.getCacheKey(query);
       const cachedResults = this.searchCache.get(cacheKey);
       if (cachedResults) {
-        console.log('Returning cached search results');
+        // Logging disabled for production
         return cachedResults;
       }
 
@@ -50,11 +50,11 @@ export class SemanticSearchService {
       }, this.cacheTimeout);
 
       const queryTime = Date.now() - startTime;
-      console.log(`Search completed in ${queryTime}ms, found ${results.length} results`);
+      // Logging disabled for production
       
       return results;
     } catch (error) {
-      console.error('Search error:', error);
+      // Error logging disabled for production
       throw new Error(`Search failed: ${error.message}`);
     }
   }
@@ -78,13 +78,13 @@ export class SemanticSearchService {
         queryTime
       };
     } catch (error) {
-      console.error('Faceted search error:', error);
+      // Error logging disabled for production
       throw new Error(`Faceted search failed: ${error.message}`);
     }
   }
 
   private async performSemanticSearch(query: SearchQuery): Promise<SearchResult[]> {
-    console.log('Performing semantic search...');
+    // Logging disabled for production
     
     // Generate embedding for query
     const queryEmbedding = await this.embeddingService.generateEmbedding(query.text);
@@ -153,7 +153,7 @@ export class SemanticSearchService {
   }
 
   private async performExactSearch(query: SearchQuery): Promise<SearchResult[]> {
-    console.log('Performing exact search...');
+    // Logging disabled for production
     
     const searchText = query.text.toLowerCase();
     const documents = await this.vectorDb.searchDocuments(query.filters || {});
@@ -184,7 +184,7 @@ export class SemanticSearchService {
   }
 
   private async performHybridSearch(query: SearchQuery): Promise<SearchResult[]> {
-    console.log('Performing hybrid search...');
+    // Logging disabled for production
     
     // Get both semantic and exact results
     const semanticQuery = { ...query, options: { ...query.options, semantic: true } };
@@ -550,7 +550,7 @@ export class SemanticSearchService {
   // Analytics and monitoring
   clearCache(): void {
     this.searchCache.clear();
-    console.log('Search cache cleared');
+    // Logging disabled for production
   }
 
   getCacheStats(): { size: number; hitRate: number } {

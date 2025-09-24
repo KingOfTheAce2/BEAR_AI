@@ -57,7 +57,7 @@ export class LicenseManager {
         this.saveLicenseConfig();
       }
     } catch (error) {
-      console.error('Failed to load license config:', error);
+      // Error logging disabled for production
       this.licenseConfig = this.getDefaultConfig();
     }
   }
@@ -88,7 +88,7 @@ export class LicenseManager {
     try {
       fs.writeFileSync(this.CONFIG_FILE_PATH, JSON.stringify(this.licenseConfig, null, 2));
     } catch (error) {
-      console.error('Failed to save license config:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -160,7 +160,7 @@ export class LicenseManager {
         this.currentLicense = JSON.parse(deobfuscated);
       }
     } catch (error) {
-      console.error('Failed to load current license:', error);
+      // Error logging disabled for production
       this.currentLicense = null;
     }
   }
@@ -191,7 +191,7 @@ export class LicenseManager {
         this.usageTracking = this.initializeUsageTracking(this.currentLicense.id);
       }
     } catch (error) {
-      console.error('Failed to load usage tracking:', error);
+      // Error logging disabled for production
       if (this.currentLicense) {
         this.usageTracking = this.initializeUsageTracking(this.currentLicense.id);
       }
@@ -263,7 +263,7 @@ export class LicenseManager {
       try {
         fs.writeFileSync(this.USAGE_FILE_PATH, JSON.stringify(this.usageTracking, null, 2));
       } catch (error) {
-        console.error('Failed to save usage tracking:', error);
+        // Error logging disabled for production
       }
     }
   }
@@ -637,7 +637,7 @@ export class LicenseManager {
       this.auditLogs = this.auditLogs.slice(-1000);
     }
 
-    console.log(`[LICENSE AUDIT] ${severity.toUpperCase()}: ${event}`, details);
+    // Logging disabled for production
   }
 
   /**

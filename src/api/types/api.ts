@@ -17,7 +17,7 @@ export interface ApiConfig {
   };
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: ApiError;
   meta?: {
@@ -31,7 +31,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: string;
   path?: string;
   method?: string;
@@ -83,7 +83,7 @@ export interface SendMessageRequest {
   content: string;
   type?: 'text' | 'document' | 'analysis' | 'citation';
   documentRefs?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Document types
@@ -91,14 +91,14 @@ export interface UploadDocumentRequest {
   file: File;
   category: 'contract' | 'brief' | 'research' | 'evidence' | 'correspondence' | 'other';
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateDocumentRequest {
   name?: string;
   tags?: string[];
   category?: 'contract' | 'brief' | 'research' | 'evidence' | 'correspondence' | 'other';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Search types
@@ -133,7 +133,7 @@ export interface AnalysisResult {
   id: string;
   documentId: string;
   type: string;
-  result: Record<string, any>;
+  result: Record<string, unknown>;
   confidence?: number;
   createdAt: string;
   processingTime: number;
@@ -143,7 +143,7 @@ export interface AnalysisResult {
 export interface WebhookEvent {
   id: string;
   type: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   timestamp: string;
   version: string;
 }
@@ -181,15 +181,15 @@ export interface RequestConfig {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
-  params?: Record<string, any>;
-  data?: any;
+  params?: Record<string, unknown>;
+  data?: unknown;
   timeout?: number;
 }
 
 // Stream types for real-time features
 export interface StreamMessage {
   type: 'data' | 'error' | 'complete';
-  payload: any;
+  payload: unknown;
   timestamp: string;
 }
 

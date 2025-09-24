@@ -198,7 +198,7 @@ export const LocalModelSelector: React.FC<LocalModelSelectorProps> = ({
       
       setSystemResources(resources);
     } catch (error) {
-      console.error('Failed to get system resources:', error);
+      // Error logging disabled for production
     }
   }, []);
 

@@ -87,7 +87,7 @@ export class SecurityHeaders {
 
       next();
     } catch (error) {
-      console.error('Error applying security headers:', error);
+      // Error logging disabled for production
       next();
     }
   }
@@ -382,7 +382,7 @@ export class SecurityHeaders {
         const violation = req.body['csp-report'];
 
         if (violation) {
-          console.warn('CSP Violation Report:', {
+          // console.warn('CSP Violation Report:', {
             documentUri: violation['document-uri'],
             violatedDirective: violation['violated-directive'],
             blockedUri: violation['blocked-uri'],
@@ -400,7 +400,7 @@ export class SecurityHeaders {
 
         res.status(204).end();
       } catch (error) {
-        console.error('Error processing CSP violation report:', error);
+        // Error logging disabled for production
         res.status(400).json({ error: 'Invalid CSP report' });
       }
     };
@@ -424,6 +424,6 @@ export class SecurityHeaders {
     };
 
     // Log to security monitoring system
-    console.log('CSP violation stored:', violationRecord);
+    // Logging disabled for production
   }
 }

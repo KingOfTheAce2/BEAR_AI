@@ -215,7 +215,7 @@ export class StripeConfigManager {
     }
 
     if (warnings.length > 0 || recommendations.length > 0) {
-      console.warn('Configuration warnings:', { warnings, recommendations });
+      // Warning logging disabled for production
     }
 
     return result;
@@ -343,7 +343,7 @@ export class StripeConfigManager {
     try {
       return JSON.parse(customFieldsJson);
     } catch {
-      console.warn('Invalid STRIPE_INVOICE_CUSTOM_FIELDS JSON, using empty array');
+      // Warning logging disabled for production
       return [];
     }
   }

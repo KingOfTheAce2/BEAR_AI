@@ -205,7 +205,7 @@ class StreamingHandler extends EventEmitter {
         // Heartbeat response
         break;
       default:
-        console.warn('Unknown message type:', message.type);
+        // Warning logging disabled for production
     }
   }
 
@@ -600,7 +600,7 @@ export class EnhancedLocalInferenceClient extends EventEmitter {
       try {
         await stream.return(undefined);
       } catch (error) {
-        console.warn(`Failed to close stream ${requestId}:`, error);
+        // Warning logging disabled for production
       }
     }
     this.activeStreams.clear();

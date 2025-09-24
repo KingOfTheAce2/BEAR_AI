@@ -73,7 +73,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
         try {
           await wsService.current.connect();
         } catch (error) {
-          console.warn('WebSocket connection failed, using local mode:', error);
+          // Warning logging disabled for production
         }
 
         // Initialize voice service
@@ -88,7 +88,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
         
         setIsLoading(false);
       } catch (error) {
-        console.error('Failed to initialize chat services:', error);
+        // Error logging disabled for production
         setIsLoading(false);
       }
     };
@@ -164,7 +164,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
     };
 
     voiceService.current.onError = (error: string) => {
-      console.error('Voice recognition error:', error);
+      // Error logging disabled for production
       // Show user-friendly error message
     };
   };
@@ -178,7 +178,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
         await switchThread(loadedThreads[0].id);
       }
     } catch (error) {
-      console.error('Failed to load threads:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -200,7 +200,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
         updatedAt: new Date()
       });
     } catch (error) {
-      console.error('Failed to switch thread:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -290,13 +290,13 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
               await chatStorage.saveMessage(resultMessage);
               addMessage(resultMessage);
             } catch (error) {
-              console.error('Code execution failed:', error);
+              // Error logging disabled for production
             }
           }
         }
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -329,7 +329,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
       setMessages(prev => prev.map(m => m.id === messageId ? updatedMessage : m));
       wsService.current?.sendMessageEdit(messageId, newContent);
     } catch (error) {
-      console.error('Failed to edit message:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -371,7 +371,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
       await chatStorage.saveMessage(updatedMessage);
       setMessages(prev => prev.map(m => m.id === messageId ? updatedMessage : m));
     } catch (error) {
-      console.error('Failed to update reaction:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -386,7 +386,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
       const results = await chatStorage.searchMessages(query, filters);
       setSearchResults(results);
     } catch (error) {
-      console.error('Search failed:', error);
+      // Error logging disabled for production
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -498,7 +498,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -510,7 +510,7 @@ export const useChat = ({ userId, username, initialSettings }: UseChatOptions) =
       await chatStorage.importData(data);
       await loadThreads();
     } catch (error) {
-      console.error('Import failed:', error);
+      // Error logging disabled for production
     }
   };
 

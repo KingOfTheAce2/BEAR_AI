@@ -213,7 +213,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialUser 
         dispatch({ type: 'SET_USER', payload: user });
         dispatch({ type: 'SET_AUTHENTICATED', payload: true });
       } catch (error) {
-        console.error('Failed to parse saved user data:', error);
+        // Failed to parse saved user data
         localStorage.removeItem('bear-ai-user');
       }
     }

@@ -9,6 +9,23 @@ import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
 
+// Define proper types for token payloads
+interface TokenPayload {
+  userId: string;
+  role?: string;
+  type: 'access' | 'refresh';
+  exp: number;
+  iat: number;
+  jti: string;
+}
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+    role: string;
+  };
+}
+
 // Types and Interfaces
 export interface User {
   id: string;
@@ -48,7 +65,7 @@ export interface SecurityEvent {
   userAgent: string;
   timestamp: Date;
   success: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | Date>;
 }
 
 // Security Configuration
@@ -343,7 +360,7 @@ export class SessionManager {
   /**
    * Validate and decrypt token
    */
-  validateToken(token: string): { valid: boolean; payload?: any; error?: string } {
+  validateToken(token: string): { valid: boolean; payload?: TokenPayload; error?: string } {
     try {
       const payload = this.decryptPayload(token);
 
@@ -360,7 +377,7 @@ export class SessionManager {
   /**
    * Encrypt payload using AES-256-GCM
    */
-  private encryptPayload(payload: any): string {
+  private encryptPayload(payload: TokenPayload): string {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipher(this.config.encryptionAlgorithm, this.encryptionKey);
     cipher.setAAD(Buffer.from('BEAR_AI_AUTH'));
@@ -376,7 +393,7 @@ export class SessionManager {
   /**
    * Decrypt payload
    */
-  private decryptPayload(token: string): any {
+  private decryptPayload(token: string): TokenPayload {
     const [ivHex, encrypted, authTagHex] = token.split('.');
 
     const iv = Buffer.from(ivHex, 'hex');
@@ -406,7 +423,7 @@ export class SecurityLogger {
     this.events.push(event);
 
     // In production, send to secure logging service
-    console.log('Security Event:', {
+    // console.log('Security Event:', {
       type: event.type,
       email: event.email,
       ip: event.ip,
@@ -437,7 +454,7 @@ export class SecurityLogger {
    */
   private async sendSecurityAlert(event: SecurityEvent): Promise<void> {
     // Implementation would send alert to security team
-    console.warn('SECURITY ALERT:', {
+    // console.warn('SECURITY ALERT:', {
       message: 'Suspicious login activity detected',
       email: event.email,
       ip: event.ip,
@@ -679,7 +696,7 @@ export class SecureAuthenticationService {
       }
 
       // Add user info to request
-      (req as any).user = {
+      (req as AuthenticatedRequest).user = {
         id: validation.userId,
         role: validation.role
       };

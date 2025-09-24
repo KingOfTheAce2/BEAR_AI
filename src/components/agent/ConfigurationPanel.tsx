@@ -106,7 +106,7 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
       await onSave(config)
       setHasChanges(false)
     } catch (error) {
-      console.error('Failed to save configuration:', error)
+      // console.error('Failed to save configuration:', error)
     } finally {
       setIsLoading(false)
     }

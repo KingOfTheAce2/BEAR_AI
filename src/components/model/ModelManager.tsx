@@ -56,7 +56,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
       setSelectedModel(modelId);
       await actions.loadModel(modelId);
     } catch (error) {
-      console.error('Failed to load model:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -67,7 +67,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
         setSelectedModel(null);
       }
     } catch (error) {
-      console.error('Failed to unload model:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -76,7 +76,7 @@ export const ModelManager: React.FC<ModelManagerProps> = ({
       await actions.switchModel(modelId);
       setSelectedModel(modelId);
     } catch (error) {
-      console.error('Failed to switch model:', error);
+      // Error logging disabled for production
     }
   };
 

@@ -201,8 +201,8 @@ globalAny.FileReader = class MockFileReader {
   abort = vi.fn();
 } as typeof FileReader;
 
-const originalConsoleError = console.error;
-console.error = (...args: unknown[]) => {
+// Original console error capture disabled
+// Console error override disabled
   const [message] = args;
   if (typeof message === 'string' &&
     (message.includes('Warning: ReactDOM.render is no longer supported') ||

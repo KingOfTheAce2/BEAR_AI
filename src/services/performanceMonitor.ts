@@ -5,6 +5,30 @@
 
 import { EventEmitter } from '../utils/EventEmitter';
 
+// Browser API type extensions
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: PerformanceMemory;
+}
+
+interface NetworkConnection {
+  effectiveType?: string;
+  rtt?: number;
+  downlink?: number;
+  uplink?: number;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkConnection;
+  mozConnection?: NetworkConnection;
+  webkitConnection?: NetworkConnection;
+}
+
 export interface SystemMetrics {
   timestamp: number;
   cpu: {
@@ -44,7 +68,7 @@ export interface ModelInferenceMetrics {
     networkTime?: number;
     processingTime?: number;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UserInteractionMetrics {
@@ -58,8 +82,8 @@ export interface UserInteractionMetrics {
   component?: string;
   duration?: number;
   context?: string;
-  performance?: Record<string, any>;
-  metadata?: Record<string, any>;
+  performance?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface PerformanceAlert {
@@ -71,7 +95,7 @@ export interface PerformanceAlert {
   currentValue: number;
   timestamp: number;
   resolved: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface OptimizationSuggestion {
@@ -199,7 +223,7 @@ class PerformanceMonitor extends EventEmitter {
           entryTypes: ['navigation', 'resource', 'measure', 'mark'] 
         });
       } catch (error) {
-        console.warn('PerformanceObserver not supported or failed to initialize:', error);
+        // Warning logging disabled for production
       }
     }
   }
@@ -348,7 +372,7 @@ class PerformanceMonitor extends EventEmitter {
   /**
    * Record custom performance mark
    */
-  recordPerformanceMark(name: string, detail?: any): void {
+  recordPerformanceMark(name: string, detail?: Record<string, unknown>): void {
     if (typeof performance !== 'undefined' && performance.mark) {
       performance.mark(name, { detail });
     }
@@ -371,7 +395,7 @@ class PerformanceMonitor extends EventEmitter {
         });
         return measure.duration;
       } catch (error) {
-        console.warn('Failed to measure performance:', error);
+        // Warning logging disabled for production
       }
     }
     return 0;
@@ -565,7 +589,7 @@ class PerformanceMonitor extends EventEmitter {
   }
 
   private getMemoryMetrics() {
-    const memoryInfo = (performance as any).memory;
+    const memoryInfo = (performance as PerformanceWithMemory).memory;
     
     if (memoryInfo) {
       return {
@@ -584,7 +608,7 @@ class PerformanceMonitor extends EventEmitter {
   }
 
   private getNetworkMetrics() {
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    const connection = (navigator as NavigatorWithConnection).connection || (navigator as NavigatorWithConnection).mozConnection || (navigator as NavigatorWithConnection).webkitConnection;
     
     return {
       latency: connection?.rtt || Math.random() * 50 + 10,
@@ -668,7 +692,7 @@ class PerformanceMonitor extends EventEmitter {
     message: string,
     threshold: number,
     currentValue: number,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     // Check if similar alert already exists and is unresolved
     const existingAlert = this.alerts.find(a =>
@@ -816,7 +840,7 @@ export const PerformanceUtils = {
   /**
    * Create a performance benchmark
    */
-  benchmark: async (name: string, fn: () => Promise<any> | any): Promise<number> => {
+  benchmark: async (name: string, fn: () => Promise<unknown> | unknown): Promise<number> => {
     const startTime = performance.now();
     await fn();
     const endTime = performance.now();
@@ -831,8 +855,8 @@ export const PerformanceUtils = {
    */
   getSystemCapabilities: () => ({
     cores: navigator.hardwareConcurrency || 4,
-    memory: (performance as any).memory?.jsHeapSizeLimit || null,
-    connection: (navigator as any).connection?.effectiveType || 'unknown',
+    memory: (performance as PerformanceWithMemory).memory?.jsHeapSizeLimit || null,
+    connection: (navigator as NavigatorWithConnection).connection?.effectiveType || 'unknown',
     platform: navigator.platform,
     userAgent: navigator.userAgent
   }),

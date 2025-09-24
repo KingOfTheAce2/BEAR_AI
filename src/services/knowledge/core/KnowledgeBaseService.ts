@@ -68,7 +68,7 @@ export class KnowledgeBaseService {
 
   private async initializeDatabase(): Promise<void> {
     await this.vectorDb.initialize();
-    console.log('Knowledge base services initialized successfully');
+    // Logging disabled for production
   }
 
   // Document Management
@@ -87,7 +87,7 @@ export class KnowledgeBaseService {
       
       return documentId;
     } catch (error: unknown) {
-      console.error('Error adding document:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to add document: ${message}`);
     }
@@ -117,7 +117,7 @@ export class KnowledgeBaseService {
         await this.analytics.trackDocumentUpdated(updatedDoc);
       }
     } catch (error: unknown) {
-      console.error('Error updating document:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to update document: ${message}`);
     }
@@ -146,7 +146,7 @@ export class KnowledgeBaseService {
         await this.analytics.trackDocumentDeleted(document);
       }
     } catch (error: unknown) {
-      console.error('Error deleting document:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to delete document: ${message}`);
     }
@@ -165,7 +165,7 @@ export class KnowledgeBaseService {
     try {
       return await this.semanticSearch.search(query);
     } catch (error: unknown) {
-      console.error('Error performing search:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Search failed: ${message}`);
     }
@@ -175,7 +175,7 @@ export class KnowledgeBaseService {
     try {
       return await this.semanticSearch.facetedSearch(query);
     } catch (error: unknown) {
-      console.error('Error performing faceted search:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Faceted search failed: ${message}`);
     }
@@ -287,7 +287,7 @@ export class KnowledgeBaseService {
 
   async reindexAllDocuments(): Promise<void> {
     try {
-      console.log('Starting full reindex...');
+      // Logging disabled for production
       const documents = await this.getAllDocuments();
       
       // Clear existing index
@@ -296,9 +296,9 @@ export class KnowledgeBaseService {
       // Reindex all documents
       await this.bulkAddDocuments(documents);
       
-      console.log(`Reindexed ${documents.length} documents`);
+      // Logging disabled for production
     } catch (error: unknown) {
-      console.error('Error during reindexing:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Reindexing failed: ${message}`);
     }
@@ -308,12 +308,12 @@ export class KnowledgeBaseService {
   async optimize(): Promise<void> {
     await this.vectorDb.optimize();
     await this.knowledgeGraph.optimize();
-    console.log('Knowledge base optimization completed');
+    // Logging disabled for production
   }
 
   async cleanup(): Promise<void> {
     await this.vectorDb.cleanup();
-    console.log('Knowledge base cleanup completed');
+    // Logging disabled for production
   }
 }
 

@@ -582,7 +582,7 @@ export class UniversalDocumentParser {
       });
       return result;
     } catch (error) {
-      console.error('OCR failed:', error);
+      // Error logging disabled for production
       return '';
     }
   }
@@ -800,7 +800,7 @@ export class UniversalDocumentParser {
         }
       }
     } catch (error) {
-      console.error('Failed to extract PDF images:', error);
+      // Error logging disabled for production
     }
 
     return images;
@@ -887,7 +887,7 @@ export class UniversalDocumentParser {
       const result = await invoke<DocumentTable[]>('extract_tables', { text });
       return result;
     } catch (error) {
-      console.error('Table extraction failed:', error);
+      // Error logging disabled for production
       return [];
     }
   }

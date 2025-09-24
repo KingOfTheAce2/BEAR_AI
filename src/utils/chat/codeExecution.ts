@@ -99,7 +99,7 @@ class CodeExecutionService {
         // const safeFunction = new Function(...) // DANGEROUS - REMOVED
         // Only allow safe console.log operations
         let result;
-        if (code.trim().startsWith('console.log(')) {
+        if (code.trim().startsWith('// console.log(')) {
           const logMatch = code.match(/console\.log\((.+)\)/);
           if (logMatch) {
             const content = logMatch[1];

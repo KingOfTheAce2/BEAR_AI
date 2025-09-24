@@ -57,7 +57,7 @@ const PIISettings: React.FC<PIISettingsProps> = ({
       const status = await detector.getBackendStatus();
       setBackendStatus(status);
     } catch (error) {
-      console.error('Failed to load backend status:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -103,7 +103,7 @@ const PIISettings: React.FC<PIISettingsProps> = ({
 
       setTestResults(results);
     } catch (error) {
-      console.error('Test detection failed:', error);
+      // Error logging disabled for production
       setTestResults([{ error: error.message }]);
     } finally {
       setIsLoading(false);
@@ -152,7 +152,7 @@ const PIISettings: React.FC<PIISettingsProps> = ({
       await detector.refreshRustAvailability();
       await loadBackendStatus();
     } catch (error) {
-      console.error('Failed to refresh backend:', error);
+      // Error logging disabled for production
     } finally {
       setIsLoading(false);
     }

@@ -97,7 +97,7 @@ export class StreamingManager {
         this.setActiveService(backupName);
         return true;
       } catch (error) {
-        console.warn(`Backup service ${index} failed:`, error);
+        // Warning logging disabled for production
       }
     }
 

@@ -218,7 +218,7 @@ export class RateLimitManager {
     this.requestMetrics.set(key, metrics);
 
     // Log security event
-    console.warn('Rate limit reached:', {
+    // console.warn('Rate limit reached:', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       path: req.path,
@@ -236,7 +236,7 @@ export class RateLimitManager {
   private async onUserRateLimitReached(req: Request, res: Response): Promise<void> {
     if (!req.user) return;
 
-    console.warn('User rate limit reached:', {
+    // console.warn('User rate limit reached:', {
       userId: req.user.id,
       userTier: req.user.tier,
       ip: req.ip,
@@ -373,7 +373,7 @@ export class RateLimitManager {
   public async activateEmergencyMode(): Promise<void> {
     this.emergencyMode = true;
 
-    console.error('Emergency mode activated due to high rate limit violations');
+    // Error logging disabled for production
 
     // Optionally clear existing rate limit counters
     if (this.redis) {
@@ -391,7 +391,7 @@ export class RateLimitManager {
    */
   public deactivateEmergencyMode(): void {
     this.emergencyMode = false;
-    console.info('Emergency mode deactivated');
+    // Info logging disabled for production
   }
 
   /**
@@ -422,7 +422,7 @@ export class RateLimitManager {
 
       return 'healthy';
     } catch (error) {
-      console.error('Rate limit health check failed:', error);
+      // Error logging disabled for production
       return 'critical';
     }
   }

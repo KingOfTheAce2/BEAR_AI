@@ -76,21 +76,21 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ document, viewMode }
   };
 
   const handlePreview = () => {
-    console.log('Preview document:', document.id);
+    // Logging disabled for production
   };
 
   const handleDownload = () => {
-    console.log('Download document:', document.id);
+    // Logging disabled for production
   };
 
   const handleEdit = () => {
-    console.log('Edit document:', document.id);
+    // Logging disabled for production
   };
 
   const handleDelete = () => {
     // eslint-disable-next-line no-restricted-globals
     if (window.confirm(`Are you sure you want to delete "${document.name}"?`)) {
-      console.log('Delete document:', document.id);
+      // Logging disabled for production
     }
   };
 

@@ -47,7 +47,7 @@ export class EncryptionManager {
       this.masterKey = Buffer.from(this.config.masterKey, 'hex');
     } else {
       this.masterKey = crypto.randomBytes(this.config.keyLength || 32);
-      console.warn('Generated new master key. Store securely:', this.masterKey.toString('hex'));
+      // Warning logging disabled for production
     }
   }
 
@@ -110,7 +110,7 @@ export class EncryptionManager {
 
       return encryptedData;
     } catch (error) {
-      console.error('Encryption error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to encrypt data');
     }
   }
@@ -152,7 +152,7 @@ export class EncryptionManager {
 
       return finalData;
     } catch (error) {
-      console.error('Decryption error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to decrypt data');
     }
   }
@@ -176,7 +176,7 @@ export class EncryptionManager {
       const decrypted = this.decryptData(encryptedData);
       return JSON.parse(decrypted.toString('utf8'));
     } catch (error) {
-      console.error('At-rest decryption error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to decrypt stored data');
     }
   }
@@ -299,7 +299,7 @@ export class EncryptionManager {
       const saltRounds = 12; // High security setting
       return await bcrypt.hash(password, saltRounds);
     } catch (error) {
-      console.error('Password hashing error:', error);
+      // Error logging disabled for production
       throw new Error('Failed to hash password');
     }
   }
@@ -311,7 +311,7 @@ export class EncryptionManager {
     try {
       return await bcrypt.compare(password, hash);
     } catch (error) {
-      console.error('Password verification error:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -452,7 +452,7 @@ export class EncryptionManager {
     // Clear key cache to force regeneration with new version
     this.keyCache.clear();
 
-    console.log('Encryption keys rotated');
+    // Logging disabled for production
   }
 
   /**
@@ -531,7 +531,7 @@ export class EncryptionManager {
 
       return 'healthy';
     } catch (error) {
-      console.error('Encryption health check failed:', error);
+      // Error logging disabled for production
       return 'critical';
     }
   }

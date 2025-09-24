@@ -72,7 +72,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
         gpu: this.supportsGPUMonitoring() ? await this.getGPUMemory() : undefined
       }
     } catch (error) {
-      console.error('Failed to get Windows memory info:', error)
+      // console.error('Failed to get Windows memory info:', error)
       return this.getFallbackMemoryInfo('windows')
     }
   }
@@ -112,7 +112,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
       this.lastUpdate = now
       return memInfo
     } catch (error) {
-      console.error(`Failed to get Windows process memory for PID ${pid}:`, error)
+      // console.error(`Failed to get Windows process memory for PID ${pid}:`, error)
       return this.getFallbackProcessInfo(pid)
     }
   }
@@ -125,7 +125,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
         const level = this.calculatePressureLevel(memInfo.usagePercentage)
         callback(level)
       } catch (error) {
-        console.error('Memory pressure monitoring error:', error)
+        // console.error('Memory pressure monitoring error:', error)
       }
     }, 2000)
 
@@ -155,7 +155,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
         ]
       }
     } catch (error) {
-      console.error('Failed to get GPU memory info:', error)
+      // console.error('Failed to get GPU memory info:', error)
       throw error
     }
   }
@@ -163,7 +163,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
   private async executeWMIQuery(query: string): Promise<any[]> {
     // Mock WMI query execution
     // In real implementation, use child_process to run wmic or PowerShell
-    console.log(`Executing WMI query: ${query}`)
+    // console.log(`Executing WMI query: ${query}`)
     
     // Return mock data
     if (query.includes('Win32_OperatingSystem')) {
@@ -201,7 +201,7 @@ export class WindowsMemoryProvider implements PlatformMemoryProvider {
         }
       }
     } catch (error) {
-      console.error('Failed to get Windows swap info:', error)
+      // console.error('Failed to get Windows swap info:', error)
     }
 
     return undefined
@@ -266,7 +266,7 @@ export class LinuxMemoryProvider implements PlatformMemoryProvider {
         gpu: this.supportsGPUMonitoring() ? await this.getGPUMemory() : undefined
       }
     } catch (error) {
-      console.error('Failed to get Linux memory info:', error)
+      // console.error('Failed to get Linux memory info:', error)
       return this.getFallbackMemoryInfo('linux')
     }
   }
@@ -291,7 +291,7 @@ export class LinuxMemoryProvider implements PlatformMemoryProvider {
         cpu: this.calculateCpuUsage(stat)
       }
     } catch (error) {
-      console.error(`Failed to get Linux process memory for PID ${pid}:`, error)
+      // console.error(`Failed to get Linux process memory for PID ${pid}:`, error)
       return this.getFallbackProcessInfo(pid)
     }
   }
@@ -304,7 +304,7 @@ export class LinuxMemoryProvider implements PlatformMemoryProvider {
         const level = this.calculatePressureLevel(memInfo.usagePercentage)
         callback(level)
       } catch (error) {
-        console.error('Memory pressure monitoring error:', error)
+        // console.error('Memory pressure monitoring error:', error)
       }
     }, 2000)
 
@@ -334,7 +334,7 @@ export class LinuxMemoryProvider implements PlatformMemoryProvider {
         ]
       }
     } catch (error) {
-      console.error('Failed to get GPU memory info:', error)
+      // console.error('Failed to get GPU memory info:', error)
       throw error
     }
   }
@@ -462,7 +462,7 @@ export class MacOSMemoryProvider implements PlatformMemoryProvider {
         gpu: this.supportsGPUMonitoring() ? await this.getGPUMemory() : undefined
       }
     } catch (error) {
-      console.error('Failed to get macOS memory info:', error)
+      // console.error('Failed to get macOS memory info:', error)
       return this.getFallbackMemoryInfo('darwin')
     }
   }
@@ -484,7 +484,7 @@ export class MacOSMemoryProvider implements PlatformMemoryProvider {
         cpu: psOutput.pcpu
       }
     } catch (error) {
-      console.error(`Failed to get macOS process memory for PID ${pid}:`, error)
+      // console.error(`Failed to get macOS process memory for PID ${pid}:`, error)
       return this.getFallbackProcessInfo(pid)
     }
   }
@@ -496,7 +496,7 @@ export class MacOSMemoryProvider implements PlatformMemoryProvider {
         const level = this.calculatePressureLevel(memInfo.usagePercentage)
         callback(level)
       } catch (error) {
-        console.error('Memory pressure monitoring error:', error)
+        // console.error('Memory pressure monitoring error:', error)
       }
     }, 2000)
 
@@ -525,7 +525,7 @@ export class MacOSMemoryProvider implements PlatformMemoryProvider {
         ]
       }
     } catch (error) {
-      console.error('Failed to get GPU memory info:', error)
+      // console.error('Failed to get GPU memory info:', error)
       throw error
     }
   }
@@ -628,7 +628,7 @@ export class CrossPlatformMemoryManager {
       case 'darwin':
         return new MacOSMemoryProvider()
       default:
-        console.warn(`Unsupported platform: ${platform}, falling back to Linux provider`)
+        // console.warn(`Unsupported platform: ${platform}, falling back to Linux provider`)
         return new LinuxMemoryProvider()
     }
   }

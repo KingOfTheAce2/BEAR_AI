@@ -32,8 +32,8 @@ export interface PluginSetting {
   type: 'string' | 'number' | 'boolean' | 'select'
   title: string
   description: string
-  defaultValue: any
-  options?: Array<{ value: any; label: string }>
+  defaultValue: unknown
+  options?: Array<{ value: unknown; label: string }>
   required?: boolean
 }
 
@@ -44,17 +44,17 @@ export interface PluginContext {
     configPath: string
   }
   logger: {
-    info: (message: string, ...args: any[]) => void
-    warn: (message: string, ...args: any[]) => void
-    error: (message: string, ...args: any[]) => void
+    info: (message: string, ...args: unknown[]) => void
+    warn: (message: string, ...args: unknown[]) => void
+    error: (message: string, ...args: unknown[]) => void
   }
   events: {
-    emit: (event: string, data?: any) => void
-    on: (event: string, handler: (data: any) => void) => () => void
+    emit: (event: string, data?: unknown) => void
+    on: (event: string, handler: (data: unknown) => void) => () => void
   }
   storage: {
-    get: (key: string) => Promise<any>
-    set: (key: string, value: any) => Promise<void>
+    get: (key: string) => Promise<unknown>
+    set: (key: string, value: unknown) => Promise<void>
     delete: (key: string) => Promise<void>
   }
 }
@@ -118,7 +118,7 @@ export interface ContractAnalysis {
 export abstract class BearPlugin {
   protected context: PluginContext
   protected manifest: PluginManifest
-  protected settings: Map<string, any> = new Map()
+  protected settings: Map<string, unknown> = new Map()
 
   constructor(context: PluginContext, manifest: PluginManifest) {
     this.context = context
@@ -172,7 +172,7 @@ export abstract class LegalDocumentPlugin extends BearPlugin {
   abstract processDocument(
     content: string,
     type: 'pdf' | 'docx' | 'txt',
-    options?: any
+    options?: ProcessingOptions
   ): Promise<{
     extractedText: string
     metadata: Record<string, any>
@@ -200,7 +200,7 @@ export abstract class LegalDocumentPlugin extends BearPlugin {
 export abstract class AgentCoordinationPlugin extends BearPlugin {
   abstract spawnAgent(
     type: string,
-    config: any
+    config: AgentConfig
   ): Promise<{ id: string; status: string }>
 
   abstract coordinateAgents(
@@ -222,7 +222,7 @@ export abstract class AgentCoordinationPlugin extends BearPlugin {
 export class PluginManager {
   private plugins: Map<string, BearPlugin> = new Map()
   private pluginContexts: Map<string, PluginContext> = new Map()
-  private eventHandlers: Map<string, Set<(data: any) => void>> = new Map()
+  private eventHandlers: Map<string, Set<(data: unknown) => void>> = new Map()
 
   constructor(private dataPath: string) {}
 
@@ -251,7 +251,7 @@ export class PluginManager {
       this.emit('plugin:loaded', { name: manifest.name, plugin })
       
     } catch (error) {
-      console.error(`Failed to load plugin ${manifest.name}:`, error)
+      // console.error(`Failed to load plugin ${manifest.name}:`, error)
       throw error
     }
   }
@@ -270,11 +270,11 @@ export class PluginManager {
       this.plugins.delete(pluginName)
       this.pluginContexts.delete(pluginName)
       
-      console.log(`Plugin ${pluginName} unloaded successfully`)
+      // console.log(`Plugin ${pluginName} unloaded successfully`)
       this.emit('plugin:unloaded', { name: pluginName })
       
     } catch (error) {
-      console.error(`Failed to unload plugin ${pluginName}:`, error)
+      // console.error(`Failed to unload plugin ${pluginName}:`, error)
       throw error
     }
   }
@@ -305,14 +305,14 @@ export class PluginManager {
   /**
    * Emit event to all plugins
    */
-  emit(event: string, data?: any): void {
+  emit(event: string, data?: unknown): void {
     const handlers = this.eventHandlers.get(event)
     if (handlers) {
       handlers.forEach(handler => {
         try {
           handler(data)
         } catch (error) {
-          console.error(`Error in event handler for ${event}:`, error)
+          // console.error(`Error in event handler for ${event}:`, error)
         }
       })
     }
@@ -326,21 +326,21 @@ export class PluginManager {
         configPath: `${this.dataPath}/config`
       },
       logger: {
-        info: (message: string, ...args: any[]) => {
-          console.log(`[${pluginName}] ${message}`, ...args)
+        info: (message: string, ...args: unknown[]) => {
+          // console.log(`[${pluginName}] ${message}`, ...args)
         },
-        warn: (message: string, ...args: any[]) => {
-          console.warn(`[${pluginName}] ${message}`, ...args)
+        warn: (message: string, ...args: unknown[]) => {
+          // console.warn(`[${pluginName}] ${message}`, ...args)
         },
-        error: (message: string, ...args: any[]) => {
-          console.error(`[${pluginName}] ${message}`, ...args)
+        error: (message: string, ...args: unknown[]) => {
+          // console.error(`[${pluginName}] ${message}`, ...args)
         }
       },
       events: {
-        emit: (event: string, data?: any) => {
+        emit: (event: string, data?: unknown) => {
           this.emit(`plugin:${pluginName}:${event}`, data)
         },
-        on: (event: string, handler: (data: any) => void) => {
+        on: (event: string, handler: (data: unknown) => void) => {
           const fullEvent = `plugin:${pluginName}:${event}`
           if (!this.eventHandlers.has(fullEvent)) {
             this.eventHandlers.set(fullEvent, new Set())
@@ -357,7 +357,7 @@ export class PluginManager {
           // Implementation would use actual storage
           return undefined
         },
-        set: async (key: string, value: any) => {
+        set: async (key: string, value: unknown) => {
           // Implementation would use actual storage
         },
         delete: async (key: string) => {
@@ -381,7 +381,7 @@ export class PluginManager {
             plugin['settings'].set(setting.key, setting.defaultValue)
           }
         } catch (error) {
-          console.warn(`Failed to load setting ${setting.key} for plugin ${manifest.name}:`, error)
+          // console.warn(`Failed to load setting ${setting.key} for plugin ${manifest.name}:`, error)
           plugin['settings'].set(setting.key, setting.defaultValue)
         }
       }
@@ -392,6 +392,46 @@ export class PluginManager {
 /**
  * Built-in Legal Document Plugin
  */
+// Additional type definitions
+interface ProcessingOptions {
+  extractMetadata?: boolean;
+  performAnalysis?: boolean;
+  outputFormat?: 'text' | 'html' | 'json';
+}
+
+interface DocumentAnalysisResult {
+  summary: string;
+  keyPoints: string[];
+  entities: Array<{ type: string; value: string; confidence: number }>;
+  confidence: number;
+}
+
+interface AgentConfig {
+  type: string;
+  capabilities: string[];
+  resources?: {
+    memory?: number;
+    cpu?: number;
+  };
+  settings?: Record<string, unknown>;
+}
+
+interface AgentResult {
+  status: 'completed' | 'failed' | 'in-progress';
+  result?: unknown;
+  error?: string;
+  duration?: number;
+}
+
+interface AgentInfo {
+  id: string;
+  type: string;
+  config: AgentConfig;
+  status: 'idle' | 'busy' | 'error';
+  createdAt: Date;
+  currentTask?: string;
+}
+
 export class BearLegalDocumentPlugin extends LegalDocumentPlugin {
   async onLoad(): Promise<void> {
     this.context.logger.info('Legal Document Plugin loaded')
@@ -404,7 +444,7 @@ export class BearLegalDocumentPlugin extends LegalDocumentPlugin {
   async processDocument(
     content: string,
     type: 'pdf' | 'docx' | 'txt',
-    options?: any
+    options?: ProcessingOptions
   ): Promise<{
     extractedText: string
     metadata: Record<string, any>
@@ -601,7 +641,7 @@ export class BearLegalDocumentPlugin extends LegalDocumentPlugin {
  * Built-in Agent Coordination Plugin
  */
 export class BearAgentCoordinationPlugin extends AgentCoordinationPlugin {
-  private agents: Map<string, any> = new Map()
+  private agents: Map<string, AgentInfo> = new Map()
 
   async onLoad(): Promise<void> {
     this.context.logger.info('Agent Coordination Plugin loaded')
@@ -613,7 +653,7 @@ export class BearAgentCoordinationPlugin extends AgentCoordinationPlugin {
 
   async spawnAgent(
     type: string,
-    config: any
+    config: AgentConfig
   ): Promise<{ id: string; status: string }> {
     const agentId = `${type}-${Date.now()}`
     
@@ -632,8 +672,8 @@ export class BearAgentCoordinationPlugin extends AgentCoordinationPlugin {
   async coordinateAgents(
     agents: string[],
     task: string
-  ): Promise<{ results: Record<string, any> }> {
-    const results: Record<string, any> = {}
+  ): Promise<{ results: Record<string, AgentResult> }> {
+    const results: Record<string, AgentResult> = {}
     
     for (const agentId of agents) {
       const agent = this.agents.get(agentId)

@@ -8,6 +8,24 @@ import {
   type OptimizationSuggestion
 } from '../services/performanceMonitor';
 
+// Performance summary interface
+interface PerformanceSummary {
+  totalRequests: number;
+  avgResponseTime: number;
+  errorRate: number;
+  uptime: number;
+  memoryUsage: number;
+  cpuUsage: number;
+}
+
+// Performance thresholds interface
+interface PerformanceThresholds {
+  maxResponseTime: number;
+  maxMemoryUsage: number;
+  maxCpuUsage: number;
+  maxErrorRate: number;
+}
+
 interface PerformanceContextType {
   // Monitoring state
   isMonitoring: boolean;
@@ -31,10 +49,10 @@ interface PerformanceContextType {
   resolveAlert: (alertId: string) => void;
 
   // Summary data
-  performanceSummary: any;
-  
+  performanceSummary: PerformanceSummary;
+
   // Configuration
-  updateThresholds: (thresholds: any) => void;
+  updateThresholds: (thresholds: PerformanceThresholds) => void;
 }
 
 const PerformanceContext = createContext<PerformanceContextType | undefined>(undefined);
@@ -56,7 +74,14 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
   const [userMetrics, setUserMetrics] = useState<UserInteractionMetrics[]>([]);
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
   const [suggestions, setSuggestions] = useState<OptimizationSuggestion[]>([]);
-  const [performanceSummary, setPerformanceSummary] = useState<any>({});
+  const [performanceSummary, setPerformanceSummary] = useState<PerformanceSummary>({
+    totalRequests: 0,
+    avgResponseTime: 0,
+    errorRate: 0,
+    uptime: 0,
+    memoryUsage: 0,
+    cpuUsage: 0
+  });
 
   useEffect(() => {
     // Initialize data
@@ -152,7 +177,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({
     performanceMonitor.resolveAlert(alertId);
   };
 
-  const updateThresholds = (thresholds: any) => {
+  const updateThresholds = (thresholds: PerformanceThresholds) => {
     performanceMonitor.updateThresholds(thresholds);
   };
 
@@ -228,7 +253,7 @@ export const withPerformanceTracking = <P extends object>(
 export const useInteractionTracking = (componentName: string) => {
   const performance = usePerformance();
 
-  const trackInteraction = (action: string, metadata?: Record<string, any>) => {
+  const trackInteraction = (action: string, metadata?: Record<string, unknown>) => {
     const startTime = Date.now();
     
     return {
@@ -266,7 +291,7 @@ export const useModelTracking = () => {
 
   const trackInference = async (
     modelName: string,
-    inferenceFunction: () => Promise<any>,
+    inferenceFunction: () => Promise<unknown>,
     metadata?: { inputTokens?: number; outputTokens?: number }
   ) => {
     const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

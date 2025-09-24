@@ -47,7 +47,7 @@ export const StreamingChat: React.FC<StreamingChatProps> = ({
   } = useStreaming({ 
     autoConnect,
     onError: (err) => {
-      console.error('Streaming error:', err);
+      // Error logging disabled for production
     }
   });
 
@@ -109,7 +109,7 @@ export const StreamingChat: React.FC<StreamingChatProps> = ({
       onMessageReceived?.(assistantMessage);
       
     } catch (err) {
-      console.error('Failed to send message:', err);
+      // Error logging disabled for production
       
       const errorMessage: IStreamingMessage = {
         id: `error_${Date.now()}`,
@@ -279,7 +279,7 @@ export const CompactStreamingChat: React.FC<{
       onMessage?.(input);
       setInput('');
     } catch (error) {
-      console.error('Message failed:', error);
+      // Error logging disabled for production
     }
   };
 

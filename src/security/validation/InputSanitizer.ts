@@ -9,6 +9,28 @@ import validator from 'validator';
 import { body, param, query, validationResult, ValidationChain } from 'express-validator';
 import xss from 'xss';
 
+// Define proper types for sanitization
+type SanitizationInput = string | number | boolean | null | undefined | SanitizationInput[] | { [key: string]: SanitizationInput };
+
+interface WhitelistMap {
+  [tagName: string]: string[];
+}
+
+interface XSSOptions {
+  stripIgnoreTag: boolean;
+  stripIgnoreTagBody: string[];
+  allowCommentTag: boolean;
+  whiteList?: WhitelistMap;
+  css?: boolean | { whiteList: { [property: string]: boolean } };
+  stripBlankChar?: boolean;
+}
+
+interface FieldRule {
+  maxLength?: number;
+  allowedChars?: RegExp;
+  customSanitizer?: string;
+}
+
 export interface InputSanitizationConfig {
   maxLength: number;
   allowedTags: string[];
@@ -152,7 +174,7 @@ export class InputSanitizer {
 
       next();
     } catch (error) {
-      console.error('Input sanitization error:', error);
+      // Error logging disabled for production
       res.status(400).json({
         error: 'Invalid input data',
         message: 'Request contains potentially malicious content'
@@ -295,7 +317,7 @@ export class InputSanitizer {
 
     for (const pattern of sqlPatterns) {
       if (pattern.test(input)) {
-        console.warn(`Potential SQL injection attempt detected in ${context}:`, input);
+        // Warning logging disabled for production
         // Remove the pattern instead of rejecting entirely
         input = input.replace(pattern, '');
       }
@@ -312,7 +334,7 @@ export class InputSanitizer {
 
     for (const pattern of scriptPatterns) {
       if (pattern.test(input)) {
-        console.warn(`Potential script injection attempt detected in ${context}:`, input);
+        // Warning logging disabled for production
         input = input.replace(pattern, '');
       }
     }
@@ -401,7 +423,7 @@ export class InputSanitizer {
         value: error.value
       }));
 
-      console.warn('Validation errors:', errorMessages);
+      // Warning logging disabled for production
 
       res.status(400).json({
         error: 'Validation failed',

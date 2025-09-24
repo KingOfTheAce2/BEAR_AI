@@ -274,7 +274,7 @@ export class LocalFileSystemService {
           : null;
 
     if (!iterator) {
-      console.warn('Directory handle does not support iteration');
+      // Warning logging disabled for production
       return files;
     }
 
@@ -287,7 +287,7 @@ export class LocalFileSystemService {
           const localFile = await this.readFile(fileHandle, path);
           files.push(localFile);
         } catch (error) {
-          console.warn(`Failed to read file ${path}:`, error);
+          // Warning logging disabled for production
         }
       } else if (entry.kind === 'directory' && recursive) {
         const nestedHandle = entry as FileSystemAccessDirectoryHandle;
@@ -657,7 +657,7 @@ export class LocalFileSystemService {
           total: estimate.quota || 0
         };
       } catch (error) {
-        console.warn('Failed to get storage estimate:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -780,7 +780,7 @@ export class LocalFileSystemService {
       const requestStatus = await handle.requestPermission(options);
       return requestStatus === 'granted';
     } catch (error) {
-      console.warn('Failed to verify file system permissions:', error);
+      // Warning logging disabled for production
       return false;
     }
   }
@@ -808,7 +808,7 @@ export class LocalFileSystemService {
       const decoder = new TextDecoder(encoding, { fatal: false });
       return decoder.decode(buffer);
     } catch (error) {
-      console.warn('Failed to decode file content as text:', error);
+      // Warning logging disabled for production
       return undefined;
     }
   }

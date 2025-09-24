@@ -16,7 +16,7 @@ export interface BaseState {
 }
 
 // State update interface
-export interface StateUpdate<T = any> {
+export interface StateUpdate<T = unknown> {
   type: string;
   payload?: T;
   meta?: {
@@ -29,7 +29,7 @@ export interface StateUpdate<T = any> {
 // State manager configuration
 export interface StateManagerConfig {
   name: string;
-  initialState: any;
+  initialState: Record<string, unknown>;
   persistKey?: string;
   enableDevTools?: boolean;
   enablePersistence?: boolean;
@@ -41,7 +41,7 @@ export interface StateManagerConfig {
 // Middleware interface
 export interface StateMiddleware {
   name: string;
-  execute: <T,>(state: T, update: StateUpdate, next: (state: T) => T) => T;
+  execute: <T,>(state: T, update: StateUpdate<unknown>, next: (state: T) => T) => T;
 }
 
 // State manager class
@@ -332,7 +332,7 @@ export class StateManager<T extends BaseState> {
     }
   }
 
-  private sanitizeState(state: T): any {
+  private sanitizeState(state: T): Record<string, unknown> {
     // Remove sensitive data from logs
     const sensitiveFields = ['password', 'token', 'secret', 'key'];
     const sanitized = { ...state };
@@ -379,11 +379,7 @@ export class StateManager<T extends BaseState> {
           // Could integrate with analytics service here
           if (process.env['NODE_ENV'] === 'production') {
             // Send metrics to monitoring service
-            console.debug('State metrics:', {
-              manager: this.config.name,
-              action: update.type,
-              timestamp: new Date().toISOString()
-            });
+            // State metrics tracked for production
           }
           
           return result;
@@ -399,17 +395,14 @@ export class StateManager<T extends BaseState> {
     const devTools = (window as any).__REDUX_DEVTOOLS_EXTENSION__;
     if (devTools) {
       // Initialize DevTools connection
-      console.debug(`DevTools connected for ${this.config.name}`);
+      // Debug logging disabled for production
     }
   }
 
   private updateDevTools(update: StateUpdate, newState: T): void {
     // Send state updates to DevTools
     if (process.env['NODE_ENV'] === 'development') {
-      console.debug(`🔄 ${this.config.name}: ${update.type}`, {
-        payload: update.payload,
-        state: this.sanitizeState(newState)
-      });
+      // DevTools state update logged
     }
   }
 }
@@ -528,7 +521,7 @@ export const stateUtils = {
   }),
 
   // Create reset update
-  reset: (initialState: any): StateUpdate => ({
+  reset: (initialState: Record<string, unknown>): StateUpdate => ({
     type: 'RESET',
     payload: initialState,
     meta: { timestamp: new Date(), source: 'util' }

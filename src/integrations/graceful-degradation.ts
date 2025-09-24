@@ -251,7 +251,7 @@ export class GracefulDegradationManager extends EventEmitter {
     const changes: string[] = []
 
     if (newLevel.name !== previousLevel) {
-      console.log(`Degradation level changing from ${previousLevel} to ${newLevel.name}`)
+      // console.log(`Degradation level changing from ${previousLevel} to ${newLevel.name}`)
       
       // Apply new restrictions
       const memorySaved = await this.applyDegradationLevel(newLevel)
@@ -296,7 +296,7 @@ export class GracefulDegradationManager extends EventEmitter {
   async forceDegradationLevel(levelName: string): Promise<boolean> {
     const level = this.degradationLevels.find(l => l.name === levelName)
     if (!level) {
-      console.error(`Degradation level ${levelName} not found`)
+      // console.error(`Degradation level ${levelName} not found`)
       return false
     }
 
@@ -446,14 +446,14 @@ export class GracefulDegradationManager extends EventEmitter {
       totalMemorySaved += savings
     }
 
-    console.log(`Applied degradation level: ${level.name}`)
-    console.log(`Estimated memory savings: ${this.formatBytes(totalMemorySaved)}`)
+    // console.log(`Applied degradation level: ${level.name}`)
+    // console.log(`Estimated memory savings: ${this.formatBytes(totalMemorySaved)}`)
 
     return totalMemorySaved
   }
 
   private async applyRestriction(restriction: DegradationRestriction): Promise<number> {
-    console.log(`Applying restriction: ${restriction.description}`)
+    // console.log(`Applying restriction: ${restriction.description}`)
     
     switch (restriction.action) {
       case 'disable':

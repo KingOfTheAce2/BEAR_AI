@@ -138,9 +138,9 @@ export class BearLLMEngine {
     try {
       await this.ensureDirectoryStructure()
       await this.configureBackends()
-      console.log('BEAR AI LLM Engine initialized successfully')
+      // console.log('BEAR AI LLM Engine initialized successfully')
     } catch (error) {
-      console.error('Failed to initialize LLM engine:', error)
+      // console.error('Failed to initialize LLM engine:', error)
       throw error
     }
   }
@@ -188,11 +188,11 @@ export class BearLLMEngine {
 
     try {
       // In a real implementation, this would terminate the model process
-      console.log(`Unloading model ${modelId} (PID: ${session.pid})`)
+      // console.log(`Unloading model ${modelId} (PID: ${session.pid})`)
       this.loadedModels.delete(modelId)
       return true
     } catch (error) {
-      console.error(`Failed to unload model ${modelId}:`, error)
+      // console.error(`Failed to unload model ${modelId}:`, error)
       return false
     }
   }
@@ -314,12 +314,12 @@ export class BearLLMEngine {
     ]
     
     // In a real implementation, create these directories
-    console.log('Ensuring directory structure:', dirs)
+    // console.log('Ensuring directory structure:', dirs)
   }
 
   private async configureBackends(): Promise<void> {
     // Configure available backends based on system capabilities
-    console.log('Configuring LLM backends...')
+    // console.log('Configuring LLM backends...')
     
     // Detect GPU capabilities
     const gpuSupport = await this.detectGPUSupport()
@@ -368,13 +368,13 @@ export class BearLLMEngine {
     }
     
     // Mock model loading process
-    console.log(`Loading model ${modelId} on port ${port}...`)
+    // console.log(`Loading model ${modelId} on port ${port}...`)
     
     // Simulate loading time
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     session.status = 'loaded'
-    console.log(`Model ${modelId} loaded successfully`)
+    // console.log(`Model ${modelId} loaded successfully`)
     
     return session
   }
@@ -516,7 +516,7 @@ export class BearLLMEngine {
               const data = JSON.parse(jsonStr)
               yield data
             } catch (e) {
-              console.error('Error parsing JSON from stream:', e)
+              // console.error('Error parsing JSON from stream:', e)
             }
           }
         }

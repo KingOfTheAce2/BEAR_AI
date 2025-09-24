@@ -68,13 +68,13 @@ export function createLazyComponent<T extends ComponentType<any>>(
     } catch (error) {
       if (retryCount < retries) {
         retryCount++;
-        console.warn(`Component loading failed, retrying (${retryCount}/${retries})`, error);
+        // Warning logging disabled for production
         // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1)));
         return enhancedImport();
       }
 
-      console.error('Component loading failed after all retries', error);
+      // Error logging disabled for production
       throw error;
     }
   };
@@ -268,7 +268,7 @@ export const LazyLoadingMetrics = {
 
     // Log slow loading components
     if (loadTime > 2000) {
-      console.warn(`Slow component loading detected: ${componentName} took ${loadTime}ms`);
+      // Warning logging disabled for production
     }
   },
 

@@ -177,14 +177,14 @@ export class DocumentErrorHandler {
 
     for (const action of actions) {
       try {
-        console.log(`Attempting recovery action: ${action.description}`);
+        // Logging disabled for production
         const success = await action.execute();
         if (success) {
-          console.log(`Recovery successful: ${action.description}`);
+          // Logging disabled for production
           return true;
         }
       } catch (recoveryError) {
-        console.error(`Recovery action failed: ${action.description}`, recoveryError);
+        // Error logging disabled for production
       }
     }
 
@@ -215,7 +215,7 @@ export class DocumentErrorHandler {
         description: 'Fall back to basic text extraction',
         automated: true,
         execute: async () => {
-          console.log('Falling back to basic text extraction');
+          // Logging disabled for production
           return true;
         }
       }
@@ -228,7 +228,7 @@ export class DocumentErrorHandler {
         description: 'Reduce batch processing size',
         automated: true,
         execute: async () => {
-          console.log('Reducing batch size to conserve memory');
+          // Logging disabled for production
           return true;
         }
       },
@@ -253,7 +253,7 @@ export class DocumentErrorHandler {
         description: 'Increase processing timeout',
         automated: true,
         execute: async () => {
-          console.log('Increasing processing timeout');
+          // Logging disabled for production
           return true;
         }
       },
@@ -262,7 +262,7 @@ export class DocumentErrorHandler {
         description: 'Simplify analysis configuration',
         automated: true,
         execute: async () => {
-          console.log('Simplifying analysis to reduce processing time');
+          // Logging disabled for production
           return true;
         }
       }
@@ -307,7 +307,7 @@ export class DocumentErrorHandler {
 
     const errorRate = recentErrors.length / 5; // Errors per minute
     if (errorRate > 10) {
-      console.warn(`High error rate detected: ${errorRate} errors/minute`);
+      // Warning logging disabled for production
       this.triggerAlert('high_error_rate', { rate: errorRate });
     }
 
@@ -320,7 +320,7 @@ export class DocumentErrorHandler {
 
     errorGroups.forEach((count, code) => {
       if (count > 5) {
-        console.warn(`Error clustering detected: ${code} occurred ${count} times`);
+        // Warning logging disabled for production
         this.triggerAlert('error_clustering', { code, count });
       }
     });
@@ -331,7 +331,7 @@ export class DocumentErrorHandler {
    */
   private triggerAlert(type: string, data: any): void {
     // In a real implementation, this would send alerts to monitoring systems
-    console.error(`ALERT [${type}]:`, data);
+    // Error logging disabled for production
 
     // Could integrate with services like:
     // - Sentry for error tracking
@@ -368,12 +368,12 @@ export class DocumentErrorHandler {
     if (error.code === ErrorCode.MEMORY_EXHAUSTED ||
         error.code === ErrorCode.SECURITY_VIOLATION ||
         error.code === ErrorCode.UNAUTHORIZED_ACCESS) {
-      console.error(logMessage, logData);
+      // Error logging disabled for production
     } else if (error.code === ErrorCode.ANALYSIS_TIMEOUT ||
                error.code === ErrorCode.OCR_LOW_CONFIDENCE) {
-      console.warn(logMessage, logData);
+      // Warning logging disabled for production
     } else {
-      console.info(logMessage, logData);
+      // Info logging disabled for production
     }
 
     // Send to external logging service if configured
@@ -394,7 +394,7 @@ export class DocumentErrorHandler {
     // For now, just log to console
     if (process.env.NODE_ENV === 'production') {
       // Would send to actual logging service
-      console.log('Sending to external logger:', error);
+      // Logging disabled for production
     }
   }
 

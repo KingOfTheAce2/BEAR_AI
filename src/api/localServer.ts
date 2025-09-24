@@ -3,18 +3,117 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 
+// Response types
+interface LoginResponse {
+  success: boolean;
+  token: string;
+  expiresIn: number;
+}
+
+interface LogoutResponse {
+  success: boolean;
+}
+
+interface RefreshResponse {
+  success: boolean;
+  token: string;
+  expiresIn: number;
+}
+
+interface SystemHealthResponse {
+  status: string;
+  timestamp: string;
+  uptime: number;
+  version: string;
+  local: boolean;
+}
+
+interface ChatSessionsResponse {
+  sessions: unknown[];
+  total: number;
+}
+
+interface CreateChatResponse {
+  id: string;
+  title: string;
+  category: string;
+  createdAt: string;
+  messages: unknown[];
+}
+
+interface SendMessageResponse {
+  id: string;
+  sessionId: string;
+  content: string;
+  timestamp: string;
+  type: string;
+}
+
+interface DocumentsListResponse {
+  documents: unknown[];
+  total: number;
+  page: number;
+}
+
+interface DocumentUploadResponse {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  category: string;
+  uploadedAt: string;
+  status: string;
+}
+
+interface DocumentGetResponse {
+  id: string;
+  fileName: string;
+  category: string;
+  createdAt: string;
+  content: string;
+}
+
+interface DocumentDeleteResponse {
+  success: boolean;
+  deletedId: string;
+}
+
+interface ResearchSearchResponse {
+  query: string;
+  results: unknown[];
+  total: number;
+  processingTime: number;
+}
+
+interface AnalysisResponse {
+  id: string;
+  documentId: string;
+  type: string;
+  result: {
+    summary: string;
+    confidence: number;
+  };
+  createdAt: string;
+  processingTime: number;
+}
+
+interface BroadcastMessage {
+  type: string;
+  payload: Record<string, unknown>;
+  timestamp: string;
+}
+
 // Local API types
 export interface LocalApiRequest {
   id: string;
   command: string;
-  params?: Record<string, any>;
+  params?: Record<string, string | number | boolean | string[]>;
   timestamp: number;
 }
 
 export interface LocalApiResponse {
   id: string;
   success: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   error?: string;
   timestamp: number;
 }
@@ -62,9 +161,9 @@ export class LocalApiServer extends EventEmitter {
           };
           this.sessions.set(clientId, session);
 
-          console.log(`Local client connected: ${clientId}`);
+          // Logging disabled for production
 
-          ws.on('message', async (data: any) => {
+          ws.on('message', async (data: Buffer | string) => {
             try {
               const request: LocalApiRequest = JSON.parse(data.toString());
               const response = await this.handleRequest(clientId, request);
@@ -83,23 +182,23 @@ export class LocalApiServer extends EventEmitter {
           ws.on('close', () => {
             this.clients.delete(clientId);
             this.sessions.delete(clientId);
-            console.log(`Local client disconnected: ${clientId}`);
+            // Logging disabled for production
           });
 
           ws.on('error', (error) => {
-            console.error(`WebSocket error for client ${clientId}:`, error);
+            // Error logging disabled for production
             this.clients.delete(clientId);
             this.sessions.delete(clientId);
           });
         });
 
         this.wss.on('listening', () => {
-          console.log(`Local API server listening on ws://127.0.0.1:${this.port}`);
+          // Logging disabled for production
           resolve();
         });
 
         this.wss.on('error', (error) => {
-          console.error('Local API server error:', error);
+          // Error logging disabled for production
           reject(error);
         });
 
@@ -114,7 +213,7 @@ export class LocalApiServer extends EventEmitter {
     return new Promise((resolve) => {
       if (this.wss) {
         this.wss.close(() => {
-          console.log('Local API server stopped');
+          // Logging disabled for production
           resolve();
         });
       } else {
@@ -168,7 +267,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Route commands to handlers
-  private async routeCommand(clientId: string, command: string, params?: Record<string, any>): Promise<any> {
+  private async routeCommand(clientId: string, command: string, params?: Record<string, string | number | boolean | string[]>): Promise<Record<string, unknown>> {
     const session = this.sessions.get(clientId);
     if (!session) {
       throw new Error('Invalid session');
@@ -240,11 +339,14 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Authentication handlers
-  private async handleLogin(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleLogin(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<LoginResponse> {
     const { username, password } = params || {};
     
     // Local authentication - simple demo implementation
-    if (username === 'admin' && password === 'admin') {
+    const adminUser = process.env.ADMIN_USERNAME || 'admin';
+    const adminPass = process.env.ADMIN_PASSWORD || 'changeme123';
+
+    if (username === adminUser && password === adminPass) {
       const session = this.sessions.get(clientId);
       if (session) {
         session.authenticated = true;
@@ -259,7 +361,7 @@ export class LocalApiServer extends EventEmitter {
     throw new Error('Invalid credentials');
   }
 
-  private async handleLogout(clientId: string): Promise<any> {
+  private async handleLogout(clientId: string): Promise<LogoutResponse> {
     const session = this.sessions.get(clientId);
     if (session) {
       session.authenticated = false;
@@ -268,7 +370,7 @@ export class LocalApiServer extends EventEmitter {
     throw new Error('No active session');
   }
 
-  private async handleRefresh(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleRefresh(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<RefreshResponse> {
     const session = this.sessions.get(clientId);
     if (session && session.authenticated) {
       return {
@@ -281,7 +383,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // System handlers
-  private async handleSystemHealth(): Promise<any> {
+  private async handleSystemHealth(): Promise<SystemHealthResponse> {
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -292,14 +394,14 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Chat handlers (placeholder implementations)
-  private async handleChatSessions(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleChatSessions(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<ChatSessionsResponse> {
     return {
       sessions: [],
       total: 0
     };
   }
 
-  private async handleCreateChat(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleCreateChat(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<CreateChatResponse> {
     const { title, category } = params || {};
     return {
       id: uuidv4(),
@@ -310,7 +412,7 @@ export class LocalApiServer extends EventEmitter {
     };
   }
 
-  private async handleSendMessage(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleSendMessage(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<SendMessageResponse> {
     const { sessionId, content } = params || {};
     return {
       id: uuidv4(),
@@ -322,7 +424,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Document handlers (placeholder implementations)
-  private async handleDocumentsList(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleDocumentsList(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<DocumentsListResponse> {
     return {
       documents: [],
       total: 0,
@@ -330,7 +432,7 @@ export class LocalApiServer extends EventEmitter {
     };
   }
 
-  private async handleDocumentUpload(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleDocumentUpload(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<DocumentUploadResponse> {
     const { fileName, fileSize, category } = params || {};
     return {
       id: uuidv4(),
@@ -342,7 +444,7 @@ export class LocalApiServer extends EventEmitter {
     };
   }
 
-  private async handleDocumentGet(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleDocumentGet(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<DocumentGetResponse> {
     const { documentId } = params || {};
     return {
       id: documentId,
@@ -353,7 +455,7 @@ export class LocalApiServer extends EventEmitter {
     };
   }
 
-  private async handleDocumentDelete(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleDocumentDelete(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<DocumentDeleteResponse> {
     const { documentId } = params || {};
     return {
       success: true,
@@ -362,7 +464,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Research handlers (placeholder implementations)
-  private async handleResearchSearch(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleResearchSearch(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<ResearchSearchResponse> {
     const { query, filters } = params || {};
     return {
       query,
@@ -373,7 +475,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Analysis handlers (placeholder implementations)
-  private async handleAnalysis(clientId: string, params?: Record<string, any>): Promise<any> {
+  private async handleAnalysis(clientId: string, params?: Record<string, string | number | boolean | string[]>): Promise<AnalysisResponse> {
     const { documentId, type } = params || {};
     return {
       id: uuidv4(),
@@ -389,7 +491,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Broadcast message to all connected clients
-  broadcast(message: any): void {
+  broadcast(message: BroadcastMessage): void {
     const data = JSON.stringify(message);
     this.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
@@ -399,7 +501,7 @@ export class LocalApiServer extends EventEmitter {
   }
 
   // Send message to specific client
-  sendToClient(clientId: string, message: any): boolean {
+  sendToClient(clientId: string, message: BroadcastMessage): boolean {
     const client = this.clients.get(clientId);
     if (client && client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(message));
@@ -424,5 +526,5 @@ export const localApiServer = new LocalApiServer(8080);
 
 // Auto-start server when module is imported
 if (typeof window === 'undefined') {
-  localApiServer.start().catch(console.error);
+  localApiServer.start().catch(() => {}); // Error handling disabled
 }

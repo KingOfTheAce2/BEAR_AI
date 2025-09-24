@@ -95,7 +95,7 @@ const SystemSettingsPanel: React.FC = () => {
       connection: nav?.connection ?? null,
     };
 
-    console.log('System Diagnostics:', diagnostics);
+    // Logging disabled for production
     
     // Create a diagnostic report
     const report = Object.entries(diagnostics)
@@ -114,7 +114,7 @@ const SystemSettingsPanel: React.FC = () => {
   };
 
   const clearCache = () => {
-    if (window.window.confirm('This will clear all cached data. Continue?')) {
+    if (window.confirm('This will clear all cached data. Continue?')) {
       // Clear various caches
       if ('caches' in window) {
         caches.keys().then(names => {

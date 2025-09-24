@@ -48,7 +48,7 @@ export class HybridPIIDetector {
         const config = this.tsDetector.getConfig();
         return await TauriPIIBridge.detectPII(text, config);
       } catch (error) {
-        console.warn('Rust PII detection failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
         // Fall back to TypeScript implementation
         return this.tsDetector.detectPII(text, context);
       }
@@ -75,7 +75,7 @@ export class HybridPIIDetector {
       try {
         return await TauriPIIBridge.maskText(text, matches);
       } catch (error) {
-        console.warn('Rust text masking failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -92,7 +92,7 @@ export class HybridPIIDetector {
       try {
         return await TauriPIIBridge.validateDutchBSN(bsn);
       } catch (error) {
-        console.warn('Rust BSN validation failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -112,7 +112,7 @@ export class HybridPIIDetector {
       try {
         return await TauriPIIBridge.validateDutchRSIN(rsin);
       } catch (error) {
-        console.warn('Rust RSIN validation failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -132,7 +132,7 @@ export class HybridPIIDetector {
       try {
         return await TauriPIIBridge.getAuditLog();
       } catch (error) {
-        console.warn('Rust audit log retrieval failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -149,7 +149,7 @@ export class HybridPIIDetector {
       try {
         return await TauriPIIBridge.exportAuditLog();
       } catch (error) {
-        console.warn('Rust audit log export failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -191,7 +191,7 @@ export class HybridPIIDetector {
         const config = this.tsDetector.getConfig();
         return await TauriPIIBridge.processDocument(content, filename, config);
       } catch (error) {
-        console.warn('Rust document processing failed, falling back to TypeScript:', error);
+        // Warning logging disabled for production
       }
     }
 

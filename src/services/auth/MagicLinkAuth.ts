@@ -121,7 +121,7 @@ export class MagicLinkAuthService {
       };
 
     } catch (error) {
-      console.error('Magic link error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         message: 'Failed to send magic link. Please try again.'
@@ -199,7 +199,7 @@ export class MagicLinkAuthService {
       };
 
     } catch (error) {
-      console.error('Verification error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         message: 'Verification failed'

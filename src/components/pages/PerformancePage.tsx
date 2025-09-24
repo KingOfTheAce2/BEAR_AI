@@ -58,7 +58,7 @@ const PerformancePage: React.FC = () => {
           window.alert('Failed to apply optimization. Manual intervention may be required.');
         }
       } catch (error) {
-        console.error('Error applying suggestion:', error);
+        // Error logging disabled for production
         window.alert('Error applying optimization.');
       }
     }
@@ -67,9 +67,9 @@ const PerformancePage: React.FC = () => {
   const handleRunOptimizationCycle = async () => {
     try {
       const newSuggestions = await performanceOptimizer.runOptimizationCycle();
-      console.log('Generated', newSuggestions.length, 'new optimization suggestions');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Error running optimization cycle:', error);
+      // Error logging disabled for production
     }
   };
 

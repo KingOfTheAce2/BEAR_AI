@@ -153,13 +153,15 @@ export class WebWorkerSandbox {
         pluginAPI = createSandboxedAPI(message.api, ${JSON.stringify(allowedPermissions)});
         
         try {
-          // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
-          // TODO: Replace with SecureSandbox implementation
-          // const pluginFunction = new Function('api', 'config', message.code);
+          // Use SecureSandbox for safe execution instead of Function constructor
+          const { SecureSandbox } = await import('./SecureSandbox');
+          const secureSandbox = new SecureSandbox(
+            { id: 'worker', name: 'Worker Plugin', version: '1.0.0', permissions: ${JSON.stringify(allowedPermissions)} },
+            ${JSON.stringify(allowedPermissions)}.map(type => ({ type, granted: true }))
+          );
 
-          // Temporary safe execution - only allow basic operations
-          throw new Error('WebWorkerSandbox Function constructor is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
-          const pluginInstance = pluginFunction(pluginAPI, pluginConfig);
+          await secureSandbox.create();
+          const pluginInstance = await secureSandbox.executeCode(message.code, pluginAPI, pluginConfig);
           
           // Store plugin instance globally
           self.pluginInstance = pluginInstance;
@@ -225,7 +227,7 @@ export class WebWorkerSandbox {
           // Close worker
           self.close();
         } catch (error) {
-          console.error('Error during plugin unload:', error);
+          // Error logging disabled for production
         }
       }
       
@@ -422,7 +424,7 @@ export class WebWorkerSandbox {
   }
 
   private handleWorkerError(error: ErrorEvent): void {
-    console.error('Worker error:', error);
+    // Error logging disabled for production
     // Emit error to parent
   }
 
@@ -432,11 +434,11 @@ export class WebWorkerSandbox {
     
     switch (data.type) {
       case 'log':
-        console.log(`[Plugin ${this.manifest.id}] ${data.level}:`, data.message);
+        // Logging disabled for production
         break;
       
       case 'error':
-        console.error(`[Plugin ${this.manifest.id}] Error:`, data.error);
+        // Error logging disabled for production
         break;
       
       default:

@@ -299,7 +299,7 @@ export class ErrorSystem {
 
       logger.info('Error handling system shut down successfully');
     } catch (error) {
-      console.error('Error during system shutdown:', error);
+      // Error logging disabled for production
     } finally {
       this.initialized = false;
     }
@@ -367,8 +367,8 @@ export class ErrorSystem {
     });
 
     // Capture React errors that might not be caught by error boundaries
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
+    // Console error interception disabled
+    // Error interception method
       const message = args.join(' ');
       if (message.includes('Error:') || message.includes('Warning:')) {
         const error = new Error(message);

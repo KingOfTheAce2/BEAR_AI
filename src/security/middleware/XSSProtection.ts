@@ -237,7 +237,7 @@ export class XSSProtection {
 
       next();
     } catch (error) {
-      console.error('XSS protection error:', error);
+      // Error logging disabled for production
       next();
     }
   }
@@ -306,7 +306,7 @@ export class XSSProtection {
     // Check for XSS patterns before sanitization
     const xssDetected = this.detectXSSPatterns(input);
     if (xssDetected.length > 0) {
-      console.warn(`XSS patterns detected in ${context}:`, xssDetected);
+      // Warning logging disabled for production
     }
 
     // Apply XSS filtering
@@ -329,7 +329,7 @@ export class XSSProtection {
         try {
           sanitized = filter(sanitized);
         } catch (error) {
-          console.error(`Error applying custom filter ${name}:`, error);
+          // Error logging disabled for production
         }
       }
     }
@@ -404,7 +404,7 @@ export class XSSProtection {
     this.blockedAttempts.set(clientIP, currentCount + 1);
 
     // Log the attack attempt
-    console.error(`XSS attack attempt detected (${type}):`, {
+    // console.error(`XSS attack attempt detected (${type}):`, {
       ip: clientIP,
       userAgent: req.get('User-Agent'),
       path: req.path,
@@ -444,9 +444,9 @@ export class XSSProtection {
       };
 
       // In a real implementation, you would send this to your monitoring service
-      console.log('XSS attempt reported:', report);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to report XSS attempt:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -488,7 +488,7 @@ export class XSSProtection {
   private onIgnoreTag(tag: string, html: string, options: any): string {
     // Log suspicious tags
     if (['script', 'object', 'embed', 'applet', 'form', 'iframe'].includes(tag.toLowerCase())) {
-      console.warn('Suspicious tag blocked:', { tag, html: html.substring(0, 100) });
+      // Warning logging disabled for production
     }
 
     // Remove the tag completely
@@ -501,7 +501,7 @@ export class XSSProtection {
   private onIgnoreTagAttr(tag: string, name: string, value: string, isWhiteAttr: boolean): string {
     // Log suspicious attributes
     if (name.toLowerCase().startsWith('on') || name.toLowerCase() === 'style') {
-      console.warn('Suspicious attribute blocked:', { tag, name, value: value.substring(0, 50) });
+      // Warning logging disabled for production
     }
 
     return '';

@@ -115,7 +115,7 @@ export const SSOCallback: React.FC = () => {
         }
 
       } catch (error) {
-        console.error('SSO callback error:', error);
+        // Error logging disabled for production
         setState(prev => ({
           ...prev,
           loading: false,

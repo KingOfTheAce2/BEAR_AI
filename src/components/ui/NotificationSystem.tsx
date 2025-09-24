@@ -475,7 +475,7 @@ const NotificationProvider: React.FC<NotificationSystemProps> = ({
               onDismiss={removeNotification}
               onAction={(id, action) => {
                 // Handle notification actions
-                console.log('Notification action:', id, action)
+                // console.log('Notification action:', id, action)
               }}
               position={settings.position}
               settings={settings}

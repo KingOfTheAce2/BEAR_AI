@@ -180,10 +180,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/bear-ai"
+    "url": "git+https://github.com/your-org/bear-ai.git"
   },
   "bugs": {
     "url": "https://github.com/your-org/bear-ai/issues"
   },
-  "homepage": "https://bear-ai.com"
+  "homepage": "https://bear-ai.com",
+  "main": "tailwind.config.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "type": "commonjs"
 }

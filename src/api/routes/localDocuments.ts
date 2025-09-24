@@ -34,7 +34,7 @@ export class LocalDocumentService {
     try {
       return await localApiClient.getDocuments(category, limit, offset);
     } catch (error) {
-      console.error('Failed to get documents:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -56,7 +56,7 @@ export class LocalDocumentService {
     try {
       return await localApiClient.uploadDocument(name, category, fileSize, contentType, tags);
     } catch (error) {
-      console.error('Failed to upload document:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -72,7 +72,7 @@ export class LocalDocumentService {
     try {
       return await localApiClient.getDocument(documentId);
     } catch (error) {
-      console.error('Failed to get document:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -95,7 +95,7 @@ export class LocalDocumentService {
     try {
       return await localApiClient.updateDocument(documentId, updates);
     } catch (error) {
-      console.error('Failed to update document:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -111,7 +111,7 @@ export class LocalDocumentService {
     try {
       return await localApiClient.deleteDocument(documentId);
     } catch (error) {
-      console.error('Failed to delete document:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -153,7 +153,7 @@ export class LocalDocumentService {
         localPath: `~/Documents/BEAR_AI/uploads/${document.id}/${file.name}`
       };
     } catch (error) {
-      console.error('Failed to process file upload:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

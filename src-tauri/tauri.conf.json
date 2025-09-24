@@ -67,10 +67,6 @@
       "path": {
         "all": true
       },
-      "event": {
-        "listen": true,
-        "emit": true
-      },
       "process": {
         "relaunch": true,
         "exit": true

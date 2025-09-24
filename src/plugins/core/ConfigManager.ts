@@ -384,7 +384,7 @@ export class PluginConfigManager extends EventEmitter {
             size: localStorage.getItem(key)?.length || 0
           });
         } catch (error) {
-          console.warn(`Failed to parse backup data for ${key}:`, error);
+          // Warning logging disabled for production
         }
       }
     }
@@ -441,7 +441,7 @@ export class PluginConfigManager extends EventEmitter {
         this.globalSettings = { ...this.globalSettings, ...settings };
       }
     } catch (error) {
-      console.warn('Failed to load global settings:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -465,7 +465,7 @@ export class PluginConfigManager extends EventEmitter {
             this.configs.set(pluginId, config);
           }
         } catch (error) {
-          console.warn(`Failed to load config for ${key}:`, error);
+          // Warning logging disabled for production
         }
       }
     }

@@ -221,7 +221,7 @@ export class PluginAPIProvider extends EventEmitter {
       try {
         await this.cleanupPluginUI(pluginId);
       } catch (error) {
-        console.warn(`Error cleaning up plugin ${pluginId}:`, error);
+        // Warning logging disabled for production
       }
     }
 

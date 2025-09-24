@@ -1095,11 +1095,13 @@ mod tests {
     async fn test_nemotron_rag_initialization() {
         let config = NemotronConfig {
             nemotron_api_key: "test_key".to_string(),
-            nemo_retriever_url: "http://localhost:8080".to_string(),
+            nemo_retriever_url: std::env::var("NEMO_RETRIEVER_URL")
+                .unwrap_or_else(|_| "http://localhost:8080".to_string()),
             embedding_model: "nv-embed-v2".to_string(),
             generation_model: "nemotron-4-15b".to_string(),
             vector_db_type: VectorDbType::Qdrant,
-            vector_db_url: "http://localhost:6333".to_string(),
+            vector_db_url: std::env::var("VECTOR_DB_URL")
+                .unwrap_or_else(|_| "http://localhost:6333".to_string()),
             redis_url: None,
             max_chunk_size: 512,
             chunk_overlap: 50,

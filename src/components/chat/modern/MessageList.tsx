@@ -103,7 +103,7 @@ const MessageList: React.FC<MessageListProps> = ({
     };
     
     // In a real implementation, this would call a parent component method
-    console.log('Reply to message:', messageId, replyMessage);
+    // Logging disabled for production
   };
 
   const scrollToMessage = (messageId: string) => {

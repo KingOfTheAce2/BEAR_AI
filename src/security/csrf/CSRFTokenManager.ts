@@ -109,7 +109,7 @@ export class CSRFTokenManager {
         next();
       });
     } catch (error) {
-      console.error('CSRF protection error:', error);
+      // Error logging disabled for production
       this.handleCSRFError(req, res, error);
     }
   }
@@ -267,7 +267,7 @@ export class CSRFTokenManager {
       error: error.message
     };
 
-    console.warn('CSRF validation failed:', errorDetails);
+    // Warning logging disabled for production
 
     // Log to security monitoring
     this.logSecurityEvent('CSRF_VALIDATION_FAILED', errorDetails);
@@ -368,7 +368,7 @@ export class CSRFTokenManager {
       }
     }
 
-    console.log(`CSRF token rotation completed. Removed ${this.tokenStore.size} expired tokens.`);
+    // Logging disabled for production
   }
 
   /**
@@ -415,7 +415,7 @@ export class CSRFTokenManager {
    */
   private logSecurityEvent(event: string, details: any): void {
     // In a production environment, this would integrate with your security monitoring system
-    console.log(`Security Event: ${event}`, details);
+    // Logging disabled for production
   }
 
   /**

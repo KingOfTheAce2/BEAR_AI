@@ -134,7 +134,7 @@ export class HardwareUtils {
         return await this.getLinuxMotherboardSerial();
       }
     } catch (error) {
-      console.warn('Failed to get motherboard serial:', this.getErrorMessage(error));
+      // Warning logging disabled for production
     }
 
     // Fallback to hostname-based identifier
@@ -156,7 +156,7 @@ export class HardwareUtils {
         return await this.getLinuxDiskSerial();
       }
     } catch (error) {
-      console.warn('Failed to get disk serial:', this.getErrorMessage(error));
+      // Warning logging disabled for production
     }
 
     // Fallback to hostname-based identifier

@@ -51,7 +51,7 @@ const PrivacySettingsPanel: React.FC = () => {
           window.alert('All local data has been cleared. The application will now reload.');
           window.location.reload();
         } catch (error) {
-          console.error('Failed to clear all data:', error);
+          // Error logging disabled for production
           window.alert('Failed to clear some data. Please try again or clear manually.');
         }
       }
@@ -65,7 +65,7 @@ const PrivacySettingsPanel: React.FC = () => {
         const quota = estimate.quota || 0;
         const usedMB = (used / 1024 / 1024).toFixed(2);
         const quotaMB = (quota / 1024 / 1024).toFixed(2);
-        console.log(`Storage used: ${usedMB} MB of ${quotaMB} MB`);
+        // Logging disabled for production
       });
     }
   };

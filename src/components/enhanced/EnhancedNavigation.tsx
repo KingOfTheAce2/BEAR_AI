@@ -60,8 +60,8 @@ const navigationItems: NavigationItem[] = [
     section: 'primary',
     contextualActions: ['New Chat', 'Export History', 'Settings'],
     quickActions: [
-      { id: 'new-chat', label: 'New Chat', icon: ChatBubbleOvalLeftIcon, action: () => console.log('New chat') },
-      { id: 'templates', label: 'Templates', icon: DocumentIcon, action: () => console.log('Templates') }
+      { id: 'new-chat', label: 'New Chat', icon: ChatBubbleOvalLeftIcon, action: () => // console.log('New chat') },
+      { id: 'templates', label: 'Templates', icon: DocumentIcon, action: () => // console.log('Templates') }
     ],
     metadata: { importance: 'high', frequency: 10 }
   },
@@ -74,8 +74,8 @@ const navigationItems: NavigationItem[] = [
     badge: '12',
     contextualActions: ['Upload', 'Organize', 'Search'],
     quickActions: [
-      { id: 'upload', label: 'Upload', icon: DocumentIcon, action: () => console.log('Upload') },
-      { id: 'scan', label: 'Scan', icon: MagnifyingGlassIcon, action: () => console.log('Scan') }
+      { id: 'upload', label: 'Upload', icon: DocumentIcon, action: () => // console.log('Upload') },
+      { id: 'scan', label: 'Scan', icon: MagnifyingGlassIcon, action: () => // console.log('Scan') }
     ],
     metadata: { importance: 'high', frequency: 8 }
   },
@@ -419,7 +419,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
                                  transition-colors duration-150"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`Contextual action: ${action}`);
+                        // Logging disabled for production
                       }}
                     >
                       {action}

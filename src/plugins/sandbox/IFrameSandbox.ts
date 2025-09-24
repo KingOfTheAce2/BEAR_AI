@@ -278,15 +278,16 @@ export class IFrameSandbox {
                     loadingEl.remove();
                 }
                 
-                // SECURITY WARNING: Function constructor usage - potential RCE vulnerability
-                // TODO: Replace with SecureSandbox implementation
-                // const pluginFunction = new Function('api', 'config', 'container', message.code);
+                // Use SecureSandbox for safe execution instead of Function constructor
+                const SecureSandboxModule = await import('./SecureSandbox');
+                const secureSandbox = new SecureSandboxModule.SecureSandbox(
+                  { id: 'iframe', name: 'IFrame Plugin', version: '1.0.0', permissions: ${JSON.stringify(allowedPermissions)} },
+                  ${JSON.stringify(allowedPermissions)}.map(type => ({ type, granted: true }))
+                );
 
-                // Temporary safe execution - only allow basic operations
-                throw new Error('IFrameSandbox Function constructor is deprecated due to security vulnerabilities. Use SecureSandbox instead.');
+                await secureSandbox.create();
+                const pluginInstance = await secureSandbox.executeCode(message.code, pluginAPI, pluginConfig);
                 const pluginRoot = document.getElementById('plugin-root');
-                
-                pluginInstance = pluginFunction(pluginAPI, pluginConfig, pluginRoot);
                 
                 // Call plugin initialization if available
                 if (pluginInstance && typeof pluginInstance.initialize === 'function') {
@@ -368,7 +369,7 @@ export class IFrameSandbox {
                 // Clear DOM
                 document.getElementById('plugin-root').innerHTML = '';
             } catch (error) {
-                console.error('Error during plugin unload:', error);
+                // Error logging disabled for production
             }
         }
         

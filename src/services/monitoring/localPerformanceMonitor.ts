@@ -413,7 +413,7 @@ export class LocalPerformanceMonitor {
       }
       this.emitStateChange();
     } catch (error) {
-      console.error('Failed to import monitoring data', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -435,7 +435,7 @@ export class LocalPerformanceMonitor {
       }
       return json.length;
     } catch (error) {
-      console.error('Failed to calculate database size', error);
+      // Error logging disabled for production
       return 0;
     }
   }
@@ -776,7 +776,7 @@ export class LocalPerformanceMonitor {
       try {
         listener(metrics);
       } catch (error) {
-        console.error('System metrics listener error', error);
+        // Error logging disabled for production
       }
     });
   }
@@ -786,7 +786,7 @@ export class LocalPerformanceMonitor {
       try {
         listener(metrics);
       } catch (error) {
-        console.error('Model metrics listener error', error);
+        // Error logging disabled for production
       }
     });
   }
@@ -796,7 +796,7 @@ export class LocalPerformanceMonitor {
       try {
         listener(alert);
       } catch (error) {
-        console.error('Alert listener error', error);
+        // Error logging disabled for production
       }
     });
   }
@@ -807,7 +807,7 @@ export class LocalPerformanceMonitor {
       try {
         listener(state);
       } catch (error) {
-        console.error('State listener error', error);
+        // Error logging disabled for production
       }
     });
   }

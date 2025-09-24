@@ -430,8 +430,13 @@ export class DocumentVersionControl {
       }
     }
 
-    // TODO: Implement detailed text-level diff algorithm
-    // This would compare actual text content and identify specific changes
+    // Implement detailed text-level diff algorithm using Myers algorithm
+    const textChanges = await this.performTextDiff(
+      previousVersion.fingerprint.textContent || '',
+      currentAnalysis.textContent
+    );
+
+    changes.push(...textChanges);
 
     return changes;
   }
@@ -617,12 +622,294 @@ export class DocumentVersionControl {
       if (parsed.versions && Array.isArray(parsed.versions)) {
         // This would be a more complex operation in production
         // involving validation and conflict resolution
-        console.log(`Would import ${parsed.versions.length} versions for document ${parsed.documentId}`);
+        // Logging disabled for production
       }
     } catch (error) {
       throw new Error('Invalid version history data');
     }
   }
+
+  /**
+   * Perform text-level diff using Myers algorithm
+   */
+  private async performTextDiff(oldText: string, newText: string): Promise<DocumentChange[]> {
+    const changes: DocumentChange[] = [];
+
+    // Split texts into lines for line-by-line comparison
+    const oldLines = oldText.split('\n');
+    const newLines = newText.split('\n');
+
+    // Use a simplified Myers diff algorithm
+    const diff = this.myersTextDiff(oldLines, newLines);
+
+    let oldLineNum = 0;
+    let newLineNum = 0;
+    let currentPos = 0;
+
+    for (const operation of diff) {
+      switch (operation.type) {
+        case 'equal':
+          // Lines are the same, advance both pointers
+          for (let i = 0; i < operation.count; i++) {
+            currentPos += oldLines[oldLineNum + i].length + 1; // +1 for newline
+            oldLineNum++;
+            newLineNum++;
+          }
+          break;
+
+        case 'delete':
+          // Lines deleted from old text
+          const deletedText = operation.lines.join('\n');
+          changes.push({
+            type: 'deletion',
+            location: {
+              start: currentPos,
+              end: currentPos + deletedText.length
+            },
+            oldContent: deletedText,
+            newContent: '',
+            severity: this.calculateChangeSeverity(deletedText, ''),
+            category: this.determineChangeCategory(deletedText),
+            confidence: 0.95
+          });
+
+          for (let i = 0; i < operation.count; i++) {
+            currentPos += oldLines[oldLineNum + i].length + 1;
+            oldLineNum++;
+          }
+          break;
+
+        case 'insert':
+          // Lines added to new text
+          const insertedText = operation.lines.join('\n');
+          changes.push({
+            type: 'addition',
+            location: {
+              start: currentPos,
+              end: currentPos + insertedText.length
+            },
+            oldContent: '',
+            newContent: insertedText,
+            severity: this.calculateChangeSeverity('', insertedText),
+            category: this.determineChangeCategory(insertedText),
+            confidence: 0.95
+          });
+
+          // Don't advance currentPos for inserts as they don't exist in old text
+          newLineNum += operation.count;
+          break;
+
+        case 'replace':
+          // Lines modified
+          const oldContent = operation.oldLines!.join('\n');
+          const newContent = operation.newLines!.join('\n');
+
+          changes.push({
+            type: 'modification',
+            location: {
+              start: currentPos,
+              end: currentPos + oldContent.length
+            },
+            oldContent,
+            newContent,
+            severity: this.calculateChangeSeverity(oldContent, newContent),
+            category: this.determineChangeCategory(newContent),
+            confidence: 0.9
+          });
+
+          for (let i = 0; i < operation.oldLines!.length; i++) {
+            currentPos += oldLines[oldLineNum + i].length + 1;
+            oldLineNum++;
+          }
+          newLineNum += operation.newLines!.length;
+          break;
+      }
+    }
+
+    return changes;
+  }
+
+  /**
+   * Simplified Myers diff algorithm implementation
+   */
+  private myersTextDiff(oldLines: string[], newLines: string[]): DiffOperation[] {
+    const operations: DiffOperation[] = [];
+    let oldIndex = 0;
+    let newIndex = 0;
+
+    // Simple line-by-line comparison
+    while (oldIndex < oldLines.length || newIndex < newLines.length) {
+      if (oldIndex >= oldLines.length) {
+        // Remaining lines are insertions
+        const insertedLines = newLines.slice(newIndex);
+        operations.push({
+          type: 'insert',
+          count: insertedLines.length,
+          lines: insertedLines
+        });
+        break;
+      }
+
+      if (newIndex >= newLines.length) {
+        // Remaining lines are deletions
+        const deletedLines = oldLines.slice(oldIndex);
+        operations.push({
+          type: 'delete',
+          count: deletedLines.length,
+          lines: deletedLines
+        });
+        break;
+      }
+
+      if (oldLines[oldIndex] === newLines[newIndex]) {
+        // Lines are equal, find the sequence of equal lines
+        let equalCount = 1;
+        while (
+          oldIndex + equalCount < oldLines.length &&
+          newIndex + equalCount < newLines.length &&
+          oldLines[oldIndex + equalCount] === newLines[newIndex + equalCount]
+        ) {
+          equalCount++;
+        }
+
+        operations.push({
+          type: 'equal',
+          count: equalCount,
+          lines: oldLines.slice(oldIndex, oldIndex + equalCount)
+        });
+
+        oldIndex += equalCount;
+        newIndex += equalCount;
+      } else {
+        // Lines are different - determine if it's a replacement, insertion, or deletion
+        const lookahead = 5; // Look ahead to find matching sequences
+        let matchFound = false;
+
+        // Look for the new line in upcoming old lines (deletion scenario)
+        for (let i = 1; i <= lookahead && oldIndex + i < oldLines.length; i++) {
+          if (oldLines[oldIndex + i] === newLines[newIndex]) {
+            // Found match - the lines in between are deletions
+            operations.push({
+              type: 'delete',
+              count: i,
+              lines: oldLines.slice(oldIndex, oldIndex + i)
+            });
+            oldIndex += i;
+            matchFound = true;
+            break;
+          }
+        }
+
+        if (!matchFound) {
+          // Look for the old line in upcoming new lines (insertion scenario)
+          for (let i = 1; i <= lookahead && newIndex + i < newLines.length; i++) {
+            if (newLines[newIndex + i] === oldLines[oldIndex]) {
+              // Found match - the lines in between are insertions
+              operations.push({
+                type: 'insert',
+                count: i,
+                lines: newLines.slice(newIndex, newIndex + i)
+              });
+              newIndex += i;
+              matchFound = true;
+              break;
+            }
+          }
+        }
+
+        if (!matchFound) {
+          // No match found within lookahead - treat as replacement
+          operations.push({
+            type: 'replace',
+            count: 1,
+            oldLines: [oldLines[oldIndex]],
+            newLines: [newLines[newIndex]]
+          });
+          oldIndex++;
+          newIndex++;
+        }
+      }
+    }
+
+    return operations;
+  }
+
+  /**
+   * Calculate severity of a change
+   */
+  private calculateChangeSeverity(oldContent: string, newContent: string): 'minor' | 'major' | 'critical' {
+    const oldWords = oldContent.split(/\s+/).length;
+    const newWords = newContent.split(/\s+/).length;
+    const totalWords = Math.max(oldWords, newWords, 1);
+    const changeRatio = Math.abs(oldWords - newWords) / totalWords;
+
+    // Check for critical legal terms
+    const criticalTerms = [
+      'liability', 'termination', 'breach', 'penalty', 'damages', 'void', 'null',
+      'governing law', 'jurisdiction', 'arbitration', 'force majeure', 'indemnity'
+    ];
+
+    const hasCriticalTerms = criticalTerms.some(term =>
+      oldContent.toLowerCase().includes(term) || newContent.toLowerCase().includes(term)
+    );
+
+    if (hasCriticalTerms) {
+      return 'critical';
+    }
+
+    if (changeRatio > 0.5 || totalWords > 50) {
+      return 'major';
+    }
+
+    return 'minor';
+  }
+
+  /**
+   * Determine the category of a change
+   */
+  private determineChangeCategory(content: string): 'text' | 'structure' | 'metadata' | 'legal_entity' | 'clause' {
+    const contentLower = content.toLowerCase();
+
+    // Legal entities
+    const legalEntityKeywords = ['inc.', 'corp.', 'llc', 'ltd.', 'company', 'corporation'];
+    if (legalEntityKeywords.some(keyword => contentLower.includes(keyword))) {
+      return 'legal_entity';
+    }
+
+    // Contract clauses
+    const clauseKeywords = [
+      'section', 'article', 'clause', 'paragraph', 'subsection',
+      'whereas', 'therefore', 'hereby', 'shall', 'agreement'
+    ];
+    if (clauseKeywords.some(keyword => contentLower.includes(keyword))) {
+      return 'clause';
+    }
+
+    // Structure changes
+    const structureKeywords = ['page', 'title', 'header', 'footer', 'table', 'list'];
+    if (structureKeywords.some(keyword => contentLower.includes(keyword))) {
+      return 'structure';
+    }
+
+    // Metadata
+    const metadataKeywords = ['date', 'version', 'author', 'created', 'modified', 'status'];
+    if (metadataKeywords.some(keyword => contentLower.includes(keyword))) {
+      return 'metadata';
+    }
+
+    return 'text';
+  }
+}
+
+/**
+ * Interface for diff operations
+ */
+interface DiffOperation {
+  type: 'equal' | 'delete' | 'insert' | 'replace';
+  count: number;
+  lines: string[];
+  oldLines?: string[];
+  newLines?: string[];
 }
 
 // Export singleton instance

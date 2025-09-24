@@ -100,10 +100,10 @@ export class CitationService {
       // Store extended context information
       await this.storeCitationContext(citation.id, context, chunk);
 
-      console.log(`Created citation: ${citation.id}`);
+      // Logging disabled for production
       return citation.id;
     } catch (error: unknown) {
-      console.error('Error creating citation:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to create citation: ${message}`);
     }
@@ -493,7 +493,7 @@ export class CitationService {
     
     await this.promisifyRequest(store.put(updatedCitation));
     
-    console.log(`Updated citation: ${citationId}`);
+    // Logging disabled for production
   }
 
   async deleteCitation(citationId: string): Promise<void> {
@@ -514,7 +514,7 @@ export class CitationService {
       // Context might not exist
     }
     
-    console.log(`Deleted citation: ${citationId}`);
+    // Logging disabled for production
   }
 
   async removeCitationsForDocument(documentId: string): Promise<void> {
@@ -524,7 +524,7 @@ export class CitationService {
       await this.deleteCitation(citation.id);
     }
     
-    console.log(`Removed ${citations.length} citations for document: ${documentId}`);
+    // Logging disabled for production
   }
 
   async getCitationStats(): Promise<{

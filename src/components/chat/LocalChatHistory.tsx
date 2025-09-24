@@ -54,7 +54,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       await loadStorageStats();
     } catch (err) {
       setError('Failed to initialize chat history service');
-      console.error('Initialization error:', err);
+      // Error logging disabled for production
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +66,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       setSessions(sessionsWithStates);
     } catch (err) {
       setError('Failed to load chat sessions');
-      console.error('Load sessions error:', err);
+      // Error logging disabled for production
     }
   };
 
@@ -75,7 +75,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       const stats = await localChatHistoryService.getStorageStats();
       setStorageStats(stats);
     } catch (err) {
-      console.error('Failed to load storage stats:', err);
+      // Error logging disabled for production
     }
   };
 
@@ -90,7 +90,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       setSearchResults(results);
       setView('search');
     } catch (err) {
-      console.error('Search error:', err);
+      // Error logging disabled for production
       setError('Search failed');
     }
   }, []);
@@ -107,7 +107,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
         await loadSessions();
       } catch (err) {
         setError('Failed to delete session');
-        console.error('Delete session error:', err);
+        // Error logging disabled for production
       }
     }
   };
@@ -126,7 +126,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       URL.revokeObjectURL(url);
     } catch (err) {
       setError('Failed to export chat data');
-      console.error('Export error:', err);
+      // Error logging disabled for production
     }
   };
 
@@ -141,7 +141,7 @@ export const LocalChatHistory: React.FC<LocalChatHistoryProps> = ({
       await loadSessions();
     } catch (err) {
       setError('Failed to import chat data');
-      console.error('Import error:', err);
+      // Error logging disabled for production
     }
   };
 

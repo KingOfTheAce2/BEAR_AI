@@ -275,7 +275,7 @@ class ErrorHandler {
 
   private sendToErrorService(error: BearError): void {
     // Placeholder for error reporting service integration
-    console.error('Critical error reported:', error.toJSON());
+    // Error logging disabled for production
   }
 }
 

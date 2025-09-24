@@ -278,7 +278,7 @@ class SecureCodeExecutionService {
         }
 
         // Execute only safe operations
-        if (trimmedCode.startsWith('console.log(')) {
+        if (trimmedCode.startsWith('// console.log(')) {
           const match = trimmedCode.match(/console\.log\((.+)\)$/);
           if (match) {
             const content = match[1];

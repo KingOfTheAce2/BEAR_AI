@@ -82,7 +82,7 @@ export class AuthMiddleware {
 
         next();
       } catch (error) {
-        console.error('Authentication error:', error);
+        // Error logging disabled for production
         res.status(500).json({
           error: 'Authentication service error',
           code: 'AUTH_SERVICE_ERROR'

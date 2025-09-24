@@ -442,7 +442,7 @@ export class DORACompliance {
   }
 
   private submitInitialNotification(report: any): void {
-    console.log('[DORA] Initial notification submitted:', report);
+    // Logging disabled for production
   }
 
   private performDetailedAnalysis(incident: ICTIncident): any {
@@ -458,7 +458,7 @@ export class DORACompliance {
   }
 
   private submitIntermediateReport(report: any): void {
-    console.log('[DORA] Intermediate report submitted:', report);
+    // Logging disabled for production
   }
 
   private performRootCauseAnalysis(incident: ICTIncident): any {
@@ -474,7 +474,7 @@ export class DORACompliance {
   }
 
   private submitFinalReport(report: any): void {
-    console.log('[DORA] Final report submitted:', report);
+    // Logging disabled for production
   }
 
   private conductVulnerabilityAssessments(): any {

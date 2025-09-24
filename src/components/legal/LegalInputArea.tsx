@@ -141,7 +141,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       setSelectedQuickAction(null);
       setShowQuickActions(false);
     } catch (error) {
-      console.error('Error sending message:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -184,7 +184,7 @@ export const LegalInputArea = forwardRef<HTMLTextAreaElement, LegalInputAreaProp
       mediaRecorder.start();
       setIsRecording(true);
     } catch (error) {
-      console.error('Error starting voice recording:', error);
+      // Error logging disabled for production
     }
   };
 

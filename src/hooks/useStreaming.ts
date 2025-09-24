@@ -121,7 +121,7 @@ export const useStreaming = (options: UseStreamingOptions = {}): UseStreamingRet
       setIsStreaming(false);
       currentMessageRef.current = '';
     } catch (err) {
-      console.error('Disconnect error:', err);
+      // Error logging disabled for production
     }
   }, [service]);
 

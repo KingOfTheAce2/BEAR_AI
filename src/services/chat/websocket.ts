@@ -21,7 +21,7 @@ class ChatWebSocketService {
         this.ws = new WebSocket(this.url);
         
         this.ws.onopen = () => {
-          console.log('WebSocket connected');
+          // Logging disabled for production
           this.reconnectAttempts = 0;
           this.sendPresence('online');
           resolve();
@@ -32,17 +32,17 @@ class ChatWebSocketService {
             const message: WebSocketMessage = JSON.parse(event.data);
             this.handleMessage(message);
           } catch (error) {
-            console.error('Failed to parse WebSocket message:', error);
+            // Error logging disabled for production
           }
         };
 
         this.ws.onclose = () => {
-          console.log('WebSocket disconnected');
+          // Logging disabled for production
           this.attemptReconnect();
         };
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          // Error logging disabled for production
           reject(error);
         };
       } catch (error) {
@@ -147,7 +147,7 @@ class ChatWebSocketService {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket is not connected');
+      // Warning logging disabled for production
     }
   }
 
@@ -187,15 +187,15 @@ class ChatWebSocketService {
   private attemptReconnect(): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+      // Logging disabled for production
       
       setTimeout(() => {
         this.connect().catch(error => {
-          console.error('Reconnection failed:', error);
+          // Error logging disabled for production
         });
       }, this.reconnectDelay * this.reconnectAttempts);
     } else {
-      console.error('Max reconnection attempts reached');
+      // Error logging disabled for production
       this.emit('connection_lost', null);
     }
   }

@@ -190,7 +190,7 @@ export class SMSMFAService {
         });
       } else {
         // Mock SMS sending in development
-        console.log(`SMS to ${phoneNumber}: ${message}`);
+        // Logging disabled for production
       }
 
       return { success: true, code };
@@ -260,7 +260,7 @@ export class EmailMFAService {
         await this.emailTransporter.sendMail(mailOptions);
       } else {
         // Mock email sending in development
-        console.log(`Email to ${email}: Verification code ${code}`);
+        // Logging disabled for production
       }
 
       return { success: true, code };

@@ -61,7 +61,7 @@ export const KnowledgeAnalyticsComponent: React.FC = () => {
       const knowledgeStats = await knowledgeBase.getStats();
       setStats(knowledgeStats);
     } catch (err) {
-      console.error('Error loading stats:', err);
+      // Error logging disabled for production
       setError('Failed to load knowledge base statistics');
     }
   };
@@ -74,7 +74,7 @@ export const KnowledgeAnalyticsComponent: React.FC = () => {
       const result = await knowledgeBase.getAnalytics(query);
       setAnalyticsResult(result);
     } catch (err) {
-      console.error('Error running analytics:', err);
+      // Error logging disabled for production
       setError('Failed to run analytics query');
     } finally {
       setLoading(false);

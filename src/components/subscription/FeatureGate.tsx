@@ -86,7 +86,7 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
       await upgradeSubscription(selectedTier);
       setShowUpgrade(false);
     } catch (error) {
-      console.error('Upgrade failed:', error);
+      // Error logging disabled for production
     }
   };
 

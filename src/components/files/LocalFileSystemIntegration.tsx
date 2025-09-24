@@ -52,7 +52,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
       // Load initial sync status
       setSyncStatus(offlineSyncService.getSyncStatus());
     } catch (error) {
-      console.error('Failed to initialize services:', error);
+      // Error logging disabled for production
       onError?.('Failed to initialize file system services');
     }
   };
@@ -68,7 +68,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
       setStorageStats(storage);
       setSecurityStats(security);
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -90,7 +90,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
 
       if (scanResult.warnings.length > 0) {
         const warningMessages = scanResult.warnings.map(w => w.description).join(', ');
-        console.warn(`Security warnings for ${file.name}: ${warningMessages}`);
+        // Warning logging disabled for production
       }
 
       // Extract metadata
@@ -105,7 +105,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
 
       loadStats();
     } catch (error) {
-      console.error('Failed to process file:', error);
+      // Error logging disabled for production
       onError?.(`Failed to process file: ${file.name}`);
     }
   }, [onError]);
@@ -149,7 +149,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
         });
       }
     } catch (error) {
-      console.error('Failed to update tags:', error);
+      // Error logging disabled for production
       onError?.('Failed to update tags');
     }
   }, [onError]);
@@ -164,7 +164,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
     try {
       await offlineSyncService.forceSync();
     } catch (error) {
-      console.error('Sync failed:', error);
+      // Error logging disabled for production
       onError?.('Synchronization failed');
     }
   }, [onError]);
@@ -173,7 +173,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
     try {
       await offlineSyncService.clearFailedOperations();
     } catch (error) {
-      console.error('Failed to clear operations:', error);
+      // Error logging disabled for production
       onError?.('Failed to clear failed operations');
     }
   }, [onError]);
@@ -192,7 +192,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      // Error logging disabled for production
       onError?.('Failed to export data');
     }
   }, [onError]);
@@ -350,7 +350,7 @@ export const LocalFileSystemIntegration: React.FC<LocalFileSystemIntegrationProp
           <FileUploadProcessor
             onJobComplete={handleJobComplete}
             onAllJobsComplete={(jobs) => {
-              console.log('All jobs completed:', jobs);
+              // Logging disabled for production
               loadStats();
             }}
             onError={onError}

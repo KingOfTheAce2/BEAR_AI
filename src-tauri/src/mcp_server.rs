@@ -1265,10 +1265,10 @@ impl MCPServer {
             task_id: task.task_id.clone(),
             agent_id: agent.id,
             output: response_text,
-            confidence: 0.85, // TODO: Calculate actual confidence
+            confidence: self.calculate_confidence(&response_text, &task.input),
             reasoning: "Analysis completed using local LLM".to_string(),
-            citations: Vec::new(), // TODO: Extract citations from response
-            follow_up_questions: Vec::new(), // TODO: Generate follow-up questions
+            citations: self.extract_citations(&response_text),
+            follow_up_questions: self.generate_follow_up_questions(&response_text, &task.input),
             completion_time: chrono::Utc::now(),
             status: TaskStatus::Completed,
         };
@@ -1554,6 +1554,178 @@ impl MCPServer {
     /// Get task result
     pub fn get_task_result(&self, task_id: &str) -> Option<AgentResponse> {
         self.task_results.lock().unwrap().get(task_id).cloned()
+    }
+
+    /// Calculate confidence score for agent response
+    fn calculate_confidence(&self, response_text: &str, input: &str) -> f32 {
+        let mut confidence = 0.5; // Base confidence
+
+        // Factor 1: Response length - longer responses generally more detailed
+        let response_words = response_text.split_whitespace().count();
+        let input_words = input.split_whitespace().count();
+        let length_ratio = response_words as f32 / (input_words as f32).max(1.0);
+
+        if length_ratio > 2.0 {
+            confidence += 0.2; // Detailed response
+        } else if length_ratio < 0.5 {
+            confidence -= 0.1; // Very short response
+        }
+
+        // Factor 2: Presence of legal terms and structure
+        let legal_indicators = [
+            "pursuant to", "whereas", "therefore", "hereby", "heretofore",
+            "section", "clause", "statute", "regulation", "compliance",
+            "liability", "obligation", "breach", "contract", "agreement",
+            "jurisdiction", "court", "legal", "law", "attorney", "counsel"
+        ];
+
+        let legal_term_count = legal_indicators.iter()
+            .filter(|&term| response_text.to_lowercase().contains(term))
+            .count();
+
+        confidence += (legal_term_count as f32 * 0.02).min(0.2);
+
+        // Factor 3: Structure indicators (numbered lists, headings, etc.)
+        if response_text.contains("1.") || response_text.contains("(a)") {
+            confidence += 0.1; // Well-structured response
+        }
+
+        // Factor 4: Citation-like patterns
+        if response_text.contains("v.") ||
+           response_text.matches(r"\d+\s+U\.S\.C\.").count() > 0 ||
+           response_text.matches(r"\d+\s+F\.\d+d").count() > 0 {
+            confidence += 0.15; // Contains legal citations
+        }
+
+        // Factor 5: Avoid overconfidence with uncertainty markers
+        let uncertainty_markers = ["may", "might", "possibly", "potentially", "unclear", "uncertain"];
+        let uncertainty_count = uncertainty_markers.iter()
+            .filter(|&marker| response_text.to_lowercase().contains(marker))
+            .count();
+
+        if uncertainty_count > 3 {
+            confidence -= 0.1; // High uncertainty in response
+        }
+
+        // Clamp confidence between 0.1 and 0.95
+        confidence.max(0.1).min(0.95)
+    }
+
+    /// Extract legal citations from response text
+    fn extract_citations(&self, response_text: &str) -> Vec<String> {
+        let mut citations = Vec::new();
+
+        // Pattern 1: U.S.C. (United States Code)
+        let usc_regex = regex::Regex::new(r"\d+\s+U\.S\.C\.?\s*§?\s*\d+").unwrap();
+        for cap in usc_regex.find_iter(response_text) {
+            citations.push(cap.as_str().to_string());
+        }
+
+        // Pattern 2: Federal Reporter (F.2d, F.3d)
+        let federal_regex = regex::Regex::new(r"\d+\s+F\.\d*d\s+\d+").unwrap();
+        for cap in federal_regex.find_iter(response_text) {
+            citations.push(cap.as_str().to_string());
+        }
+
+        // Pattern 3: U.S. Supreme Court (U.S.)
+        let scotus_regex = regex::Regex::new(r"\d+\s+U\.S\.\s+\d+").unwrap();
+        for cap in scotus_regex.find_iter(response_text) {
+            citations.push(cap.as_str().to_string());
+        }
+
+        // Pattern 4: Case names (Plaintiff v. Defendant)
+        let case_regex = regex::Regex::new(r"[A-Z][a-zA-Z\s&,\.]+\s+v\.\s+[A-Z][a-zA-Z\s&,\.]+").unwrap();
+        for cap in case_regex.find_iter(response_text) {
+            let case_name = cap.as_str().to_string();
+            // Only include if it looks like a real case name (not too long/short)
+            if case_name.len() > 10 && case_name.len() < 100 {
+                citations.push(case_name);
+            }
+        }
+
+        // Pattern 5: Code of Federal Regulations (C.F.R.)
+        let cfr_regex = regex::Regex::new(r"\d+\s+C\.F\.R\.?\s*§?\s*\d+").unwrap();
+        for cap in cfr_regex.find_iter(response_text) {
+            citations.push(cap.as_str().to_string());
+        }
+
+        // Pattern 6: State statutes (basic pattern)
+        let state_regex = regex::Regex::new(r"[A-Z][a-z]+\s+(?:Code|Stat\.?)\s*§?\s*\d+").unwrap();
+        for cap in state_regex.find_iter(response_text) {
+            citations.push(cap.as_str().to_string());
+        }
+
+        // Remove duplicates and sort
+        citations.sort();
+        citations.dedup();
+
+        // Limit to reasonable number
+        citations.truncate(20);
+        citations
+    }
+
+    /// Generate follow-up questions based on the response and input
+    fn generate_follow_up_questions(&self, response_text: &str, input: &str) -> Vec<String> {
+        let mut questions = Vec::new();
+
+        // Analyze the input type and response to generate relevant questions
+        let input_lower = input.to_lowercase();
+        let response_lower = response_text.to_lowercase();
+
+        // Contract analysis follow-ups
+        if input_lower.contains("contract") || input_lower.contains("agreement") {
+            questions.push("What are the key termination provisions in this contract?".to_string());
+            questions.push("Are there any unusual or high-risk clauses that need attention?".to_string());
+            questions.push("What are the dispute resolution mechanisms specified?".to_string());
+
+            if response_lower.contains("liability") {
+                questions.push("How does the liability allocation compare to industry standards?".to_string());
+            }
+
+            if response_lower.contains("payment") {
+                questions.push("What are the consequences of late payment or non-payment?".to_string());
+            }
+        }
+
+        // Legal research follow-ups
+        if input_lower.contains("research") || input_lower.contains("case law") || input_lower.contains("statute") {
+            questions.push("Are there any recent developments or pending cases in this area?".to_string());
+            questions.push("How does the law vary across different jurisdictions?".to_string());
+            questions.push("What are the practical implications for compliance?".to_string());
+
+            if response_lower.contains("federal") {
+                questions.push("How do state laws interact with these federal requirements?".to_string());
+            }
+        }
+
+        // Risk assessment follow-ups
+        if input_lower.contains("risk") || response_lower.contains("risk") {
+            questions.push("What mitigation strategies would you recommend for the highest risks?".to_string());
+            questions.push("How should these risks be communicated to stakeholders?".to_string());
+            questions.push("What monitoring systems should be put in place?".to_string());
+        }
+
+        // Compliance follow-ups
+        if input_lower.contains("compliance") || response_lower.contains("regulation") {
+            questions.push("What are the penalties for non-compliance?".to_string());
+            questions.push("How often should compliance reviews be conducted?".to_string());
+            questions.push("What documentation is required to demonstrate compliance?".to_string());
+        }
+
+        // General legal analysis follow-ups
+        if response_lower.contains("recommend") || response_lower.contains("suggest") {
+            questions.push("What would be the timeline for implementing these recommendations?".to_string());
+            questions.push("What are the cost implications of these recommendations?".to_string());
+        }
+
+        if response_lower.contains("precedent") || response_lower.contains("case") {
+            questions.push("How closely do the facts of this case align with the cited precedents?".to_string());
+            questions.push("Are there any distinguishing factors that might affect the outcome?".to_string());
+        }
+
+        // Limit to 5 most relevant questions
+        questions.truncate(5);
+        questions
     }
 }
 

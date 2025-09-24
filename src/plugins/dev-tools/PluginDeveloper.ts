@@ -484,7 +484,7 @@ export class PluginDeveloper extends EventEmitter {
         }
       }
     } catch (error) {
-      console.warn('Failed to load dev projects:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -609,22 +609,22 @@ class Plugin {
   }
 
   initialize() {
-    console.log('Plugin initialized');
+    // Logging disabled for production
     
     // Setup your plugin here
     this.api.events.on('app:ready', () => {
-      console.log('BEAR AI is ready!');
+      // Logging disabled for production
     });
   }
 
   destroy() {
-    console.log('Plugin destroyed');
+    // Logging disabled for production
     // Cleanup your plugin here
   }
 
   onConfigUpdate(newConfig) {
     this.config = newConfig;
-    console.log('Configuration updated', newConfig);
+    // Logging disabled for production
   }
 }
 
@@ -682,7 +682,7 @@ class DataPlugin {
   async initialize() {
     // Load saved data
     this.data = await this.api.storage.get('plugin_data') || [];
-    console.log('Data plugin initialized with', this.data.length, 'items');
+    // Logging disabled for production
   }
 
   async processData(input) {
@@ -705,7 +705,7 @@ class DataPlugin {
   }
 
   destroy() {
-    console.log('Data plugin destroyed');
+    // Logging disabled for production
   }
 }
 

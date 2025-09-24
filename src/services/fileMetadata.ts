@@ -681,7 +681,7 @@ export class FileMetadataService {
         const result = await this.updateMetadata(id, updateData);
         if (result) successCount++;
       } catch (error) {
-        console.error(`Failed to update metadata for ${id}:`, error);
+        // Error logging disabled for production
       }
     }
 
@@ -707,7 +707,7 @@ export class FileMetadataService {
         await this.saveMetadataToDB(metadata);
         importedCount++;
       } catch (error) {
-        console.error(`Failed to import metadata for ${metadata.id}:`, error);
+        // Error logging disabled for production
       }
     }
 
@@ -757,7 +757,7 @@ export class FileMetadataService {
       const decoder = new TextDecoder(encoding, { fatal: false });
       return decoder.decode(buffer);
     } catch (error) {
-      console.warn('Failed to decode buffer to text:', error);
+      // Warning logging disabled for production
       return undefined;
     }
   }

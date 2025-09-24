@@ -339,7 +339,7 @@ export function useModelManager(options: UseModelManagerOptions = {}) {
         loadedModels: managerRef.current!.getLoadedModels()
       }));
     } catch (error) {
-      console.error('Failed to refresh stats:', error);
+      // Error logging disabled for production
     }
   }, []);
 

@@ -65,7 +65,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
         formats: formatCounts
       });
     } catch (error) {
-      console.error('Failed to load storage stats:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -77,7 +77,7 @@ export const FileSearchIndex: React.FC<FileSearchIndexProps> = ({
       setResults(docs);
       await updateStatsFromDocuments(docs);
     } catch (error) {
-      console.error('Failed to load documents:', error);
+      // Error logging disabled for production
       onError?.('Failed to load documents');
     } finally {
       setLoading(false);

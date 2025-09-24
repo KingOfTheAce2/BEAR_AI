@@ -278,7 +278,7 @@ export class LocalStorageService {
         try {
           await this.buildSearchIndex(storedDoc);
         } catch (error) {
-          console.warn('Failed to build search index:', error);
+          // Warning logging disabled for production
         }
         resolve(storedDoc);
       };
@@ -364,7 +364,7 @@ export class LocalStorageService {
         try {
           await this.buildSearchIndex(updatedDoc);
         } catch (error) {
-          console.warn('Failed to update search index:', error);
+          // Warning logging disabled for production
         }
         resolve(updatedDoc);
       };
@@ -391,7 +391,7 @@ export class LocalStorageService {
         try {
           await this.removeDocumentIndex(id);
         } catch (error) {
-          console.warn('Failed to remove document index:', error);
+          // Warning logging disabled for production
         }
         resolve(true);
       };

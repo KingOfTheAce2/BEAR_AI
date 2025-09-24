@@ -34,7 +34,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       try {
         await resetSettings(activeCategory);
       } catch (err) {
-        console.error('Failed to reset settings:', err);
+        // Error logging disabled for production
       }
     }
   };
@@ -44,7 +44,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       try {
         await resetSettings();
       } catch (err) {
-        console.error('Failed to reset all settings:', err);
+        // Error logging disabled for production
       }
     }
   };

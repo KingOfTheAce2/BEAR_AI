@@ -48,7 +48,7 @@ export function GPUAccelerationProvider({
     setError(null);
 
     try {
-      console.log('🚀 Initializing GPU Acceleration...');
+      // console.log('🚀 Initializing GPU Acceleration...');
       
       // Check GPU availability first
       const gpuAvailable = await isGPUAvailable();
@@ -69,12 +69,12 @@ export function GPUAccelerationProvider({
       setAvailableBackends(gpuService.getAvailableBackends());
       setPerformanceMetrics(gpuService.getPerformanceMetrics());
       
-      console.log('✅ GPU Acceleration initialized successfully');
+      // Logging disabled for production
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
-      console.error('❌ GPU Acceleration initialization failed:', err);
+      // Error logging disabled for production
       return false;
     } finally {
       setIsLoading(false);
@@ -92,13 +92,13 @@ export function GPUAccelerationProvider({
       if (success) {
         setCurrentBackend(backend);
         setPerformanceMetrics(service.getPerformanceMetrics());
-        console.log(`🔄 Switched to ${backend} backend`);
+        // console.log(`🔄 Switched to ${backend} backend`);
       }
       return success;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Backend switch failed';
       setError(errorMessage);
-      console.error('❌ Backend switch failed:', err);
+      // Error logging disabled for production
       return false;
     }
   };
@@ -110,17 +110,17 @@ export function GPUAccelerationProvider({
 
     try {
       setIsLoading(true);
-      console.log('🏃‍♂️ Running GPU benchmark...');
+      // console.log('🏃‍♂️ Running GPU benchmark...');
       
       const results = await service.benchmark();
       setPerformanceMetrics(service.getPerformanceMetrics());
       
-      console.log('📊 Benchmark completed:', results);
+      // console.log('📊 Benchmark completed:', results);
       return results;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Benchmark failed';
       setError(errorMessage);
-      console.error('❌ Benchmark failed:', err);
+      // Error logging disabled for production
       throw err;
     } finally {
       setIsLoading(false);
@@ -133,9 +133,9 @@ export function GPUAccelerationProvider({
         await service.cleanup();
         setService(null);
         setIsInitialized(false);
-        console.log('🧹 GPU service cleaned up');
+        // console.log('🧹 GPU service cleaned up');
       } catch (err) {
-        console.error('❌ Cleanup failed:', err);
+        // Error logging disabled for production
       }
     }
   };

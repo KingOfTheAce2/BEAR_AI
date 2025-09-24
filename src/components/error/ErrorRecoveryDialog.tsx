@@ -327,7 +327,7 @@ export const ErrorRecoveryDialog: React.FC<ErrorRecoveryDialogProps> = ({
       await action.action();
       setCompletedActions(prev => new Set([...prev, action.id]));
     } catch (error) {
-      console.error('Recovery action failed:', error);
+      // Error logging disabled for production
     } finally {
       setExecutingAction(null);
     }
@@ -353,13 +353,13 @@ export const ErrorRecoveryDialog: React.FC<ErrorRecoveryDialogProps> = ({
         } : null
       };
 
-      console.log('Error report submitted:', report);
+      // Logging disabled for production
       setReportSubmitted(true);
       setTimeout(() => {
         setActiveTab('recovery');
       }, 2000);
     } catch (error) {
-      console.error('Failed to submit report:', error);
+      // Error logging disabled for production
     } finally {
       setIsSubmittingReport(false);
     }

@@ -401,7 +401,7 @@ export class LocalModelManager extends EventTarget {
     // Initialize storage directory structure
     try {
       // Create base directory if it doesn't exist
-      console.log(`Initializing storage at: ${this.basePath}`);
+      // Logging disabled for production
     } catch (error) {
       throw new Error(`Failed to initialize storage: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -411,9 +411,9 @@ export class LocalModelManager extends EventTarget {
     try {
       // Load cache index from persistent storage
       // This would read from a JSON file or database
-      console.log('Loading cache index...');
+      // Logging disabled for production
     } catch (error) {
-      console.warn('Failed to load cache index, starting fresh');
+      // Warning logging disabled for production
     }
   }
 
@@ -421,9 +421,9 @@ export class LocalModelManager extends EventTarget {
     try {
       // Save cache index to persistent storage
       const cacheData = Array.from(this.modelCache.entries());
-      console.log(`Saving cache index with ${cacheData.length} entries`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to save cache index:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -573,7 +573,7 @@ export class LocalModelManager extends EventTarget {
 
   private async deleteModelFiles(localPath: string): Promise<void> {
     // Delete model files from storage
-    console.log(`Deleting model files at: ${localPath}`);
+    // Logging disabled for production
   }
 
   private async checkFilesExist(localPath: string, files: any[]): Promise<{

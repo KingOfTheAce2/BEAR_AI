@@ -235,7 +235,7 @@ Timestamp: ${new Date().toISOString()}
               error={error}
               errorInfo={errorInfo || { componentStack: 'Unknown' }}
               onSendReport={(report) => {
-                console.log('Error report:', report)
+                // Error report submitted
                 setShowReport(false)
               }}
               onClose={() => setShowReport(false)}
@@ -352,7 +352,7 @@ const ErrorBoundaryClass: any = class extends (React as any).Component<ErrorBoun
     this.props.onError?.(error, errorInfo || { componentStack: '' })
 
     // Log error for debugging
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    // Error caught by boundary
   }
 
   componentDidUpdate(prevProps: ErrorBoundaryProps) {

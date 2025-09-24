@@ -126,7 +126,7 @@ export class LocalStorageBackupService {
           });
           serializedData = encryptedString;
         } catch (encryptError) {
-          console.warn('Encryption failed, storing unencrypted:', encryptError);
+          // Warning logging disabled for production
           encrypt = false;
           backupData.metadata.encrypted = false;
           backupData.metadata.format = 'json';
@@ -147,7 +147,7 @@ export class LocalStorageBackupService {
 
       return backupData.metadata;
     } catch (error) {
-      console.error('Failed to create backup:', error);
+      // Error logging disabled for production
       throw new Error(`Backup creation failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -252,7 +252,7 @@ export class LocalStorageBackupService {
         warnings
       };
     } catch (error) {
-      console.error('Failed to restore backup:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       return {
         success: false,
@@ -271,7 +271,7 @@ export class LocalStorageBackupService {
       const manifest = this.getBackupManifest();
       return manifest.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } catch (error) {
-      console.error('Failed to list backups:', error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -291,7 +291,7 @@ export class LocalStorageBackupService {
 
       return true;
     } catch (error) {
-      console.error('Failed to delete backup:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -363,7 +363,7 @@ export class LocalStorageBackupService {
 
       return updatedMetadata;
     } catch (error) {
-      console.error('Failed to import backup file:', error);
+      // Error logging disabled for production
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Import failed: ${message}`);
     }
@@ -403,7 +403,7 @@ export class LocalStorageBackupService {
         newestBackup: dates[dates.length - 1] ?? null
       };
     } catch (error) {
-      console.error('Failed to get backup storage stats:', error);
+      // Error logging disabled for production
       return {
         totalBackups: 0,
         totalSize: 0,
@@ -452,7 +452,7 @@ export class LocalStorageBackupService {
       const manifestData = this.getLocalStorageItem(this.MANIFEST_KEY);
       return manifestData ? JSON.parse(manifestData) : [];
     } catch (error) {
-      console.error('Failed to load backup manifest:', error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -483,7 +483,7 @@ export class LocalStorageBackupService {
         await this.deleteBackup(backup.id);
       }
     } catch (error) {
-      console.error('Failed to cleanup old backups:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -511,7 +511,7 @@ export class LocalStorageBackupService {
         this.backupSchedule = { ...this.backupSchedule, ...JSON.parse(settings) };
       }
     } catch (error) {
-      console.error('Failed to load backup settings:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -519,21 +519,21 @@ export class LocalStorageBackupService {
     try {
       this.setLocalStorageItem(this.SETTINGS_KEY, JSON.stringify(this.backupSchedule));
     } catch (error) {
-      console.error('Failed to save backup settings:', error);
+      // Error logging disabled for production
     }
   }
 
   private scheduleNextBackup(): void {
     // Implementation for automatic backup scheduling
     // This would use setTimeout/setInterval based on the schedule
-    console.log('Automatic backup scheduling not yet implemented');
+    // Logging disabled for production
   }
 
   private getLocalStorageItem(key: string): string | null {
     try {
       return localStorage.getItem(key);
     } catch (error) {
-      console.error('Failed to get localStorage item:', key, error);
+      // Error logging disabled for production
       return null;
     }
   }
@@ -542,7 +542,7 @@ export class LocalStorageBackupService {
     try {
       localStorage.setItem(key, value);
     } catch (error) {
-      console.error('Failed to set localStorage item:', key, error);
+      // Error logging disabled for production
       throw error;
     }
   }

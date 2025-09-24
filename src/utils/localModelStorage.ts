@@ -68,7 +68,7 @@ export class LocalModelStorage {
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('IndexedDB initialized successfully for local model storage');
+        // Logging disabled for production
         resolve();
       };
 
@@ -109,7 +109,7 @@ export class LocalModelStorage {
    */
   public async storeDiscoveredModels(directory: string, models: ModelConfig[]): Promise<void> {
     if (!this.db) {
-      console.warn('Database not initialized, falling back to localStorage');
+      // Warning logging disabled for production
       return this.fallbackToLocalStorage('discovered_models', { directory, models });
     }
 
@@ -148,9 +148,9 @@ export class LocalModelStorage {
       dirStore.put(directoryCache);
 
       await this.waitForTransaction(transaction);
-      console.log(`Stored ${models.length} models from ${directory} in local storage`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to store discovered models:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -202,7 +202,7 @@ export class LocalModelStorage {
       store.put({ modelId, ...updated });
       await this.waitForTransaction(transaction);
     } catch (error) {
-      console.error('Failed to store performance data:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -295,7 +295,7 @@ export class LocalModelStorage {
         }
       };
     } catch (error) {
-      console.error('Failed to update last accessed time:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -340,9 +340,9 @@ export class LocalModelStorage {
       }
 
       await this.waitForTransaction(transaction);
-      console.log(`Cleaned up ${toDelete.length} old model entries`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to cleanup storage:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -415,9 +415,9 @@ export class LocalModelStorage {
       }
 
       await this.waitForTransaction(transaction);
-      console.log(`Imported ${data.models.length} models from backup`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to import data:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -503,7 +503,7 @@ export class LocalModelStorage {
     try {
       localStorage.setItem(`BearAI_${key}`, JSON.stringify(data));
     } catch (error) {
-      console.error('Failed to store in localStorage:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -519,7 +519,7 @@ export class LocalModelStorage {
       
       return parsed.models || parsed;
     } catch (error) {
-      console.error('Failed to get from localStorage:', error);
+      // Error logging disabled for production
       return null;
     }
   }

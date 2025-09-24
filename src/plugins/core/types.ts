@@ -42,8 +42,8 @@ export interface PluginConfigSchema {
     type: 'string' | 'number' | 'boolean' | 'select' | 'multiselect' | 'json';
     label: string;
     description?: string;
-    default?: any;
-    options?: Array<{ value: any; label: string }>;
+    default?: unknown;
+    options?: Array<{ value: unknown; label: string }>;
     required?: boolean;
     validation?: {
       pattern?: string;
@@ -66,7 +66,7 @@ export interface PluginInstance {
   metadata: PluginManifest;
   status: PluginStatus;
   sandbox: PluginSandbox;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   api: PluginAPI;
   createdAt: Date;
   lastActive: Date;
@@ -92,8 +92,8 @@ export interface PluginAPI {
 }
 
 export interface PluginStorageAPI {
-  get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<void>;
+  get(key: string): Promise<unknown>;
+  set(key: string, value: unknown): Promise<void>;
   remove(key: string): Promise<void>;
   clear(): Promise<void>;
   keys(): Promise<string[]>;
@@ -101,7 +101,7 @@ export interface PluginStorageAPI {
 
 export interface PluginUIAPI {
   showNotification(message: string, type?: 'info' | 'success' | 'warning' | 'error'): void;
-  showModal(content: string | HTMLElement, options?: ModalOptions): Promise<any>;
+  showModal(content: string | HTMLElement, options?: ModalOptions): Promise<unknown>;
   addMenuItem(menu: string, item: MenuItem): void;
   removeMenuItem(menu: string, itemId: string): void;
   addToolbarButton(button: ToolbarButton): void;
@@ -111,12 +111,12 @@ export interface PluginUIAPI {
   removePanel(panelId: string): void;
 }
 
-export type PluginEventHandler = (...args: any[]) => void;
+export type PluginEventHandler = (...args: unknown[]) => void;
 
 export interface PluginEventAPI {
   on(event: string, handler: PluginEventHandler): void;
   off(event: string, handler: PluginEventHandler): void;
-  emit(event: string, data?: any): void;
+  emit(event: string, data?: unknown): void;
   once(event: string, handler: PluginEventHandler): void;
 }
 
@@ -128,12 +128,12 @@ export interface PluginUtilsAPI {
   };
   http: {
     get(url: string, options?: RequestOptions): Promise<Response>;
-    post(url: string, data: any, options?: RequestOptions): Promise<Response>;
-    put(url: string, data: any, options?: RequestOptions): Promise<Response>;
+    post(url: string, data: unknown, options?: RequestOptions): Promise<Response>;
+    put(url: string, data: unknown, options?: RequestOptions): Promise<Response>;
     delete(url: string, options?: RequestOptions): Promise<Response>;
   };
   validation: {
-    validateConfig(config: any, schema: PluginConfigSchema): ValidationResult;
+    validateConfig(config: unknown, schema: PluginConfigSchema): ValidationResult;
     sanitizeHTML(html: string): string;
     escapeSQL(query: string): string;
   };
@@ -143,9 +143,9 @@ export interface BearAIAPI {
   version: string;
   getModels(): Promise<ModelInfo[]>;
   chat(message: string, options?: ChatOptions): Promise<ChatResponse>;
-  analyze(data: any, type: 'text' | 'image' | 'data'): Promise<AnalysisResult>;
+  analyze(data: unknown, type: 'text' | 'image' | 'data'): Promise<AnalysisResult>;
   getContext(): Promise<AppContext>;
-  executeCommand(command: string, args?: any[]): Promise<any>;
+  executeCommand(command: string, args?: unknown[]): Promise<unknown>;
 }
 
 export interface ModalOptions {
@@ -219,15 +219,15 @@ export interface ChatResponse {
 export interface AnalysisResult {
   type: string;
   confidence: number;
-  results: any;
-  metadata: Record<string, any>;
+  results: unknown;
+  metadata: Record<string, unknown>;
 }
 
 export interface AppContext {
-  user: any;
-  settings: Record<string, any>;
+  user: UserInfo;
+  settings: Record<string, unknown>;
   activeModels: ModelInfo[];
-  memory: any[];
+  memory: MemoryItem[];
 }
 
 export interface PluginInstallOptions {
@@ -255,7 +255,7 @@ export interface PluginDevelopmentConfig {
   hotReload: boolean;
   debugMode: boolean;
   mockAPI: boolean;
-  testData: any;
+  testData: Record<string, unknown>;
   devServer?: {
     port: number;
     host: string;
@@ -274,4 +274,19 @@ export interface LocalPluginRegistry {
   categories: Map<string, string[]>;
   tags: Map<string, string[]>;
   searchIndex: Map<string, Set<string>>;
+}
+
+// Additional interfaces for better typing
+interface UserInfo {
+  id: string;
+  name: string;
+  email?: string;
+  preferences: Record<string, unknown>;
+}
+
+interface MemoryItem {
+  id: string;
+  type: string;
+  content: unknown;
+  timestamp: Date;
 }

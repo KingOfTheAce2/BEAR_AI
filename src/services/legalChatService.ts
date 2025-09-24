@@ -222,7 +222,7 @@ export class LegalChatService {
       };
 
     } catch (error) {
-      console.error('Legal streaming error:', error);
+      // Error logging disabled for production
       yield {
         content: 'I apologize, but I encountered an error while processing your legal query. Please try again or contact support if the issue persists.',
         isComplete: true,

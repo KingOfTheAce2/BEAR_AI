@@ -153,7 +153,7 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
       setSearchResults(results);
       
     } catch (error) {
-      console.error('Error performing search:', error);
+      // Error logging disabled for production
       
       // Fallback mock data
       setSearchResults([
@@ -195,7 +195,7 @@ export const LegalResearchInterface: React.FC<LegalResearchInterfaceProps> = ({
           setSelectedCase(caseDetail);
         }
       } catch (error) {
-        console.error('Error loading case details:', error);
+        // Error logging disabled for production
       }
     }
   };

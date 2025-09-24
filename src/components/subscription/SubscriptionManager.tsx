@@ -47,13 +47,21 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
     const initStripe = async () => {
       try {
         // In a real app, these would come from environment variables or secure storage
+        const stripeSecretKey = process.env.REACT_APP_STRIPE_SECRET_KEY;
+        const stripePublishableKey = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+        const stripeWebhookSecret = process.env.REACT_APP_STRIPE_WEBHOOK_SECRET;
+
+        if (!stripeSecretKey || !stripePublishableKey || !stripeWebhookSecret) {
+          throw new Error('Missing required Stripe environment variables: REACT_APP_STRIPE_SECRET_KEY, REACT_APP_STRIPE_PUBLISHABLE_KEY, REACT_APP_STRIPE_WEBHOOK_SECRET');
+        }
+
         await initializeStripe(
-          process.env.REACT_APP_STRIPE_SECRET_KEY || 'sk_test_...',
-          process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_...',
-          process.env.REACT_APP_STRIPE_WEBHOOK_SECRET || 'whsec_...'
+          stripeSecretKey,
+          stripePublishableKey,
+          stripeWebhookSecret
         );
       } catch (error) {
-        console.error('Failed to initialize Stripe:', error);
+        // Failed to initialize Stripe
       }
     };
 
@@ -79,7 +87,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
       setShowUpgradeModal(false);
       setSelectedTier(null);
     } catch (error) {
-      console.error('Upgrade failed:', error);
+      // Upgrade failed
     }
   };
 
@@ -89,7 +97,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
       await cancelSubscription();
       setShowCancelConfirm(false);
     } catch (error) {
-      console.error('Cancellation failed:', error);
+      // Cancellation failed
     }
   };
 
@@ -98,7 +106,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
     try {
       await resumeSubscription();
     } catch (error) {
-      console.error('Resume failed:', error);
+      // Resume failed
     }
   };
 

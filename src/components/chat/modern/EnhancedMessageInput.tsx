@@ -44,10 +44,10 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
     enableRealTime: enablePIIDetection,
     debounceMs: 500,
     onPIIDetected: (result: PIIDetectionResult) => {
-      console.log('PII detected:', result);
+      // Logging disabled for production
     },
     onHighRiskDetected: (result: PIIDetectionResult) => {
-      console.warn('High-risk PII detected:', result);
+      // Warning logging disabled for production
     },
     config: {
       enableLegalPatterns: true,
@@ -180,10 +180,10 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
         onSendMessage('Available commands:\n' + commands.map(c => `${c.name} - ${c.description}`).join('\n'), 'system');
         break;
       case '/clear':
-        console.log('Clear command');
+        // Logging disabled for production
         break;
       case '/export':
-        console.log('Export command');
+        // Logging disabled for production
         break;
       case '/pii-audit':
         const auditLog = piiActions.getAuditLog();
@@ -241,7 +241,7 @@ const EnhancedMessageInput: React.FC<EnhancedMessageInputProps> = ({
 
   const handlePIIWarningDetails = () => {
     // Could open a detailed PII analysis modal
-    console.log('PII Details:', piiState.lastResult);
+    // Logging disabled for production
   };
 
   const insertCommand = (command: typeof commands[0]) => {

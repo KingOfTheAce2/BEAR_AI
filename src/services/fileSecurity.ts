@@ -526,7 +526,7 @@ export class FileSecurityService {
       };
       localStorage.setItem('bearai_security_data', JSON.stringify(data));
     } catch (error) {
-      console.error('Failed to save security data:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -551,7 +551,7 @@ export class FileSecurityService {
         }
       }
     } catch (error) {
-      console.error('Failed to load security data:', error);
+      // Error logging disabled for production
     }
   }
 }

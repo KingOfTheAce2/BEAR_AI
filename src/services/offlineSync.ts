@@ -60,7 +60,7 @@ export class OfflineSyncService {
     try {
       listener(this.getSyncStatus());
     } catch (error) {
-      console.error('Sync status listener error:', error);
+      // Error logging disabled for production
     }
 
     return () => {
@@ -189,7 +189,7 @@ export class OfflineSyncService {
         this.lastSync = new Date(storedLastSync);
       }
     } catch (error) {
-      console.error('Failed to load offline sync queue from storage:', error);
+      // Error logging disabled for production
       this.syncQueue = [];
     }
   }
@@ -221,7 +221,7 @@ export class OfflineSyncService {
         window.localStorage.removeItem(this.LAST_SYNC_STORAGE_KEY);
       }
     } catch (error) {
-      console.error('Failed to persist offline sync queue:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -265,7 +265,7 @@ export class OfflineSyncService {
       try {
         listener(status);
       } catch (error) {
-        console.error('Offline sync listener failed:', error);
+        // Error logging disabled for production
       }
     });
   }
@@ -574,7 +574,7 @@ export class OfflineSyncService {
 
     // Store in IndexedDB for manual resolution UI
     // Implementation would depend on your conflict resolution UI
-    console.warn('Conflict requires manual resolution:', conflictData);
+    // Warning logging disabled for production
   }
 
   /**

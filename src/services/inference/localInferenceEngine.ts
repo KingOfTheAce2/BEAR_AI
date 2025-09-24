@@ -469,7 +469,7 @@ export class LocalInferenceEngine extends EventEmitter {
         await this.processInference(request);
       } catch (error) {
         // Ignore warmup errors
-        console.warn(`Warmup failed for ${modelConfig.modelId}:`, error);
+        // Warning logging disabled for production
       }
     }
   }

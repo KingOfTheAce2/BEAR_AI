@@ -19,7 +19,7 @@ const BackupRestorePanel: React.FC = () => {
       setBackups(backupList);
     } catch (err) {
       setError('Failed to load backup list');
-      console.error('Error loading backups:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const BackupRestorePanel: React.FC = () => {
       setSuccess('Settings exported successfully');
     } catch (err) {
       setError('Failed to export settings');
-      console.error('Export error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ const BackupRestorePanel: React.FC = () => {
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to import settings');
-      console.error('Import error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
       if (fileInputRef.current) {
@@ -106,7 +106,7 @@ const BackupRestorePanel: React.FC = () => {
       
     } catch (err) {
       setError('Failed to create backup');
-      console.error('Backup creation error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ const BackupRestorePanel: React.FC = () => {
       
     } catch (err) {
       setError('Failed to restore backup');
-      console.error('Restore error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }

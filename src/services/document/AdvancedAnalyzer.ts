@@ -341,7 +341,7 @@ export class AdvancedDocumentAnalyzer {
         ocrResult
       };
     } catch (error) {
-      console.warn('OCR failed, falling back to standard text extraction:', error);
+      // Warning logging disabled for production
 
       // Fallback to standard extraction
       const response = await window.__TAURI__.invoke('analyze_document_file', {
@@ -413,7 +413,7 @@ export class AdvancedDocumentAnalyzer {
           });
         }
       } catch (error) {
-        console.warn('Failed to extract OCR entities:', error);
+        // Warning logging disabled for production
       }
     }
 

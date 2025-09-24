@@ -16,7 +16,7 @@ export class DocumentIndexer {
 
   async indexDocument(document: Document): Promise<string> {
     try {
-      console.log(`Indexing document: ${document.title}`);
+      // Logging disabled for production
       
       // Preprocess document
       const processedDoc = await this.preprocessDocument(document);
@@ -37,10 +37,10 @@ export class DocumentIndexer {
       // Store in vector database
       await this.vectorDb.storeDocument(processedDoc);
       
-      console.log(`Successfully indexed document: ${processedDoc.id}`);
+      // Logging disabled for production
       return processedDoc.id;
     } catch (error) {
-      console.error('Error indexing document:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to index document: ${error.message}`);
     }
   }
@@ -53,7 +53,7 @@ export class DocumentIndexer {
       // Reindex updated version
       await this.indexDocument(document);
     } catch (error) {
-      console.error('Error updating document:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to update document: ${error.message}`);
     }
   }
@@ -62,7 +62,7 @@ export class DocumentIndexer {
     try {
       await this.vectorDb.deleteDocument(documentId);
     } catch (error) {
-      console.error('Error removing document:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to remove document: ${error.message}`);
     }
   }
@@ -313,7 +313,7 @@ export class DocumentIndexer {
   }
 
   private async generateChunkEmbeddings(document: Document): Promise<void> {
-    console.log(`Generating embeddings for ${document.chunks.length} chunks`);
+    // Logging disabled for production
     
     const batchSize = 10; // Process in batches to avoid memory issues
     
@@ -328,7 +328,7 @@ export class DocumentIndexer {
           batch[j].embedding = embeddings[j];
         }
       } catch (error) {
-        console.error('Error generating chunk embeddings:', error);
+        // Error logging disabled for production
         // Continue without embeddings for this batch
       }
     }
@@ -345,7 +345,7 @@ export class DocumentIndexer {
       
       document.embeddings = [titleEmbedding, summaryEmbedding];
     } catch (error) {
-      console.error('Error generating document embeddings:', error);
+      // Error logging disabled for production
       document.embeddings = [];
     }
   }
@@ -391,7 +391,7 @@ export class DocumentIndexer {
     
     for (let i = 0; i < documents.length; i += batchSize) {
       const batch = documents.slice(i, i + batchSize);
-      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(documents.length / batchSize)}`);
+      // Logging disabled for production
       
       const batchResults = await Promise.all(
         batch.map(doc => this.indexDocument(doc))

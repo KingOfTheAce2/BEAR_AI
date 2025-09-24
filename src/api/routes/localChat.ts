@@ -30,7 +30,7 @@ export class LocalChatService {
     try {
       return await localApiClient.getChatSessions();
     } catch (error) {
-      console.error('Failed to get chat sessions:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -46,7 +46,7 @@ export class LocalChatService {
     try {
       return await localApiClient.createChatSession(title, category);
     } catch (error) {
-      console.error('Failed to create chat session:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -66,7 +66,7 @@ export class LocalChatService {
     try {
       return await localApiClient.getChatMessages(sessionId, limit, offset);
     } catch (error) {
-      console.error('Failed to get chat messages:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -105,7 +105,7 @@ export class LocalChatService {
         }
       };
     } catch (error) {
-      console.error('Failed to send message:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -121,7 +121,7 @@ export class LocalChatService {
     try {
       return await localApiClient.deleteChatSession(sessionId);
     } catch (error) {
-      console.error('Failed to delete chat session:', error);
+      // Error logging disabled for production
       throw error;
     }
   }

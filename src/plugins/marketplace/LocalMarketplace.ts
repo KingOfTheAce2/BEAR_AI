@@ -387,7 +387,7 @@ export class LocalMarketplace extends EventEmitter {
         this.localPlugins = new Map(Object.entries(plugins));
       }
     } catch (error) {
-      console.warn('Failed to load local plugins:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -404,7 +404,7 @@ export class LocalMarketplace extends EventEmitter {
         }
       }
     } catch (error) {
-      console.warn('Failed to load collections:', error);
+      // Warning logging disabled for production
     }
   }
 

@@ -58,10 +58,10 @@ export class BearPluginSystem {
       
       this.initialized = true;
       
-      console.log('🔌 BEAR AI Plugin System initialized successfully');
+      // console.log('🔌 BEAR AI Plugin System initialized successfully');
       this.logSystemInfo();
     } catch (error) {
-      console.error('❌ Failed to initialize plugin system:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -237,7 +237,7 @@ export class BearPluginSystem {
   async shutdown(): Promise<void> {
     if (!this.initialized) return;
 
-    console.log('🔌 Shutting down BEAR AI Plugin System...');
+    // console.log('🔌 Shutting down BEAR AI Plugin System...');
 
     await Promise.all([
       this.developer.shutdown(),
@@ -246,7 +246,7 @@ export class BearPluginSystem {
     ]);
 
     this.initialized = false;
-    console.log('✅ Plugin system shutdown complete');
+    // Logging disabled for production
   }
 
   /**
@@ -289,7 +289,7 @@ export class BearPluginSystem {
 
   private logSystemInfo(): void {
     const status = this.getSystemStatus();
-    console.log(`📊 Plugin System Status:
+    // console.log(`📊 Plugin System Status:
     - Total Plugins: ${status.totalPlugins}
     - Enabled Plugins: ${status.enabledPlugins}
     - Marketplace Plugins: ${status.marketplacePlugins}

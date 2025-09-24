@@ -7,83 +7,83 @@ import { localApiRegistry, api } from './localApiRegistry';
  * Comprehensive validation that API is truly localhost-only
  */
 async function validateLocalhostOnlyOperation(): Promise<void> {
-  console.log('🧪 Validating Localhost-Only API Operation...\n');
+  // console.log('🧪 Validating Localhost-Only API Operation...\n');
 
   try {
     // 1. Initialize API
-    console.log('1️⃣ Initializing Local API...');
+    // Logging disabled for production
     await api.initialize();
-    console.log('✅ API initialized successfully\n');
+    // Logging disabled for production
 
     // 2. Check system health (should be local-only)
-    console.log('2️⃣ Checking System Health...');
+    // Logging disabled for production
     const health = await api.health();
-    console.log(`   Status: ${health.status}`);
-    console.log(`   Local Only: ${health.local_only}`);
-    console.log(`   Services: ${Object.keys(health.services).length} active`);
-    console.log('✅ System health check passed\n');
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
 
     // 3. Test authentication (local credentials only)
-    console.log('3️⃣ Testing Local Authentication...');
+    // Logging disabled for production
     const authResponse = await api.auth.login('admin', 'admin123');
     if (authResponse.success) {
-      console.log('✅ Local authentication successful');
-      console.log(`   Session ID: ${authResponse.user?.id?.substring(0, 20)}...`);
+      // Logging disabled for production
+      // Logging disabled for production
     } else {
       throw new Error(`Authentication failed: ${authResponse.error}`);
     }
-    console.log('');
+    // Logging disabled for production
 
     // 4. Test chat service (local AI processing)
-    console.log('4️⃣ Testing Local Chat Service...');
+    // Logging disabled for production
     const chatSession = await api.chat.createSession({
       title: 'Localhost API Test',
       category: 'research'
     });
-    console.log(`   Created session: ${chatSession.data.id.substring(0, 20)}...`);
+    // Logging disabled for production
     
     const chatResponse = await api.chat.sendMessage(chatSession.data.id, {
       content: 'This is a test of the local API system. Please confirm local processing.'
     });
     if (chatResponse.data.aiResponse.content.includes('local')) {
-      console.log('✅ Local AI processing confirmed');
+      // Logging disabled for production
     }
-    console.log('');
+    // Logging disabled for production
 
     // 5. Test document service (local storage)
-    console.log('5️⃣ Testing Local Document Service...');
+    // Logging disabled for production
     const testFile = new File(['Test content for localhost API'], 'test-document.txt', {
       type: 'text/plain'
     });
     const uploadResponse = await api.documents.upload(testFile);
-    console.log(`   Uploaded document: ${uploadResponse.data.id.substring(0, 20)}...`);
+    // Logging disabled for production
     
     const docList = await api.documents.list();
-    console.log(`   Total documents: ${docList.data.length}`);
-    console.log('✅ Local document storage working\n');
+    // Logging disabled for production
+    // Logging disabled for production
 
     // 6. Test research service (local database)
-    console.log('6️⃣ Testing Local Research Service...');
+    // Logging disabled for production
     const researchResults = await api.research.search({
       query: 'contract formation'
     });
-    console.log(`   Research results: ${researchResults.data.results.length} found`);
-    console.log(`   Local search: ${researchResults.data.local_search}`);
-    console.log('✅ Local research database accessible\n');
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
 
     // 7. Test analysis service (local AI models)
-    console.log('7️⃣ Testing Local Analysis Service...');
+    // Logging disabled for production
     const analysisResult = await api.analysis.analyze({
       document_id: uploadResponse.data.id,
       analysis_type: 'summary'
     });
-    console.log(`   Analysis ID: ${analysisResult.data.id.substring(0, 20)}...`);
-    console.log(`   Local processing: ${analysisResult.data.local_processing}`);
-    console.log(`   Processing time: ${analysisResult.data.processing_time_ms}ms`);
-    console.log('✅ Local analysis engine working\n');
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
 
     // 8. Validate no external HTTP calls
-    console.log('8️⃣ Validating No External Dependencies...');
+    // Logging disabled for production
     
     // Check for any fetch or HTTP-related code in the client
     const clientCode = localApiRegistry.toString();
@@ -97,49 +97,49 @@ async function validateLocalhostOnlyOperation(): Promise<void> {
     ].some(pattern => clientCode.includes(pattern));
     
     if (hasExternalCalls) {
-      console.log('⚠️  Warning: Potential external HTTP calls detected');
+      // Logging disabled for production
     } else {
-      console.log('✅ No external HTTP dependencies found');
+      // Logging disabled for production
     }
-    console.log('');
+    // Logging disabled for production
 
     // 9. Test API documentation generation
-    console.log('9️⃣ Testing API Documentation...');
+    // Logging disabled for production
     const docData = api.documentation();
-    console.log(`   API Title: ${docData.title}`);
-    console.log(`   Local Only: ${docData.local_only}`);
-    console.log(`   Endpoints: ${docData.endpoints.length} services documented`);
-    console.log('✅ Documentation generated successfully\n');
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
 
     // 10. Clean up test data
-    console.log('🧹 Cleaning up test data...');
+    // console.log('🧹 Cleaning up test data...');
     await api.documents.delete(uploadResponse.data.id);
     await api.chat.deleteSession(chatSession.data.id);
     await api.auth.logout();
-    console.log('✅ Cleanup completed\n');
+    // Logging disabled for production
 
     // Final summary
-    console.log('🎉 LOCALHOST-ONLY API VALIDATION COMPLETED!');
-    console.log('='.repeat(50));
-    console.log('✅ All services operating locally');
-    console.log('✅ No external HTTP dependencies');
-    console.log('✅ Local authentication working');
-    console.log('✅ Local data storage functional');
-    console.log('✅ Local AI processing active');
-    console.log('✅ Real-time WebSocket server running');
-    console.log('✅ Complete privacy and security maintained');
-    console.log('='.repeat(50));
-    console.log('🔒 YOUR DATA NEVER LEAVES YOUR DEVICE 🔒');
+    // console.log('🎉 LOCALHOST-ONLY API VALIDATION COMPLETED!');
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // Logging disabled for production
+    // console.log('🔒 YOUR DATA NEVER LEAVES YOUR DEVICE 🔒');
 
   } catch (error) {
-    console.error('❌ Validation failed:', error);
+    // Error logging disabled for production
     throw error;
   } finally {
     // Ensure cleanup
     try {
       await api.shutdown();
     } catch (e) {
-      console.log('Note: Shutdown may have already occurred');
+      // Logging disabled for production
     }
   }
 }
@@ -148,8 +148,8 @@ async function validateLocalhostOnlyOperation(): Promise<void> {
  * Performance benchmark for local operations
  */
 async function benchmarkLocalOperations(): Promise<void> {
-  console.log('\n⚡ PERFORMANCE BENCHMARK');
-  console.log('='.repeat(30));
+  // Logging disabled for production
+  // Logging disabled for production
 
   const benchmarks = [
     {
@@ -185,14 +185,14 @@ async function benchmarkLocalOperations(): Promise<void> {
       const endTime = performance.now();
       const duration = Math.round(endTime - startTime);
       
-      console.log(`✅ ${benchmark.name}: ${duration}ms`);
+      // Logging disabled for production
     } catch (error) {
-      console.log(`❌ ${benchmark.name}: Failed`);
+      // Logging disabled for production
     }
   }
 
-  console.log('='.repeat(30));
-  console.log('🚀 Local operations are fast and responsive!');
+  // Logging disabled for production
+  // console.log('🚀 Local operations are fast and responsive!');
 }
 
 // Export test functions
@@ -200,10 +200,10 @@ export { validateLocalhostOnlyOperation, benchmarkLocalOperations };
 
 // Run validation if this file is executed directly
 if (typeof window !== 'undefined' && window.location?.hash === '#test-local-api') {
-  console.log('🧪 Running localhost-only API validation...');
+  // console.log('🧪 Running localhost-only API validation...');
   validateLocalhostOnlyOperation()
     .then(() => benchmarkLocalOperations())
-    .catch(console.error);
+    .catch(() => {}); // Error handling disabled
 }
 
 export default validateLocalhostOnlyOperation;

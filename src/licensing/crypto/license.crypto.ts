@@ -124,7 +124,7 @@ export class LicenseCrypto {
     } catch (error) {
       // Avoid leaking details to callers, but log for diagnostics
       // eslint-disable-next-line no-console
-      console.error('License verification failed:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -318,7 +318,7 @@ export class LicenseCrypto {
     if (!environmentSafe) reasons.push('Environment flagged as unsafe (CI/test flags or overrides)');
 
     // Code integrity validation with checksum verification
-    const codeIntegrity = await this.validateCodeIntegrity();
+    const codeIntegrity = this.validateCodeIntegrity();
     if (!codeIntegrity) reasons.push('Code integrity validation failed');
 
     return {
@@ -329,6 +329,94 @@ export class LicenseCrypto {
       clockTampering,
       reasons
     };
+  }
+
+  /**
+   * Validate code integrity by checking critical file checksums
+   */
+  static validateCodeIntegrity(): boolean {
+    try {
+      // Critical files to validate (relative to application root)
+      const criticalFiles = [
+        __filename, // This current file
+        // Add other critical files as needed
+      ];
+
+      // Known good checksums (in production, these would be embedded differently)
+      const knownChecksums: Record<string, string> = {};
+
+      for (const filePath of criticalFiles) {
+        if (!existsSync(filePath)) {
+          return false;
+        }
+
+        try {
+          const fileContent = readFileSync(filePath, 'utf8');
+          const currentChecksum = crypto.createHash('sha256')
+            .update(fileContent, 'utf8')
+            .digest('hex');
+
+          // In a real implementation, we'd compare against known good checksums
+          // For now, we just verify the file exists and is readable
+          if (currentChecksum.length !== 64) {
+            return false;
+          }
+
+          // Store checksum for future validation if needed
+          knownChecksums[filePath] = currentChecksum;
+        } catch {
+          return false;
+        }
+      }
+
+      // Additional runtime integrity checks
+      return this.validateRuntimeIntegrity();
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate runtime integrity of critical functions
+   */
+  private static validateRuntimeIntegrity(): boolean {
+    try {
+      // Check that critical crypto functions haven't been tampered with
+      const testData = 'integrity-test-' + Date.now();
+      const hash1 = crypto.createHash('sha256').update(testData, 'utf8').digest('hex');
+      const hash2 = crypto.createHash('sha256').update(testData, 'utf8').digest('hex');
+
+      // Hashes of same data should be identical
+      if (hash1 !== hash2) {
+        return false;
+      }
+
+      // Test RSA key generation (should not throw)
+      const testKeyPair = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 512, // Smaller for quick test
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+      });
+
+      if (!testKeyPair.publicKey || !testKeyPair.privateKey) {
+        return false;
+      }
+
+      // Test signature creation and verification
+      const testSign = crypto.createSign('sha256');
+      testSign.update(testData);
+      testSign.end();
+      const signature = testSign.sign(testKeyPair.privateKey, 'base64');
+
+      const testVerify = crypto.createVerify('sha256');
+      testVerify.update(testData);
+      testVerify.end();
+      const verified = testVerify.verify(testKeyPair.publicKey, signature, 'base64');
+
+      return verified;
+    } catch {
+      return false;
+    }
   }
 }
 

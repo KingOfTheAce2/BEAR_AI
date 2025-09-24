@@ -284,7 +284,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                 results={results}
                 searchQuery={query}
                 onResultClick={(result) => {
-                  console.log('Selected result:', result);
+                  // Logging disabled for production
                   setShowResults(false);
                   setIsExpanded(false);
                 }}

@@ -9,14 +9,14 @@
     }
   },
   "database": {
-    "host": "localhost",
+    "host": "${DB_HOST:-localhost}",
     "database": "bear_ai_dev",
     "ssl": false,
     "poolSize": 5
   },
   "api": {
     "main": {
-      "baseUrl": "http://localhost:3001",
+      "baseUrl": "${API_BASE_URL:-http://localhost:3001}",
       "timeout": 10000,
       "rateLimit": {
         "requests": 1000,
@@ -26,7 +26,7 @@
   },
   "models": {
     "gpt4all": {
-      "endpoint": "http://localhost:4891",
+      "endpoint": "${GPT4ALL_ENDPOINT:-http://localhost:4891}",
       "parameters": {
         "temperature": 0.8,
         "maxTokens": 2048
@@ -38,9 +38,9 @@
     "maxLoginAttempts": 10,
     "requireMFA": false,
     "allowedOrigins": [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:5173"
+      "${FRONTEND_URL:-http://localhost:3000}",
+      "${API_URL:-http://localhost:3001}",
+      "${DEV_SERVER_URL:-http://localhost:5173}"
     ]
   },
   "logging": {

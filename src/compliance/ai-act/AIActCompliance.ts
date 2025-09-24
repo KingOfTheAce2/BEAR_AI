@@ -440,12 +440,12 @@ export class AIActCompliance {
 
   private notifyAuthorities(report: any): void {
     // Notify market surveillance authorities
-    console.log('[AI_ACT] Incident reported to authorities:', report);
+    // Logging disabled for production
   }
 
   private logIncident(report: any): void {
     // Log incident for audit trail
-    console.log('[AI_ACT] Incident logged:', report);
+    // Logging disabled for production
   }
 
   private setupRiskManagement(): void {

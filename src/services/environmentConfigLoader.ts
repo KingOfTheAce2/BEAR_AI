@@ -254,10 +254,10 @@ export class EnvironmentConfigLoader {
       writeFileSync(secretsPath, JSON.stringify(secretsConfig, null, 2), 'utf8');
     }
 
-    console.log(`✅ Initialized configuration for ${environment}`);
-    console.log(`📁 Main config: ${configPath}`);
+    // Logging disabled for production
+    // console.log(`📁 Main config: ${configPath}`);
     if (includeSecrets) {
-      console.log(`🔐 Secrets config: ${secretsPath}`);
+      // console.log(`🔐 Secrets config: ${secretsPath}`);
     }
   }
 
@@ -273,7 +273,7 @@ export class EnvironmentConfigLoader {
       if (existsSync(filePath) && !this.watchers.has(filePath)) {
         // In a real implementation, you would use fs.watchFile or chokidar
         // For this example, we'll simulate file watching
-        console.log(`👀 Watching ${filePath} for changes`);
+        // console.log(`👀 Watching ${filePath} for changes`);
       }
     }
   }
@@ -284,7 +284,7 @@ export class EnvironmentConfigLoader {
   disableHotReload(): void {
     for (const [filePath, watcher] of this.watchers) {
       // In a real implementation, you would close the file watcher
-      console.log(`🛑 Stopped watching ${filePath}`);
+      // console.log(`🛑 Stopped watching ${filePath}`);
     }
     this.watchers.clear();
   }

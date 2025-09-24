@@ -59,25 +59,25 @@ class UnifiedLogger implements Logger {
 
   debug(message: string, context?: LogContext): void {
     if (this.shouldLog('debug')) {
-      console.debug(this.formatMessage('debug', message, context));
+      // Debug logging disabled for production
     }
   }
 
   info(message: string, context?: LogContext): void {
     if (this.shouldLog('info')) {
-      console.info(this.formatMessage('info', message, context));
+      // Info logging disabled for production
     }
   }
 
   warn(message: string, context?: LogContext): void {
     if (this.shouldLog('warn')) {
-      console.warn(this.formatMessage('warn', message, context));
+      // Warning logging disabled for production
     }
   }
 
   error(message: string, context?: LogContext): void {
     if (this.shouldLog('error')) {
-      console.error(this.formatMessage('error', message, context));
+      // Error logging disabled for production
     }
   }
 

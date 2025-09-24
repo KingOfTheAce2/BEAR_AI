@@ -31,11 +31,11 @@ export class RAGService {
       const cacheKey = `${query}-${maxChunks}`;
       const cachedContext = this.contextCache.get(cacheKey);
       if (cachedContext) {
-        console.log('Returning cached RAG context');
+        // Logging disabled for production
         return cachedContext;
       }
 
-      console.log(`Retrieving context for query: "${query}"`);
+      // Logging disabled for production
 
       // Phase 1: Semantic retrieval
       const semanticChunks = await this.performSemanticRetrieval(query, maxChunks * 2);
@@ -53,11 +53,11 @@ export class RAGService {
       }, this.cacheTimeout);
 
       const retrievalTime = Date.now() - startTime;
-      console.log(`Context retrieval completed in ${retrievalTime}ms`);
+      // Logging disabled for production
 
       return context;
     } catch (error) {
-      console.error('Error retrieving context:', error);
+      // Error logging disabled for production
       throw new Error(`Context retrieval failed: ${error.message}`);
     }
   }
@@ -532,7 +532,7 @@ export class RAGService {
   // Cache management
   clearCache(): void {
     this.contextCache.clear();
-    console.log('RAG context cache cleared');
+    // Logging disabled for production
   }
 
   getCacheStats(): { size: number; entries: string[] } {

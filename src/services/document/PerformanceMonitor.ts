@@ -61,7 +61,7 @@ export class DocumentPerformanceMonitor {
       this.collectMetrics();
     }, intervalMs);
 
-    console.log('Performance monitoring started');
+    // Logging disabled for production
   }
 
   /**
@@ -73,7 +73,7 @@ export class DocumentPerformanceMonitor {
       this.monitoringInterval = null;
     }
     this.isMonitoring = false;
-    console.log('Performance monitoring stopped');
+    // Logging disabled for production
   }
 
   /**
@@ -116,7 +116,7 @@ export class DocumentPerformanceMonitor {
   async runBenchmarks(): Promise<BenchmarkResult[]> {
     const benchmarks: BenchmarkResult[] = [];
 
-    console.log('Running performance benchmarks...');
+    // Logging disabled for production
 
     // Benchmark 1: Small document processing
     const smallDocBenchmark = await this.benchmarkDocumentSize('small', 100);
@@ -139,7 +139,7 @@ export class DocumentPerformanceMonitor {
     benchmarks.push(batchBenchmark);
 
     this.benchmarks.push(...benchmarks);
-    console.log('Benchmarks completed');
+    // Logging disabled for production
 
     return benchmarks;
   }
@@ -362,7 +362,7 @@ export class DocumentPerformanceMonitor {
       this.alerts = this.alerts.slice(-100);
     }
 
-    console.warn('Performance Alert:', alert);
+    // Warning logging disabled for production
   }
 
   /**

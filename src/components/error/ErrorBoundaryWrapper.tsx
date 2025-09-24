@@ -44,7 +44,7 @@ export class ErrorBoundaryWrapper extends React.Component<ErrorBoundaryWrapperPr
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Error logging disabled for production
     this.props.onError?.(error, errorInfo);
   }
 

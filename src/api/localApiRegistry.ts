@@ -41,37 +41,37 @@ export class LocalApiRegistry {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.log('Local API Registry already initialized');
+      // Logging disabled for production
       return;
     }
 
     try {
-      console.log('🚀 Initializing Local API Registry...');
+      // console.log('🚀 Initializing Local API Registry...');
 
       // Start local WebSocket server for real-time communication
       await localApiServer.start();
-      console.log('✅ Local WebSocket server started');
+      // Logging disabled for production
 
       // Restore any persisted authentication session
       if (localApiClient.loadSessionFromStorage()) {
         const isValid = await localApiClient.validateSession();
         if (isValid) {
-          console.log('✅ Restored authentication session');
+          // Logging disabled for production
         } else {
           localApiClient.clearSessionFromStorage();
-          console.log('🧹 Cleared invalid session');
+          // console.log('🧹 Cleared invalid session');
         }
       }
 
       // Mark as initialized
       this.initialized = true;
-      console.log('🎉 Local API Registry initialized successfully');
+      // console.log('🎉 Local API Registry initialized successfully');
 
       // Log system status
       await this.logSystemStatus();
 
     } catch (error) {
-      console.error('❌ Failed to initialize Local API Registry:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -98,7 +98,7 @@ export class LocalApiRegistry {
     this.services.set('research', localResearch);
     this.services.set('analysis', localAnalysis);
 
-    console.log(`📋 Registered ${this.services.size} local services`);
+    // console.log(`📋 Registered ${this.services.size} local services`);
   }
 
   /**
@@ -243,15 +243,15 @@ export class LocalApiRegistry {
       const health = await this.getHealthStatus();
       const serverStatus = localApiServer.getStatus();
       
-      console.log('📊 Local API System Status:');
-      console.log(`   Overall: ${health.status}`);
-      console.log(`   WebSocket: ${serverStatus.running ? 'Running' : 'Stopped'} (Port ${serverStatus.port})`);
-      console.log(`   Clients: ${serverStatus.clientCount}`);
-      console.log(`   Sessions: ${serverStatus.sessionCount}`);
-      console.log(`   Services: ${Object.keys(health.services).length} registered`);
-      console.log(`   Mode: 100% Local Processing`);
+      // console.log('📊 Local API System Status:');
+      // Logging disabled for production
+      // Logging disabled for production
+      // Logging disabled for production
+      // Logging disabled for production
+      // Logging disabled for production
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to get system status:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -260,25 +260,25 @@ export class LocalApiRegistry {
    */
   async shutdown(): Promise<void> {
     try {
-      console.log('🔄 Shutting down Local API Registry...');
+      // console.log('🔄 Shutting down Local API Registry...');
 
       // Stop WebSocket server
       await localApiServer.stop();
-      console.log('✅ WebSocket server stopped');
+      // Logging disabled for production
 
       // Clear any active sessions
       if (localApiClient.isAuthenticated()) {
         await localApiClient.logout();
-        console.log('✅ Cleared active sessions');
+        // Logging disabled for production
       }
 
       // Clear services
       this.services.clear();
       this.initialized = false;
 
-      console.log('🏁 Local API Registry shutdown complete');
+      // console.log('🏁 Local API Registry shutdown complete');
     } catch (error) {
-      console.error('❌ Error during shutdown:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -462,7 +462,7 @@ export const api = {
 if (typeof window !== 'undefined') {
   // Initialize after a short delay to allow Tauri to be ready
   setTimeout(() => {
-    localApiRegistry.initialize().catch(console.error);
+    localApiRegistry.initialize().catch(() => {}); // Error handling disabled
   }, 100);
 }
 

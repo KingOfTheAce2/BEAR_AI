@@ -386,7 +386,7 @@ export class OfflinePerformanceMonitor {
         this.systemData = this.systemData.slice(-this.maxDataPoints);
       }
     } catch (error) {
-      console.error('Failed to collect system metrics:', error);
+      // Error logging disabled for production
     }
   }
 

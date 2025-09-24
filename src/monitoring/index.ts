@@ -140,16 +140,16 @@ export function setupProductionMonitoring(
     try {
       // Create logger (would use your existing logger)
       const logger = {
-        info: (message: string, data?: any) => console.log(`[INFO] ${message}`, data),
-        warn: (message: string, data?: any) => console.warn(`[WARN] ${message}`, data),
-        error: (message: string, data?: any) => console.error(`[ERROR] ${message}`, data),
-        debug: (message: string, data?: any) => console.debug(`[DEBUG] ${message}`, data)
+        info: (message: string, data?: any) => {/* Logging disabled for production */},
+        warn: (message: string, data?: any) => {/* Logging disabled for production */},
+        error: (message: string, data?: any) => {/* Logging disabled for production */},
+        debug: (message: string, data?: any) => {/* Logging disabled for production */}
       } as Logger;
 
       // Create error handler (would use your existing error handler)
       const errorHandler = {
         handleError: async (error: Error) => {
-          console.error('Monitoring system error:', error);
+          // Error handling disabled for production
           return null;
         },
         on: () => {},
@@ -343,7 +343,6 @@ export async function exampleAdvancedSetup() {
 
   // Get system status
   const status = system.monitoring.getSystemStatus();
-  console.log('System Status:', status);
 
   // Create custom dashboard
   const customDashboard = {
@@ -408,7 +407,7 @@ export async function exampleAdvancedSetup() {
     { test: true }
   );
 
-  console.log('Test incident created:', incidentId);
+  // Test incident created: ${incidentId}
 
   return system;
 }

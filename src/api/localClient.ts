@@ -5,9 +5,9 @@
 const getTauriInvoke = async () => null;
 const isTauriEnvironment = () => false;
 const environmentLog = {
-  info: (message: string, ...args: any[]) => console.log(message, ...args),
-  error: (message: string, ...args: any[]) => console.error(message, ...args),
-  warn: (message: string, ...args: any[]) => console.warn(message, ...args)
+  info: (message: string, ...args: unknown[]) => {}, // console.log(message, ...args),
+  error: (message: string, ...args: unknown[]) => {}, // console.error(message, ...args),
+  warn: (message: string, ...args: unknown[]) => {} // console.warn(message, ...args)
 };
 
 // Types for local API
@@ -80,7 +80,7 @@ export interface LocalApiClientOptions {
 export class LocalApiClient {
   private sessionId: string | null = null;
   private options: LocalApiClientOptions;
-  private invokeFunction: ((command: string, payload?: any) => Promise<any>) | null = null;
+  private invokeFunction: ((command: string, payload?: Record<string, unknown>) => Promise<unknown>) | null = null;
 
   constructor(options: LocalApiClientOptions = {}) {
     this.options = options;
@@ -431,7 +431,7 @@ export class LocalApiClient {
   }
 
   // Research methods
-  async searchResearch(query: LocalSearchQuery): Promise<Record<string, any>> {
+  async searchResearch(query: LocalSearchQuery): Promise<Record<string, unknown>> {
     if (!this.sessionId) {
       throw new Error('Not authenticated');
     }
@@ -450,7 +450,7 @@ export class LocalApiClient {
   }
 
   // Analysis methods
-  async analyzeDocument(request: LocalAnalysisRequest): Promise<Record<string, any>> {
+  async analyzeDocument(request: LocalAnalysisRequest): Promise<Record<string, unknown>> {
     if (!this.sessionId) {
       throw new Error('Not authenticated');
     }
@@ -469,7 +469,7 @@ export class LocalApiClient {
   }
 
   // System methods
-  async getSystemHealth(): Promise<Record<string, any>> {
+  async getSystemHealth(): Promise<Record<string, unknown>> {
     await this.ensureInvokeReady();
     
     try {
@@ -480,7 +480,7 @@ export class LocalApiClient {
     }
   }
 
-  async getSystemStats(): Promise<Record<string, any>> {
+  async getSystemStats(): Promise<Record<string, unknown>> {
     if (!this.sessionId) {
       throw new Error('Not authenticated');
     }
@@ -512,7 +512,7 @@ export class LocalApiClient {
 
   // Error handling
   private handleError(error: string): void {
-    console.error('LocalApiClient error:', error);
+    // Error logging disabled for production
 
     // Check for rate limiting
     if (error.includes('Rate limit exceeded')) {
@@ -563,14 +563,14 @@ export class LocalApiClient {
 // Singleton instance
 export const localApiClient = new LocalApiClient({
   onAuthExpired: () => {
-    console.log('Session expired, please log in again');
+    // Logging disabled for production
     localApiClient.clearSessionFromStorage();
   },
   onRateLimited: (retryAfter) => {
-    console.warn(`Rate limited, retry after ${retryAfter} seconds`);
+    // Warning logging disabled for production
   },
   onError: (error) => {
-    console.error('API Error:', error);
+    // Error logging disabled for production
   }
 });
 
@@ -605,7 +605,7 @@ export const documents = {
     localApiClient.uploadDocument(name, category, fileSize, contentType, tags),
   get: (id: string) => localApiClient.getDocument(id),
   delete: (id: string) => localApiClient.deleteDocument(id),
-  update: (id: string, updates: any) => localApiClient.updateDocument(id, updates)
+  update: (id: string, updates: { name?: string; category?: string; tags?: string[]; }) => localApiClient.updateDocument(id, updates)
 };
 
 export const research = {

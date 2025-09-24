@@ -121,7 +121,7 @@ export const DocumentUpload: FC<DocumentUploadProps> = ({
       try {
         await simulateUpload(file);
       } catch (error) {
-        console.error('Upload error:', error);
+        // Error logging disabled for production
       }
     }
 

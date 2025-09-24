@@ -30,12 +30,12 @@ export class LocalAuthService {
       if (response.success && response.session_id) {
         // Store session locally for persistence
         localApiClient.saveSessionToStorage();
-        console.log('Local authentication successful');
+        // Logging disabled for production
       }
 
       return response;
     } catch (error) {
-      console.error('Local authentication failed:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Authentication failed'
@@ -52,12 +52,12 @@ export class LocalAuthService {
       
       if (success) {
         localApiClient.clearSessionFromStorage();
-        console.log('Local logout successful');
+        // Logging disabled for production
       }
 
       return success;
     } catch (error) {
-      console.error('Local logout failed:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -69,7 +69,7 @@ export class LocalAuthService {
     try {
       return await localApiClient.validateSession();
     } catch (error) {
-      console.error('Session validation failed:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -83,12 +83,12 @@ export class LocalAuthService {
       
       if (response.success) {
         localApiClient.saveSessionToStorage();
-        console.log('Session refresh successful');
+        // Logging disabled for production
       }
 
       return response;
     } catch (error) {
-      console.error('Session refresh failed:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Session refresh failed'
@@ -222,9 +222,9 @@ if (typeof window !== 'undefined') {
       if (!isValid) {
         // Clear invalid session
         localApiClient.clearSessionFromStorage();
-        console.log('Cleared invalid session from storage');
+        // Logging disabled for production
       } else {
-        console.log('Session restored from storage');
+        // Logging disabled for production
       }
     });
   }

@@ -3,7 +3,7 @@
  */
 
 export const mockInvoke = async (command: string, payload?: any): Promise<any> => {
-  console.warn(`[MOCK] Tauri invoke called: ${command}`, payload);
+  // Warning logging disabled for production
   
   // Return reasonable mock responses for each command type
   switch (command) {

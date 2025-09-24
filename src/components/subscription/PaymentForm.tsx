@@ -139,7 +139,7 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
 
         setClientSecret(paymentIntent.client_secret);
       } catch (error) {
-        console.error('Failed to initialize payment:', error);
+        // Failed to initialize payment
         onError('Failed to initialize payment. Please try again.');
       }
     };
@@ -268,7 +268,7 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
         onSuccess(subscription);
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      // Payment error logged
       const errorMessage = error instanceof Error ? error.message : 'Payment failed';
       setPaymentError(errorMessage);
       onError(errorMessage);
@@ -286,9 +286,9 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({
       const result = await invoke('stripe_validate_test_payment', {
         payment_intent_id: clientSecret.split('_secret_')[0],
       });
-      console.log('Test payment validation result:', result);
+      // Payment validation result
     } catch (error) {
-      console.error('Test payment validation error:', error);
+      // Payment validation error
     } finally {
       setProcessing(false);
     }

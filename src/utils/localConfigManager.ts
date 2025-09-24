@@ -170,7 +170,7 @@ export class LocalConfigManager {
       this.configs.set(config.id, config);
       return config;
     } catch (error) {
-      console.error(`Failed to load config from ${configPath}:`, error);
+      // Error logging disabled for production
       return null;
     }
   }
@@ -197,7 +197,7 @@ export class LocalConfigManager {
       await this.watchDirectory(directory);
       
     } catch (error) {
-      console.error(`Failed to discover configs in ${directory}:`, error);
+      // Error logging disabled for production
     }
 
     return configs;
@@ -390,7 +390,7 @@ export class LocalConfigManager {
 
       return imported;
     } catch (error) {
-      console.error('Failed to import configurations:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -425,7 +425,7 @@ export class LocalConfigManager {
 
       return true;
     } catch (error) {
-      console.error(`Failed to delete config ${modelId}:`, error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -483,9 +483,9 @@ export class LocalConfigManager {
         }
       }
 
-      console.log(`Restored ${backup.configs.length} configurations from backup`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to restore configurations:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -719,7 +719,7 @@ export class LocalConfigManager {
       const configData = JSON.stringify(config, null, 2);
       localStorage.setItem(`BearAI_Config_${btoa(filePath)}`, configData);
     } catch (error) {
-      console.error('Failed to write config file:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -727,7 +727,7 @@ export class LocalConfigManager {
     try {
       localStorage.removeItem(`BearAI_Config_${btoa(filePath)}`);
     } catch (error) {
-      console.error('Failed to delete config file:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -737,7 +737,7 @@ export class LocalConfigManager {
       // For now, store in localStorage
       localStorage.setItem(`BearAI_File_${btoa(filePath)}`, content);
     } catch (error) {
-      console.error('Failed to write file:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -753,7 +753,7 @@ export class LocalConfigManager {
   private async watchDirectory(directory: string): Promise<void> {
     // In a real implementation, this would set up file system watchers
     // For web, this might use periodic polling or manual refresh
-    console.log(`Watching directory for changes: ${directory}`);
+    // Logging disabled for production
   }
 
   private loadPersistedConfigs(): void {
@@ -768,7 +768,7 @@ export class LocalConfigManager {
         }
       }
     } catch (error) {
-      console.error('Failed to load persisted configs:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -781,7 +781,7 @@ export class LocalConfigManager {
       const configsData = Object.fromEntries(this.configs.entries());
       localStorage.setItem('BearAI_ModelConfigs', JSON.stringify(configsData));
     } catch (error) {
-      console.error('Failed to persist configs on dispose:', error);
+      // Error logging disabled for production
     }
 
     this.configs.clear();

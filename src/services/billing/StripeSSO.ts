@@ -80,10 +80,13 @@ export class StripeSSOService {
 
   constructor() {
     this.stripePublishableKey = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '';
-    this.apiBaseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:1420';
+    const defaultApiUrl = process.env.NODE_ENV === 'production'
+      ? 'https://api.bear-ai.app'
+      : 'http://localhost:1420';
+    this.apiBaseUrl = process.env.REACT_APP_API_BASE_URL || defaultApiUrl;
 
     if (!this.stripePublishableKey) {
-      console.warn('Stripe publishable key not configured');
+      // Warning logging disabled for production
     }
   }
 
@@ -124,7 +127,7 @@ export class StripeSSOService {
         data: customer
       };
     } catch (error) {
-      console.error('Create customer error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create customer'
@@ -177,7 +180,7 @@ export class StripeSSOService {
         data: workspaceBilling
       };
     } catch (error) {
-      console.error('Setup workspace billing error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to setup workspace billing'
@@ -214,7 +217,7 @@ export class StripeSSOService {
         data: workspaceBilling
       };
     } catch (error) {
-      console.error('Get workspace billing error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to get workspace billing'
@@ -254,7 +257,7 @@ export class StripeSSOService {
         data: result
       };
     } catch (error) {
-      console.error('Add user to workspace error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to add user to workspace'
@@ -297,7 +300,7 @@ export class StripeSSOService {
         data: result
       };
     } catch (error) {
-      console.error('Update subscription error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update subscription'
@@ -347,7 +350,7 @@ export class StripeSSOService {
         actionUrl: session.url
       };
     } catch (error) {
-      console.error('Create payment session error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create payment session'
@@ -378,7 +381,7 @@ export class StripeSSOService {
         data: result
       };
     } catch (error) {
-      console.error('Handle subscription update error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to handle subscription update'
@@ -414,7 +417,7 @@ export class StripeSSOService {
         data: result
       };
     } catch (error) {
-      console.error('Cancel subscription error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to cancel subscription'
@@ -448,7 +451,7 @@ export class StripeSSOService {
         data: history
       };
     } catch (error) {
-      console.error('Get billing history error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to get billing history'
@@ -486,7 +489,7 @@ export class StripeSSOService {
         actionUrl: session.url
       };
     } catch (error) {
-      console.error('Create portal session error:', error);
+      // Error logging disabled for production
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create portal session'

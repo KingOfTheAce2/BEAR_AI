@@ -308,8 +308,8 @@ export const MollieConfig = {
         locale: MOLLIE_LOCALES.EN_US,
         defaultCurrency: MOLLIE_CURRENCIES.EUR,
         enabledMethods: MollieUtils.getEuropeanPaymentMethods(),
-        redirectUrl: 'http://localhost:3000/payment/return',
-        webhookUrl: 'http://localhost:3000/webhooks/mollie',
+        redirectUrl: process.env.PAYMENT_REDIRECT_URL || (process.env.NODE_ENV === 'production' ? 'https://bear-ai.app/payment/return' : 'http://localhost:3000/payment/return'),
+        webhookUrl: process.env.PAYMENT_WEBHOOK_URL || (process.env.NODE_ENV === 'production' ? 'https://bear-ai.app/webhooks/mollie' : 'http://localhost:3000/webhooks/mollie'),
         ...overrides
     }),
 

@@ -157,7 +157,7 @@ export class PluginSandboxManager extends EventEmitter {
   /**
    * Send message to plugin sandbox
    */
-  async sendMessage(plugin: PluginInstance, message: any): Promise<any> {
+  async sendMessage(plugin: PluginInstance, message: SandboxMessage): Promise<unknown> {
     const sandbox = this.sandboxes.get(plugin.id);
     if (!sandbox) {
       throw new Error(`No sandbox found for plugin ${plugin.id}`);
@@ -385,7 +385,7 @@ export class PluginSandboxManager extends EventEmitter {
     return '';
   }
 
-  private createSandboxAPI(plugin: PluginInstance): any {
+  private createSandboxAPI(plugin: PluginInstance): SandboxAPI {
     // Create restricted API object for sandbox
     return {
       pluginId: plugin.id,
@@ -411,7 +411,7 @@ export class PluginSandboxManager extends EventEmitter {
     }
   }
 
-  private handleSandboxMessage(pluginId: string, message: any): void {
+  private handleSandboxMessage(pluginId: string, message: SandboxMessage): void {
     switch (message.type) {
       case 'error':
         this.emit('error', { type: 'plugin_error', pluginId, error: message.error });
@@ -457,4 +457,36 @@ interface ResourceUsage {
   network: number;
   storage: number;
   fileSystem: number;
+}
+
+// Additional interfaces for sandbox messaging
+interface SandboxMessage {
+  type: string;
+  pluginId?: string;
+  config?: Record<string, unknown>;
+  api?: SandboxAPI;
+  code?: string;
+  permissions?: PluginPermission[];
+  messageId?: string;
+  error?: string;
+  result?: unknown;
+  level?: string;
+  message?: string;
+  method?: string;
+  args?: unknown[];
+}
+
+interface SandboxAPI {
+  pluginId: string;
+  version: string;
+  permissions: string[];
+}
+
+interface AgentInfo {
+  id: string;
+  type: string;
+  config: Record<string, unknown>;
+  status: 'idle' | 'busy' | 'error';
+  createdAt: Date;
+  currentTask?: string;
 }

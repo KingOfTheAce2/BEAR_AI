@@ -571,11 +571,11 @@ export class ErrorHandler extends EventEmitter {
     try {
       // In a real implementation, this would send to an error tracking service
       if (this.config.debugMode) {
-        console.group(`🔥 Error Report: ${error.id}`);
-        console.error('Error:', error.originalError);
-        console.log('Processed Error:', error);
-        console.log('Breadcrumbs:', error.reportingData.breadcrumbs);
-        console.groupEnd();
+        // Error report logging disabled
+        // Error logging disabled for production
+        // Logging disabled for production
+        // Logging disabled for production
+        // Error report end
       }
 
       // Emit event for external error reporting services
@@ -705,6 +705,6 @@ export const handleError = async (
     return await globalErrorHandler.handleError(error, context);
   }
   
-  console.error('No global error handler configured', error);
+  // Error logging disabled for production
   return null;
 };

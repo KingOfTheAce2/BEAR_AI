@@ -325,7 +325,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ monitor, config }) => {
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      // Error logging disabled for production
     }
   };
 

@@ -143,7 +143,7 @@ export const LocalChatInterface: React.FC<LocalChatInterfaceProps> = ({
           loadSession(mockSessions[0].id);
         }
       } catch (error) {
-        console.error('Failed to load sessions:', error);
+        // Error logging disabled for production
       }
     };
 
@@ -196,7 +196,7 @@ export const LocalChatInterface: React.FC<LocalChatInterfaceProps> = ({
       setCurrentSession(session);
       onSessionChange?.(session);
     } catch (error) {
-      console.error('Failed to load session:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -318,7 +318,7 @@ export const LocalChatInterface: React.FC<LocalChatInterfaceProps> = ({
               }
             : msg
         ));
-        console.error('Generation error:', error);
+        // Error logging disabled for production
       }
     } finally {
       setIsGenerating(false);
@@ -402,7 +402,7 @@ Would you like me to analyze the specific language of your clause in more detail
         setCurrentSession(updatedSession);
       }
     } catch (error) {
-      console.error('Failed to save session:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -410,7 +410,7 @@ Would you like me to analyze the specific language of your clause in more detail
     try {
       await navigator.clipboard.writeText(content);
     } catch (error) {
-      console.error('Failed to copy message:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -438,7 +438,7 @@ Would you like me to analyze the specific language of your clause in more detail
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to export session:', error);
+      // Error logging disabled for production
     }
   };
 

@@ -438,16 +438,16 @@ class ErrorHandler {
     // Use console methods based on severity
     switch (error.severity) {
       case ErrorSeverity.LOW:
-        console.info('Error (Low):', error.message, logData);
+        // Info logging disabled for production
         break;
       case ErrorSeverity.MEDIUM:
-        console.warn('Error (Medium):', error.message, logData);
+        // Warning logging disabled for production
         break;
       case ErrorSeverity.HIGH:
-        console.error('Error (High):', error.message, logData);
+        // Error logging disabled for production
         break;
       case ErrorSeverity.CRITICAL:
-        console.error('Error (Critical):', error.message, logData, error.stack);
+        // Error logging disabled for production
         break;
     }
   }
@@ -460,7 +460,7 @@ class ErrorHandler {
       try {
         listener(error);
       } catch (listenerError) {
-        console.error('Error listener failed:', listenerError);
+        // Error logging disabled for production
       }
     });
   }
@@ -472,7 +472,7 @@ class ErrorHandler {
     // In production, send to error monitoring service
     if (process.env['NODE_ENV'] === 'production') {
       // Example: Send to Sentry, Bugsnag, etc.
-      console.error('Critical error reported:', error.toJSON());
+      // Error logging disabled for production
     }
   }
 
@@ -562,7 +562,7 @@ export function setupGlobalErrorHandling(): void {
         }
       );
       
-      console.error('Unhandled promise rejection:', error);
+      // Error logging disabled for production
       event.preventDefault(); // Prevent default browser behavior
     });
 
@@ -583,7 +583,7 @@ export function setupGlobalErrorHandling(): void {
         }
       );
       
-      console.error('Uncaught error:', error);
+      // Error logging disabled for production
     });
   }
 }

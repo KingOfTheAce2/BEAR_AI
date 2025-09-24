@@ -32,20 +32,20 @@ export class EmbeddingService {
     if (this.isInitialized) return;
 
     try {
-      console.log('Loading ONNX runtime...');
+      // Logging disabled for production
       await this.loadONNXRuntime();
       
-      console.log('Loading embedding model...');
+      // Logging disabled for production
       await this.loadModel();
       
-      console.log('Loading tokenizer...');
+      // Logging disabled for production
       await this.loadTokenizer();
       
       this.model.loaded = true;
       this.isInitialized = true;
-      console.log(`Embedding service initialized with model: ${this.model.name}`);
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to initialize embedding service:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to initialize embedding service: ${error.message}`);
     }
   }
@@ -61,7 +61,7 @@ export class EmbeddingService {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.16.3/dist/ort.min.js';
       script.onload = () => {
-        console.log('ONNX runtime loaded successfully');
+        // Logging disabled for production
         resolve();
       };
       script.onerror = () => {
@@ -75,9 +75,9 @@ export class EmbeddingService {
     try {
       // Try to load the model from local assets first
       this.session = await window.ort.InferenceSession.create(this.modelPath);
-      console.log('Model loaded from local assets');
+      // Logging disabled for production
     } catch (error) {
-      console.warn('Local model not found, using fallback...');
+      // Warning logging disabled for production
       // Fallback: Use a simplified embedding approach
       await this.initializeFallbackEmbedding();
     }
@@ -85,7 +85,7 @@ export class EmbeddingService {
 
   private async initializeFallbackEmbedding(): Promise<void> {
     // Simple TF-IDF based embedding as fallback
-    console.log('Using TF-IDF fallback for embeddings');
+    // Logging disabled for production
     this.session = {
       isFallback: true,
       vocabulary: new Map(),
@@ -97,9 +97,9 @@ export class EmbeddingService {
     try {
       const response = await fetch(this.tokenizerPath);
       this.tokenizer = await response.json();
-      console.log('Tokenizer loaded successfully');
+      // Logging disabled for production
     } catch (error) {
-      console.warn('Tokenizer not found, using simple tokenization');
+      // Warning logging disabled for production
       this.tokenizer = {
         isSimple: true,
         vocab: this.createSimpleVocab()
@@ -129,7 +129,7 @@ export class EmbeddingService {
         return this.generateONNXEmbedding(text);
       }
     } catch (error) {
-      console.error('Error generating embedding:', error);
+      // Error logging disabled for production
       // Return a zero embedding as fallback
       return new Float32Array(this.model.dimensions);
     }

@@ -79,13 +79,13 @@ export class LocalChatHistoryService {
       const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
 
       request.onerror = () => {
-        console.error('Failed to open IndexedDB:', request.error);
+        // Error logging disabled for production
         reject(new Error('Failed to initialize chat history database'));
       };
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('Chat history database initialized successfully');
+        // Logging disabled for production
         resolve();
       };
 
@@ -169,7 +169,7 @@ export class LocalChatHistoryService {
         });
         isEncrypted = true;
       } catch (error) {
-        console.warn('Encryption failed, storing unencrypted:', error);
+        // Warning logging disabled for production
       }
     }
 
@@ -227,7 +227,7 @@ export class LocalChatHistoryService {
           });
           message.content = decryptedContent;
         } catch (error) {
-          console.error('Decryption failed for message:', message.id, error);
+          // Error logging disabled for production
           message.content = '[Encrypted content - decryption failed]';
         }
       }
@@ -302,7 +302,7 @@ export class LocalChatHistoryService {
               salt: new Uint8Array(encryptedData.salt)
             });
           } catch (error) {
-            console.error('Decryption failed during search:', error);
+            // Error logging disabled for production
             continue;
           }
         }
@@ -388,7 +388,7 @@ export class LocalChatHistoryService {
 
         imported++;
       } catch (error) {
-        console.error('Failed to import session:', sessionData.session.id, error);
+        // Error logging disabled for production
         errors++;
       }
     }

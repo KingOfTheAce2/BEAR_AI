@@ -131,13 +131,13 @@ class PerformanceOptimizer {
     const interval = Math.max(15000, intervalMs);
     this.autoOptimizationHandle = setInterval(() => {
       this.runOptimizationCycle(true).catch(error => {
-        console.error('Auto optimization cycle failed', error);
+        // Error logging disabled for production
       });
     }, interval);
 
     this.stats.autoOptimizationEnabled = true;
     this.runOptimizationCycle(true).catch(error => {
-      console.error('Initial auto optimization run failed', error);
+      // Error logging disabled for production
     });
   }
 
@@ -166,7 +166,7 @@ class PerformanceOptimizer {
       this.stats.appliedOptimizations += 1;
       return true;
     } catch (error) {
-      console.error('Failed to apply optimization suggestion', error);
+      // Error logging disabled for production
       return false;
     }
   }

@@ -76,10 +76,10 @@ export class DocumentVersioningService {
       // Store individual changes
       await this.storeChanges(version.id, changes);
 
-      console.log(`Created version ${nextVersion} for document ${originalDocument.id}`);
+      // Logging disabled for production
       return version;
     } catch (error) {
-      console.error('Error creating version:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to create version: ${error.message}`);
     }
   }
@@ -360,10 +360,10 @@ export class DocumentVersioningService {
         `System (reverted to v${targetVersion})`
       );
 
-      console.log(`Reverted document ${documentId} to version ${targetVersion}`);
+      // Logging disabled for production
       return revertedDocument;
     } catch (error) {
-      console.error('Error reverting document:', error);
+      // Error logging disabled for production
       throw new Error(`Failed to revert document: ${error.message}`);
     }
   }
@@ -504,7 +504,7 @@ export class DocumentVersioningService {
       }
     }
 
-    console.log(`Deleted version history for document ${documentId}`);
+    // Logging disabled for production
   }
 
   async getVersionStats(documentId: string): Promise<{

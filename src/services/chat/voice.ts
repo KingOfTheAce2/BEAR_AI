@@ -109,7 +109,7 @@ export default class VoiceService {
         this.isListening = false;
       };
     } catch (error) {
-      console.error('Failed to initialize speech recognition', error);
+      // Error logging disabled for production
       this.onError('Voice recognition is not supported in this browser.');
       this.recognition = null;
     }
@@ -141,7 +141,7 @@ export default class VoiceService {
       this.recognition.start();
       this.isListening = true;
     } catch (error) {
-      console.error('Failed to start voice recognition', error);
+      // Error logging disabled for production
       this.onError('Unable to start voice recognition.');
     }
   }

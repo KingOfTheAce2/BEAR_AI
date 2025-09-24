@@ -1079,7 +1079,7 @@ export class DashboardManager {
       this.customDashboards.set(config.id, config);
       return true;
     } catch (error) {
-      console.error('Failed to import dashboard:', error);
+      // Error logging disabled for production
       return false;
     }
   }

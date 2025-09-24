@@ -16,7 +16,7 @@
     }
   },
   "database": {
-    "host": "localhost",
+    "host": "${DB_HOST:-localhost}",
     "port": 5432,
     "database": "bear_ai",
     "username": "bear_ai",
@@ -27,7 +27,7 @@
   },
   "api": {
     "main": {
-      "baseUrl": "http://localhost:3001",
+      "baseUrl": "${API_BASE_URL:-http://localhost:3001}",
       "timeout": 30000,
       "retries": 3,
       "rateLimit": {
@@ -95,8 +95,8 @@
     "lockoutDuration": 900,
     "requireMFA": false,
     "allowedOrigins": [
-      "http://localhost:3000",
-      "http://localhost:3001"
+      "${FRONTEND_URL:-http://localhost:3000}",
+      "${API_URL:-http://localhost:3001}"
     ],
     "csrfProtection": true
   },

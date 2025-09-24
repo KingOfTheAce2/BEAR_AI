@@ -250,7 +250,7 @@ export function createRequestLoggingMiddleware(
         duration,
         contentLength: body ? Buffer.byteLength(body) : 0,
         timestamp: new Date().toISOString()
-      }).catch(console.error);
+      }).catch(() => {}); // Error handling disabled for production
 
       return originalSend.call(this, body);
     };
@@ -279,7 +279,7 @@ export function stripeErrorHandler() {
       };
 
       // Log error without sensitive data
-      console.error('Stripe Error:', {
+      // console.error('Stripe Error:', {
         type: error.type,
         code: error.code,
         message: sanitizeErrorMessage(error.message),

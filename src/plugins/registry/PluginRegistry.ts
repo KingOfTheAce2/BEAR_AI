@@ -181,7 +181,7 @@ export class PluginRegistry extends EventEmitter {
             plugins.push(plugin);
           }
         } catch (error) {
-          console.warn(`Failed to parse plugin data for ${key}:`, error);
+          // Warning logging disabled for production
         }
       }
     }
@@ -345,7 +345,7 @@ export class PluginRegistry extends EventEmitter {
             size: localStorage.getItem(key)?.length || 0
           });
         } catch (error) {
-          console.warn(`Failed to parse backup data for ${key}:`, error);
+          // Warning logging disabled for production
         }
       }
     }
@@ -450,7 +450,7 @@ export class PluginRegistry extends EventEmitter {
         }
       }
     } catch (error) {
-      console.warn('Failed to load registry from storage:', error);
+      // Warning logging disabled for production
     }
   }
 

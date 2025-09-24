@@ -114,7 +114,7 @@ export class LocalInferenceOptimizer {
       }
     } catch (error) {
       // Fallback to simpler options on error
-      console.warn('Inference failed with optimizations, retrying with basic options:', error);
+      // Warning logging disabled for production
       result = await generateFunction(prompt, options);
       optimizations.push('fallback-recovery');
     }
@@ -208,7 +208,7 @@ export class LocalInferenceOptimizer {
     try {
       this.persistCache();
     } catch (error) {
-      console.warn('Failed to persist cache entry:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -580,7 +580,7 @@ export class LocalInferenceOptimizer {
         }
       }
     } catch (error) {
-      console.warn('Failed to load persisted cache:', error);
+      // Warning logging disabled for production
     }
   }
 

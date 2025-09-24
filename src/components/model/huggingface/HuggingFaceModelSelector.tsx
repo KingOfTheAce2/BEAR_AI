@@ -613,7 +613,7 @@ export const HuggingFaceModelSelector: React.FC<HuggingFaceModelSelectorProps> =
 
   const handleViewDetails = useCallback((model: HuggingFaceModel) => {
     // Open model details modal/panel
-    console.log('View details for:', model.modelId);
+    // Logging disabled for production
   }, []);
 
   return (

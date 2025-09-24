@@ -69,15 +69,15 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
           newMap.delete(modelId);
           return newMap;
         });
-        console.log(`Model ${modelId} download completed`);
+        // Logging disabled for production
       });
 
       // Load any cached models
       const downloadedModels = localModelManager.getDownloadedModels();
-      console.log(`Found ${downloadedModels.length} locally cached models`);
+      // Logging disabled for production
 
     } catch (error) {
-      console.error('Failed to initialize HuggingFace system:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -87,10 +87,10 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       setCompatibility(result);
 
       if (!result.compatible) {
-        console.warn('Model compatibility issues:', result.issues);
+        // Warning logging disabled for production
       }
     } catch (error) {
-      console.error('Compatibility check failed:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -117,7 +117,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
         autoOptimize: true
       });
     } catch (error) {
-      console.error('Model download failed:', error);
+      // Error logging disabled for production
       window.alert(`Failed to download ${model.modelId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -138,9 +138,9 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       const switchDuration = Math.round(now() - startTime);
       setSelectedModel(model);
       onModelChange(model);
-      console.log('Model switch completed in', switchDuration, 'ms');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Model switch failed:', error);
+      // Error logging disabled for production
       window.alert(`Failed to switch to ${model.modelId}`);
     }
   };
@@ -152,12 +152,12 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       setActiveView('benchmark');
 
       const result = await benchmarking.benchmarkModel(selectedModel, progress => {
-        console.log(
+        // console.log(
           `Benchmark progress: ${progress.current}/${progress.total} - ${progress.stage}`
         );
       });
 
-      console.log('Benchmark result:', result);
+      // Logging disabled for production
 
       const latencyScore = Math.max(0, 100 - result.metrics.latency.mean);
       const throughputScore = Math.min(result.metrics.throughput.tokensPerSecond, 100);
@@ -173,7 +173,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       );
 
     } catch (error) {
-      console.error('Benchmark failed:', error);
+      // Error logging disabled for production
       window.alert('Benchmark failed. Check console for details.');
     }
   };
@@ -185,15 +185,15 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       // In a real implementation, this would start an actual fine-tuning job
       const jobId = `ft-${selectedModel.id}-${Date.now()}`;
       
-      console.log('Starting fine-tuning job:', jobId);
-      console.log('Configuration:', config);
+      // Logging disabled for production
+      // Logging disabled for production
       
       // Simulate job creation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       return jobId;
     } catch (error) {
-      console.error('Failed to create fine-tuning job:', error);
+      // Error logging disabled for production
       throw error;
     }
   };
@@ -221,7 +221,7 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
       await checkModelCompatibility(selectedModel);
 
     } catch (error) {
-      console.error('Optimization failed:', error);
+      // Error logging disabled for production
       window.alert('Failed to apply optimizations');
     }
   };
@@ -249,14 +249,14 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
           return true;
         });
 
-      console.log('Model recommendations:', recommendations);
+      // Logging disabled for production
 
       window.alert(
         `Found ${recommendations.length} recommended models across ${categories.length} legal tasks.`
       );
 
     } catch (error) {
-      console.error('Failed to get recommendations:', error);
+      // Error logging disabled for production
     }
   };
 
@@ -377,13 +377,13 @@ export const HuggingFaceIntegrationExample: React.FC<HuggingFaceIntegrationExamp
             model={selectedModel}
             onJobCreate={handleFineTuningJobCreate}
             onJobCancel={async (jobId) => {
-              console.log('Cancelling job:', jobId);
+              // Logging disabled for production
             }}
             onJobPause={async (jobId) => {
-              console.log('Pausing job:', jobId);
+              // Logging disabled for production
             }}
             onJobResume={async (jobId) => {
-              console.log('Resuming job:', jobId);
+              // Logging disabled for production
             }}
             className="h-full"
           />

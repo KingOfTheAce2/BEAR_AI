@@ -136,7 +136,7 @@ export const LegalDashboard: React.FC<LegalDashboardProps> = ({
         setRecentActivity(activityData.activities || []);
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      // Error logging disabled for production
       
       // Fallback mock data
       setStats({

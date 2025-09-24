@@ -55,7 +55,7 @@ export class EncryptionService {
       // Store encrypted keys in IndexedDB for persistence
       await this.persistKeys();
     } catch (error) {
-      console.error('Encryption initialization failed:', error);
+      // Error logging disabled for production
       throw new Error('Failed to initialize encryption service');
     }
   }
@@ -136,7 +136,7 @@ export class EncryptionService {
       // This is a placeholder for the actual key loading logic
       return true;
     } catch (error) {
-      console.error('Failed to load persisted keys:', error);
+      // Error logging disabled for production
       return false;
     }
   }

@@ -11,6 +11,21 @@ import { PluginSecurityManager } from '../security/SecurityManager';
 import { PluginRegistry } from '../registry/PluginRegistry';
 import { PluginConfigManager } from './ConfigManager';
 
+// Error interfaces for typed error handling
+interface SandboxError {
+  type: string;
+  pluginId?: string;
+  error: Error | string;
+  timestamp?: Date;
+}
+
+interface APIError {
+  type: string;
+  pluginId?: string;
+  error: Error | string;
+  method?: string;
+}
+
 export class PluginManager extends EventEmitter {
   private plugins: Map<string, PluginInstance> = new Map();
   private registry: PluginRegistry;
@@ -297,7 +312,7 @@ export class PluginManager extends EventEmitter {
   /**
    * Update plugin configuration
    */
-  async updatePluginConfig(pluginId: string, config: Record<string, any>): Promise<void> {
+  async updatePluginConfig(pluginId: string, config: Record<string, unknown>): Promise<void> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       throw new Error(`Plugin ${pluginId} not found`);
@@ -371,12 +386,12 @@ export class PluginManager extends EventEmitter {
     });
 
     // Sandbox errors
-    this.sandboxManager.on('error', (data: any) => {
+    this.sandboxManager.on('error', (data: SandboxError) => {
       this.emit('error', { type: 'sandbox', ...data });
     });
 
     // API errors
-    this.apiProvider.on('error', (data: any) => {
+    this.apiProvider.on('error', (data: APIError) => {
       this.emit('error', { type: 'api', ...data });
     });
   }
@@ -392,7 +407,7 @@ export class PluginManager extends EventEmitter {
         try {
           await this.enablePlugin(plugin.id);
         } catch (error) {
-          console.warn(`Failed to auto-enable plugin ${plugin.id}:`, error);
+          // Warning logging disabled for production
           plugin.status = 'error';
         }
       }

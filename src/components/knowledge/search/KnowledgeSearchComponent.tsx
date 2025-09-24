@@ -79,7 +79,7 @@ export const KnowledgeSearchComponent: React.FC<KnowledgeSearchProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Search failed';
       setError(errorMessage);
-      console.error('Search error:', err);
+      // Error logging disabled for production
     } finally {
       setLoading(false);
     }

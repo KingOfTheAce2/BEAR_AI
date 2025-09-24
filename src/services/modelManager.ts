@@ -97,17 +97,17 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
           }
         });
       } catch (error) {
-        console.warn(`Failed to discover models in ${directory}:`, error);
+        // Warning logging disabled for production
         
         // Try to load from local cache if directory scan fails
         try {
           const cachedModels = await this.localStorage.getCachedModels(directory);
           if (cachedModels.length > 0) {
             allModels.push(...cachedModels);
-            console.info(`Loaded ${cachedModels.length} models from cache for ${directory}`);
+            // Info logging disabled for production
           }
         } catch (cacheError) {
-          console.warn(`Failed to load cached models for ${directory}:`, cacheError);
+          // Warning logging disabled for production
         }
       }
     }
@@ -415,7 +415,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
         data: { memoryFreed: model.memoryUsage }
       });
     } catch (error) {
-      console.error(`Failed to unload model ${modelId}:`, error);
+      // Error logging disabled for production
       // Still remove from tracking even if unloading failed
       this.loadedModels.delete(modelId);
       this.memoryLoader.unregisterModel(modelId);
@@ -628,7 +628,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       
       return models;
     } catch (error) {
-      console.error(`Failed to discover GPT4ALL models in ${directory}:`, error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -675,7 +675,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       // Unload inactive models
       modelsToUnload.forEach(modelId => {
         this.unloadModel(modelId).catch(error => {
-          console.error(`Failed to auto-unload model ${modelId}:`, error);
+          // Error logging disabled for production
         });
       });
     }, checkInterval);
@@ -777,7 +777,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       try {
         await this.loadModel(modelId, { forceLoad: true });
       } catch (error) {
-        console.error(`Failed to reload model ${modelId}:`, error);
+        // Error logging disabled for production
       }
     }, 5000); // Retry after 5 seconds
   }
@@ -828,7 +828,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
         try {
           listener(event);
         } catch (error) {
-          console.error('Error in event listener:', error);
+          // Error logging disabled for production
         }
       });
     }
@@ -839,7 +839,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
    */
   private async initializeLocalStorage(): Promise<void> {
     try {
-      console.log('Initializing local-first model management...');
+      // Logging disabled for production
       
       // Load any previously discovered models from cache
       const cachedDirectories = this.modelDirectories;
@@ -850,13 +850,13 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
             this.registerModel(model);
           }
         } catch (error) {
-          console.warn(`Failed to load cached models from ${directory}:`, error);
+          // Warning logging disabled for production
         }
       }
       
-      console.log('Local storage initialization complete');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to initialize local storage:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -894,16 +894,16 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
           
           models.push(model);
           
-          console.log(`Enhanced model discovered: ${model.name} with ${capabilities.features?.length || 0} capabilities`);
+          // Logging disabled for production
         } catch (error) {
-          console.warn(`Failed to enhance model ${model.name}:`, error);
+          // Warning logging disabled for production
           models.push(model); // Add basic model even if enhancement fails
         }
       }
       
       return models;
     } catch (error) {
-      console.error(`Failed recursive discovery in ${directory}:`, error);
+      // Error logging disabled for production
       return [];
     }
   }
@@ -915,7 +915,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
     try {
       // In a real implementation, this would use file system watchers
       // For web, we might use periodic polling or manual refresh triggers
-      console.log(`Setting up directory watcher for: ${directory}`);
+      // Logging disabled for production
       
       // Store directory for future reference
       this.watchedDirectories.set(directory, {
@@ -925,7 +925,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       });
       
     } catch (error) {
-      console.warn(`Failed to setup directory watcher for ${directory}:`, error);
+      // Warning logging disabled for production
     }
   }
 
@@ -1060,9 +1060,9 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       
       // Performance data import would be handled if needed
       
-      console.log('Successfully imported local data from backup');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to import local data:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -1117,7 +1117,7 @@ export class CoreModelManager extends EventEmitter implements ModelManager {
       this.performanceMonitor.dispose();
       this.configManager.dispose();
     } catch (error) {
-      console.error('Error disposing enhanced components:', error);
+      // Error logging disabled for production
     }
     
     // Original disposal logic

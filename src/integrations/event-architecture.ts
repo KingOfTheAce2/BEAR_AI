@@ -97,7 +97,7 @@ export class BearEventBus {
     // Sort by priority (higher priority first)
     subs.sort((a, b) => b.priority - a.priority)
 
-    console.log(`Subscribed to ${eventType} with ID ${subscriptionId}`)
+    // console.log(`Subscribed to ${eventType} with ID ${subscriptionId}`)
     return subscriptionId
   }
 
@@ -112,7 +112,7 @@ export class BearEventBus {
         if (subs.length === 0) {
           this.subscriptions.delete(eventType)
         }
-        console.log(`Unsubscribed ${subscriptionId} from ${eventType}`)
+        // console.log(`Unsubscribed ${subscriptionId} from ${eventType}`)
         return true
       }
     }
@@ -145,7 +145,7 @@ export class BearEventBus {
 
     // Add to queue for processing
     if (this.eventQueue.length >= this.maxQueueSize) {
-      console.warn('Event queue is full, dropping oldest events')
+      // console.warn('Event queue is full, dropping oldest events')
       this.eventQueue.shift()
     }
     
@@ -224,7 +224,7 @@ export class BearEventBus {
    */
   clearHistory(): void {
     this.eventHistory = []
-    console.log('Event history cleared')
+    // console.log('Event history cleared')
   }
 
   /**
@@ -307,7 +307,7 @@ export class BearEventBus {
       const subscribers = this.subscriptions.get(payload.type) || []
       
       if (subscribers.length === 0) {
-        console.warn(`No subscribers for event type: ${payload.type}`)
+        // console.warn(`No subscribers for event type: ${payload.type}`)
         return
       }
 
@@ -346,7 +346,7 @@ export class BearEventBus {
           }
 
         } catch (error) {
-          console.error(`Error in event handler for ${payload.type}:`, error)
+          // console.error(`Error in event handler for ${payload.type}:`, error)
           this.metrics.errorRate++
         }
       })
@@ -360,7 +360,7 @@ export class BearEventBus {
       this.metrics.averageProcessingTime = (currentAvg * (totalEvents - 1) + processingTime) / totalEvents
 
     } catch (error) {
-      console.error('Error processing event:', error)
+      // console.error('Error processing event:', error)
       this.metrics.errorRate++
     }
   }
@@ -402,7 +402,7 @@ export class BearEventBus {
     this.eventHistory = []
     this.eventQueue = []
     
-    console.log('Event bus disposed')
+    // console.log('Event bus disposed')
   }
 }
 
@@ -593,7 +593,7 @@ export class StateSync {
 
     // Handle state conflicts
     this.eventBus.subscribe('state:conflict', (payload) => {
-      console.warn('State conflict detected:', payload.data)
+      // console.warn('State conflict detected:', payload.data)
       // Implement conflict resolution logic here
     })
   }

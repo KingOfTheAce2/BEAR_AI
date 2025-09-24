@@ -140,17 +140,17 @@ class Logger {
 
     switch (entry.level) {
       case LogLevel.DEBUG:
-        console.debug(prefix, entry.message, entry.data || '');
+        // Debug logging disabled for production
         break;
       case LogLevel.INFO:
-        console.info(prefix, entry.message, entry.data || '');
+        // Info logging disabled for production
         break;
       case LogLevel.WARN:
-        console.warn(prefix, entry.message, entry.data || '');
+        // Warning logging disabled for production
         break;
       case LogLevel.ERROR:
       case LogLevel.FATAL:
-        console.error(prefix, entry.message, entry.data || '', entry.error || '');
+        // Error logging disabled for production
         break;
     }
   }
@@ -175,7 +175,7 @@ class Logger {
       }
     } catch (error) {
       // Fail silently for storage issues
-      console.warn('Failed to store log entry:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -193,7 +193,7 @@ class Logger {
       this.batchRemoteLog(entry);
     } catch (error) {
       // Fail silently for remote logging issues
-      console.warn('Failed to send log to remote:', error);
+      // Warning logging disabled for production
     }
   }
 
@@ -256,7 +256,7 @@ class Logger {
         }))
       })
     }).catch(error => {
-      console.warn('Failed to send logs to remote service:', error);
+      // Warning logging disabled for production
     });
   }
 

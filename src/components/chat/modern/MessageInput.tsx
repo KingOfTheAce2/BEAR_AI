@@ -143,11 +143,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
         break;
       case '/clear':
         // This would trigger a clear action in parent
-        console.log('Clear command');
+        // Logging disabled for production
         break;
       case '/export':
         // This would trigger export in parent
-        console.log('Export command');
+        // Logging disabled for production
         break;
       default:
         onSendMessage(message.trim());

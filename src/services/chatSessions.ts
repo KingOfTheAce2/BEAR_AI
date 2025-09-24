@@ -80,9 +80,9 @@ export class ChatSessionService {
       this.startAutoSave();
       this.startOfflineSync();
 
-      console.log('Chat session service initialized successfully');
+      // Logging disabled for production
     } catch (error) {
-      console.error('Failed to initialize session service:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -150,7 +150,7 @@ export class ChatSessionService {
 
       return session;
     } catch (error) {
-      console.error('Failed to switch session:', error);
+      // Error logging disabled for production
       return null;
     }
   }
@@ -177,7 +177,7 @@ export class ChatSessionService {
       
       return message;
     } catch (error) {
-      console.error('Failed to add message:', error);
+      // Error logging disabled for production
       
       // Add to offline queue
       const operation: PendingOperation = {
@@ -241,7 +241,7 @@ export class ChatSessionService {
 
       return true;
     } catch (error) {
-      console.error('Failed to update session:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -275,7 +275,7 @@ export class ChatSessionService {
       await this.persistSessionState();
       return true;
     } catch (error) {
-      console.error('Failed to delete session:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -331,7 +331,7 @@ export class ChatSessionService {
 
       return true;
     } catch (error) {
-      console.error('Failed to restore session backup:', error);
+      // Error logging disabled for production
       return false;
     }
   }
@@ -374,7 +374,7 @@ export class ChatSessionService {
         await this.processOfflineOperation(operation);
         succeeded++;
       } catch (error) {
-        console.error('Failed to process offline operation:', operation, error);
+        // Error logging disabled for production
         
         // Retry logic
         if (operation.retryCount < this.MAX_RETRY_COUNT) {
@@ -400,7 +400,7 @@ export class ChatSessionService {
       this.sessionManager.offlineQueue = [];
       await this.clearPersistedState();
     } catch (error) {
-      console.error('Failed to clear all sessions:', error);
+      // Error logging disabled for production
       throw error;
     }
   }
@@ -452,7 +452,7 @@ export class ChatSessionService {
         });
       }
     } catch (error) {
-      console.error('Failed to load active sessions:', error);
+      // Error logging disabled for production
     }
   }
 
@@ -509,7 +509,7 @@ export class ChatSessionService {
 
       localStorage.setItem('bear_ai_session_state', JSON.stringify(stateData));
     } catch (error) {
-      console.error('Failed to persist session state:', error);
+      // Error logging disabled for production
     }
   }
 
