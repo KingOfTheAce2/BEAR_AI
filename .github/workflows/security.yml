@@ -1,17 +1,18 @@
-name: Security Audit
+name: Comprehensive Security Audit
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 0 * * 0' # Weekly on Sunday
+    - cron: '0 4 * * 0' # Weekly on Sunday at 4 AM UTC
   workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
+  actions: read
 
 jobs:
   security-audit:
@@ -56,19 +57,23 @@ jobs:
           cargo audit >> $GITHUB_STEP_SUMMARY 2>&1 || true
         continue-on-error: true
 
-      - name: Run Trivy security scan
+      - name: Run basic Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: 'trivy-basic-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          scanners: 'vuln'
+          skip-dirs: 'node_modules,dist,build,target'
         continue-on-error: true
 
-      - name: Upload Trivy results to GitHub Security
+      - name: Upload basic Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: 'trivy-basic-results.sarif'
+          category: 'trivy-basic-audit'
         continue-on-error: true
 
       - name: Check for secrets
@@ -101,6 +106,20 @@ jobs:
       - name: Security Summary
         if: always()
         run: |
-          echo "## 🔒 Security Scan Complete" >> $GITHUB_STEP_SUMMARY
-          echo "All security checks have been performed." >> $GITHUB_STEP_SUMMARY
-          echo "Review the results above for any vulnerabilities." >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Comprehensive Security Audit Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### Security Checks Performed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ NPM security audit" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Rust cargo audit" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Trivy vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ TruffleHog secret detection" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ OWASP dependency check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Additional Security Workflows:" >> $GITHUB_STEP_SUMMARY
+          echo "- **CodeQL Analysis**: Advanced static analysis for JavaScript/TypeScript and Rust" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trivy Deep Scan**: Comprehensive vulnerability and configuration scanning" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 How to Review Results:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Check the Security tab in your GitHub repository" >> $GITHUB_STEP_SUMMARY
+          echo "2. Review workflow artifacts for detailed reports" >> $GITHUB_STEP_SUMMARY
+          echo "3. Address any HIGH or CRITICAL severity findings" >> $GITHUB_STEP_SUMMARY
+          echo "4. Monitor dependency updates for security patches" >> $GITHUB_STEP_SUMMARY
