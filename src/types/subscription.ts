@@ -217,17 +217,17 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
     currency: 'usd',
     interval: 'month',
     features: [
-      'Basic AI chat',
-      'Model download and selection',
-      'Local document storage',
+      'Basic AI chat (unlimited sessions)',
+      'Limited model selection (predetermined list)',
+      'View documents only (no uploads)',
       'Basic export options'
     ],
     stripePriceId: '',
     limits: {
-      maxDocuments: 1000,
-      maxAnalysisJobs: 100,
-      maxChatSessions: 50,
-      maxFileSize: 2 * 1024 * 1024 * 1024, // 2GB - Local storage
+      maxDocuments: 0, // No document uploads for free tier
+      maxAnalysisJobs: 0, // No analysis for free tier
+      maxChatSessions: null, // Unlimited chat sessions for free tier
+      maxFileSize: 0, // No file uploads for free tier
       documentAnalysis: false,
       prioritySupport: false,
       apiAccess: false,
@@ -305,10 +305,25 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
 
 // Feature gate definitions
 export const FEATURE_GATES: FeatureConfig = {
+  documentUpload: {
+    requiredTier: SubscriptionTier.PROFESSIONAL,
+    description: 'Upload and manage documents',
+    upgradeMessage: 'Upgrade to Professional to upload documents'
+  },
   documentAnalysis: {
     requiredTier: SubscriptionTier.PROFESSIONAL,
     description: 'Analyze documents with AI-powered insights',
     upgradeMessage: 'Upgrade to Professional to unlock document analysis features'
+  },
+  modelSelection: {
+    requiredTier: SubscriptionTier.PROFESSIONAL,
+    description: 'Select from all available AI models',
+    upgradeMessage: 'Upgrade to Professional to access all AI models'
+  },
+  huggingfaceSearch: {
+    requiredTier: SubscriptionTier.PROFESSIONAL,
+    description: 'Search and download models from HuggingFace',
+    upgradeMessage: 'Upgrade to Professional to search HuggingFace models'
   },
   prioritySupport: {
     requiredTier: SubscriptionTier.PROFESSIONAL,

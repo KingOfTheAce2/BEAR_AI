@@ -14,7 +14,7 @@ tauri-build = { version = "1", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.6.8", default-features = false, features = ["system-tray", "updater"] }
+tauri = { version = "1.6.8", default-features = false, features = ["system-tray", "updater", "api-all", "fs-all", "path-all", "process-all", "shell-open", "dialog-all", "notification-all", "window-all"] }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 log = "0.4"
@@ -51,10 +51,7 @@ windows = { version = "0.48", features = ["Win32_Foundation", "Win32_System_Com"
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.25"
 objc = "0.2"
-# LLM Management dependencies (optional, complex to compile)
-# llama-cpp-sys = { version = "0.1.0", optional = true }
-# llama-cpp = { version = "0.1.0", optional = true }
-# huggingface-hub = "0.3"  # May not exist, use reqwest for API calls
+# NVIDIA Nemotron RAG dependencies
 futures = "0.3"
 bytes = "1.0"
 md5 = "0.7"
@@ -64,16 +61,36 @@ once_cell = "1.19"
 parking_lot = "0.12"
 num_cpus = "1.16"
 sysinfo = "0.30"
-# GPU acceleration (optional)
-# tch = { version = "0.13", optional = true, features = ["cuda", "download-libtorch"] }
-# candle-core = { version = "0.4", optional = true }
-# ort = { version = "1.16", optional = true, features = ["cuda"] }
+lazy_static = "1.4"
+
+# Vector database clients
+qdrant-client = { version = "1.5", optional = true }
+lance = { version = "0.8", optional = true }
+arrow = { version = "45.0", optional = true }
+
+# Machine learning and embeddings
+candle-core = { version = "0.3", optional = true }
+candle-nn = { version = "0.3", optional = true }
+candle-transformers = { version = "0.3", optional = true }
+tokenizers = { version = "0.14", optional = true }
+
+# Caching and performance
+redis = { version = "0.23", features = ["tokio-comp"], optional = true }
+lru = "0.12"
+
+# GPU detection dependencies
+nvml-wrapper = { version = "0.9", optional = true }
+metal = { version = "0.28", optional = true }
 # Document format support
 calamine = "0.24"  # Excel/CSV reading
 xml-rs = "0.8"     # XML parsing for Office formats
 csv = "1.3"        # CSV processing
+# Language detection and NLP
+whatlang = "0.16"  # Language detection
+lopdf = "0.32"     # PDF parsing
 # PDF generation and export
 printpdf = "0.7"   # PDF generation
+pdf-extract = "0.7" # PDF text extraction
 # OCR and image processing
 image = "0.24"     # Image processing
 tempfile = "3.8"   # Temporary file handling
@@ -81,6 +98,9 @@ tempfile = "3.8"   # Temporary file handling
 safetensors = "0.4"
 bincode = "1.3"
 postcard = "1.0"
+# Text processing and NLP (using built-in implementations)
+# stop-words = "0.8"  # Stop words for text processing
+# stemmer = "0.1"     # Word stemming
 # Stripe payment integration
 # stripe = "0.23" # Removed - not available on crates.io, using REST API instead
 serde_urlencoded = "0.7"
@@ -89,14 +109,29 @@ tokio-tungstenite = "0.20"
 futures-util = "0.3"
 
 [features]
-default = ["headless"]
+default = ["headless", "gpu-detection", "qdrant", "nemotron-rag"]
 headless = []
 custom-protocol = ["tauri/custom-protocol"]
 desktop = ["custom-protocol"]
-# llm-management = ["llama-cpp", "llama-cpp-sys"]
-# gpu-cuda = ["tch", "ort"]
-# gpu-metal = ["candle-core"]
-# all-gpu = ["gpu-cuda", "gpu-metal"]
+
+# NVIDIA Nemotron RAG features
+nemotron-rag = ["qdrant", "gpu", "cache"]
+qdrant = ["dep:qdrant-client"]
+lance = ["dep:lance", "dep:arrow"]
+all-databases = ["qdrant", "lance"]
+
+# Machine learning features
+gpu = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers"]
+embedding = ["gpu"]
+
+# Caching
+cache = ["dep:redis"]
+
+# GPU detection
+gpu-detection = ["nvml-wrapper", "metal"]
+
+# Full RAG system with all features
+full-rag = ["nemotron-rag", "all-databases", "embedding", "cache"]
 
 [profile.release]
 panic = "abort"

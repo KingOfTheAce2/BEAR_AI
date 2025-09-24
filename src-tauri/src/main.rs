@@ -34,6 +34,8 @@ mod stripe_integration;
 #[cfg(feature = "desktop")]
 mod stripe_integration_v2;
 #[cfg(feature = "desktop")]
+mod mollie_integration;
+#[cfg(feature = "desktop")]
 mod enterprise_management;
 #[cfg(feature = "desktop")]
 mod pii_detector;
@@ -43,13 +45,19 @@ mod hardware_detection;
 mod model_commands;
 #[cfg(feature = "desktop")]
 mod ocr_processor;
+#[cfg(feature = "desktop")]
+mod performance_tracker;
 
 #[cfg(feature = "desktop")]
 use llm_commands::*;
 #[cfg(feature = "desktop")]
+use llm_manager::{LLMManager, list_models, download_model, load_model, unload_model, remove_model, get_recommended_models, get_system_info as llm_get_system_info};
+#[cfg(feature = "desktop")]
 use local_api::*;
 #[cfg(feature = "desktop")]
 use stripe_integration::*;
+#[cfg(feature = "desktop")]
+use mollie_integration::*;
 #[cfg(feature = "desktop")]
 use stripe_integration_v2::*;
 #[cfg(feature = "desktop")]
@@ -97,6 +105,33 @@ fn init_logging() {
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Info)
         .init();
+}
+
+// Create LLM Manager instance
+#[cfg(feature = "desktop")]
+fn create_local_llm_manager() -> Result<Arc<LLMManager>, Box<dyn std::error::Error>> {
+    let app_data_dir = dirs::data_dir()
+        .ok_or("Could not determine app data directory")?
+        .join("bear-ai");
+
+    let manager = LLMManager::new(&app_data_dir)?;
+    Ok(Arc::new(manager))
+}
+
+// Create Document Analyzer instance
+#[cfg(feature = "desktop")]
+fn create_document_analyzer() -> Result<local_api::AnalyzerStorage, Box<dyn std::error::Error>> {
+    let app_data_dir = dirs::data_dir()
+        .ok_or("Could not determine app data directory")?
+        .join("bear-ai");
+
+    std::fs::create_dir_all(&app_data_dir)?;
+
+    // Create LLM manager for the analyzer (optional)
+    let llm_manager = create_local_llm_manager().ok();
+
+    let analyzer = document_analyzer::DocumentAnalyzer::new(&app_data_dir, llm_manager)?;
+    Ok(Arc::new(analyzer))
 }
 
 // Create system tray
@@ -163,6 +198,14 @@ fn main() {
             get_system_info,
             show_window,
             hide_window,
+            // NVIDIA Nemotron RAG commands
+            bear_ai_legal_assistant::initialize_rag_system,
+            bear_ai_legal_assistant::process_legal_document,
+            bear_ai_legal_assistant::retrieve_legal_info,
+            bear_ai_legal_assistant::generate_agentic_response,
+            bear_ai_legal_assistant::multi_hop_reasoning,
+            bear_ai_legal_assistant::get_rag_health,
+            bear_ai_legal_assistant::create_default_nemotron_config,
             // Local API Authentication commands
             local_auth_login,
             local_auth_logout,
@@ -204,15 +247,35 @@ fn main() {
             llm_get_recommended_models,
             llm_get_performance_metrics,
             llm_get_system_resources,
+            // Performance analytics commands
+            llm_get_performance_analytics,
+            llm_get_all_model_analytics,
+            llm_get_detailed_system_metrics,
+            llm_set_model_cost_per_token,
+            llm_get_current_model_metrics,
             // Chat export commands
             chat_export::export_chat_session,
             chat_export::get_export_formats,
             chat_export::create_export_options,
+            // Security management commands
+            security::encrypt_document,
+            security::decrypt_document,
+            security::validate_document_security,
+            security::get_security_config,
+            security::update_security_config,
+            // Session management commands
+            security::create_user_session,
+            security::validate_user_session,
+            security::refresh_user_session,
+            security::revoke_user_session,
+            security::revoke_all_user_sessions,
+            security::get_current_user_id,
+            security::cleanup_expired_sessions,
+            security::get_user_session_count,
             // Additional commands will be added later
             // huggingface::search_models,
             // document_analyzer::analyze_document,
             // mcp_server::start_mcp_server,
-            // security::encrypt_document,
             // licensing::validate_license
 
             // PII Detection commands
@@ -234,6 +297,33 @@ fn main() {
             stripe_create_payment_intent,
             stripe_get_invoices,
             stripe_handle_webhook,
+            // Mollie payment integration commands
+            mollie_init_client,
+            mollie_create_customer,
+            mollie_get_customer,
+            mollie_update_customer,
+            mollie_delete_customer,
+            mollie_create_payment,
+            mollie_get_payment,
+            mollie_cancel_payment,
+            mollie_list_payments,
+            mollie_create_subscription,
+            mollie_get_subscription,
+            mollie_update_subscription,
+            mollie_cancel_subscription,
+            mollie_list_subscriptions,
+            mollie_create_mandate,
+            mollie_get_mandate,
+            mollie_revoke_mandate,
+            mollie_list_mandates,
+            mollie_create_refund,
+            mollie_get_refund,
+            mollie_list_refunds,
+            mollie_get_chargeback,
+            mollie_list_chargebacks,
+            mollie_get_payment_methods,
+            mollie_get_ideal_issuers,
+            mollie_handle_webhook,
             // Enterprise management commands
             enterprise_create_account,
             enterprise_get_account,
@@ -261,16 +351,34 @@ fn main() {
             model_commands::get_vram_usage,
             model_commands::get_power_consumption,
             model_commands::get_cpu_temperature,
-            model_commands::detect_model_quantization
+            model_commands::detect_model_quantization,
+            // Local LLM Manager commands (with GPU detection)
+            list_models,
+            download_model,
+            load_model,
+            unload_model,
+            remove_model,
+            get_recommended_models,
+            llm_get_system_info
         ])
         .manage(SessionStorage::new(Mutex::new(HashMap::new())))
         .manage(ChatStorage::new(Mutex::new(HashMap::new())))
         .manage(DocumentStorage::new(Mutex::new(HashMap::new())))
         .manage(MessageStorage::new(Mutex::new(HashMap::new())))
-        .manage(create_llm_manager())
+        .manage(create_local_llm_manager().unwrap_or_else(|e| {
+            log::error!("Failed to create LLM manager: {}", e);
+            Arc::new(LLMManager::new(&std::path::PathBuf::from(".")).unwrap())
+        }))
+        .manage(create_document_analyzer().unwrap_or_else(|e| {
+            log::error!("Failed to create document analyzer: {}", e);
+            let default_path = std::path::PathBuf::from(".");
+            Arc::new(document_analyzer::DocumentAnalyzer::new(&default_path, None).unwrap())
+        }))
         .manage(create_stripe_client_manager())
+        .manage(create_mollie_client_manager())
         .manage(create_enterprise_manager())
         .manage(Arc::new(Mutex::new(HashMap::<String, model_commands::DownloadProgress>::new())))
+        .manage(Arc::new(tokio::sync::RwLock::new(bear_ai_legal_assistant::AppState::default())))
         // Additional managed state will be added later
         // .manage(Arc::new(Mutex::new(huggingface::HuggingFaceClient::new().unwrap())))
         // .manage(Arc::new(Mutex::new(document_analyzer::DocumentAnalyzer::new().unwrap())))
@@ -286,9 +394,26 @@ fn main() {
             let ocr_processor = ocr_processor::OCRProcessor::new(&app_data_dir).unwrap();
             app.manage(Arc::new(ocr_processor));
 
+            // Initialize security manager
+            let security_manager = security::SecurityManager::new(&app_data_dir).unwrap();
+            app.manage(Arc::new(Mutex::new(security_manager)));
+
+            // Initialize performance tracker
+            let performance_path = app_data_dir.join("performance_metrics.json");
+            match tokio::runtime::Runtime::new() {
+                Ok(rt) => {
+                    if let Err(e) = rt.block_on(performance_tracker::initialize_performance_tracker(performance_path)) {
+                        log::error!("Failed to initialize performance tracker: {}", e);
+                    } else {
+                        log::info!("Performance tracker initialized successfully");
+                    }
+                }
+                Err(e) => {
+                    log::error!("Failed to create runtime for performance tracker: {}", e);
+                }
+            }
+
             // Initialize additional managers later
-            // let security_manager = security::SecurityManager::new(&app_data_dir).unwrap();
-            // app.manage(Arc::new(Mutex::new(security_manager)));
             // let license_manager = licensing::LicenseManager::new(&app_data_dir).unwrap();
             // app.manage(Arc::new(Mutex::new(license_manager)));
 

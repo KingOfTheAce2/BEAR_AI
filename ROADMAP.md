@@ -334,57 +334,6 @@ This section provides step-by-step instructions to connect Stripe payment proces
 
 ---
 
-## 🔗 SSO AUTHENTICATION SETUP
-
-### **Microsoft Azure AD Configuration**
-
-1. **Register Application**:
-   - Go to https://portal.azure.com
-   - Navigate to Azure Active Directory → App registrations
-   - New registration → Name: "BEAR AI Legal Assistant"
-   - Supported account types: "Multitenant and personal accounts"
-   - Redirect URI: `https://your-domain.com/auth/microsoft/callback`
-
-2. **Configure Permissions**:
-   - API permissions → Add permission → Microsoft Graph
-   - Delegated permissions: User.Read, email, profile, offline_access
-   - Grant admin consent
-
-3. **Get Credentials**:
-   ```env
-   MICROSOFT_CLIENT_ID=your-application-id
-   MICROSOFT_CLIENT_SECRET=your-client-secret
-   MICROSOFT_TENANT_ID=common  # For multitenant
-   ```
-
-### **Google OAuth Configuration**
-
-1. **Create Project**:
-   - Go to https://console.cloud.google.com
-   - Create new project or select existing
-   - Enable Google+ API
-
-2. **Configure OAuth**:
-   - Credentials → Create Credentials → OAuth client ID
-   - Application type: Web application
-   - Authorized redirect URIs: `https://your-domain.com/auth/google/callback`
-
-3. **Get Credentials**:
-   ```env
-   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-   GOOGLE_CLIENT_SECRET=your-client-secret
-   ```
-
-### **Link SSO to Stripe Billing**
-
-The application automatically:
-1. Detects organization from SSO email domain
-2. Creates/retrieves Stripe customer for organization
-3. Applies workspace billing to all users from same domain
-4. Manages seats and permissions centrally
-
----
-
 ## 🚀 PRODUCTION DEPLOYMENT CHECKLIST
 
 ### **Before Going Live**
@@ -392,7 +341,6 @@ The application automatically:
 - [ ] All environment variables configured
 - [ ] Stripe products and prices created
 - [ ] Webhooks configured and tested
-- [ ] SSO providers configured
 - [ ] Database migrations complete
 - [ ] Security audit passed
 - [ ] Load testing complete

@@ -4,9 +4,14 @@ use crate::llm_manager::{
     GenerateRequest, GenerateResponse, GpuInfo, LlmConfig, LlmManagerRef, ModelCreateRequest,
     ModelInfo, ModelPullRequest, RunningModel,
 };
+use crate::performance_tracker::{
+    get_performance_tracker, PerformanceMetrics, PerformanceAnalytics, SystemResourceMetrics,
+    ModelPerformanceMetrics, PerformanceTimer
+};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 // Command response wrappers
@@ -133,7 +138,48 @@ pub async fn llm_generate(
 ) -> Result<CommandResult<GenerateResponse>, String> {
     let manager_guard = manager.read().await;
     if let Some(ref llm_manager) = *manager_guard {
+        // Start performance tracking
+        let timer = PerformanceTimer::new(
+            request.model.clone().unwrap_or_else(|| "unknown".to_string()),
+            "generate".to_string()
+        );
+
         let result = llm_manager.generate(request).await;
+
+        // Record performance metrics if tracking is available
+        if let Some(tracker) = get_performance_tracker() {
+            match &result {
+                Ok(response) => {
+                    // Extract token counts from response (assuming they exist)
+                    let total_tokens = response.eval_count.unwrap_or(0) as u32;
+                    let prompt_tokens = response.prompt_eval_count.unwrap_or(0) as u32;
+                    let completion_tokens = total_tokens.saturating_sub(prompt_tokens);
+
+                    let mut metrics = timer.finish_with_tokens(total_tokens, prompt_tokens, completion_tokens);
+
+                    // Get current system metrics to fill in resource usage
+                    let system_metrics = tracker.get_system_metrics().await;
+                    metrics.cpu_usage_percent = system_metrics.cpu_usage_percent;
+                    metrics.memory_usage_mb = system_metrics.total_llm_memory_mb;
+                    metrics.gpu_usage_percent = system_metrics.gpu_utilization_percent;
+                    metrics.gpu_memory_usage_mb = system_metrics.gpu_used_memory_gb as u64 * 1024;
+
+                    // Record the metrics
+                    tracker.record_metric(metrics).await;
+                }
+                Err(_) => {
+                    // Record error metrics
+                    let mut metrics = timer.finish_with_tokens(0, 0, 0);
+                    metrics.error_count = 1;
+                    metrics.success_rate = 0.0;
+
+                    if let Some(tracker) = get_performance_tracker() {
+                        tracker.record_metric(metrics).await;
+                    }
+                }
+            }
+        }
+
         Ok(result.into())
     } else {
         Ok(CommandResult::error(
@@ -149,7 +195,53 @@ pub async fn llm_chat(
 ) -> Result<CommandResult<ChatResponse>, String> {
     let manager_guard = manager.read().await;
     if let Some(ref llm_manager) = *manager_guard {
+        // Start performance tracking
+        let timer = PerformanceTimer::new(
+            request.model.clone().unwrap_or_else(|| "unknown".to_string()),
+            "chat".to_string()
+        );
+
         let result = llm_manager.chat(request).await;
+
+        // Record performance metrics if tracking is available
+        if let Some(tracker) = get_performance_tracker() {
+            match &result {
+                Ok(response) => {
+                    // Extract token counts from response
+                    let total_tokens = response.eval_count.unwrap_or(0) as u32;
+                    let prompt_tokens = response.prompt_eval_count.unwrap_or(0) as u32;
+                    let completion_tokens = total_tokens.saturating_sub(prompt_tokens);
+
+                    let mut metrics = timer.finish_with_tokens(total_tokens, prompt_tokens, completion_tokens);
+
+                    // Get current system metrics to fill in resource usage
+                    let system_metrics = tracker.get_system_metrics().await;
+                    metrics.cpu_usage_percent = system_metrics.cpu_usage_percent;
+                    metrics.memory_usage_mb = system_metrics.total_llm_memory_mb;
+                    metrics.gpu_usage_percent = system_metrics.gpu_utilization_percent;
+                    metrics.gpu_memory_usage_mb = system_metrics.gpu_used_memory_gb as u64 * 1024;
+
+                    // Add legal-specific metrics for chat conversations
+                    if response.message.content.len() > 100 {
+                        metrics.document_processing_speed_mb_per_sec =
+                            (response.message.content.len() as f32 / 1024.0 / 1024.0) /
+                            (metrics.response_time_ms as f32 / 1000.0);
+                    }
+
+                    // Record the metrics
+                    tracker.record_metric(metrics).await;
+                }
+                Err(_) => {
+                    // Record error metrics
+                    let mut metrics = timer.finish_with_tokens(0, 0, 0);
+                    metrics.error_count = 1;
+                    metrics.success_rate = 0.0;
+
+                    tracker.record_metric(metrics).await;
+                }
+            }
+        }
+
         Ok(result.into())
     } else {
         Ok(CommandResult::error(
@@ -391,28 +483,67 @@ pub async fn llm_get_performance_metrics(
 ) -> Result<CommandResult<Vec<ModelPerformanceMetrics>>, String> {
     let manager_guard = manager.read().await;
     if let Some(ref _llm_manager) = *manager_guard {
-        // TODO: Implement actual performance tracking
-        let metrics = vec![ModelPerformanceMetrics {
-            model_name: "llama3:8b".to_string(),
-            avg_tokens_per_second: 15.2,
-            avg_response_time_ms: 2500,
-            memory_usage_mb: 4096,
-            gpu_utilization: 78.5,
-            total_requests: 1250,
-            error_count: 5,
-            uptime_seconds: 86400,
-        }];
+        // Get real performance metrics from the performance tracker
+        if let Some(tracker) = get_performance_tracker() {
+            let all_metrics = tracker.get_all_model_metrics().await;
 
-        let filtered_metrics = if let Some(name) = model_name {
-            metrics
-                .into_iter()
-                .filter(|m| m.model_name == name)
-                .collect()
+            let mut result_metrics = Vec::new();
+
+            for (model, latest_metric) in all_metrics {
+                // Filter by model name if specified
+                if let Some(ref name) = model_name {
+                    if model != *name {
+                        continue;
+                    }
+                }
+
+                // Convert from PerformanceMetrics to ModelPerformanceMetrics
+                let model_metric = ModelPerformanceMetrics {
+                    model_name: model.clone(),
+                    avg_tokens_per_second: latest_metric.tokens_per_second,
+                    avg_response_time_ms: latest_metric.response_time_ms,
+                    memory_usage_mb: latest_metric.memory_usage_mb,
+                    gpu_utilization: latest_metric.gpu_usage_percent,
+                    total_requests: 1, // This would need to be tracked separately
+                    error_count: latest_metric.error_count as u64,
+                    uptime_seconds: {
+                        // Calculate uptime based on when tracking started
+                        SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - latest_metric.timestamp
+                    },
+                };
+
+                result_metrics.push(model_metric);
+            }
+
+            // If no metrics found, return empty result
+            if result_metrics.is_empty() {
+                if model_name.is_some() {
+                    return Ok(CommandResult::error(
+                        format!("No performance metrics found for model: {}", model_name.unwrap())
+                    ));
+                } else {
+                    return Ok(CommandResult::error(
+                        "No performance metrics available yet".to_string()
+                    ));
+                }
+            }
+
+            Ok(CommandResult::success(result_metrics))
         } else {
-            metrics
-        };
+            // Fallback to placeholder data if performance tracker not available
+            let metrics = vec![ModelPerformanceMetrics {
+                model_name: model_name.unwrap_or_else(|| "llama3:8b".to_string()),
+                avg_tokens_per_second: 15.2,
+                avg_response_time_ms: 2500,
+                memory_usage_mb: 4096,
+                gpu_utilization: 78.5,
+                total_requests: 1250,
+                error_count: 5,
+                uptime_seconds: 86400,
+            }];
 
-        Ok(CommandResult::success(filtered_metrics))
+            Ok(CommandResult::success(metrics))
+        }
     } else {
         Ok(CommandResult::error(
             "LLM Manager not initialized".to_string(),
@@ -435,23 +566,145 @@ pub struct SystemResourceUsage {
 
 #[tauri::command]
 pub async fn llm_get_system_resources() -> Result<CommandResult<SystemResourceUsage>, String> {
-    let sys = sysinfo::System::new_all();
+    // Use the performance tracker for comprehensive system metrics
+    if let Some(tracker) = get_performance_tracker() {
+        let system_metrics = tracker.get_system_metrics().await;
 
-    let total_memory_gb = sys.total_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
-    let used_memory_gb = sys.used_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
-    let available_memory_gb = sys.available_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
+        let usage = SystemResourceUsage {
+            total_memory_gb: system_metrics.total_memory_gb,
+            used_memory_gb: system_metrics.used_memory_gb,
+            available_memory_gb: system_metrics.available_memory_gb,
+            cpu_usage_percent: system_metrics.cpu_usage_percent,
+            gpu_memory_used_gb: system_metrics.gpu_used_memory_gb,
+            gpu_memory_total_gb: system_metrics.gpu_total_memory_gb,
+            disk_space_used_gb: 0.0, // Calculate from disk usage percentage
+            disk_space_available_gb: 0.0, // Would need total disk info
+            active_models: system_metrics.active_llm_processes,
+        };
 
-    let usage = SystemResourceUsage {
-        total_memory_gb,
-        used_memory_gb,
-        available_memory_gb,
-        cpu_usage_percent: 0.0,  // Would need real-time CPU monitoring
-        gpu_memory_used_gb: 0.0, // Would need GPU monitoring
-        gpu_memory_total_gb: 0.0,
-        disk_space_used_gb: 0.0, // Would need disk space calculation
-        disk_space_available_gb: 0.0,
-        active_models: 0,
-    };
+        Ok(CommandResult::success(usage))
+    } else {
+        // Fallback to basic sysinfo if performance tracker not available
+        let sys = sysinfo::System::new_all();
 
-    Ok(CommandResult::success(usage))
+        let total_memory_gb = sys.total_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
+        let used_memory_gb = sys.used_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
+        let available_memory_gb = sys.available_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
+
+        let usage = SystemResourceUsage {
+            total_memory_gb,
+            used_memory_gb,
+            available_memory_gb,
+            cpu_usage_percent: 0.0,  // Would need real-time CPU monitoring
+            gpu_memory_used_gb: 0.0, // Would need GPU monitoring
+            gpu_memory_total_gb: 0.0,
+            disk_space_used_gb: 0.0, // Would need disk space calculation
+            disk_space_available_gb: 0.0,
+            active_models: 0,
+        };
+
+        Ok(CommandResult::success(usage))
+    }
+}
+
+// New performance analytics commands
+
+#[tauri::command]
+pub async fn llm_get_performance_analytics(
+    model_name: String,
+    time_window_minutes: Option<u32>,
+) -> Result<CommandResult<PerformanceAnalytics>, String> {
+    if let Some(tracker) = get_performance_tracker() {
+        let window = time_window_minutes.unwrap_or(60); // Default to 1 hour
+
+        if let Some(analytics) = tracker.get_analytics(&model_name, window).await {
+            Ok(CommandResult::success(analytics))
+        } else {
+            Ok(CommandResult::error(
+                format!("No analytics data available for model '{}' in the last {} minutes", model_name, window)
+            ))
+        }
+    } else {
+        Ok(CommandResult::error(
+            "Performance tracker not initialized".to_string()
+        ))
+    }
+}
+
+#[tauri::command]
+pub async fn llm_get_all_model_analytics(
+    time_window_minutes: Option<u32>,
+) -> Result<CommandResult<Vec<PerformanceAnalytics>>, String> {
+    if let Some(tracker) = get_performance_tracker() {
+        let window = time_window_minutes.unwrap_or(60); // Default to 1 hour
+        let all_metrics = tracker.get_all_model_metrics().await;
+
+        let mut analytics_list = Vec::new();
+
+        for (model_name, _) in all_metrics {
+            if let Some(analytics) = tracker.get_analytics(&model_name, window).await {
+                analytics_list.push(analytics);
+            }
+        }
+
+        if analytics_list.is_empty() {
+            Ok(CommandResult::error(
+                format!("No analytics data available for any models in the last {} minutes", window)
+            ))
+        } else {
+            Ok(CommandResult::success(analytics_list))
+        }
+    } else {
+        Ok(CommandResult::error(
+            "Performance tracker not initialized".to_string()
+        ))
+    }
+}
+
+#[tauri::command]
+pub async fn llm_get_detailed_system_metrics() -> Result<CommandResult<SystemResourceMetrics>, String> {
+    if let Some(tracker) = get_performance_tracker() {
+        let metrics = tracker.get_system_metrics().await;
+        Ok(CommandResult::success(metrics))
+    } else {
+        Ok(CommandResult::error(
+            "Performance tracker not initialized".to_string()
+        ))
+    }
+}
+
+#[tauri::command]
+pub async fn llm_set_model_cost_per_token(
+    model_name: String,
+    cost_per_token: f32,
+) -> Result<CommandResult<String>, String> {
+    if let Some(tracker) = get_performance_tracker() {
+        tracker.set_cost_per_token(&model_name, cost_per_token).await;
+        Ok(CommandResult::success(
+            format!("Cost per token for model '{}' set to ${:.6}", model_name, cost_per_token)
+        ))
+    } else {
+        Ok(CommandResult::error(
+            "Performance tracker not initialized".to_string()
+        ))
+    }
+}
+
+#[tauri::command]
+pub async fn llm_get_current_model_metrics(
+    model_name: String,
+) -> Result<CommandResult<PerformanceMetrics>, String> {
+    if let Some(tracker) = get_performance_tracker() {
+        if let Some(metrics) = tracker.get_current_metrics(&model_name).await {
+            Ok(CommandResult::success(metrics))
+        } else {
+            Ok(CommandResult::error(
+                format!("No current metrics available for model '{}'", model_name)
+            ))
+        }
+    } else {
+        Ok(CommandResult::error(
+            "Performance tracker not initialized".to_string()
+        ))
+    }
 }
