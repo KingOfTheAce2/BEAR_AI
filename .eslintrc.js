@@ -1,5 +1,4 @@
-require('eslint-config-react-app/node_modules/@rushstack/eslint-patch/modern-module-resolution');
-
+// ESLint configuration for BEAR AI Legal Assistant
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
