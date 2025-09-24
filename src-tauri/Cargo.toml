@@ -109,7 +109,7 @@ tokio-tungstenite = "0.20"
 futures-util = "0.3"
 
 [features]
-default = ["headless", "gpu-detection", "qdrant", "nemotron-rag"]
+default = []
 headless = []
 custom-protocol = ["tauri/custom-protocol"]
 desktop = ["custom-protocol"]

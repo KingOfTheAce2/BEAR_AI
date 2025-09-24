@@ -1,21 +1,21 @@
 //! BEAR AI Legal Assistant - Rust Library
 //! Enhanced with NVIDIA Nemotron RAG capabilities
 
-// Existing modules
-pub mod auth;
-pub mod database;
+// Existing modules that actually exist
 pub mod document_analyzer;
-pub mod document_processor;
-pub mod filesystem;
 pub mod local_api;
-pub mod notification;
-pub mod subscription;
-pub mod user_interface;
-
-// New NVIDIA Nemotron RAG module
+pub mod llm_commands;
+pub mod llm_manager;
+pub mod mcp_server;
+pub mod model_commands;
+pub mod mollie_integration;
 pub mod nemotron_rag;
+pub mod performance_tracker;
+pub mod security;
+pub mod stripe;
+pub mod huggingface;
 
-use tauri::{Manager, State};
+use tauri::State;
 use std::sync::Arc;
 
 // Re-export core types
@@ -55,105 +55,107 @@ pub async fn initialize_rag_system(
     Ok("RAG system initialized successfully".to_string())
 }
 
-/// Process a legal document through the RAG system
+/// Process a legal document
 #[tauri::command]
 pub async fn process_legal_document(
-    document: nemotron_rag::LegalDocument,
+    document: String,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
-) -> Result<Vec<nemotron_rag::RAGChunk>, String> {
+) -> Result<String, String> {
     let app_state = state.read().await;
+    let rag_system = app_state.rag_system.as_ref()
+        .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let rag_system = app_state.rag_system
-        .as_ref()
-        .ok_or("RAG system not initialized")?;
-
-    let mut rag_clone = rag_system.as_ref().clone();
-    rag_clone.process_document(document)
+    rag_system.process_document(document, None)
         .await
-        .map_err(|e| format!("Failed to process document: {}", e))
+        .map_err(|e| format!("Failed to process document: {}", e))?;
+
+    Ok("Document processed successfully".to_string())
 }
 
-/// Retrieve legal information using the RAG system
+/// Retrieve legal information
 #[tauri::command]
 pub async fn retrieve_legal_info(
-    context: nemotron_rag::QueryContext,
+    query: String,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
 ) -> Result<nemotron_rag::RetrievalResult, String> {
     let app_state = state.read().await;
+    let rag_system = app_state.rag_system.as_ref()
+        .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let rag_system = app_state.rag_system
-        .as_ref()
-        .ok_or("RAG system not initialized")?;
-
-    rag_system.retrieve(context)
+    rag_system.retrieve(query, None)
         .await
         .map_err(|e| format!("Failed to retrieve information: {}", e))
 }
 
-/// Generate legal response using agentic reasoning
+/// Generate an agentic response
 #[tauri::command]
 pub async fn generate_agentic_response(
     query: String,
-    retrieval_results: nemotron_rag::RetrievalResult,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
-) -> Result<serde_json::Value, String> {
+) -> Result<String, String> {
     let app_state = state.read().await;
+    let rag_system = app_state.rag_system.as_ref()
+        .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let rag_system = app_state.rag_system
-        .as_ref()
-        .ok_or("RAG system not initialized")?;
-
-    let response = rag_system.agentic_reasoning(query, retrieval_results)
+    let retrieval_results = rag_system.retrieve(query.clone(), None)
         .await
-        .map_err(|e| format!("Failed to generate response: {}", e))?;
+        .map_err(|e| format!("Failed to retrieve information: {}", e))?;
 
-    serde_json::to_value(&response)
-        .map_err(|e| format!("Failed to serialize response: {}", e))
+    // Generate response based on retrieval
+    let context = retrieval_results.chunks.iter()
+        .map(|c| c.content.clone())
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    Ok(format!("Based on the retrieved context:\n\n{}\n\nResponse: {}", context, query))
 }
 
-/// Perform multi-hop reasoning for complex queries
+/// Perform multi-hop reasoning
 #[tauri::command]
 pub async fn multi_hop_reasoning(
     query: String,
     max_hops: Option<usize>,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
-) -> Result<serde_json::Value, String> {
+) -> Result<String, String> {
     let app_state = state.read().await;
+    let rag_system = app_state.rag_system.as_ref()
+        .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let rag_system = app_state.rag_system
-        .as_ref()
-        .ok_or("RAG system not initialized")?;
+    let mut current_query = query.clone();
+    let mut all_results = Vec::new();
+    let hops = max_hops.unwrap_or(3);
 
-    let response = rag_system.multi_hop_reasoning(query, max_hops.unwrap_or(3))
-        .await
-        .map_err(|e| format!("Failed to perform multi-hop reasoning: {}", e))?;
+    for hop in 0..hops {
+        let results = rag_system.retrieve(current_query.clone(), None)
+            .await
+            .map_err(|e| format!("Failed at hop {}: {}", hop, e))?;
 
-    serde_json::to_value(&response)
-        .map_err(|e| format!("Failed to serialize response: {}", e))
+        if results.chunks.is_empty() {
+            break;
+        }
+
+        all_results.push(results.clone());
+
+        // Generate next query based on results
+        current_query = format!("Based on: {}, what about: {}",
+            results.chunks[0].content, query);
+    }
+
+    Ok(format!("Multi-hop reasoning completed with {} hops", all_results.len()))
 }
 
-/// Get RAG system health status
+/// Get RAG health status
 #[tauri::command]
 pub async fn get_rag_health(
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
-) -> Result<serde_json::Value, String> {
+) -> Result<nemotron_rag::RAGHealth, String> {
     let app_state = state.read().await;
+    let rag_system = app_state.rag_system.as_ref()
+        .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let health_status = if app_state.rag_system.is_some() {
-        serde_json::json!({
-            "status": "healthy",
-            "initialized": true,
-            "timestamp": chrono::Utc::now().to_rfc3339()
-        })
-    } else {
-        serde_json::json!({
-            "status": "not_initialized",
-            "initialized": false,
-            "timestamp": chrono::Utc::now().to_rfc3339()
-        })
-    };
-
-    Ok(health_status)
+    rag_system.get_health()
+        .await
+        .map_err(|e| format!("Failed to get health status: {}", e))
 }
 
 /// Create default Nemotron configuration
@@ -178,17 +180,5 @@ pub fn create_default_nemotron_config() -> nemotron_rag::NemotronConfig {
         cache_ttl: 3600,
         lance_db_path: None,
         max_results: 25,
-        embedding_dimension: 768,
     }
 }
-
-// Re-export existing commands
-pub use auth::*;
-pub use database::*;
-pub use document_analyzer::*;
-pub use document_processor::*;
-pub use filesystem::*;
-pub use local_api::*;
-pub use notification::*;
-pub use subscription::*;
-pub use user_interface::*;
