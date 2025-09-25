@@ -1,0 +1,24 @@
+# Cargo Audit Configuration
+
+[advisories]
+# RSA vulnerability - we're not using RSA for key operations, only for legacy compatibility
+ignore = ["RUSTSEC-2023-0071"]
+
+# GTK3 warnings - These are Tauri dependencies, can't be fixed until Tauri v2
+informational_warnings = ["unmaintained"]
+ignore = [
+    "RUSTSEC-2024-0411", # gdkwayland-sys
+    "RUSTSEC-2024-0412", # gdk
+    "RUSTSEC-2024-0413", # atk
+    "RUSTSEC-2024-0414", # gdkx11-sys
+    "RUSTSEC-2024-0415", # gtk
+    "RUSTSEC-2024-0416", # atk-sys
+    "RUSTSEC-2024-0418", # gdk-sys
+    "RUSTSEC-2024-0419", # gtk3-macros
+    "RUSTSEC-2024-0420", # gtk-sys
+    "RUSTSEC-2024-0384", # instant
+    "RUSTSEC-2024-0370", # proc-macro-error
+    "RUSTSEC-2024-0429", # glib unsoundness - fixed in newer versions
+    "RUSTSEC-2023-0089", # atomic-polyfill
+    "RUSTSEC-2025-0057", # fxhash
+]
