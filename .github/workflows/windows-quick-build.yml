@@ -104,12 +104,7 @@ jobs:
           # Try minimal build first
           cargo check --no-default-features || echo "Minimal check failed"
 
-          # Attempt build with minimal features
-          if [ -f "Cargo.minimal.toml" ]; then
-            cp Cargo.minimal.toml Cargo.toml.temp
-            mv Cargo.toml Cargo.toml.full
-            mv Cargo.toml.temp Cargo.toml
-          fi
+          # Use standard Cargo.toml (no swapping)
 
           cargo build --release --no-default-features || cargo build --release
 
