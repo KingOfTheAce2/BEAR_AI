@@ -1,0 +1,20 @@
+name: "CodeQL config"
+disable-default-queries: false
+queries:
+  - uses: security-extended
+query-filters:
+  - exclude:
+      problem.severity: 
+        - recommendation
+        - note
+  - exclude:
+      tags contain: 
+        - hardcoded-credentials
+        - clear-text-logging
+paths-ignore:
+  - node_modules
+  - build
+  - dist
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - ".env.example*"

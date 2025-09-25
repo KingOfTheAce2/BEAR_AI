@@ -49,7 +49,7 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        queries: +security-extended,security-and-quality
+        config-file: ./.github/codeql-config.yml
 
     - name: Setup Node.js
       if: matrix.language == 'javascript-typescript'
