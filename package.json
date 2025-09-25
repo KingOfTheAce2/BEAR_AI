@@ -72,7 +72,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "node scripts/run-react-build.js",
+    "build": "node scripts/build-simple.js || node scripts/emergency-build.bat || sh scripts/emergency-build.sh",
     "build:unified": "node scripts/run-react-build.js",
     "build:with-typecheck": "npm run typecheck:build && node scripts/run-react-build.js",
     "build:alpha": "node scripts/run-react-build.js SKIP_PREFLIGHT_CHECK=true GENERATE_SOURCEMAP=false",
