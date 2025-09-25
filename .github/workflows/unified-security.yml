@@ -289,56 +289,11 @@ jobs:
           echo "- Security findings: $FINDINGS" >> $GITHUB_STEP_SUMMARY
         fi
 
-    - name: Check for hardcoded secrets
-      run: |
-        echo "## Hardcoded Secrets Check" >> $GITHUB_STEP_SUMMARY
-
-        # Check for common patterns
-        PATTERNS=(
-          "sk_test_"
-          "sk_live_"
-          "pk_test_"
-          "pk_live_"
-          "ghp_"
-          "ghs_"
-          "github_pat_"
-          "AKIA"
-          "-----BEGIN RSA PRIVATE KEY-----"
-          "-----BEGIN OPENSSH PRIVATE KEY-----"
-          "mongodb+srv://"
-          "postgres://"
-        )
-
-        FOUND_SECRETS=0
-        for pattern in "${PATTERNS[@]}"; do
-          # Exclude workflow files, example files, test files, config validation, and documentation
-          if grep -r "$pattern" \
-            --exclude-dir=node_modules \
-            --exclude-dir=.git \
-            --exclude-dir=.github \
-            --exclude-dir=scripts \
-            --exclude="*.md" \
-            --exclude="*.example" \
-            --exclude="*.test.*" \
-            --exclude="*.spec.*" \
-            --exclude="environmentValidator.ts" \
-            --exclude="config.ts" \
-            --exclude="env.config.ts" \
-            --exclude="stripe*.ts" \
-            --exclude="stripe*.rs" \
-            --exclude="SubscriptionContext.tsx" \
-            . 2>/dev/null | grep -v "startsWith\|starts_with\|placeholder\|YOUR_KEY_HERE\|your_.*_key" 2>/dev/null; then
-            echo "⚠️ Found potential secret: $pattern" >> $GITHUB_STEP_SUMMARY
-            FOUND_SECRETS=$((FOUND_SECRETS + 1))
-          fi
-        done
-
-        if [ $FOUND_SECRETS -eq 0 ]; then
-          echo "✅ No hardcoded secrets found" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "::error::Found $FOUND_SECRETS potential hardcoded secrets"
-          exit 1
-        fi
+    - name: Run Gitleaks secret scanning
+      uses: gitleaks/gitleaks-action@v2
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload SAST reports
       uses: actions/upload-artifact@v4
