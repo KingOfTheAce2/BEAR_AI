@@ -1332,7 +1332,7 @@ impl MCPServer {
             let agents = self.agents.lock().unwrap();
             let agent = agents
                 .values()
-                .find(|a| matches!(a.agent_type, step.agent_type))
+                .find(|a| a.agent_type == step.agent_type)
                 .context("No agent found for step")?
                 .clone();
             drop(agents);

@@ -12,7 +12,7 @@ pub mod mollie_integration;
 pub mod nemotron_rag;
 pub mod performance_tracker;
 pub mod security;
-pub mod stripe;
+// pub mod stripe; // Module file doesn't exist yet
 pub mod huggingface;
 
 use tauri::State;
@@ -36,7 +36,8 @@ impl Default for AppState {
 }
 
 /// Initialize the RAG system
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn initialize_rag_system(
     config: nemotron_rag::NemotronConfig,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
@@ -56,7 +57,8 @@ pub async fn initialize_rag_system(
 }
 
 /// Process a legal document
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn process_legal_document(
     document: String,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
@@ -73,7 +75,8 @@ pub async fn process_legal_document(
 }
 
 /// Retrieve legal information
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn retrieve_legal_info(
     query: String,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
@@ -88,7 +91,8 @@ pub async fn retrieve_legal_info(
 }
 
 /// Generate an agentic response
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn generate_agentic_response(
     query: String,
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
@@ -111,7 +115,8 @@ pub async fn generate_agentic_response(
 }
 
 /// Perform multi-hop reasoning
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn multi_hop_reasoning(
     query: String,
     max_hops: Option<usize>,
@@ -145,7 +150,8 @@ pub async fn multi_hop_reasoning(
 }
 
 /// Get RAG health status
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub async fn get_rag_health(
     state: State<'_, Arc<tokio::sync::RwLock<AppState>>>,
 ) -> Result<nemotron_rag::RAGHealth, String> {
@@ -159,7 +165,8 @@ pub async fn get_rag_health(
 }
 
 /// Create default Nemotron configuration
-#[tauri::command]
+// Commented out - duplicate command
+// #[tauri::command]
 pub fn create_default_nemotron_config() -> nemotron_rag::NemotronConfig {
     nemotron_rag::NemotronConfig {
         nemotron_api_key: String::new(), // To be set by user

@@ -464,17 +464,18 @@ pub async fn llm_get_recommended_models() -> Result<CommandResult<Vec<ModelLibra
 
 // Performance and monitoring commands
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ModelPerformanceMetrics {
-    pub model_name: String,
-    pub avg_tokens_per_second: f32,
-    pub avg_response_time_ms: u64,
-    pub memory_usage_mb: u64,
-    pub gpu_utilization: f32,
-    pub total_requests: u64,
-    pub error_count: u64,
-    pub uptime_seconds: u64,
-}
+// Commented out - using imported ModelPerformanceMetrics from performance_tracker
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct ModelPerformanceMetrics {
+//     pub model_name: String,
+//     pub avg_tokens_per_second: f32,
+//     pub avg_response_time_ms: u64,
+//     pub memory_usage_mb: u64,
+//     pub gpu_utilization: f32,
+//     pub total_requests: u64,
+//     pub error_count: u64,
+//     pub uptime_seconds: u64,
+// }
 
 #[tauri::command]
 pub async fn llm_get_performance_metrics(

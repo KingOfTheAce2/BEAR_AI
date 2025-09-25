@@ -604,8 +604,9 @@ pub async fn list_available_models() -> Result<Vec<ModelInfo>, String> {
     Ok(manager.list_models())
 }
 
-#[tauri::command]
-pub async fn download_model(model_id: String, quantization: Option<String>) -> Result<(), String> {
+// Commented out - duplicate of llm_manager.rs
+// #[tauri::command]
+pub async fn download_model_v2(model_id: String, quantization: Option<String>) -> Result<(), String> {
     let models_dir = dirs::data_dir()
         .ok_or_else(|| "Could not determine data directory".to_string())?
         .join("bear_ai")
@@ -631,8 +632,9 @@ pub async fn get_download_progress(model_id: String) -> Result<Option<DownloadPr
     Ok(manager.get_download_progress(&model_id))
 }
 
-#[tauri::command]
-pub async fn load_model(model_id: String, config: ModelConfig) -> Result<u16, String> {
+// Commented out - duplicate of llm_manager.rs
+// #[tauri::command]
+pub async fn load_model_v2(model_id: String, config: ModelConfig) -> Result<u16, String> {
     let models_dir = dirs::data_dir()
         .ok_or_else(|| "Could not determine data directory".to_string())?
         .join("bear_ai")
@@ -645,8 +647,9 @@ pub async fn load_model(model_id: String, config: ModelConfig) -> Result<u16, St
         .map_err(|e| format!("Failed to load model: {}", e))
 }
 
-#[tauri::command]
-pub async fn unload_model(model_id: String) -> Result<(), String> {
+// Commented out - duplicate of llm_manager.rs
+// #[tauri::command]
+pub async fn unload_model_v2(model_id: String) -> Result<(), String> {
     let models_dir = dirs::data_dir()
         .ok_or_else(|| "Could not determine data directory".to_string())?
         .join("bear_ai")
