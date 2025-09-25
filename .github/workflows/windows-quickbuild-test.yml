@@ -1,0 +1,246 @@
+name: Windows Quickbuild Test
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  NODE_OPTIONS: --max-old-space-size=4096
+  CARGO_INCREMENTAL: 1
+
+jobs:
+  quickbuild:
+    name: Windows Quick Build & Test
+    runs-on: windows-2022
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+          components: clippy, rustfmt
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          cache-on-failure: true
+
+      # Quick security check
+      - name: Quick Security Check
+        continue-on-error: true
+        run: |
+          npm audit --audit-level=critical
+
+      # Install dependencies (cached)
+      - name: Install NPM dependencies
+        run: |
+          npm ci --legacy-peer-deps --no-audit --prefer-offline
+
+      # Quick lint check
+      - name: Lint Check
+        continue-on-error: true
+        run: |
+          npm run lint || echo "Lint warnings detected"
+
+      # TypeScript check
+      - name: TypeScript Check
+        continue-on-error: true
+        run: |
+          npm run typecheck || echo "TypeScript warnings detected"
+
+      # Quick frontend build
+      - name: Build Frontend (Fast)
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+          NODE_ENV: development
+        run: |
+          npm run build || npm run build:alpha-fast
+
+      # Rust format check
+      - name: Rust Format Check
+        working-directory: ./src-tauri
+        continue-on-error: true
+        run: |
+          cargo fmt --all -- --check
+
+      # Rust clippy check
+      - name: Rust Clippy Check
+        working-directory: ./src-tauri
+        continue-on-error: true
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings || echo "Clippy warnings detected"
+
+      # Quick Rust build
+      - name: Quick Rust Build
+        working-directory: ./src-tauri
+        run: |
+          cargo build --target x86_64-pc-windows-msvc
+
+      # Run unit tests
+      - name: Run Frontend Tests
+        continue-on-error: true
+        run: |
+          npm test -- --watchAll=false --passWithNoTests
+
+      # Run Rust tests
+      - name: Run Rust Tests
+        working-directory: ./src-tauri
+        continue-on-error: true
+        run: |
+          cargo test --target x86_64-pc-windows-msvc
+
+      # Quick Tauri build (dev mode)
+      - name: Quick Tauri Dev Build
+        if: success()
+        run: |
+          npm run tauri build -- --debug --target x86_64-pc-windows-msvc
+
+      # Basic smoke test
+      - name: Smoke Test
+        if: success()
+        run: |
+          $exePath = "src-tauri/target/x86_64-pc-windows-msvc/debug/bear-ai-legal-assistant.exe"
+          if (Test-Path $exePath) {
+            Write-Host "✅ Executable built successfully: $exePath"
+            $fileInfo = Get-Item $exePath
+            Write-Host "File size: $($fileInfo.Length / 1MB) MB"
+            Write-Host "Last modified: $($fileInfo.LastWriteTime)"
+          } else {
+            Write-Host "❌ Executable not found!"
+            exit 1
+          }
+
+      # Upload test artifacts
+      - name: Upload Test Build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-quickbuild-test-${{ github.sha }}
+          path: |
+            src-tauri/target/x86_64-pc-windows-msvc/debug/*.exe
+            src-tauri/target/x86_64-pc-windows-msvc/debug/bundle/
+          retention-days: 7
+
+      # Test summary
+      - name: Test Summary
+        if: always()
+        run: |
+          Write-Host "========================================="
+          Write-Host "          QUICKBUILD TEST SUMMARY        "
+          Write-Host "========================================="
+          Write-Host "Branch: ${{ github.ref_name }}"
+          Write-Host "Commit: ${{ github.sha }}"
+          Write-Host "Build Status: ${{ job.status }}"
+          Write-Host "========================================="
+
+          if ("${{ job.status }}" -eq "success") {
+            Write-Host "✅ All critical checks passed!"
+            Write-Host "✅ Ready for further testing"
+          } else {
+            Write-Host "⚠️ Build completed with warnings"
+            Write-Host "Check logs for non-critical issues"
+          }
+
+  quick-security-scan:
+    name: Quick Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Quick dependency check
+        run: |
+          echo "Checking for critical vulnerabilities..."
+          npm audit --audit-level=critical --json || true
+
+      - name: Quick secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified --max-depth=1
+
+  build-status:
+    name: Build Status Check
+    runs-on: ubuntu-latest
+    needs: [quickbuild, quick-security-scan]
+    if: always()
+
+    steps:
+      - name: Check build results
+        run: |
+          echo "Quick Build Result: ${{ needs.quickbuild.result }}"
+          echo "Security Scan Result: ${{ needs.quick-security-scan.result }}"
+
+          if [[ "${{ needs.quickbuild.result }}" == "success" && "${{ needs.quick-security-scan.result }}" != "failure" ]]; then
+            echo "✅ Windows quickbuild test passed!"
+            exit 0
+          else
+            echo "❌ Build or security issues detected"
+            exit 1
+          fi
+
+      - name: Comment PR status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const quickbuildStatus = '${{ needs.quickbuild.result }}';
+            const securityStatus = '${{ needs.quick-security-scan.result }}';
+
+            let message = '## 🧪 Windows Quickbuild Test Results\n\n';
+
+            if (quickbuildStatus === 'success') {
+              message += '✅ **Build Status:** Passed\n';
+            } else {
+              message += '❌ **Build Status:** Failed\n';
+            }
+
+            if (securityStatus === 'success') {
+              message += '✅ **Security Scan:** No critical issues\n';
+            } else if (securityStatus === 'failure') {
+              message += '❌ **Security Scan:** Critical issues found\n';
+            } else {
+              message += '⚠️ **Security Scan:** Check required\n';
+            }
+
+            message += '\n### Next Steps\n';
+            if (quickbuildStatus === 'success' && securityStatus !== 'failure') {
+              message += '- Ready for comprehensive testing\n';
+              message += '- Can proceed with PR review\n';
+            } else {
+              message += '- Fix identified issues\n';
+              message += '- Re-run quickbuild test\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

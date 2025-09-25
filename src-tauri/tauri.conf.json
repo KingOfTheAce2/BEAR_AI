@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "BEAR AI Legal Assistant",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "tauri": {
     "windows": [
@@ -99,7 +99,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "targets": "all",
+    "targets": "msi",
     "publisher": "BEAR AI Team",
     "resources": [
       "assets/**/*",
@@ -109,8 +109,7 @@
     "windows": {
       "digestAlgorithm": "sha256",
       "timestampUrl": "https://timestamp.digicert.com",
-      "certificateThumbprint": "",
-      "signCommand": "powershell -ExecutionPolicy Bypass -File scripts/windows-signing.ps1",
+      "certificateThumbprint": null,
       "wix": {
         "language": ["en-US"],
         "license": "LICENSE.rtf"

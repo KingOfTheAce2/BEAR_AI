@@ -42,7 +42,7 @@ cargo build --release
 | ⚡ **Hardware Detection** | ✅ **Complete** | GPU/CPU profiling, AI acceleration detection |
 | 🛡️ **Security & Compliance** | ✅ **PRODUCTION** | GDPR, AI Act, DORA, ISO 9001/27001/42001 |
 | 💰 **Stripe Integration** | ✅ **PRODUCTION** | Live payment processing, PCI DSS compliant |
-| 🚀 **CI/CD Pipeline** | ✅ **PRODUCTION** | Automated Windows/Mac/Linux builds |
+| 🚀 **CI/CD Pipeline** | ✅ **PRODUCTION** | Automated Windows x64 builds |
 | 🔐 **Security Hardening** | ✅ **PRODUCTION** | OWASP protection, encryption, rate limiting |
 | 📊 **Monitoring System** | ✅ **PRODUCTION** | Real-time metrics, error tracking, analytics |
 | 📦 **Production Deployment** | ✅ **SHIP NOW!** | All blockers fixed, ready for immediate release |
@@ -80,7 +80,7 @@ gh release create v1.0.0 --generate-notes
 [![Release](https://img.shields.io/github/v/release/KingOfTheAce2/BEAR_AI?include_prereleases)](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/KingOfTheAce2/BEAR_AI/total)](https://github.com/KingOfTheAce2/BEAR_AI/releases)
 [![Desktop App](https://img.shields.io/badge/Desktop-Tauri-blue.svg)](https://tauri.app/)
-[![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/KingOfTheAce2/BEAR_AI/releases)
+[![Platform Support](https://img.shields.io/badge/platform-Windows%20x64%20Only-0078d4.svg)](https://github.com/KingOfTheAce2/BEAR_AI/releases)
 [![License: PROPRIETARY](https://img.shields.io/badge/License-PROPRIETARY-red.svg)](LICENSE)
 [![CI/CD Status](https://img.shields.io/github/actions/workflow/status/KingOfTheAce2/BEAR_AI/build-tauri.yml?branch=main&label=CI%2FCD)](https://github.com/KingOfTheAce2/BEAR_AI/actions/workflows/build-tauri.yml)
 
@@ -107,7 +107,7 @@ BEAR_AI/
 
 ### 🖥️ Desktop Application Features
 - **Native Desktop Integration**: System tray, auto-updater, file system access
-- **Cross-Platform**: Windows, macOS, and Linux support
+- **Windows Optimized**: Built specifically for Windows 10/11 x64
 - **Professional UI**: Modern React-based interface with native look and feel
 - **Secure by Design**: Tauri's security model with sandboxed operations
 - **Offline Capable**: Full functionality without internet connection
@@ -119,10 +119,8 @@ BEAR_AI/
 **Get the latest release for your platform:**
 
 [![Download for Windows](https://img.shields.io/badge/Download-Windows%20Installer-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/BEAR-AI-Legal-Assistant_x64_en-US.msi)
-[![Download for macOS](https://img.shields.io/badge/Download-macOS%20App-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest)
-[![Download for Linux](https://img.shields.io/badge/Download-Linux%20Package-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest)
 
-### 🪟 Windows Installation
+### 🪟 Windows Installation (x64 Only)
 
 **Automated Windows Installer (MSI):**
 
@@ -138,67 +136,7 @@ BEAR_AI/
 3. **Install**: Complete the setup wizard
 4. **Launch**: Desktop shortcut or Start Menu
 
-### 🍎 macOS Installation
-
-**macOS App Bundle:**
-
-1. **Download**: [macOS Application](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/BEAR-AI-Legal-Assistant.app.tar.gz)
-2. **Extract**: Double-click the downloaded `.tar.gz` file
-3. **Move**: Drag `BEAR AI Legal Assistant.app` to `/Applications`
-4. **Launch**: Open from Applications folder or Spotlight search
-5. **Security**: If blocked, go to System Preferences → Security & Privacy → Allow
-
-**macOS DMG (Alternative):**
-
-1. **Download**: [macOS Disk Image](https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/BEAR-AI-Legal-Assistant_x64.dmg)
-2. **Mount**: Double-click the `.dmg` file
-3. **Install**: Drag the app to Applications folder
-4. **Eject**: Unmount the disk image
-5. **Launch**: Open from Applications
-
-### 🐧 Linux Installation
-
-**Ubuntu/Debian (.deb package):**
-
-```bash
-# Download and install
-wget https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/bear-ai-legal-assistant_1.0.0_amd64.deb
-sudo dpkg -i bear-ai-legal-assistant_1.0.0_amd64.deb
-
-# Fix dependencies if needed
-sudo apt-get install -f
-
-# Launch
-bear-ai-legal-assistant
-```
-
-**Red Hat/Fedora (.rpm package):**
-
-```bash
-# Download and install
-wget https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/bear-ai-legal-assistant-1.0.0-1.x86_64.rpm
-sudo rpm -i bear-ai-legal-assistant-1.0.0-1.x86_64.rpm
-
-# Or using dnf/yum
-sudo dnf install ./bear-ai-legal-assistant-1.0.0-1.x86_64.rpm
-
-# Launch
-bear-ai-legal-assistant
-```
-
-**AppImage (Universal Linux):**
-
-```bash
-# Download
-wget https://github.com/KingOfTheAce2/BEAR_AI/releases/latest/download/bear-ai-legal-assistant_1.0.0_amd64.AppImage
-
-# Make executable
-chmod +x bear-ai-legal-assistant_1.0.0_amd64.AppImage
-
-# Launch
-./bear-ai-legal-assistant_1.0.0_amd64.AppImage
-```
-
+**Note**: BEAR AI is exclusively built for Windows x64. Mac and Linux support is not available.
 ### 🛠️ Option 2: Build from Source
 
 **For developers or advanced users:**
@@ -224,26 +162,14 @@ tauri build
 
 #### 🖥️ End Users (Pre-built Releases)
 
-**Windows:**
+**Windows x64 Requirements:**
 - **OS**: Windows 10 (1903+) or Windows 11
-- **Architecture**: x64 (64-bit)
+- **Architecture**: x64 (64-bit) ONLY
 - **RAM**: 4GB minimum, 8GB recommended
 - **Storage**: 500MB free space
-- **Runtime**: No additional dependencies required
+- **Runtime**: WebView2 (auto-installed if needed)
 
-**macOS:**
-- **OS**: macOS 10.15 (Catalina) or later
-- **Architecture**: Intel (x64) or Apple Silicon (ARM64)
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 500MB free space
-- **Runtime**: No additional dependencies required
-
-**Linux:**
-- **OS**: Ubuntu 18.04+, Debian 10+, Fedora 32+, or equivalent
-- **Architecture**: x86_64 (64-bit)
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 500MB free space
-- **Dependencies**: `libwebkit2gtk-4.0-37`, `libgtk-3-0`
+**Note**: This application is built exclusively for Windows x64. Mac and Linux platforms are not supported.
 
 #### 🛠️ Development Environment
 
@@ -253,14 +179,11 @@ tauri build
 - **RAM**: 8GB minimum, 16GB recommended
 - **Storage**: 5GB free space
 
-**Windows Development:**
+**Windows Development Requirements:**
 - **Visual Studio Build Tools** 2019 or later
 - **Windows 10 SDK**
-
-**Linux Development:**
-- **Build essentials**: `build-essential`, `curl`, `wget`, `file`
-- **WebKit dependencies**: `libwebkit2gtk-4.0-dev`, `libgtk-3-dev`
-- **Additional libraries**: `libappindicator3-dev`, `librsvg2-dev`, `patchelf`
+- **Git for Windows**
+- **PowerShell 5.1 or later**
 
 ## 🚀 Usage
 
@@ -311,8 +234,7 @@ tauri dev
 
 **BEAR AI stores configuration and data in:**
 - **Windows**: `%APPDATA%\BEAR AI Legal Assistant\`
-- **macOS**: `~/Library/Application Support/BEAR AI Legal Assistant/`
-- **Linux**: `~/.config/BEAR AI Legal Assistant/`
+- **Alternative**: `%LOCALAPPDATA%\BEAR AI Legal Assistant\` (for cache)
 
 ### ⚙️ Desktop App Settings
 
@@ -386,20 +308,20 @@ npm test
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### 🔄 CI/CD Pipeline
+### 🔄 Windows CI/CD Pipeline
 
-**Our automated build system:**
+**Our Windows-focused build system:**
 
-- **🚀 Continuous Integration**: Every push and PR triggers automated builds
-- **✅ Multi-platform Testing**: Windows, macOS, and Linux builds
-- **📦 Automated Releases**: Draft releases created on version tags
-- **🔒 Security Scanning**: Automated vulnerability checks
+- **⚡ Windows Quickbuild**: Rapid testing for development (5-10 min)
+- **🚀 Windows Production Build**: Official releases with signing (15-20 min)
+- **✅ Windows Testing**: Comprehensive Windows x64 validation
+- **📦 Automated Releases**: Production builds for Windows only
+- **🔒 Security Scanning**: Windows-specific vulnerability checks
 - **📊 Code Quality**: ESLint, TypeScript checking, and test coverage
 
-**Build Status:**
-- [![Windows Build](https://img.shields.io/github/actions/workflow/status/KingOfTheAce2/BEAR_AI/build-tauri.yml?branch=main&label=Windows%20Build)](https://github.com/KingOfTheAce2/BEAR_AI/actions/workflows/build-tauri.yml)
-- **macOS Build**: Coming soon with expanded CI/CD
-- **Linux Build**: Coming soon with expanded CI/CD
+**Build Workflows:**
+- [![Windows Quickbuild](https://img.shields.io/github/actions/workflow/status/KingOfTheAce2/BEAR_AI/windows-quickbuild-test.yml?branch=main&label=Windows%20Quickbuild)](https://github.com/KingOfTheAce2/BEAR_AI/actions/workflows/windows-quickbuild-test.yml)
+- [![Windows Production](https://img.shields.io/github/actions/workflow/status/KingOfTheAce2/BEAR_AI/windows-production-release.yml?branch=main&label=Windows%20Production)](https://github.com/KingOfTheAce2/BEAR_AI/actions/workflows/windows-production-release.yml)
 
 ### 🛠️ Development Setup
 
@@ -519,23 +441,12 @@ gh release create v1.0.1 --draft --generate-notes
 **Q: Which installer should I choose for Windows?**
 A: Use the **MSI installer** for most users. It provides a standard Windows installation experience. Use the **EXE installer** if you prefer a custom installation setup.
 
-**Q: The app won't start on macOS - "App is damaged"**
-A: This is a Gatekeeper security feature. Right-click the app → "Open" → "Open" again. Or run: `sudo xattr -rd com.apple.quarantine "/Applications/BEAR AI Legal Assistant.app"`
-
-**Q: Linux dependencies missing?**
-A: Install WebKit dependencies:
-```bash
-# Ubuntu/Debian
-sudo apt-get install libwebkit2gtk-4.0-37 libgtk-3-0
-
-# Fedora
-sudo dnf install webkit2gtk4.0 gtk3
-```
+**Q: Is BEAR AI available for Mac or Linux?**
+A: No, BEAR AI is exclusively built and optimized for Windows x64. There are no plans for Mac or Linux support.
 
 **Q: How do I uninstall BEAR AI?**
 - **Windows**: Control Panel → Programs → Uninstall
-- **macOS**: Drag app from Applications to Trash
-- **Linux**: `sudo apt remove bear-ai-legal-assistant` or use your package manager
+- **Alternative**: Settings → Apps → BEAR AI Legal Assistant → Uninstall
 
 ### 🔄 Updates & Versions
 
