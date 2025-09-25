@@ -83,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript', 'typescript']
+        language: ['javascript']  # JavaScript includes TypeScript scanning
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
