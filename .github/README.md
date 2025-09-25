@@ -1,40 +1,48 @@
-# GitHub Actions CI/CD Pipeline for BEAR AI Legal Assistant
+# GitHub Actions Workflows for BEAR AI Legal Assistant
 
-This directory contains the comprehensive GitHub Actions workflows for building, testing, and deploying the BEAR AI Legal Assistant Tauri application.
+This directory contains the Windows-focused CI/CD workflows for building, testing, and deploying BEAR AI.
 
 ## 🚀 Workflows Overview
 
-### 1. CI/CD Pipeline (`ci-cd.yml`)
-**Main workflow for comprehensive build and deployment**
+### 1. Windows Quickbuild Test (`windows-quickbuild-test.yml`)
+**Fast development builds for Windows x64**
 
 **Triggers:**
 - Push to `main` and `develop` branches
+- Pull requests
+- Manual workflow dispatch
+
+**Features:**
+- ✅ Windows x64 optimized build
+- ✅ Quick security checks
+- ✅ TypeScript and Rust validation
+- ✅ Unit and integration tests
+- ✅ 5-10 minute build time
+
+### 2. Windows Production Release (`windows-production-release.yml`)
+**Official Windows x64 release builds**
+
+**Triggers:**
 - Release tags (`v*`)
-- Published releases
+- Manual workflow dispatch with version
 
 **Features:**
-- ✅ Cross-platform builds (Windows, macOS, Linux)
-- ✅ Automated testing (unit, integration, e2e, API)
-- ✅ Security scanning and code quality checks
-- ✅ Dependency caching for optimal performance
-- ✅ Release automation with downloadable binaries
-- ✅ Multiple architecture support (x64, ARM64 for macOS)
+- ✅ Production-optimized Windows build
+- ✅ Code signing (when certificate available)
+- ✅ MSI and EXE installer generation
+- ✅ SHA256 checksums
+- ✅ Automated GitHub release creation
 
-**Build Artifacts:**
-- **Windows**: `.exe` and `.msi` installers
-- **macOS**: `.app` bundle and `.dmg` installer (Intel & Apple Silicon)
-- **Linux**: `.deb` package and `.AppImage`
-
-### 2. Pull Request Validation (`pr-validation.yml`)
-**Lightweight validation for pull requests**
+### 3. Security Audit (`security.yml`)
+**Comprehensive security scanning**
 
 **Features:**
-- ✅ Quick TypeScript and Rust validation
-- ✅ Code quality checks (ESLint, Clippy)
-- ✅ Security scanning
-- ✅ Test execution
-- ✅ Build verification
-- ✅ PR size analysis with automated comments
+- ✅ NPM vulnerability scanning
+- ✅ Rust cargo audit
+- ✅ CodeQL analysis for JavaScript
+- ✅ Secret detection with TruffleHog and Gitleaks
+- ✅ Trivy container scanning
+- ✅ OWASP dependency check
 
 ### 3. Security Audit (`security-audit.yml`)
 **Daily security scanning and vulnerability detection**

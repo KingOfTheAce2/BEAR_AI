@@ -181,9 +181,9 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
+          base: ${{ github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before || 'HEAD~1' }}
           head: HEAD
-          extra_args: --only-verified --max-depth=1
+          extra_args: --only-verified --max-depth=1 --fail
 
   build-status:
     name: Build Status Check
