@@ -143,7 +143,7 @@ lcov.info
 
 # Tauri build files
 src-tauri/target/
-src-tauri/Cargo.lock
+# NOTE: Cargo.lock must be committed for CI/CD to resolve dependencies
 
 # Obsolete files patterns
 *_BACKUP_*
