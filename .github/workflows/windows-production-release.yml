@@ -125,7 +125,7 @@ jobs:
           cd src-tauri
           cargo update
           cargo fetch
-          cargo build --release --target x86_64-pc-windows-msvc --verbose
+          cargo build --release --target x86_64-pc-windows-msvc --all-features --verbose
           cd ..
           npm run tauri build -- --target x86_64-pc-windows-msvc
 

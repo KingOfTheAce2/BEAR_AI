@@ -1,4 +1,5 @@
-Compiling hex v0.4.3
+
+   Compiling bear-ai-legal-assistant v1.0.0 (D:\a\BEAR_AI\BEAR_AI\src-tauri)
 error[E0432]: unresolved import `calamine`
  --> src\document_analyzer.rs:2:5
   |
@@ -1153,5 +1154,4 @@ Some errors have detailed explanations: E0061, E0063, E0277, E0282, E0412, E0425
 For more information about an error, try `rustc --explain E0061`.
 warning: `bear-ai-legal-assistant` (lib) generated 35 warnings
 error: could not compile `bear-ai-legal-assistant` (lib) due to 102 previous errors; 35 warnings emitted
-warning: build failed, waiting for other jobs to finish...
 Error: Process completed with exit code 1.
