@@ -204,7 +204,7 @@ pub struct AgentDefinition {
     pub max_iterations: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AgentType {
     ContractAnalyzer,
     LegalResearcher,
@@ -941,7 +941,8 @@ impl MCPServer {
             }
         };
 
-        let arguments = params.get("arguments").unwrap_or(&serde_json::Value::Object(serde_json::Map::new()));
+        let empty_arguments = serde_json::Value::Object(serde_json::Map::new());
+        let arguments = params.get("arguments").unwrap_or(&empty_arguments);
 
         let prompt_text = match prompt_name.as_str() {
             "contract_analysis" => {
@@ -1253,10 +1254,11 @@ impl MCPServer {
         let prompt = agent.prompt_template.replace("{input}", &task.input);
 
         // Execute with the assigned model
+        let default_model = "phi3-mini-legal".to_string();
         let model_id = agent
             .model_id
             .as_ref()
-            .unwrap_or(&"phi3-mini-legal".to_string());
+            .unwrap_or(&default_model);
 
         let response_text = self.execute_with_model(model_id, &prompt).await?;
 
@@ -1264,7 +1266,7 @@ impl MCPServer {
         let response = AgentResponse {
             task_id: task.task_id.clone(),
             agent_id: agent.id,
-            output: response_text,
+            output: response_text.clone(),
             confidence: self.calculate_confidence(&response_text, &task.input),
             reasoning: "Analysis completed using local LLM".to_string(),
             citations: self.extract_citations(&response_text),

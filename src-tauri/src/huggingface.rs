@@ -80,7 +80,8 @@ impl HuggingFaceClient {
         params.insert("filter", "gguf"); // Focus on GGUF models for local inference
         params.insert("sort", "downloads");
         params.insert("direction", "-1");
-        params.insert("limit", &limit.to_string());
+        let limit_str = limit.to_string();
+        params.insert("limit", &limit_str);
 
         let response = self
             .client
@@ -104,7 +105,7 @@ impl HuggingFaceClient {
 
         let mut hf_models = Vec::new();
 
-        for model_data in models {
+        for model_data in &models {
             if let Some(model) = self.parse_model_data(&model_data).await? {
                 hf_models.push(model);
             }
@@ -284,7 +285,7 @@ impl HuggingFaceClient {
     /// Parse model data from HuggingFace API response
     async fn parse_model_data(&self, data: &serde_json::Value) -> Result<Option<HuggingFaceModel>> {
         let model_id = data["id"].as_str().unwrap_or("").to_string();
-        let tags = data["tags"]
+        let tags: Vec<String> = data["tags"]
             .as_array()
             .map(|arr| {
                 arr.iter()

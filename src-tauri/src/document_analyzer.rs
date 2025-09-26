@@ -287,7 +287,7 @@ impl DocumentAnalyzer {
         let extracted_text = self.extract_text(file_path).await?;
 
         // Update metadata with word count after text extraction
-        let mut updated_metadata = metadata;
+        let mut updated_metadata = metadata.clone();
         updated_metadata.word_count = Some(self.calculate_word_count(&extracted_text));
 
         // Perform various analyses
@@ -1448,7 +1448,8 @@ impl DocumentAnalyzer {
             "accordance", "hereby", "whereas", "therefore",
         ];
 
-        let words: Vec<&str> = text.to_lowercase().split_whitespace().collect();
+        let text_lower = text.to_lowercase();
+        let words: Vec<&str> = text_lower.split_whitespace().collect();
         let total_words = words.len() as f32;
 
         if total_words == 0.0 {

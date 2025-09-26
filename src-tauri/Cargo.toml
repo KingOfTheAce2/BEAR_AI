@@ -109,7 +109,7 @@ tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = { version = "0.3", features = ["sink", "io"] }
 
 [features]
-default = []
+default = ["desktop", "full-rag"]
 headless = []
 custom-protocol = ["tauri/custom-protocol"]
 desktop = ["custom-protocol"]

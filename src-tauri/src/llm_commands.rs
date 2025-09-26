@@ -678,7 +678,9 @@ pub async fn llm_get_system_resources() -> Result<CommandResult<SystemResourceUs
         Ok(CommandResult::success(usage))
     } else {
         // Fallback to basic sysinfo if performance tracker not available
-        let sys = sysinfo::System::new_all();
+        use sysinfo::{System, SystemExt};
+        let mut sys = System::new_all();
+        sys.refresh_all();
 
         let total_memory_gb = sys.total_memory() as f32 / (1024.0 * 1024.0 * 1024.0);
         let used_memory_gb = sys.used_memory() as f32 / (1024.0 * 1024.0 * 1024.0);

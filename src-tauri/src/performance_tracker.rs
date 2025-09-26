@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::sync::Mutex;
 use tokio::time::interval;
-use sysinfo::{CpuExt, System, SystemExt, DiskExt, ProcessExt};
+use sysinfo::{System, SystemExt, DiskExt, ProcessExt, CpuExt};
 use anyhow::Result;
 use std::fs;
 use std::path::PathBuf;
@@ -918,7 +918,9 @@ impl PerformanceTimer {
 }
 
 // Global performance tracker instance
-lazy_static::lazy_static! {
+use lazy_static::lazy_static;
+
+lazy_static! {
     pub static ref GLOBAL_PERFORMANCE_TRACKER: Arc<RwLock<Option<Arc<PerformanceTracker>>>> =
         Arc::new(RwLock::new(None));
 }

@@ -960,15 +960,10 @@ impl MollieClient {
 
     // Webhook signature verification
     pub fn verify_webhook_signature(&self, payload: &str, signature: &str) -> Result<MollieWebhookEvent> {
-        // Verify webhook signature using HMAC-SHA256
-        type HmacSha256 = Hmac<Sha256>;
-
-        let mut mac = HmacSha256::new_from_slice(self.webhook_secret.as_bytes())
-            .map_err(|e| anyhow!("Invalid webhook secret: {}", e))?;
-
-        mac.update(payload.as_bytes());
-
-        let expected_signature = hex::encode(mac.finalize().into_bytes());
+        // Verify webhook signature using ring's HMAC-SHA256
+        let key = hmac::Key::new(hmac::HMAC_SHA256, self.webhook_secret.as_bytes());
+        let computed_signature = hmac::sign(&key, payload.as_bytes());
+        let expected_signature = hex::encode(computed_signature.as_ref());
 
         if signature != expected_signature {
             return Err(anyhow!("Invalid webhook signature"));

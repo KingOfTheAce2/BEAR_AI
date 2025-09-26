@@ -86,7 +86,7 @@ pub struct AccessPermissions {
     pub granted_by: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Permission {
     DocumentRead,
     DocumentWrite,
@@ -848,7 +848,7 @@ impl SecurityManager {
         let key_file = security_dir.join("encryption.key");
 
         if key_file.exists() {
-            let key_bytes = fs::read(key_file)?;
+            let key_bytes = fs::read(&key_file)?;
             if key_bytes.len() == 32 {
                 return Ok(*Key::<Aes256Gcm>::from_slice(&key_bytes));
             }
@@ -877,7 +877,7 @@ impl SecurityManager {
         let jwt_file = security_dir.join("jwt.secret");
 
         if jwt_file.exists() {
-            let secret = fs::read(jwt_file)?;
+            let secret = fs::read(&jwt_file)?;
             if secret.len() >= 32 {
                 return Ok(secret);
             }

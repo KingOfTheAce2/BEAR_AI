@@ -762,7 +762,7 @@ impl LLMManager {
 
     /// Fallback GPU detection using sysinfo
     fn detect_sysinfo_gpu(&self) -> Option<Vec<String>> {
-        use sysinfo::System;
+        use sysinfo::{System, SystemExt};
 
         let mut sys = System::new_all();
         sys.refresh_all();

@@ -851,7 +851,7 @@ async fn perform_document_search(
 
         // Add time-based relevance (more recent documents get slight boost)
         if let Ok(created_time) = chrono::DateTime::parse_from_rfc3339(&document.created_at) {
-            let days_old = (chrono::Utc::now() - created_time).num_days();
+            let days_old = (chrono::Utc::now() - created_time.with_timezone(&chrono::Utc)).num_days();
             let recency_boost = (1.0 / (1.0 + days_old as f32 / 365.0)) * 0.5;
             score += recency_boost;
         }
