@@ -47,11 +47,12 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
-          key: windows-production-${{ hashFiles('**/Cargo.lock') }}
+      # Disabled cache to force fresh dependency resolution
+      # - name: Setup Rust cache
+      #   uses: Swatinem/rust-cache@v2
+      #   with:
+      #     workspaces: './src-tauri -> target'
+      #     key: windows-production-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Windows SDK
         uses: ChristopheLav/windows-sdk-install@v1
@@ -72,7 +73,9 @@ jobs:
         run: |
           if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
           if (Test-Path "src-tauri/target") { Remove-Item -Recurse -Force "src-tauri/target" }
+          if (Test-Path "src-tauri/Cargo.lock") { Remove-Item -Force "src-tauri/Cargo.lock" }
           if (Test-Path "dist") { Remove-Item -Recurse -Force "dist" }
+          cargo clean || echo "No cargo project to clean"
 
       # Install dependencies
       - name: Install dependencies
@@ -112,7 +115,7 @@ jobs:
           $cargoToml = $cargoToml -replace 'version = ".*"', "version = `"$version`""
           Set-Content src-tauri/Cargo.toml $cargoToml
 
-      # Build Tauri application
+      # Update dependencies and build Tauri application
       - name: Build Tauri application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +123,9 @@ jobs:
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         run: |
           cd src-tauri
-          cargo build --release --target x86_64-pc-windows-msvc
+          cargo update
+          cargo fetch
+          cargo build --release --target x86_64-pc-windows-msvc --verbose
           cd ..
           npm run tauri build -- --target x86_64-pc-windows-msvc
 
