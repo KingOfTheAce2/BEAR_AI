@@ -64,18 +64,18 @@ sysinfo = "0.32"
 lazy_static = "1.5"
 
 # Vector database clients
-qdrant-client = { version = "1.11", optional = true }
-lance = { version = "0.16", optional = true }
-arrow = { version = "53.0", optional = true }
+qdrant-client = { version = "1.11" }
+lance = { version = "0.16" }
+arrow = { version = "53.0" }
 
 # Machine learning and embeddings
-candle-core = { version = "0.7", optional = true }
-candle-nn = { version = "0.7", optional = true }
-candle-transformers = { version = "0.7", optional = true }
-tokenizers = { version = "0.20", optional = true }
+candle-core = { version = "0.7" }
+candle-nn = { version = "0.7" }
+candle-transformers = { version = "0.7" }
+tokenizers = { version = "0.20" }
 
 # Caching and performance
-redis = { version = "0.27", features = ["tokio-comp"], optional = true }
+redis = { version = "0.27", features = ["tokio-comp"] }
 lru = "0.12"
 
 # GPU detection dependencies
@@ -107,6 +107,7 @@ serde_urlencoded = "0.7"
 hmac = "0.12"
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = { version = "0.3", features = ["sink", "io"] }
+futures = "0.3"
 
 [features]
 default = ["desktop", "full-rag"]
