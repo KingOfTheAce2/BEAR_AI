@@ -9,8 +9,8 @@ use tokio::time::{timeout, Duration};
 use tauri::{AppHandle, Manager, State};
 use chrono::{DateTime, Utc};
 use log::{error, info, warn, debug};
-use hmac::{Hmac, Mac};
-use sha2::Sha256;
+use ring::hmac;
+use hex;
 
 // Mollie API client with secure credential management
 #[derive(Clone)]
@@ -407,6 +407,7 @@ impl MollieClient {
                 .post(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -429,7 +430,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -455,6 +456,7 @@ impl MollieClient {
                 .patch(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -477,7 +479,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.delete(&url).headers(headers)
+            self.client.delete(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -502,6 +504,7 @@ impl MollieClient {
                 .post(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -524,7 +527,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -546,7 +549,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.delete(&url).headers(headers)
+            self.client.delete(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -582,7 +585,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -611,6 +614,7 @@ impl MollieClient {
                 .post(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -633,7 +637,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -659,6 +663,7 @@ impl MollieClient {
                 .patch(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -681,7 +686,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.delete(&url).headers(headers)
+            self.client.delete(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -708,7 +713,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -737,6 +742,7 @@ impl MollieClient {
                 .post(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -759,7 +765,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -781,7 +787,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.delete(&url).headers(headers)
+            self.client.delete(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -805,7 +811,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -834,6 +840,7 @@ impl MollieClient {
                 .post(&url)
                 .headers(headers)
                 .json(&request)
+                .send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -856,7 +863,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -882,7 +889,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -907,7 +914,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -933,7 +940,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -993,7 +1000,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;
@@ -1016,7 +1023,7 @@ impl MollieClient {
 
         let response = timeout(
             Duration::from_secs(30),
-            self.client.get(&url).headers(headers)
+            self.client.get(&url).headers(headers).send()
         ).await
         .map_err(|_| anyhow!("Request timeout"))?
         .map_err(|e| anyhow!("HTTP request failed: {}", e))?;

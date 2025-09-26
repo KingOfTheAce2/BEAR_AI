@@ -27,7 +27,7 @@ bcrypt = "0.15"
 walkdir = "2.4"
 mime_guess = "2.0"
 tokio-stream = "0.1"
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", features = ["json", "stream", "multipart", "rustls-tls"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 regex = "1.0"
 sys-info = "0.9"
@@ -55,45 +55,45 @@ objc = "0.2"
 futures = "0.3"
 bytes = "1.0"
 md5 = "0.7"
-zip = "0.6"
+zip = "1.1"
 tar = "0.4"
 once_cell = "1.19"
 parking_lot = "0.12"
 num_cpus = "1.16"
-sysinfo = "0.30"
-lazy_static = "1.4"
+sysinfo = "0.32"
+lazy_static = "1.5"
 
 # Vector database clients
-qdrant-client = { version = "1.5", optional = true }
-lance = { version = "0.8", optional = true }
-arrow = { version = "45.0", optional = true }
+qdrant-client = { version = "1.11", optional = true }
+lance = { version = "0.16", optional = true }
+arrow = { version = "53.0", optional = true }
 
 # Machine learning and embeddings
-candle-core = { version = "0.3", optional = true }
-candle-nn = { version = "0.3", optional = true }
-candle-transformers = { version = "0.3", optional = true }
-tokenizers = { version = "0.14", optional = true }
+candle-core = { version = "0.7", optional = true }
+candle-nn = { version = "0.7", optional = true }
+candle-transformers = { version = "0.7", optional = true }
+tokenizers = { version = "0.20", optional = true }
 
 # Caching and performance
-redis = { version = "0.23", features = ["tokio-comp"], optional = true }
+redis = { version = "0.27", features = ["tokio-comp"], optional = true }
 lru = "0.12"
 
 # GPU detection dependencies
 nvml-wrapper = { version = "0.9", optional = true }
 metal = { version = "0.28", optional = true }
 # Document format support
-calamine = "0.24"  # Excel/CSV reading
+calamine = "0.25"  # Excel/CSV reading
 xml-rs = "0.8"     # XML parsing for Office formats
 csv = "1.3"        # CSV processing
 # Language detection and NLP
 whatlang = "0.16"  # Language detection
-lopdf = "0.32"     # PDF parsing
+lopdf = "0.33"     # PDF parsing
 # PDF generation and export
 printpdf = "0.7"   # PDF generation
 pdf-extract = "0.7" # PDF text extraction
 # OCR and image processing
-image = "0.24"     # Image processing
-tempfile = "3.8"   # Temporary file handling
+image = "0.25"     # Image processing
+tempfile = "3.13"  # Temporary file handling
 # Model format support
 safetensors = "0.4"
 bincode = "1.3"
@@ -105,8 +105,8 @@ bincode = "1.3"
 # stripe = "0.23" # Removed - not available on crates.io, using REST API instead
 serde_urlencoded = "0.7"
 hmac = "0.12"
-tokio-tungstenite = "0.20"
-futures-util = "0.3"
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+futures-util = { version = "0.3", features = ["sink", "io"] }
 
 [features]
 default = []

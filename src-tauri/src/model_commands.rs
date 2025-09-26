@@ -2,17 +2,15 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 use std::fs;
-use std::io::{BufRead, BufReader};
 use log::{info, warn, error, debug};
 use tokio::process::Command as TokioCommand;
-use tokio::io::{AsyncBufReadExt, BufReader as TokioBufReader};
-use tempfile::TempDir;
 use reqwest::Client;
-use futures_util::StreamExt;
+use futures_util::{StreamExt, TryStreamExt};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use tokio::io::AsyncWriteExt;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ModelInfo {
@@ -414,9 +412,9 @@ impl ModelManager {
         let file_path = destination.join("model.gguf");
         let mut file = tokio::fs::File::create(&file_path).await?;
 
-        while let Some(chunk) = stream.next().await {
-            let chunk = chunk?;
-            tokio::io::AsyncWriteExt::write_all(&mut file, &chunk).await?;
+        while let Some(chunk_result) = stream.next().await {
+            let chunk = chunk_result?;
+            file.write_all(&chunk).await?;
             downloaded += chunk.len() as u64;
 
             // Update progress
@@ -437,6 +435,7 @@ impl ModelManager {
             }
         }
 
+        file.flush().await?;
         info!("Download completed: {} bytes", downloaded);
         Ok(())
     }
@@ -483,7 +482,7 @@ impl ModelManager {
            .stdout(Stdio::piped())
            .stderr(Stdio::piped());
 
-        let mut process = cmd.spawn()?;
+        let process = cmd.spawn()?;
 
         // Store the running process
         {
@@ -510,7 +509,7 @@ impl ModelManager {
 
     // Unload a running model
     pub async fn unload_model(&self, model_id: &str) -> Result<()> {
-        let mut process = {
+        let process = {
             let mut running_models = self.running_models.lock().unwrap();
             running_models.remove(model_id)
         };

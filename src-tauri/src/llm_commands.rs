@@ -1,9 +1,7 @@
 // Tauri commands for LLM Management System
-use crate::llm_manager::{
-    initialize_llm_manager, ChatRequest, ChatResponse, EmbeddingRequest, EmbeddingResponse,
-    GenerateRequest, GenerateResponse, GpuInfo, LlmConfig, LlmManagerRef, ModelCreateRequest,
-    ModelInfo, ModelPullRequest, RunningModel,
-};
+use crate::llm_manager::{LLMManager, ModelInfo};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use crate::performance_tracker::{
     get_performance_tracker, PerformanceMetrics, PerformanceAnalytics, SystemResourceMetrics,
     ModelPerformanceMetrics, PerformanceTimer
@@ -13,6 +11,100 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
+
+// Define missing types from LLM manager
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LlmConfig {
+    pub model_path: Option<String>,
+    pub host: Option<String>,
+    pub port: Option<u16>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatRequest {
+    pub model: Option<String>,
+    pub messages: Vec<ChatMessage>,
+    pub stream: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatMessage {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatResponse {
+    pub message: ChatMessage,
+    pub done: Option<bool>,
+    pub eval_count: Option<i64>,
+    pub prompt_eval_count: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GenerateRequest {
+    pub model: Option<String>,
+    pub prompt: String,
+    pub stream: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GenerateResponse {
+    pub response: String,
+    pub done: Option<bool>,
+    pub eval_count: Option<i64>,
+    pub prompt_eval_count: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmbeddingRequest {
+    pub model: Option<String>,
+    pub prompt: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmbeddingResponse {
+    pub embedding: Vec<f32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelPullRequest {
+    pub name: String,
+    pub stream: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelCreateRequest {
+    pub name: String,
+    pub modelfile: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunningModel {
+    pub name: String,
+    pub size: u64,
+    pub digest: String,
+    pub details: HashMap<String, serde_json::Value>,
+}
+
+pub type LlmManagerRef = Arc<RwLock<Option<Arc<LLMManager>>>>;
+
+// Helper function to initialize LLM manager
+pub async fn initialize_llm_manager(
+    manager_ref: Arc<RwLock<Option<Arc<LLMManager>>>>,
+    config: Option<LlmConfig>,
+) -> anyhow::Result<()> {
+    let app_data_dir = dirs::data_dir()
+        .ok_or_else(|| anyhow::anyhow!("Failed to get app data directory"))?
+        .join("BEAR_AI");
+
+    let llm_manager = Arc::new(LLMManager::new(&app_data_dir)?);
+
+    let mut manager_guard = manager_ref.write().await;
+    *manager_guard = Some(llm_manager);
+
+    Ok(())
+}
 
 // Command response wrappers
 #[derive(Serialize, Deserialize)]
