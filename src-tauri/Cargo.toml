@@ -115,23 +115,23 @@ custom-protocol = ["tauri/custom-protocol"]
 desktop = ["custom-protocol"]
 
 # NVIDIA Nemotron RAG features
-nemotron-rag = ["qdrant", "gpu", "cache"]
-qdrant = ["dep:qdrant-client"]
-lance = ["dep:lance", "dep:arrow"]
-all-databases = ["qdrant", "lance"]
+nemotron-rag = []
+qdrant = []
+lance = []
+all-databases = []
 
 # Machine learning features
-gpu = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers"]
-embedding = ["gpu"]
+gpu = []
+embedding = []
 
 # Caching
-cache = ["dep:redis"]
+cache = []
 
 # GPU detection
 gpu-detection = ["nvml-wrapper", "metal"]
 
 # Full RAG system with all features
-full-rag = ["nemotron-rag", "all-databases", "embedding", "cache"]
+full-rag = []
 
 [profile.release]
 panic = "abort"
