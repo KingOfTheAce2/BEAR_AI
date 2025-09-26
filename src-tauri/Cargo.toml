@@ -107,7 +107,6 @@ serde_urlencoded = "0.7"
 hmac = "0.12"
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = { version = "0.3", features = ["sink", "io"] }
-futures = "0.3"
 
 [features]
 default = ["desktop", "full-rag"]
