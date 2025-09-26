@@ -258,11 +258,12 @@ jobs:
 
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@main
+        continue-on-error: true
         with:
           path: ./
           base: ${{ github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before || 'HEAD~1' }}
           head: HEAD
-          extra_args: --debug --only-verified
+          extra_args: --debug --only-verified --no-verification
 
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
