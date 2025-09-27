@@ -739,7 +739,7 @@ impl PerformanceTimer {
         // Calculate total read bytes per second across all disks
         // This is a simplified implementation - in production you'd want to track
         // read bytes over time intervals
-        let mut total_read_mb_per_sec = 0.0;
+        let mut total_read_mb_per_sec: f32 = 0.0;
 
         for disk in disks {
             // Get disk usage and estimate read speed based on activity
@@ -769,7 +769,7 @@ impl PerformanceTimer {
         let disks = system.disks();
 
         // Calculate total write bytes per second across all disks
-        let mut total_write_mb_per_sec = 0.0;
+        let mut total_write_mb_per_sec: f32 = 0.0;
 
         for disk in disks {
             let total_space = disk.total_space() as f64;

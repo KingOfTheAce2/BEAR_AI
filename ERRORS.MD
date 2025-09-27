@@ -1,5 +1,5 @@
 
-   Compiling bear-ai-legal-assistant v1.0.0 (D:\a\BEAR_AI\BEAR_AI\src-tauri)
+  Compiling bear-ai-legal-assistant v1.0.0 (D:\a\BEAR_AI\BEAR_AI\src-tauri)
 error[E0432]: unresolved import `calamine`
  --> src\document_analyzer.rs:2:5
   |

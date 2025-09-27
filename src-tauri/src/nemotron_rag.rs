@@ -122,6 +122,18 @@ pub struct RAGChunk {
     pub created_at: DateTime<Utc>,
 }
 
+/// RAG system health status
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RAGHealth {
+    pub status: String,
+    pub vector_db_connected: bool,
+    pub embeddings_available: bool,
+    pub cache_enabled: bool,
+    pub gpu_available: bool,
+    pub total_documents: usize,
+    pub total_chunks: usize,
+}
+
 /// Query context for retrieval
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QueryContext {
@@ -780,7 +792,7 @@ impl NemotronRAG {
         Ok(expanded)
     }
 
-    async fn sparse_retrieval(&self, context: &QueryContext) -> Result<RetrievalResult> {
+    async fn sparse_retrieval(&self, _context: &QueryContext) -> Result<RetrievalResult> {
         // Implement BM25-style keyword retrieval
         // This is a simplified placeholder
         Ok(RetrievalResult {
@@ -817,7 +829,7 @@ impl NemotronRAG {
         })
     }
 
-    async fn graph_retrieval(&self, context: &QueryContext) -> Result<RetrievalResult> {
+    async fn graph_retrieval(&self, _context: &QueryContext) -> Result<RetrievalResult> {
         // Use document graph to find related documents
         // This is a simplified placeholder
         Ok(RetrievalResult {
@@ -862,7 +874,7 @@ impl NemotronRAG {
         })
     }
 
-    async fn rerank_with_nemotron(&self, results: &RetrievalResult, context: &QueryContext) -> Result<RetrievalResult> {
+    async fn rerank_with_nemotron(&self, results: &RetrievalResult, _context: &QueryContext) -> Result<RetrievalResult> {
         // Use NVIDIA Nemotron for reranking
         // This would call the Nemotron API with the query and candidate chunks
         Ok(results.clone())
@@ -904,7 +916,7 @@ impl NemotronRAG {
         Ok(contradictions)
     }
 
-    async fn calculate_confidence(&self, results: &RetrievalResult, context: &QueryContext) -> Result<f32> {
+    async fn calculate_confidence(&self, results: &RetrievalResult, _context: &QueryContext) -> Result<f32> {
         // Calculate overall confidence based on various factors
         let mut confidence_factors = Vec::new();
 
@@ -1060,7 +1072,7 @@ impl NemotronRAG {
         Ok(None)
     }
 
-    async fn get_legal_synonyms(&self, query: &str) -> Result<Vec<String>> {
+    async fn get_legal_synonyms(&self, _query: &str) -> Result<Vec<String>> {
         // Get legal synonyms and related terms
         // This could use a legal thesaurus or API
         Ok(vec![])
@@ -1078,6 +1090,45 @@ impl NemotronRAG {
     async fn analyze_contradiction(&self, _chunk1: &RAGChunk, _chunk2: &RAGChunk) -> Result<Option<ContradictionInfo>> {
         // Analyze two chunks for contradictory information
         Ok(None)
+    }
+
+    /// Get the health status of the RAG system
+    pub async fn get_health(&self) -> Result<RAGHealth> {
+        // Check vector database connection
+        let vector_db_connected = match &self.vector_db_type {
+            VectorDbType::Qdrant => {
+                // Try to list collections to check connectivity
+                self.qdrant_client.as_ref()
+                    .map(|_client| true) // Simplified check
+                    .unwrap_or(false)
+            }
+            VectorDbType::Lance => {
+                self.lance_dataset.is_some()
+            }
+        };
+
+        // Check if embeddings are available
+        let embeddings_available = self.embeddings_cache.read().await.len() > 0;
+
+        // Check cache status
+        let cache_enabled = self.redis_client.is_some();
+
+        // Check GPU availability
+        let gpu_available = self.device.is_cuda();
+
+        // Get total documents and chunks counts (simplified)
+        let total_documents = 0; // Would need to query the database
+        let total_chunks = self.embeddings_cache.read().await.len();
+
+        Ok(RAGHealth {
+            status: "operational".to_string(),
+            vector_db_connected,
+            embeddings_available,
+            cache_enabled,
+            gpu_available,
+            total_documents,
+            total_chunks,
+        })
     }
 }
 

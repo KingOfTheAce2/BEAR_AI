@@ -67,7 +67,29 @@ pub async fn process_legal_document(
     let rag_system = app_state.rag_system.as_ref()
         .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    rag_system.process_document(document, None)
+    // Create a LegalDocument from the string input
+    let legal_doc = nemotron_rag::LegalDocument {
+        id: uuid::Uuid::new_v4().to_string(),
+        title: "Document".to_string(),
+        content: document,
+        jurisdiction: "General".to_string(),
+        document_type: nemotron_rag::DocumentType::Brief,
+        last_updated: chrono::Utc::now(),
+        citations: Vec::new(),
+        metadata: nemotron_rag::DocumentMetadata {
+            court: None,
+            judge: None,
+            parties: Vec::new(),
+            topics: Vec::new(),
+            precedential_value: nemotron_rag::PrecedentialValue::NotPrecedential,
+            confidence: 1.0,
+        },
+    };
+
+    let mut rag_mut = rag_system.clone();
+    Arc::get_mut(&mut rag_mut)
+        .ok_or_else(|| "Cannot get mutable reference to RAG system".to_string())?
+        .process_document(legal_doc)
         .await
         .map_err(|e| format!("Failed to process document: {}", e))?;
 
@@ -85,7 +107,19 @@ pub async fn retrieve_legal_info(
     let rag_system = app_state.rag_system.as_ref()
         .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    rag_system.retrieve(query, None)
+    // Create QueryContext from the string query
+    let context = nemotron_rag::QueryContext {
+        query,
+        jurisdiction: None,
+        document_types: None,
+        time_range: None,
+        precedential_only: None,
+        require_citations: None,
+        max_results: None,
+        confidence_threshold: None,
+    };
+
+    rag_system.retrieve(context)
         .await
         .map_err(|e| format!("Failed to retrieve information: {}", e))
 }
@@ -101,7 +135,19 @@ pub async fn generate_agentic_response(
     let rag_system = app_state.rag_system.as_ref()
         .ok_or_else(|| "RAG system not initialized".to_string())?;
 
-    let retrieval_results = rag_system.retrieve(query.clone(), None)
+    // Create QueryContext from the string query
+    let context = nemotron_rag::QueryContext {
+        query: query.clone(),
+        jurisdiction: None,
+        document_types: None,
+        time_range: None,
+        precedential_only: None,
+        require_citations: None,
+        max_results: None,
+        confidence_threshold: None,
+    };
+
+    let retrieval_results = rag_system.retrieve(context)
         .await
         .map_err(|e| format!("Failed to retrieve information: {}", e))?;
 
@@ -131,7 +177,19 @@ pub async fn multi_hop_reasoning(
     let hops = max_hops.unwrap_or(3);
 
     for hop in 0..hops {
-        let results = rag_system.retrieve(current_query.clone(), None)
+        // Create QueryContext from the current query
+        let context = nemotron_rag::QueryContext {
+            query: current_query.clone(),
+            jurisdiction: None,
+            document_types: None,
+            time_range: None,
+            precedential_only: None,
+            require_citations: None,
+            max_results: None,
+            confidence_threshold: None,
+        };
+
+        let results = rag_system.retrieve(context)
             .await
             .map_err(|e| format!("Failed at hop {}: {}", hop, e))?;
 
@@ -187,5 +245,6 @@ pub fn create_default_nemotron_config() -> nemotron_rag::NemotronConfig {
         cache_ttl: 3600,
         lance_db_path: None,
         max_results: 25,
+        embedding_dimension: 768,
     }
 }
