@@ -2,12 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
-use tokio::sync::Mutex;
-use tokio::time::interval;
+use tokio::sync::{Mutex, Semaphore};
+use tokio::time::{interval, sleep};
 use sysinfo::{System, SystemExt, DiskExt, ProcessExt, CpuExt};
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 /// Real-time performance metrics for LLM operations
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,7 +155,47 @@ pub struct ModelPerformanceMetrics {
     pub thread_efficiency_percent: f32,
 }
 
-/// Thread-safe performance tracking system
+/// Resource guard thresholds
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceThresholds {
+    pub max_cpu_percent: f32,
+    pub max_memory_percent: f32,
+    pub max_gpu_percent: f32,
+    pub critical_cpu_percent: f32,
+    pub critical_memory_percent: f32,
+    pub min_available_memory_mb: u64,
+    pub max_concurrent_operations: usize,
+    pub cooldown_duration_ms: u64,
+}
+
+impl Default for ResourceThresholds {
+    fn default() -> Self {
+        Self {
+            max_cpu_percent: 85.0,
+            max_memory_percent: 90.0,
+            max_gpu_percent: 95.0,
+            critical_cpu_percent: 95.0,
+            critical_memory_percent: 95.0,
+            min_available_memory_mb: 512,
+            max_concurrent_operations: 4,
+            cooldown_duration_ms: 5000,
+        }
+    }
+}
+
+/// Resource guard status
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceGuardStatus {
+    pub allowed: bool,
+    pub reason: Option<String>,
+    pub current_cpu: f32,
+    pub current_memory: f32,
+    pub current_gpu: Option<f32>,
+    pub throttle_factor: f32,
+    pub suggested_delay_ms: Option<u64>,
+}
+
+/// Thread-safe performance tracking system with resource guards
 pub struct PerformanceTracker {
     // Real-time metrics storage (last 1000 entries per model)
     metrics_buffer: Arc<RwLock<HashMap<String, VecDeque<PerformanceMetrics>>>>,
@@ -174,10 +215,20 @@ pub struct PerformanceTracker {
 
     // Cost tracking
     cost_per_token_by_model: Arc<RwLock<HashMap<String, f32>>>,
+
+    // Resource guards
+    thresholds: Arc<RwLock<ResourceThresholds>>,
+    operation_semaphore: Arc<Semaphore>,
+    emergency_shutdown: Arc<AtomicBool>,
+    active_operations: Arc<AtomicUsize>,
+    last_throttle_time: Arc<Mutex<Instant>>,
 }
 
 impl PerformanceTracker {
     pub fn new(persistence_path: PathBuf, max_buffer_size: usize) -> Result<Self> {
+        let thresholds = ResourceThresholds::default();
+        let max_concurrent = thresholds.max_concurrent_operations;
+
         let tracker = Self {
             metrics_buffer: Arc::new(RwLock::new(HashMap::new())),
             system_metrics: Arc::new(RwLock::new(VecDeque::new())),
@@ -186,6 +237,13 @@ impl PerformanceTracker {
             persistence_path,
             system: Arc::new(Mutex::new(System::new_all())),
             cost_per_token_by_model: Arc::new(RwLock::new(HashMap::new())),
+
+            // Initialize resource guards
+            thresholds: Arc::new(RwLock::new(thresholds)),
+            operation_semaphore: Arc::new(Semaphore::new(max_concurrent)),
+            emergency_shutdown: Arc::new(AtomicBool::new(false)),
+            active_operations: Arc::new(AtomicUsize::new(0)),
+            last_throttle_time: Arc::new(Mutex::new(Instant::now())),
         };
 
         // Load persisted data if available
@@ -196,6 +254,9 @@ impl PerformanceTracker {
 
         // Start periodic persistence
         tracker.start_periodic_persistence();
+
+        // Start resource guard monitor
+        tracker.start_resource_guard_monitor();
 
         Ok(tracker)
     }
@@ -627,6 +688,221 @@ impl PerformanceTimer {
             citation_verification_time_ms: 0, // To be filled by caller
             compliance_check_duration_ms: 0, // To be filled by caller
         }
+    }
+
+    /// CRITICAL: Check resource availability before allowing operation
+    /// Returns guard status with permission and throttling info
+    pub async fn check_resource_guards(&self) -> Result<ResourceGuardStatus> {
+        // Check emergency shutdown first
+        if self.emergency_shutdown.load(Ordering::Relaxed) {
+            return Ok(ResourceGuardStatus {
+                allowed: false,
+                reason: Some("Emergency shutdown activated due to critical resource levels".to_string()),
+                current_cpu: 100.0,
+                current_memory: 100.0,
+                current_gpu: None,
+                throttle_factor: 0.0,
+                suggested_delay_ms: Some(60000), // Wait 1 minute
+            });
+        }
+
+        // Get current resource usage
+        let mut system = self.system.lock().await;
+        system.refresh_all();
+
+        let cpu_usage = system.cpus().iter().map(|cpu| cpu.cpu_usage()).sum::<f32>() / system.cpus().len() as f32;
+        let memory_percent = (system.used_memory() as f32 / system.total_memory() as f32) * 100.0;
+        let available_memory_mb = system.available_memory() / (1024 * 1024);
+
+        let thresholds = self.thresholds.read().unwrap();
+
+        // Check critical thresholds - trigger emergency shutdown
+        if cpu_usage > thresholds.critical_cpu_percent || memory_percent > thresholds.critical_memory_percent {
+            self.emergency_shutdown.store(true, Ordering::Relaxed);
+
+            // Force cleanup
+            drop(system);
+
+            return Ok(ResourceGuardStatus {
+                allowed: false,
+                reason: Some(format!("CRITICAL: CPU {}% Memory {}% - Emergency shutdown", cpu_usage, memory_percent)),
+                current_cpu: cpu_usage,
+                current_memory: memory_percent,
+                current_gpu: None,
+                throttle_factor: 0.0,
+                suggested_delay_ms: Some(60000),
+            });
+        }
+
+        // Check minimum memory requirement
+        if available_memory_mb < thresholds.min_available_memory_mb {
+            return Ok(ResourceGuardStatus {
+                allowed: false,
+                reason: Some(format!("Insufficient memory: {}MB available, {}MB required",
+                    available_memory_mb, thresholds.min_available_memory_mb)),
+                current_cpu: cpu_usage,
+                current_memory: memory_percent,
+                current_gpu: None,
+                throttle_factor: 0.2,
+                suggested_delay_ms: Some(10000),
+            });
+        }
+
+        // Check normal thresholds
+        if cpu_usage > thresholds.max_cpu_percent {
+            let throttle = (cpu_usage - thresholds.max_cpu_percent) / 10.0;
+            return Ok(ResourceGuardStatus {
+                allowed: false,
+                reason: Some(format!("CPU usage too high: {}%", cpu_usage)),
+                current_cpu: cpu_usage,
+                current_memory: memory_percent,
+                current_gpu: None,
+                throttle_factor: throttle.min(1.0),
+                suggested_delay_ms: Some((throttle * 5000.0) as u64),
+            });
+        }
+
+        if memory_percent > thresholds.max_memory_percent {
+            let throttle = (memory_percent - thresholds.max_memory_percent) / 5.0;
+            return Ok(ResourceGuardStatus {
+                allowed: false,
+                reason: Some(format!("Memory usage too high: {}%", memory_percent)),
+                current_cpu: cpu_usage,
+                current_memory: memory_percent,
+                current_gpu: None,
+                throttle_factor: throttle.min(1.0),
+                suggested_delay_ms: Some((throttle * 3000.0) as u64),
+            });
+        }
+
+        // Check GPU if available
+        let gpu_usage = self.get_gpu_usage().await;
+        if let Some(gpu) = gpu_usage {
+            if gpu > thresholds.max_gpu_percent {
+                return Ok(ResourceGuardStatus {
+                    allowed: false,
+                    reason: Some(format!("GPU usage too high: {}%", gpu)),
+                    current_cpu: cpu_usage,
+                    current_memory: memory_percent,
+                    current_gpu: Some(gpu),
+                    throttle_factor: 0.5,
+                    suggested_delay_ms: Some(5000),
+                });
+            }
+        }
+
+        // All checks passed
+        Ok(ResourceGuardStatus {
+            allowed: true,
+            reason: None,
+            current_cpu: cpu_usage,
+            current_memory: memory_percent,
+            current_gpu: gpu_usage,
+            throttle_factor: 1.0,
+            suggested_delay_ms: None,
+        })
+    }
+
+    /// Acquire permission to execute an operation with resource guards
+    pub async fn acquire_operation_permit(&self) -> Result<()> {
+        // Check resource guards first
+        loop {
+            let guard_status = self.check_resource_guards().await?;
+
+            if !guard_status.allowed {
+                if let Some(delay) = guard_status.suggested_delay_ms {
+                    log::warn!("Resource guard blocked: {} - waiting {}ms",
+                        guard_status.reason.as_ref().unwrap_or(&"Unknown".to_string()), delay);
+                    sleep(Duration::from_millis(delay)).await;
+                    continue;
+                }
+                return Err(anyhow!(guard_status.reason.unwrap_or("Resource guard denied operation".to_string())));
+            }
+
+            break;
+        }
+
+        // Try to acquire semaphore permit
+        match self.operation_semaphore.try_acquire() {
+            Ok(_permit) => {
+                self.active_operations.fetch_add(1, Ordering::Relaxed);
+                Ok(())
+            }
+            Err(_) => {
+                // Too many concurrent operations
+                let active = self.active_operations.load(Ordering::Relaxed);
+                let max = self.thresholds.read().unwrap().max_concurrent_operations;
+                Err(anyhow!("Too many concurrent operations: {}/{}", active, max))
+            }
+        }
+    }
+
+    /// Release operation permit
+    pub fn release_operation_permit(&self) {
+        self.active_operations.fetch_sub(1, Ordering::Relaxed);
+        // Semaphore permit is automatically released when dropped
+    }
+
+    /// Get current GPU usage percentage
+    async fn get_gpu_usage(&self) -> Option<f32> {
+        #[cfg(feature = "gpu-detection")]
+        {
+            #[cfg(target_os = "windows")]
+            {
+                // Use NVIDIA Management Library if available
+                if let Ok(nvml) = nvml_wrapper::Nvml::init() {
+                    if let Ok(count) = nvml.device_count() {
+                        if count > 0 {
+                            if let Ok(device) = nvml.device_by_index(0) {
+                                if let Ok(utilization) = device.utilization_rates() {
+                                    return Some(utilization.gpu as f32);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Start background resource guard monitor
+    fn start_resource_guard_monitor(&self) {
+        let emergency_shutdown = Arc::clone(&self.emergency_shutdown);
+        let system = Arc::clone(&self.system);
+        let thresholds = Arc::clone(&self.thresholds);
+
+        tokio::spawn(async move {
+            let mut check_interval = interval(Duration::from_secs(5));
+
+            loop {
+                check_interval.tick().await;
+
+                let mut sys = system.lock().await;
+                sys.refresh_all();
+
+                let cpu_usage = sys.cpus().iter().map(|cpu| cpu.cpu_usage()).sum::<f32>() / sys.cpus().len() as f32;
+                let memory_percent = (sys.used_memory() as f32 / sys.total_memory() as f32) * 100.0;
+
+                let thresh = thresholds.read().unwrap();
+
+                // Check for critical conditions
+                if cpu_usage > thresh.critical_cpu_percent || memory_percent > thresh.critical_memory_percent {
+                    log::error!("CRITICAL RESOURCE ALERT: CPU {}%, Memory {}% - Activating emergency shutdown",
+                        cpu_usage, memory_percent);
+                    emergency_shutdown.store(true, Ordering::Relaxed);
+
+                    // Force garbage collection and cleanup
+                    drop(sys);
+
+                    // Wait for cooldown
+                    sleep(Duration::from_millis(thresh.cooldown_duration_ms)).await;
+
+                    // Reset emergency shutdown after cooldown
+                    emergency_shutdown.store(false, Ordering::Relaxed);
+                }
+            }
+        });
     }
 
     /// Calculate timeout rate from metrics

@@ -62,6 +62,7 @@ parking_lot = "0.12"
 num_cpus = "1.16"
 sysinfo = "0.32"
 lazy_static = "1.5"
+scopeguard = "1.2"
 
 # Vector database clients
 qdrant-client = { version = "1.11" }

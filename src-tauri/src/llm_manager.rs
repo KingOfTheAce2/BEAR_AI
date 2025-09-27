@@ -242,8 +242,20 @@ impl LLMManager {
         Ok(())
     }
 
-    /// Load a model for inference
+    /// Load a model for inference with resource guards
     pub async fn load_model(&self, model_id: &str) -> Result<String> {
+        // CHECK RESOURCE GUARDS BEFORE LOADING MODEL
+        if let Some(tracker) = crate::performance_tracker::get_performance_tracker() {
+            // Acquire operation permit with resource checking
+            tracker.acquire_operation_permit().await
+                .map_err(|e| anyhow::anyhow!("Resource guard denied model loading: {}", e))?;
+
+            // Make sure to release permit on error
+            let _guard = scopeguard::guard((), |_| {
+                tracker.release_operation_permit();
+            });
+        }
+
         let registry = self.registry.lock().unwrap();
         let model = registry.models.get(model_id).context("Model not found")?;
 

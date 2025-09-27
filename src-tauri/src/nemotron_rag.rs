@@ -526,8 +526,14 @@ impl NemotronRAG {
         Ok(())
     }
 
-    /// Process and store a legal document
+    /// Process and store a legal document with resource guards
     pub async fn process_document(&mut self, document: LegalDocument) -> Result<Vec<RAGChunk>> {
+        // CHECK RESOURCE GUARDS BEFORE PROCESSING
+        if let Some(tracker) = crate::performance_tracker::get_performance_tracker() {
+            tracker.acquire_operation_permit().await
+                .map_err(|e| anyhow::anyhow!("Resource guard denied document processing: {}", e))?;
+        }
+
         // Clean and preprocess the document
         let cleaned_content = self.clean_legal_text(&document.content);
 
@@ -549,8 +555,29 @@ impl NemotronRAG {
         Ok(enriched_chunks)
     }
 
-    /// Multi-stage retrieval pipeline
+    /// Multi-stage retrieval pipeline with resource guards
     pub async fn retrieve(&self, context: QueryContext) -> Result<RetrievalResult> {
+        // CHECK RESOURCE GUARDS BEFORE RETRIEVAL
+        if let Some(tracker) = crate::performance_tracker::get_performance_tracker() {
+            let guard_status = tracker.check_resource_guards().await?;
+
+            if !guard_status.allowed {
+                // Apply throttling if suggested
+                if let Some(delay) = guard_status.suggested_delay_ms {
+                    log::warn!("RAG retrieval delayed {}ms due to: {}",
+                        delay, guard_status.reason.as_ref().unwrap_or(&"resource limits".to_string()));
+                    tokio::time::sleep(tokio::time::Duration::from_millis(delay)).await;
+                }
+
+                // Recheck after delay
+                let recheck = tracker.check_resource_guards().await?;
+                if !recheck.allowed {
+                    return Err(anyhow::anyhow!("Resource guard blocked RAG retrieval: {}",
+                        recheck.reason.unwrap_or("System resources critically low".to_string())));
+                }
+            }
+        }
+
         // Stage 1: Query expansion and understanding
         let expanded_query = self.expand_query(&context).await?;
 
