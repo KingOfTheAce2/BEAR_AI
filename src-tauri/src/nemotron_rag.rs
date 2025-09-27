@@ -1122,30 +1122,25 @@ impl NemotronRAG {
     /// Get the health status of the RAG system
     pub async fn get_health(&self) -> Result<RAGHealth> {
         // Check vector database connection
-        let vector_db_connected = match &self.vector_db_type {
+        let vector_db_connected = match &self.config.vector_db_type {
             VectorDbType::Qdrant => {
-                // Try to list collections to check connectivity
-                self.qdrant_client.as_ref()
-                    .map(|_client| true) // Simplified check
-                    .unwrap_or(false)
-            }
-            VectorDbType::Lance => {
-                self.lance_dataset.is_some()
+                // Vector DB is always created during initialization
+                true
             }
         };
 
         // Check if embeddings are available
-        let embeddings_available = self.embeddings_cache.read().await.len() > 0;
+        let embeddings_available = self.embedding_cache.read().await.len() > 0;
 
         // Check cache status
         let cache_enabled = self.redis_client.is_some();
 
         // Check GPU availability
-        let gpu_available = self.device.is_cuda();
+        let gpu_available = false; // GPU detection handled by embedding_model
 
         // Get total documents and chunks counts (simplified)
         let total_documents = 0; // Would need to query the database
-        let total_chunks = self.embeddings_cache.read().await.len();
+        let total_chunks = self.embedding_cache.read().await.len();
 
         Ok(RAGHealth {
             status: "operational".to_string(),

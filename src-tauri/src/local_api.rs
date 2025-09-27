@@ -804,7 +804,8 @@ async fn perform_document_search(
     analyzer: &DocumentAnalyzer,
 ) -> Result<Vec<SearchResult>, String> {
     let mut search_results = Vec::new();
-    let query_terms: Vec<&str> = query.query.to_lowercase().split_whitespace().collect();
+    let query_lower = query.query.to_lowercase();
+    let query_terms: Vec<&str> = query_lower.split_whitespace().collect();
 
     for document in documents {
         // Skip if document doesn't match filters

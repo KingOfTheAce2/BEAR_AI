@@ -7,7 +7,7 @@ use std::fs;
 use log::{info, warn, error, debug};
 use tokio::process::Command as TokioCommand;
 use reqwest::Client;
-use futures_util::{StreamExt, TryStreamExt};
+use futures::stream::StreamExt;
 use bytes::Bytes;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -414,7 +414,7 @@ impl ModelManager {
         let mut file = tokio::fs::File::create(&file_path).await?;
 
         while let Some(chunk_result) = stream.next().await {
-            let chunk: Bytes = chunk_result?;
+            let chunk = chunk_result?;
             file.write_all(&chunk).await?;
             downloaded += chunk.len() as u64;
 

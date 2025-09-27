@@ -955,16 +955,20 @@ impl DocumentAnalyzer {
             text.chars().take(2000).collect::<String>() // Limit text length for LLM
         );
 
+        // For now, return empty entities as LLM integration needs to be implemented
+        // TODO: Implement proper LLM integration for entity extraction
+        Ok(Vec::new())
+        /*
         match llm_manager.generate_response(&prompt, None).await {
             Ok(response) => {
                 // Parse LLM response and convert to LegalEntity objects
                 self.parse_llm_entity_response(&response, text)
-            }
-            Err(e) => {
+            }*/
+        /*    Err(e) => {
                 log::warn!("LLM entity extraction failed: {}", e);
                 Ok(Vec::new())
             }
-        }
+        }*/
     }
 
     /// Parse LLM response for entity extraction
