@@ -611,16 +611,8 @@ pub async fn llm_get_performance_metrics(
                     model_memory_usage_mb: latest_metric.memory_usage_mb,
                     peak_memory_usage_mb: latest_metric.memory_usage_mb,
                     memory_efficiency_percent: 80.0,
-                    cpu_threads: 8,
-                    gpu_enabled: latest_metric.gpu_usage_percent > 0.0,
-                    gpu_memory_usage_mb: latest_metric.gpu_memory_usage_mb,
-                    temperature: 0.7,
-                    top_p: 0.9,
-                    frequency_penalty: 0.0,
-                    presence_penalty: 0.0,
-                    accuracy_score: 0.95,
-                    error_count: latest_metric.error_count,
-                    total_prompts_processed: 1,
+                    thread_count: 8,
+                    thread_efficiency_percent: 85.0,
                 };
 
                 result_metrics.push(model_metric);
@@ -655,16 +647,8 @@ pub async fn llm_get_performance_metrics(
                 model_memory_usage_mb: 4096,
                 peak_memory_usage_mb: 4096,
                 memory_efficiency_percent: 85.0,
-                cpu_threads: 8,
-                gpu_enabled: true,
-                gpu_memory_usage_mb: 3500,
-                temperature: 0.7,
-                top_p: 0.9,
-                frequency_penalty: 0.0,
-                presence_penalty: 0.0,
-                accuracy_score: 0.95,
-                error_count: 5,
-                total_prompts_processed: 1250,
+                thread_count: 8,
+                thread_efficiency_percent: 85.0,
             }];
 
             Ok(CommandResult::success(metrics))
