@@ -19,6 +19,8 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 // pin_project_lite will be used with macro syntax below
 // scopeguard will be used with macro syntax below
+use scopeguard;
+use sysinfo::System;
 
 /// Local LLM Management System for BEAR AI
 /// Provides Ollama-style model management with HuggingFace integration
@@ -276,9 +278,12 @@ impl LLMManager {
             tracker.acquire_operation_permit().await
                 .map_err(|e| anyhow::anyhow!("Resource guard denied model loading: {}", e))?;
 
-            // Make sure to release permit on error - simplified approach
-            // Note: In real implementation, you'd want proper RAII guards
-            // For now, we'll rely on manual cleanup
+            // Ensure permit is released on function exit using scopeguard
+            let _permit_guard = scopeguard::defer! {
+                if let Some(tracker) = crate::performance_tracker::get_performance_tracker() {
+                    tracker.release_operation_permit();
+                }
+            };
         }
 
         let registry = self.registry.lock().unwrap();
@@ -353,21 +358,21 @@ impl LLMManager {
         let mut info = HashMap::new();
 
         // Get available memory
-        if let Ok(mem_info) = sys_info::mem_info() {
-            info.insert(
-                "available_memory_gb".to_string(),
-                (mem_info.avail / 1024 / 1024).to_string(),
-            );
-            info.insert(
-                "total_memory_gb".to_string(),
-                (mem_info.total / 1024 / 1024).to_string(),
-            );
-        }
+        let mut sys = System::new_all();
+        sys.refresh_memory();
+        info.insert(
+            "available_memory_gb".to_string(),
+            (sys.available_memory() / 1024 / 1024 / 1024).to_string(),
+        );
+        info.insert(
+            "total_memory_gb".to_string(),
+            (sys.total_memory() / 1024 / 1024 / 1024).to_string(),
+        );
 
         // Get CPU info
-        if let Ok(cpu_count) = sys_info::cpu_num() {
-            info.insert("cpu_cores".to_string(), cpu_count.to_string());
-        }
+        sys.refresh_cpu();
+        let cpu_count = sys.cpus().len();
+        info.insert("cpu_cores".to_string(), cpu_count.to_string());
 
         // GPU Detection
         let gpu_info = self.detect_gpu_info();
@@ -698,10 +703,10 @@ impl LLMManager {
         result.metal_version = "detected".to_string();
 
         // M-series chips have unified memory, so we get system memory
-        if let Ok(mem_info) = sys_info::mem_info() {
-            result.total_memory = mem_info.total * 1024; // Convert KB to bytes
-            result.free_memory = mem_info.avail * 1024;
-        }
+        let mut sys = System::new_all();
+        sys.refresh_memory();
+        result.total_memory = sys.total_memory(); // Already in bytes
+        result.free_memory = sys.available_memory();
 
         Some(result)
     }
