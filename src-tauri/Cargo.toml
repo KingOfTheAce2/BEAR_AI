@@ -48,9 +48,7 @@ rand = "0.8"
 webpki = "0.22"
 # System integration
 windows = { version = "0.48", features = ["Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell"] }
-[target.'cfg(target_os = "macos")'.dependencies]
-cocoa = "0.25"
-objc = "0.2"
+
 # NVIDIA Nemotron RAG dependencies
 futures = "0.3"
 bytes = "1.0"
@@ -109,6 +107,10 @@ hmac = "0.12"
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = { version = "0.3", features = ["sink", "io"] }
 pin-project-lite = "0.2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "0.25"
+objc = "0.2"
 
 [features]
 default = ["desktop", "full-rag"]
