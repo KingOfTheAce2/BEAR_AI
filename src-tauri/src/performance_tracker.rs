@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::sync::{Mutex, Semaphore};
 use tokio::time::{interval, sleep};
-use sysinfo::{System, SystemExt, DiskExt, ProcessExt, CpuExt};
+use sysinfo::System;
 use anyhow::{Result, anyhow};
 use std::fs;
 use std::path::PathBuf;

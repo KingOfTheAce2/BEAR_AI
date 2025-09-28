@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use sysinfo::{CpuExt, System, SystemExt};
+use sysinfo::System;
 use tauri::command;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -195,6 +195,7 @@ fn detect_cpu_architecture() -> String {
 fn detect_cpu_architecture() -> String {
     std::env::consts::ARCH.to_string()
 }
+
 
 fn detect_max_cpu_frequency() -> Option<u64> {
     #[cfg(target_os = "linux")]

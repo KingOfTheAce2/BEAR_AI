@@ -19,7 +19,6 @@ pub mod ocr_processor;
 pub mod performance_tracker;
 pub mod pii_detector;
 pub mod security;
-pub mod stripe_integration;
 pub mod stripe_integration_v2;
 
 use tauri::State;
