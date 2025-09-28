@@ -9,6 +9,8 @@ use anyhow::{Result, anyhow};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use log;
+use lazy_static::lazy_static;
 
 /// Real-time performance metrics for LLM operations
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -446,8 +448,8 @@ impl PerformanceTracker {
             gpu_utilization_percent: 0.0,
             gpu_temperature_celsius: 0.0,
             disk_usage_percent,
-            disk_read_mb_per_sec: self.get_disk_read_speed(&system).await,
-            disk_write_mb_per_sec: self.get_disk_write_speed(&system).await,
+            disk_read_mb_per_sec: self.get_disk_read_speed().await,
+            disk_write_mb_per_sec: self.get_disk_write_speed().await,
             network_in_mb_per_sec: self.get_network_in_speed().await,
             network_out_mb_per_sec: self.get_network_out_speed().await,
             active_llm_processes,
@@ -690,6 +692,32 @@ impl PerformanceTimer {
         }
     }
 
+}
+
+/// Get current GPU usage percentage for PerformanceTracker
+impl PerformanceTracker {
+    async fn get_gpu_usage(&self) -> Option<f32> {
+        #[cfg(feature = "gpu-detection")]
+        {
+            #[cfg(target_os = "windows")]
+            {
+                // Use NVIDIA Management Library if available
+                if let Ok(nvml) = nvml_wrapper::Nvml::init() {
+                    if let Ok(count) = nvml.device_count() {
+                        if count > 0 {
+                            if let Ok(device) = nvml.device_by_index(0) {
+                                if let Ok(utilization) = device.utilization_rates() {
+                                    return Some(utilization.gpu as f32);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
     /// CRITICAL: Check resource availability before allowing operation
     /// Returns guard status with permission and throttling info
     pub async fn check_resource_guards(&self) -> Result<ResourceGuardStatus> {
@@ -843,29 +871,6 @@ impl PerformanceTimer {
         // Semaphore permit is automatically released when dropped
     }
 
-    /// Get current GPU usage percentage
-    async fn get_gpu_usage(&self) -> Option<f32> {
-        #[cfg(feature = "gpu-detection")]
-        {
-            #[cfg(target_os = "windows")]
-            {
-                // Use NVIDIA Management Library if available
-                if let Ok(nvml) = nvml_wrapper::Nvml::init() {
-                    if let Ok(count) = nvml.device_count() {
-                        if count > 0 {
-                            if let Ok(device) = nvml.device_by_index(0) {
-                                if let Ok(utilization) = device.utilization_rates() {
-                                    return Some(utilization.gpu as f32);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        None
-    }
-
     /// Start background resource guard monitor
     fn start_resource_guard_monitor(&self) {
         let emergency_shutdown = Arc::clone(&self.emergency_shutdown);
@@ -1009,13 +1014,17 @@ impl PerformanceTimer {
     }
 
     /// Get disk read speed by monitoring system metrics
-    async fn get_disk_read_speed(&self, system: &tokio::sync::MutexGuard<'_, System>) -> f32 {
-        let disks = system.disks();
-
+    async fn get_disk_read_speed(&self) -> f32 {
         // Calculate total read bytes per second across all disks
         // This is a simplified implementation - in production you'd want to track
         // read bytes over time intervals
         let mut total_read_mb_per_sec: f32 = 0.0;
+
+        // Use current system state to get disk information
+        let mut sys = self.system.lock().await;
+        sys.refresh_disks_list();
+        sys.refresh_disks();
+        let disks = sys.disks();
 
         for disk in disks {
             // Get disk usage and estimate read speed based on activity
@@ -1041,11 +1050,15 @@ impl PerformanceTimer {
     }
 
     /// Get disk write speed by monitoring system metrics
-    async fn get_disk_write_speed(&self, system: &tokio::sync::MutexGuard<'_, System>) -> f32 {
-        let disks = system.disks();
-
+    async fn get_disk_write_speed(&self) -> f32 {
         // Calculate total write bytes per second across all disks
         let mut total_write_mb_per_sec: f32 = 0.0;
+
+        // Use current system state to get disk information
+        let mut sys = self.system.lock().await;
+        sys.refresh_disks_list();
+        sys.refresh_disks();
+        let disks = sys.disks();
 
         for disk in disks {
             let total_space = disk.total_space() as f64;
@@ -1194,8 +1207,6 @@ impl PerformanceTimer {
 }
 
 // Global performance tracker instance
-use lazy_static::lazy_static;
-
 lazy_static! {
     pub static ref GLOBAL_PERFORMANCE_TRACKER: Arc<RwLock<Option<Arc<PerformanceTracker>>>> =
         Arc::new(RwLock::new(None));

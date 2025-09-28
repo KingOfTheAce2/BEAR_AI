@@ -37,10 +37,10 @@ export const UnifiedTopBar: React.FC<UnifiedTopBarProps> = ({
       <div className="flex items-center space-x-4 flex-1">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-lg hover:bg-surface transition-colors"
+          className="apple-button-ghost p-2 focus-ring-apple"
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <Bars3Icon className="w-5 h-5 text-text-secondary" />
+          <Bars3Icon className="w-5 h-5" style={{ color: 'var(--apple-label-secondary)' }} />
         </button>
 
         {/* Global Search */}
@@ -59,17 +59,9 @@ export const UnifiedTopBar: React.FC<UnifiedTopBarProps> = ({
             onBlur={() => setSearchFocused(false)}
             placeholder="Search documents, cases, or ask AI..."
             className={cn(
-              'block w-full pl-10 pr-3 py-2 border rounded-lg bg-background placeholder-text-muted transition-all duration-200',
-              'focus:ring-2 focus:border-transparent sm:text-sm',
-              searchFocused
-                ? 'border-primary ring-primary ring-opacity-20'
-                : 'border-border hover:border-text-muted'
+              'apple-input',
+              searchFocused && 'ring-2 ring-blue-500/20'
             )}
-            style={{
-              backgroundColor: `var(--color-background)`,
-              borderColor: searchFocused ? `var(--color-primary)` : `var(--color-border)`,
-              color: `var(--color-text-primary)`
-            }}
           />
           
           {/* Search suggestions/results overlay could go here */}
@@ -87,10 +79,10 @@ export const UnifiedTopBar: React.FC<UnifiedTopBarProps> = ({
       <div className="flex items-center space-x-2">
         {/* Notifications */}
         <div className="relative">
-          <button className="p-2 rounded-lg hover:bg-surface transition-colors relative">
-            <BellIcon className="w-5 h-5 text-text-secondary" />
+          <button className="apple-button-ghost p-2 relative focus-ring-apple">
+            <BellIcon className="w-5 h-5" style={{ color: 'var(--apple-label-secondary)' }} />
             {state.notifications.length > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: 'var(--apple-system-red)' }}></span>
             )}
           </button>
         </div>
@@ -103,19 +95,19 @@ export const UnifiedTopBar: React.FC<UnifiedTopBarProps> = ({
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-surface transition-colors"
+              className="apple-button-ghost flex items-center space-x-2 p-2 focus-ring-apple"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                 {user.name.charAt(0)}
               </div>
               <div className="hidden md:block text-left">
-                <div className="text-sm font-medium text-text-primary">{user.name}</div>
-                <div className="text-xs text-text-muted">{user.role}</div>
+                <div className="apple-callout font-medium" style={{ color: 'var(--apple-label-primary)' }}>{user.name}</div>
+                <div className="apple-caption" style={{ color: 'var(--apple-label-tertiary)' }}>{user.role}</div>
               </div>
               <ChevronDownIcon className={cn(
-                'w-4 h-4 text-text-muted transition-transform',
+                'w-4 h-4 transition-transform duration-200',
                 userMenuOpen ? 'rotate-180' : ''
-              )} />
+              )} style={{ color: 'var(--apple-label-secondary)' }} />
             </button>
 
             {/* User dropdown menu */}
@@ -125,7 +117,7 @@ export const UnifiedTopBar: React.FC<UnifiedTopBarProps> = ({
                   className="fixed inset-0 z-10" 
                   onClick={() => setUserMenuOpen(false)} 
                 />
-                <div className="absolute right-0 top-full mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-20">
+                <div className="absolute right-0 top-full mt-2 w-56 apple-modal z-20">
                   <div className="p-4 border-b border-border">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white font-semibold">

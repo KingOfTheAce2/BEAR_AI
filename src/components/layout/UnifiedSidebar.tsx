@@ -63,7 +63,7 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
     return (
       <div className="space-y-1">
         {title && !collapsed && (
-          <h3 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+          <h3 className="px-3 py-2 apple-caption font-semibold uppercase tracking-wider" style={{ color: 'var(--apple-label-tertiary)' }}>
             {title}
           </h3>
         )}
@@ -76,13 +76,12 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
               key={item.id}
               onClick={() => handleNavClick(item)}
               className={cn(
-                'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group',
+                'apple-nav-item group',
                 active
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-text-secondary hover:bg-surface hover:text-text-primary',
+                  ? 'apple-nav-item-active'
+                  : '',
                 collapsed ? 'justify-center px-2' : 'justify-start'
               )}
-              style={active ? { backgroundColor: `var(--color-primary)` } : {}}
               title={collapsed ? item.label : undefined}
             >
               <Icon 
@@ -144,22 +143,22 @@ export const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
         {renderNavSection(settingsItems)}
         
         {!collapsed && state.user && (
-          <div className="mt-4 p-3 bg-surface rounded-lg">
+          <div className="mt-4 p-4 apple-card">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                 {state.user.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary truncate">
+                <p className="apple-callout font-medium truncate" style={{ color: 'var(--apple-label-primary)' }}>
                   {state.user.name}
                 </p>
-                <p className="text-xs text-text-muted truncate">
+                <p className="apple-footnote truncate" style={{ color: 'var(--apple-label-tertiary)' }}>
                   {state.user.role}
                 </p>
               </div>
             </div>
             {state.user.firm && (
-              <p className="mt-2 text-xs text-text-muted truncate">
+              <p className="mt-2 apple-caption truncate" style={{ color: 'var(--apple-label-tertiary)' }}>
                 {state.user.firm}
               </p>
             )}

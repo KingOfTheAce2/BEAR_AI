@@ -2,18 +2,25 @@
 //! Enhanced with NVIDIA Nemotron RAG capabilities
 
 // Existing modules that actually exist
+pub mod chat_export;
 pub mod document_analyzer;
-pub mod local_api;
+pub mod enterprise_management;
+pub mod hardware_detection;
+pub mod huggingface;
+pub mod licensing;
 pub mod llm_commands;
 pub mod llm_manager;
+pub mod local_api;
 pub mod mcp_server;
 pub mod model_commands;
 pub mod mollie_integration;
 pub mod nemotron_rag;
+pub mod ocr_processor;
 pub mod performance_tracker;
+pub mod pii_detector;
 pub mod security;
-// pub mod stripe; // Module file doesn't exist yet
-pub mod huggingface;
+pub mod stripe_integration;
+pub mod stripe_integration_v2;
 
 use tauri::State;
 use std::sync::Arc;

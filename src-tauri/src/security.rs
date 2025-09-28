@@ -140,7 +140,7 @@ pub struct SessionValidationResult {
 }
 
 /// Session storage trait for different backends
-pub trait SessionStorage: Send + Sync {
+pub trait SessionStorage: Send + Sync + std::fmt::Debug {
     fn store_session(&self, session: &SessionData) -> Result<()>;
     fn get_session(&self, session_id: &str) -> Result<Option<SessionData>>;
     fn update_session(&self, session: &SessionData) -> Result<()>;
@@ -212,7 +212,6 @@ impl SessionStorage for InMemorySessionStorage {
     }
 }
 
-#[derive(Debug)]
 pub struct SecurityManager {
     config: SecurityConfig,
     audit_log_path: PathBuf,
@@ -224,6 +223,23 @@ pub struct SecurityManager {
     jwt_encoding_key: EncodingKey,
     jwt_decoding_key: DecodingKey,
     current_session_context: Arc<RwLock<Option<String>>>, // Current session ID
+}
+
+impl std::fmt::Debug for SecurityManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SecurityManager")
+            .field("config", &self.config)
+            .field("audit_log_path", &self.audit_log_path)
+            .field("encryption_key", &"[HIDDEN]")
+            .field("permissions", &self.permissions)
+            .field("failed_attempts", &self.failed_attempts)
+            .field("app_data_dir", &self.app_data_dir)
+            .field("session_storage", &"[BOXED]")
+            .field("jwt_encoding_key", &"[HIDDEN]")
+            .field("jwt_decoding_key", &"[HIDDEN]")
+            .field("current_session_context", &"[ARC<RWLOCK>]")
+            .finish()
+    }
 }
 
 impl SecurityManager {

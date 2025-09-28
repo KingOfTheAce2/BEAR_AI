@@ -1,0 +1,496 @@
+/* Apple-Inspired Accessibility Enhancements */
+
+/* Focus management following Apple's accessibility guidelines */
+:root {
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--apple-system-blue);
+  --focus-ring-color-dark: #66b3ff;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --apple-label-primary: #000000;
+    --apple-label-secondary: #333333;
+    --apple-label-tertiary: #666666;
+    --apple-background-primary: #ffffff;
+    --apple-background-secondary: #f5f5f5;
+    --apple-separator: #000000;
+    --apple-fill-primary: transparent;
+    --apple-fill-secondary: transparent;
+    --focus-ring-color: #0000ff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --apple-label-primary: #ffffff;
+      --apple-label-secondary: #cccccc;
+      --apple-label-tertiary: #999999;
+      --apple-background-primary: #000000;
+      --apple-background-secondary: #1a1a1a;
+      --apple-separator: #ffffff;
+      --focus-ring-color: #66b3ff;
+    }
+  }
+
+  .apple-card {
+    border: 2px solid var(--apple-separator);
+  }
+
+  .apple-button {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Enhanced focus indicators */
+.focus-ring-apple {
+  outline: none;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.focus-ring-apple:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 var(--focus-ring-offset) var(--apple-background-primary),
+    0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+  border-radius: var(--apple-radius-md);
+}
+
+/* Enhanced focus for dark backgrounds */
+.focus-ring-apple-inverse:focus-visible {
+  box-shadow:
+    0 0 0 var(--focus-ring-offset) var(--apple-background-primary),
+    0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color-dark);
+}
+
+/* Skip navigation link */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var(--apple-system-blue);
+  color: white;
+  text-decoration: none;
+  border-radius: 0 0 var(--apple-radius-md) 0;
+  font: var(--apple-font-callout);
+  font-weight: 500;
+  transition: top 0.2s ease;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
+
+/* Accessible button states */
+.apple-button[aria-pressed="true"] {
+  background: var(--apple-system-blue);
+  color: white;
+  position: relative;
+}
+
+.apple-button[aria-pressed="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(var(--apple-radius-md) - 2px);
+  pointer-events: none;
+}
+
+.apple-button[aria-expanded="true"] {
+  position: relative;
+}
+
+.apple-button[aria-expanded="true"]::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--apple-system-blue);
+  margin-top: 2px;
+}
+
+/* Accessible form controls */
+.apple-input[aria-invalid="true"] {
+  border-color: var(--apple-system-red);
+  box-shadow: 0 0 0 1px var(--apple-system-red);
+}
+
+.apple-input[aria-invalid="true"]:focus {
+  box-shadow:
+    0 0 0 1px var(--apple-system-red),
+    0 0 0 4px rgba(255, 59, 48, 0.2);
+}
+
+/* Required field indicators */
+.required-field::after {
+  content: '*';
+  color: var(--apple-system-red);
+  margin-left: 0.25rem;
+  font-weight: bold;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--apple-background-primary);
+  color: var(--apple-label-primary);
+  border: 1px solid var(--apple-separator);
+  border-radius: var(--apple-radius-sm);
+}
+
+/* Accessible loading states */
+.loading-accessible {
+  position: relative;
+}
+
+.loading-accessible::after {
+  content: 'Loading...';
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+
+.loading-accessible[aria-busy="true"]::after {
+  left: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  font: var(--apple-font-caption-1);
+  color: var(--apple-label-tertiary);
+}
+
+/* Accessible modal focus management */
+.apple-modal[role="dialog"] {
+  position: relative;
+}
+
+.apple-modal[role="dialog"]:focus {
+  outline: none;
+}
+
+.apple-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.apple-modal-content {
+  position: relative;
+  z-index: 1001;
+}
+
+/* Live regions for dynamic content */
+.live-region {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Error announcements */
+.error-announcement {
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid var(--apple-system-red);
+  border-radius: var(--apple-radius-md);
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--apple-system-red);
+  font: var(--apple-font-callout);
+}
+
+.error-announcement::before {
+  content: '⚠️ ';
+  margin-right: 0.5rem;
+}
+
+/* Success announcements */
+.success-announcement {
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid var(--apple-system-green);
+  border-radius: var(--apple-radius-md);
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--apple-system-green);
+  font: var(--apple-font-callout);
+}
+
+.success-announcement::before {
+  content: '✓ ';
+  margin-right: 0.5rem;
+}
+
+/* Accessible navigation landmarks */
+nav[role="navigation"] {
+  position: relative;
+}
+
+nav[role="navigation"]::before {
+  content: attr(aria-label);
+  position: absolute;
+  left: -9999px;
+  font: var(--apple-font-caption-1);
+  font-weight: 600;
+}
+
+/* Keyboard navigation improvements */
+.keyboard-navigation .apple-nav-item:focus {
+  z-index: 10;
+  position: relative;
+}
+
+.keyboard-navigation .apple-button:focus {
+  z-index: 10;
+  position: relative;
+}
+
+/* Table accessibility */
+.apple-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.apple-table th {
+  background: var(--apple-background-secondary);
+  font: var(--apple-font-headline);
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--apple-separator);
+}
+
+.apple-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--apple-separator);
+  font: var(--apple-font-body);
+}
+
+.apple-table tr:hover {
+  background: var(--apple-fill-quaternary);
+}
+
+.apple-table th[aria-sort] {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.apple-table th[aria-sort="ascending"]::after {
+  content: '↑';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.apple-table th[aria-sort="descending"]::after {
+  content: '↓';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Accessible tooltips */
+.apple-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.apple-tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--apple-background-primary);
+  color: var(--apple-label-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--apple-radius-sm);
+  font: var(--apple-font-caption-1);
+  white-space: nowrap;
+  box-shadow: var(--apple-shadow-3);
+  border: 1px solid var(--apple-separator);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.apple-tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--apple-background-primary);
+}
+
+.apple-tooltip:hover .apple-tooltip-content,
+.apple-tooltip:focus-within .apple-tooltip-content {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .animate-bounce-gentle {
+    animation: none !important;
+  }
+
+  .apple-card:hover {
+    transform: none !important;
+  }
+
+  .apple-button-primary:hover {
+    transform: none !important;
+  }
+}
+
+/* Large text support */
+@media (min-resolution: 120dpi) {
+  .large-text-support {
+    font-size: 1.2em;
+    line-height: 1.6;
+  }
+
+  .apple-button {
+    min-height: 52px;
+    padding: 1rem 1.5rem;
+  }
+
+  .apple-input {
+    min-height: 52px;
+    padding: 1rem;
+    font-size: 1.1em;
+  }
+}
+
+/* Color blind accessibility */
+.colorblind-friendly .status-indicator {
+  position: relative;
+}
+
+.colorblind-friendly .status-online::before {
+  content: '●';
+  margin-right: 0.25rem;
+}
+
+.colorblind-friendly .status-warning::before {
+  content: '▲';
+  margin-right: 0.25rem;
+}
+
+.colorblind-friendly .status-error::before {
+  content: '■';
+  margin-right: 0.25rem;
+}
+
+/* Windows High Contrast mode support */
+@media (-ms-high-contrast: active) {
+  .apple-button {
+    border: 2px solid ButtonText;
+  }
+
+  .apple-card {
+    border: 1px solid WindowText;
+  }
+
+  .apple-input {
+    border: 2px solid WindowText;
+  }
+
+  .focus-ring-apple:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}
+
+/* Legal-specific accessibility */
+.legal-priority-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.legal-priority-high::before {
+  content: '🔴';
+  font-size: 0.75em;
+}
+
+.legal-priority-medium::before {
+  content: '🟡';
+  font-size: 0.75em;
+}
+
+.legal-priority-low::before {
+  content: '🟢';
+  font-size: 0.75em;
+}
+
+/* Alternative text for icons */
+.icon-with-alt {
+  position: relative;
+}
+
+.icon-with-alt .icon-alt-text {
+  position: absolute;
+  left: -9999px;
+  font-size: 0;
+}
+
+@media (prefers-contrast: high) {
+  .icon-with-alt .icon-alt-text {
+    position: static;
+    font-size: var(--apple-font-caption-1);
+    margin-left: 0.25rem;
+  }
+
+  .icon-with-alt svg,
+  .icon-with-alt img {
+    display: none;
+  }
+}

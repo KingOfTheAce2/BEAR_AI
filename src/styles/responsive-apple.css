@@ -1,0 +1,490 @@
+/* Responsive Apple Design System */
+
+/* Breakpoint system following Apple's HIG */
+:root {
+  --breakpoint-xs: 0px;     /* iPhone SE */
+  --breakpoint-sm: 414px;   /* iPhone 14 */
+  --breakpoint-md: 768px;   /* iPad Mini */
+  --breakpoint-lg: 1024px;  /* iPad Pro */
+  --breakpoint-xl: 1366px;  /* MacBook Air */
+  --breakpoint-2xl: 1920px; /* Desktop */
+}
+
+/* Base responsive typography */
+@media (max-width: 414px) {
+  :root {
+    --apple-font-large-title: 500 28px/34px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-1: 400 24px/29px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-2: 400 20px/24px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-3: 400 18px/23px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-headline: 600 16px/21px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-body: 400 16px/21px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+@media (min-width: 1366px) {
+  :root {
+    --apple-font-large-title: 600 40px/48px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-1: 400 32px/39px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-2: 400 26px/32px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-title-3: 400 24px/29px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-headline: 600 19px/24px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-font-body: 400 19px/24px 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Component responsive utilities */
+@layer utilities {
+  /* Grid systems */
+  .grid-responsive {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .grid-responsive {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-responsive {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  @media (min-width: 1366px) {
+    .grid-responsive {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5rem;
+    }
+  }
+
+  /* Card system responsive */
+  .apple-card-responsive {
+    @apply apple-card;
+    padding: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .apple-card-responsive {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .apple-card-responsive {
+      padding: 2rem;
+    }
+  }
+
+  /* Button responsive sizing */
+  .apple-button-responsive {
+    @apply apple-button;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    min-height: 44px; /* Apple's minimum touch target */
+  }
+
+  @media (min-width: 640px) {
+    .apple-button-responsive {
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      min-height: 48px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .apple-button-responsive {
+      padding: 1rem 2.5rem;
+      font-size: 1.125rem;
+      min-height: 52px;
+    }
+  }
+
+  /* Navigation responsive */
+  .apple-nav-responsive {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .apple-nav-responsive {
+      padding: 1rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .apple-nav-responsive {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Sidebar responsive behavior */
+  .sidebar-responsive {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+
+  .sidebar-responsive.open {
+    transform: translateX(0);
+  }
+
+  @media (min-width: 768px) {
+    .sidebar-responsive {
+      position: relative;
+      transform: translateX(0);
+      width: 240px;
+    }
+
+    .sidebar-responsive.collapsed {
+      width: 64px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .sidebar-responsive {
+      width: 280px;
+    }
+
+    .sidebar-responsive.collapsed {
+      width: 80px;
+    }
+  }
+
+  /* Input responsive */
+  .apple-input-responsive {
+    @apply apple-input;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.875rem 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .apple-input-responsive {
+      font-size: 0.875rem;
+      padding: 1rem 1.25rem;
+    }
+  }
+
+  /* Modal responsive */
+  .apple-modal-responsive {
+    @apply apple-modal;
+    width: calc(100vw - 2rem);
+    max-width: 400px;
+    margin: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .apple-modal-responsive {
+      width: auto;
+      min-width: 400px;
+      max-width: 500px;
+      margin: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .apple-modal-responsive {
+      min-width: 500px;
+      max-width: 600px;
+      margin: 3rem;
+    }
+  }
+
+  /* Text responsive sizing */
+  .text-responsive-lg {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-lg {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .text-responsive-lg {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+  }
+
+  .text-responsive-base {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-responsive-base {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+
+  /* Container responsive */
+  .container-responsive {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (min-width: 640px) {
+    .container-responsive {
+      max-width: 640px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-responsive {
+      max-width: 768px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-responsive {
+      max-width: 1024px;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-responsive {
+      max-width: 1280px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .container-responsive {
+      max-width: 1536px;
+    }
+  }
+}
+
+/* Chat interface responsive */
+@media (max-width: 767px) {
+  .chat-container-mobile {
+    flex-direction: column;
+    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .chat-sidebar-mobile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 85%;
+    max-width: 320px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+
+  .chat-sidebar-mobile.open {
+    transform: translateX(0);
+  }
+
+  .chat-header-mobile {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--apple-separator);
+  }
+
+  .chat-input-mobile {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Legal dashboard responsive */
+@media (max-width: 640px) {
+  .legal-dashboard-mobile .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .legal-dashboard-mobile .main-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .legal-dashboard-mobile .quick-actions {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .legal-dashboard-tablet .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .legal-dashboard-tablet .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Document viewer responsive */
+@media (max-width: 640px) {
+  .document-viewer-mobile {
+    padding: 1rem;
+  }
+
+  .document-viewer-mobile .toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .document-viewer-mobile .zoom-controls {
+    order: -1;
+    width: 100%;
+  }
+}
+
+/* Settings panel responsive */
+@media (max-width: 768px) {
+  .settings-panel-mobile {
+    padding: 1rem;
+  }
+
+  .settings-panel-mobile .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .settings-panel-mobile .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Safe area handling for iOS */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-inset-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .safe-area-inset-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* Touch-friendly improvements */
+@media (pointer: coarse) {
+  .touch-friendly {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem;
+  }
+
+  .apple-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .apple-nav-item {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Larger touch targets for small elements */
+  .icon-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.625rem;
+  }
+}
+
+/* Hover states only on devices with hover capability */
+@media (hover: hover) {
+  .apple-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .apple-button-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+
+  .apple-nav-item:hover {
+    background: var(--apple-fill-tertiary);
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .apple-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .apple-logo {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-compact .apple-title-large {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .landscape-compact .apple-modal {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .landscape-compact .sidebar-responsive {
+    width: 200px;
+  }
+}
+
+/* Print optimizations */
+@media print {
+  .apple-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .legal-dashboard {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-full-width {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}

@@ -19,16 +19,15 @@ export const UnifiedLayout: React.FC = () => {
   const { config } = useTheme();
 
   return (
-    <div className="flex h-screen bg-surface font-primary overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--apple-background-primary)' }}>
       {/* Sidebar */}
       <aside
         className={cn(
-          'bg-surface border-r border-border shadow-lg transition-all duration-300 ease-in-out flex-shrink-0',
+          'glass-regular border-r transition-all duration-300 ease-in-out flex-shrink-0',
           state.sidebarCollapsed ? 'w-16' : 'w-64'
         )}
         style={{
-          backgroundColor: `var(--color-surface)`,
-          borderColor: `var(--color-border)`
+          borderColor: 'var(--apple-separator)'
         }}
       >
         <UnifiedSidebar
@@ -41,11 +40,10 @@ export const UnifiedLayout: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <header 
-          className="h-16 bg-background border-b border-border shadow-sm flex-shrink-0"
+        <header
+          className="h-16 border-b flex-shrink-0 glass-ultra-thin"
           style={{
-            backgroundColor: `var(--color-background)`,
-            borderColor: `var(--color-border)`
+            borderColor: 'var(--apple-separator)'
           }}
         >
           <UnifiedTopBar
@@ -78,11 +76,10 @@ export const UnifiedLayout: React.FC = () => {
         </main>
 
         {/* Status Bar */}
-        <footer 
-          className="h-8 bg-surface border-t border-border flex-shrink-0"
+        <footer
+          className="h-8 border-t flex-shrink-0 glass-ultra-thin"
           style={{
-            backgroundColor: `var(--color-surface)`,
-            borderColor: `var(--color-border)`
+            borderColor: 'var(--apple-separator)'
           }}
         >
           <UnifiedStatusBar systemStatus={state.systemStatus} />

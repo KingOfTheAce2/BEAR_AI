@@ -33,7 +33,7 @@ regex = "1.0"
 sys-info = "0.9"
 aes-gcm = "0.10"
 ring = "0.17"
-base64 = "0.22"
+base64 = "0.21"
 # rsa removed due to RUSTSEC-2023-0071 - using ring for crypto instead
 # x509-parser removed - using ring for certificate handling
 jsonwebtoken = "9.0"
@@ -64,16 +64,16 @@ sysinfo = "0.32"
 lazy_static = "1.5"
 scopeguard = "1.2"
 
-# Vector database clients
-qdrant-client = { version = "1.11" }
-lance = { version = "0.16" }
-arrow = { version = "53.0" }
+# Vector database clients - updated for compatibility
+qdrant-client = { version = "1.9" }
+lance = { version = "0.15" }
+arrow = { version = "52.0" }
 
-# Machine learning and embeddings
-candle-core = { version = "0.7" }
-candle-nn = { version = "0.7" }
-candle-transformers = { version = "0.7" }
-tokenizers = { version = "0.20" }
+# Machine learning and embeddings - updated for compatibility
+candle-core = { version = "0.6" }
+candle-nn = { version = "0.6" }
+candle-transformers = { version = "0.6" }
+tokenizers = { version = "0.19" }
 
 # Caching and performance
 redis = { version = "0.27", features = ["tokio-comp"] }
@@ -108,6 +108,7 @@ serde_urlencoded = "0.7"
 hmac = "0.12"
 tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 futures-util = { version = "0.3", features = ["sink", "io"] }
+pin-project-lite = "0.2"
 
 [features]
 default = ["desktop", "full-rag"]

@@ -264,7 +264,7 @@ export const LegalDashboard: React.FC<LegalDashboardProps> = ({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="apple-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Documents</p>
@@ -287,7 +287,7 @@ export const LegalDashboard: React.FC<LegalDashboardProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="apple-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Active Matters</p>
@@ -304,7 +304,7 @@ export const LegalDashboard: React.FC<LegalDashboardProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="apple-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Compliance Issues</p>
@@ -319,7 +319,7 @@ export const LegalDashboard: React.FC<LegalDashboardProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="apple-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Upcoming Deadlines</p>

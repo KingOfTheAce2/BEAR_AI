@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/unified.css';
+import './styles/apple-inspired.css';
+import './styles/responsive-apple.css';
+import './styles/accessibility-apple.css';
 import { AppProvider } from './contexts/AppContext';
 import { LoginPage } from './components/auth/LoginPage';
 import { NotificationCenter } from './components/common/NotificationCenter';

@@ -47,11 +47,13 @@ mod model_commands;
 mod ocr_processor;
 #[cfg(feature = "desktop")]
 mod performance_tracker;
+#[cfg(feature = "desktop")]
+mod nemotron_rag;
 
 #[cfg(feature = "desktop")]
 use llm_commands::*;
 #[cfg(feature = "desktop")]
-use llm_manager::{LLMManager, list_models, download_model, load_model, unload_model, remove_model, get_recommended_models, get_system_info as llm_get_system_info};
+use llm_manager::{LLMManager, list_models, download_model, load_model, unload_model, remove_model, get_recommended_models, get_system_info as llm_get_system_info, generate_response, chat_with_model, get_embeddings, show_model_info, pull_model, create_model, copy_model};
 #[cfg(feature = "desktop")]
 use local_api::*;
 #[cfg(feature = "desktop")]
@@ -359,7 +361,15 @@ fn main() {
             unload_model,
             remove_model,
             get_recommended_models,
-            llm_get_system_info
+            llm_get_system_info,
+            // New Ollama-compatible LLM methods
+            generate_response,
+            chat_with_model,
+            get_embeddings,
+            show_model_info,
+            pull_model,
+            create_model,
+            copy_model
         ])
         .manage(SessionStorage::new(Mutex::new(HashMap::new())))
         .manage(ChatStorage::new(Mutex::new(HashMap::new())))
