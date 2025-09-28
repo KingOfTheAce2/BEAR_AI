@@ -67,11 +67,11 @@ qdrant-client = { version = "1.9" }
 # lance = { version = "0.15" }  # Disabled - requires protobuf compiler
 # arrow = { version = "52.0" }  # Disabled - used with lance
 
-# Machine learning and embeddings - updated for compatibility
-candle-core = { version = "0.6" }
-candle-nn = { version = "0.6" }
-candle-transformers = { version = "0.6" }
-tokenizers = { version = "0.19" }
+# Machine learning and embeddings - disabled due to rand version conflicts
+# candle-core = { version = "0.6" }  # Disabled - has rand version conflicts
+# candle-nn = { version = "0.6" }    # Disabled - depends on candle-core
+# candle-transformers = { version = "0.6" }  # Disabled - depends on candle-core
+# tokenizers = { version = "0.19" }  # Disabled - used with candle
 
 # Caching and performance
 redis = { version = "0.27", features = ["tokio-comp"] }

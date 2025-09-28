@@ -24,11 +24,11 @@ use qdrant_client::{
 // use arrow::record_batch::RecordBatch;
 // use arrow::datatypes::{DataType, Field, Schema};
 
-// Machine learning and embeddings
-use candle_core::{Device, Tensor, DType};
-use candle_nn::VarBuilder;
-use candle_transformers::models::bert::BertModel;
-use tokenizers::Tokenizer;
+// Machine learning and embeddings - disabled due to rand version conflicts
+// use candle_core::{Device, Tensor, DType};
+// use candle_nn::VarBuilder;
+// use candle_transformers::models::bert::BertModel;
+// use tokenizers::Tokenizer;
 
 // Caching and performance
 use redis::AsyncCommands;
@@ -216,61 +216,61 @@ pub enum RelationType {
     References,
 }
 
-/// Embedding model wrapper
-pub struct EmbeddingModel {
-    model: BertModel,
-    tokenizer: Tokenizer,
-    device: Device,
-}
+/// Embedding model wrapper - disabled due to candle dependency conflicts
+// pub struct EmbeddingModel {
+//     model: BertModel,
+//     tokenizer: Tokenizer,
+//     device: Device,
+// }
 
-impl EmbeddingModel {
-    pub async fn new(model_path: &str, device: Device) -> Result<Self> {
-        let tokenizer = Tokenizer::from_file(format!("{}/tokenizer.json", model_path))
-            .context("Failed to load tokenizer")?;
-
-        let config = std::fs::read_to_string(format!("{}/config.json", model_path))
-            .context("Failed to read model config")?;
-        let config: serde_json::Value = serde_json::from_str(&config)?;
-
-        let model_weights = candle_core::safetensors::load(
-            format!("{}/model.safetensors", model_path),
-            &device
-        )?;
-
-        let var_builder = VarBuilder::from_tensors(model_weights, DType::F32, &device);
-        let model = BertModel::load(&var_builder, &config)?;
-
-        Ok(Self {
-            model,
-            tokenizer,
-            device,
-        })
-    }
-
-    pub async fn encode(&self, text: &str) -> Result<Vec<f32>> {
-        let tokens = self.tokenizer.encode(text, true)
-            .map_err(|e| anyhow::anyhow!("Tokenization failed: {}", e))?;
-
-        let token_ids = tokens.get_ids();
-        let token_type_ids = tokens.get_type_ids();
-        let attention_mask = tokens.get_attention_mask();
-
-        let input_ids = Tensor::new(token_ids, &self.device)?
-            .reshape(&[1, token_ids.len()])?;
-        let token_type_ids = Tensor::new(token_type_ids, &self.device)?
-            .reshape(&[1, token_type_ids.len()])?;
-        let attention_mask = Tensor::new(attention_mask, &self.device)?
-            .reshape(&[1, attention_mask.len()])?;
-
-        let embeddings = self.model.forward(&input_ids, &token_type_ids, Some(&attention_mask))?;
-
-        // Mean pooling
-        let embeddings = embeddings.mean(1)?;
-        let embeddings = embeddings.to_vec2::<f32>()?;
-
-        Ok(embeddings[0].clone())
-    }
-}
+// impl EmbeddingModel {
+//     pub async fn new(model_path: &str, device: Device) -> Result<Self> {
+//         let tokenizer = Tokenizer::from_file(format!("{}/tokenizer.json", model_path))
+//             .context("Failed to load tokenizer")?;
+// 
+//         let config = std::fs::read_to_string(format!("{}/config.json", model_path))
+//             .context("Failed to read model config")?;
+//         let config: serde_json::Value = serde_json::from_str(&config)?;
+// 
+//         let model_weights = candle_core::safetensors::load(
+//             format!("{}/model.safetensors", model_path),
+//             &device
+//         )?;
+// 
+//         let var_builder = VarBuilder::from_tensors(model_weights, DType::F32, &device);
+//         let model = BertModel::load(&var_builder, &config)?;
+// 
+//         Ok(Self {
+//             model,
+//             tokenizer,
+//             device,
+//         })
+//     }
+// 
+//     pub async fn encode(&self, text: &str) -> Result<Vec<f32>> {
+//         let tokens = self.tokenizer.encode(text, true)
+//             .map_err(|e| anyhow::anyhow!("Tokenization failed: {}", e))?;
+// 
+//         let token_ids = tokens.get_ids();
+//         let token_type_ids = tokens.get_type_ids();
+//         let attention_mask = tokens.get_attention_mask();
+// 
+//         let input_ids = Tensor::new(token_ids, &self.device)?
+//             .reshape(&[1, token_ids.len()])?;
+//         let token_type_ids = Tensor::new(token_type_ids, &self.device)?
+//             .reshape(&[1, token_type_ids.len()])?;
+//         let attention_mask = Tensor::new(attention_mask, &self.device)?
+//             .reshape(&[1, attention_mask.len()])?;
+// 
+//         let embeddings = self.model.forward(&input_ids, &token_type_ids, Some(&attention_mask))?;
+// 
+//         // Mean pooling
+//         let embeddings = embeddings.mean(1)?;
+//         let embeddings = embeddings.to_vec2::<f32>()?;
+// 
+//         Ok(embeddings[0].clone())
+//     }
+// }
 
 /// Vector database abstraction
 #[derive(Clone)]
@@ -465,7 +465,7 @@ impl VectorDatabase {
 pub struct NemotronRAG {
     config: NemotronConfig,
     vector_db: VectorDatabase,
-    embedding_model: Option<EmbeddingModel>,
+    // embedding_model: Option<EmbeddingModel>,  // Disabled due to candle conflicts
     redis_client: Option<redis::Client>,
     http_client: Client,
     embedding_cache: Arc<RwLock<LruCache<String, Vec<f32>>>>,
@@ -477,12 +477,12 @@ impl NemotronRAG {
     pub async fn new(config: NemotronConfig) -> Result<Self> {
         let vector_db = VectorDatabase::new(&config).await?;
 
-        let embedding_model = if config.enable_gpu_acceleration {
-            let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
-            Some(EmbeddingModel::new(&config.embedding_model, device).await?)
-        } else {
-            None
-        };
+        // let embedding_model = if config.enable_gpu_acceleration {
+        //     let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
+        //     Some(EmbeddingModel::new(&config.embedding_model, device).await?)
+        // } else {
+        //     None
+        // };
 
         let redis_client = if let Some(redis_url) = &config.redis_url {
             Some(redis::Client::open(redis_url.as_str())?)
@@ -498,7 +498,7 @@ impl NemotronRAG {
         Ok(Self {
             config,
             vector_db,
-            embedding_model,
+            // embedding_model,  // Disabled due to candle conflicts
             redis_client,
             http_client,
             embedding_cache,
