@@ -17,12 +17,12 @@ use qdrant_client::{
         VectorParams, VectorsConfig, UpsertPoints
     },
 };
-// Lance DB imports - updated for compatibility
-use lance::dataset::{Dataset, WriteParams, WriteMode};
-use lance::Table;
-use arrow::array::{Array, Float32Array, StringArray};
-use arrow::record_batch::RecordBatch;
-use arrow::datatypes::{DataType, Field, Schema};
+// Lance DB imports - disabled due to protobuf requirement
+// use lance::dataset::{Dataset, WriteParams, WriteMode};
+// use lance::Table;
+// use arrow::array::{Array, Float32Array, StringArray};
+// use arrow::record_batch::RecordBatch;
+// use arrow::datatypes::{DataType, Field, Schema};
 
 // Machine learning and embeddings
 use candle_core::{Device, Tensor, DType};
@@ -62,7 +62,7 @@ pub struct NemotronConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VectorDbType {
     Qdrant,
-    LanceDB,
+    // LanceDB,  // Disabled due to protobuf requirement
     Hybrid,
 }
 
@@ -276,7 +276,7 @@ impl EmbeddingModel {
 #[derive(Clone)]
 pub enum VectorDatabase {
     Qdrant(Arc<QdrantClient>),
-    Lance(Arc<RwLock<Option<Dataset>>>),
+    // Lance(Arc<RwLock<Option<Dataset>>>),  // Disabled due to protobuf requirement
 }
 
 impl VectorDatabase {
@@ -286,14 +286,14 @@ impl VectorDatabase {
                 let client = QdrantClient::from_url(&config.vector_db_url).build()?;
                 Ok(VectorDatabase::Qdrant(Arc::new(client)))
             }
-            VectorDbType::LanceDB => {
-                let dataset = if let Some(path) = &config.lance_db_path {
-                    Some(Dataset::open(path).await?)
-                } else {
-                    None
-                };
-                Ok(VectorDatabase::Lance(Arc::new(RwLock::new(dataset))))
-            }
+            // VectorDbType::LanceDB => {
+            //     let dataset = if let Some(path) = &config.lance_db_path {
+            //         Some(Dataset::open(path).await?)
+            //     } else {
+            //         None
+            //     };
+            //     Ok(VectorDatabase::Lance(Arc::new(RwLock::new(dataset))))
+            // }
             VectorDbType::Hybrid => {
                 // Use Qdrant as primary for now
                 let client = QdrantClient::from_url(&config.vector_db_url).build()?;
@@ -321,10 +321,10 @@ impl VectorDatabase {
 
                 Ok(())
             }
-            VectorDatabase::Lance(_) => {
-                // Lance DB collection creation is handled during first insert
-                Ok(())
-            }
+            // VectorDatabase::Lance(_) => {
+            //     // Lance DB collection creation is handled during first insert
+            //     Ok(())
+            // }
         }
     }
 
@@ -356,46 +356,46 @@ impl VectorDatabase {
 
                 Ok(())
             }
-            VectorDatabase::Lance(dataset_lock) => {
-                let mut dataset_guard = dataset_lock.write().await;
-
-                // Create schema for Lance DB
-                let schema = Schema::new(vec![
-                    Field::new("id", DataType::Utf8, false),
-                    Field::new("document_id", DataType::Utf8, false),
-                    Field::new("content", DataType::Utf8, false),
-                    Field::new("embedding",
-                        DataType::List(Arc::new(
-                            Field::new("item", DataType::Float32, false)
-                        )), false),
-                    Field::new("confidence", DataType::Float32, false),
-                ]);
-
-                // Convert chunks to Arrow record batch
-                let ids: Vec<String> = chunks.iter().map(|c| c.id.clone()).collect();
-                let document_ids: Vec<String> = chunks.iter().map(|c| c.document_id.clone()).collect();
-                let contents: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
-                let confidences: Vec<f32> = chunks.iter().map(|c| c.confidence).collect();
-
-                let record_batch = RecordBatch::try_new(
-                    Arc::new(schema),
-                    vec![
-                        Arc::new(StringArray::from(ids)),
-                        Arc::new(StringArray::from(document_ids)),
-                        Arc::new(StringArray::from(contents)),
-                        // Note: Simplified embedding handling for this example
-                        Arc::new(Float32Array::from(confidences.clone())), // Placeholder
-                        Arc::new(Float32Array::from(confidences)),
-                    ],
-                )?;
-
-                // Insert into Lance DB
-                if let Some(dataset) = dataset_guard.as_ref() {
-                    dataset.append(record_batch, Some(WriteParams::default())).await?;
-                }
-
-                Ok(())
-            }
+            // VectorDatabase::Lance(dataset_lock) => {
+            //     let mut dataset_guard = dataset_lock.write().await;
+            //
+            //     // Create schema for Lance DB
+            //     let schema = Schema::new(vec![
+            //         Field::new("id", DataType::Utf8, false),
+            //         Field::new("document_id", DataType::Utf8, false),
+            //         Field::new("content", DataType::Utf8, false),
+            //         Field::new("embedding",
+            //             DataType::List(Arc::new(
+            //                 Field::new("item", DataType::Float32, false)
+            //             )), false),
+            //         Field::new("confidence", DataType::Float32, false),
+            //     ]);
+            //
+            //     // Convert chunks to Arrow record batch
+            //     let ids: Vec<String> = chunks.iter().map(|c| c.id.clone()).collect();
+            //     let document_ids: Vec<String> = chunks.iter().map(|c| c.document_id.clone()).collect();
+            //     let contents: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
+            //     let confidences: Vec<f32> = chunks.iter().map(|c| c.confidence).collect();
+            //
+            //     let record_batch = RecordBatch::try_new(
+            //         Arc::new(schema),
+            //         vec![
+            //             Arc::new(StringArray::from(ids)),
+            //             Arc::new(StringArray::from(document_ids)),
+            //             Arc::new(StringArray::from(contents)),
+            //             // Note: Simplified embedding handling for this example
+            //             Arc::new(Float32Array::from(confidences.clone())), // Placeholder
+            //             Arc::new(Float32Array::from(confidences)),
+            //         ],
+            //     )?;
+            //
+            //     // Insert into Lance DB
+            //     if let Some(dataset) = dataset_guard.as_ref() {
+            //         dataset.append(record_batch, Some(WriteParams::default())).await?;
+            //     }
+            //
+            //     Ok(())
+            // }
         }
     }
 
@@ -452,11 +452,11 @@ impl VectorDatabase {
 
                 Ok(chunks)
             }
-            VectorDatabase::Lance(_) => {
-                // Lance DB search implementation would go here
-                // This is a simplified placeholder
-                Ok(vec![])
-            }
+            // VectorDatabase::Lance(_) => {
+            //     // Lance DB search implementation would go here
+            //     // This is a simplified placeholder
+            //     Ok(vec![])
+            // }
         }
     }
 }

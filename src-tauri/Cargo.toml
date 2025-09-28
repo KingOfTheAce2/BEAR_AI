@@ -64,8 +64,8 @@ scopeguard = "1.2"
 
 # Vector database clients - updated for compatibility
 qdrant-client = { version = "1.9" }
-lance = { version = "0.15" }
-arrow = { version = "52.0" }
+# lance = { version = "0.15" }  # Disabled - requires protobuf compiler
+# arrow = { version = "52.0" }  # Disabled - used with lance
 
 # Machine learning and embeddings - updated for compatibility
 candle-core = { version = "0.6" }
