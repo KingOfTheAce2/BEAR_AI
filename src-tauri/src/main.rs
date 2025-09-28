@@ -97,6 +97,67 @@ async fn hide_window(window: Window) -> Result<(), String> {
     Ok(())
 }
 
+// NVIDIA Nemotron RAG command wrappers
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn initialize_rag_system(
+    config: bear_ai_legal_assistant::nemotron_rag::NemotronConfig,
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<String, String> {
+    bear_ai_legal_assistant::initialize_rag_system(config, state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn process_legal_document(
+    document: String,
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<String, String> {
+    bear_ai_legal_assistant::process_legal_document(document, state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn retrieve_legal_info(
+    query: String,
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<bear_ai_legal_assistant::nemotron_rag::RetrievalResult, String> {
+    bear_ai_legal_assistant::retrieve_legal_info(query, state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn generate_agentic_response(
+    query: String,
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<String, String> {
+    bear_ai_legal_assistant::generate_agentic_response(query, state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn multi_hop_reasoning(
+    query: String,
+    max_hops: Option<usize>,
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<String, String> {
+    bear_ai_legal_assistant::multi_hop_reasoning(query, max_hops, state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+async fn get_rag_health(
+    state: tauri::State<'_, Arc<tokio::sync::RwLock<bear_ai_legal_assistant::AppState>>>,
+) -> Result<bear_ai_legal_assistant::nemotron_rag::RAGHealth, String> {
+    bear_ai_legal_assistant::get_rag_health(state).await
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn create_default_nemotron_config() -> bear_ai_legal_assistant::nemotron_rag::NemotronConfig {
+    bear_ai_legal_assistant::create_default_nemotron_config()
+}
+
 // Initialize logging
 #[cfg(feature = "desktop")]
 fn init_logging() {
@@ -197,13 +258,13 @@ fn main() {
             show_window,
             hide_window,
             // NVIDIA Nemotron RAG commands
-            bear_ai_legal_assistant::initialize_rag_system,
-            bear_ai_legal_assistant::process_legal_document,
-            bear_ai_legal_assistant::retrieve_legal_info,
-            bear_ai_legal_assistant::generate_agentic_response,
-            bear_ai_legal_assistant::multi_hop_reasoning,
-            bear_ai_legal_assistant::get_rag_health,
-            bear_ai_legal_assistant::create_default_nemotron_config,
+            initialize_rag_system,
+            process_legal_document,
+            retrieve_legal_info,
+            generate_agentic_response,
+            multi_hop_reasoning,
+            get_rag_health,
+            create_default_nemotron_config,
             // Local API Authentication commands
             local_auth_login,
             local_auth_logout,
