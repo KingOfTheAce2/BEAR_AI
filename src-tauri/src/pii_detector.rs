@@ -12,16 +12,16 @@ pub struct PIIMatch {
     pub end: usize,
     pub confidence: f64,
     pub hash: String,
-    pub is_legal_privileged: Option&lt;bool&gt;,
-    pub country: Option&lt;String&gt;,
+    pub is_legal_privileged: Option<bool>,
+    pub country: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PIIDetectionResult {
     pub has_pii: bool,
-    pub matches: Vec&lt;PIIMatch&gt;,
+    pub matches: Vec<PIIMatch>,
     pub risk_level: RiskLevel,
-    pub suggestions: Vec&lt;String&gt;,
+    pub suggestions: Vec<String>,
     pub audit_hash: String,
 }
 
@@ -95,12 +95,12 @@ impl Default for PIIDetectorConfig {
 
 pub struct PIIDetector {
     config: PIIDetectorConfig,
-    patterns: HashMap&lt;PIIType, Vec&lt;Regex&gt;&gt;,
-    audit_log: Vec&lt;PIIMatch&gt;,
+    patterns: HashMap<PIIType, Vec<Regex>>,
+    audit_log: Vec<PIIMatch>,
 }
 
 impl PIIDetector {
-    pub fn new(config: Option&lt;PIIDetectorConfig&gt;) -> Self {
+    pub fn new(config: Option<PIIDetectorConfig>) -> Self {
         let config = config.unwrap_or_default();
         let mut detector = PIIDetector {
             config,
@@ -188,7 +188,7 @@ impl PIIDetector {
 
                     // Special validation for Dutch BSN
                     if matches!(pii_type, PIIType::Bsn) {
-                        let clean_bsn = match_text.chars().filter(|c| c.is_numeric()).collect::&lt;String&gt;();
+                        let clean_bsn = match_text.chars().filter(|c| c.is_numeric()).collect::<String>();
                         if clean_bsn.len() == 9 && !self.validate_bsn(&clean_bsn) {
                             continue; // Skip invalid BSN
                         }
@@ -196,7 +196,7 @@ impl PIIDetector {
 
                     // Special validation for Dutch RSIN
                     if matches!(pii_type, PIIType::Rsin) {
-                        let clean_rsin = match_text.chars().filter(|c| c.is_numeric()).collect::&lt;String&gt;();
+                        let clean_rsin = match_text.chars().filter(|c| c.is_numeric()).collect::<String>();
                         if clean_rsin.len() == 9 && !self.validate_rsin(&clean_rsin) {
                             continue; // Skip invalid RSIN
                         }
@@ -262,7 +262,7 @@ impl PIIDetector {
             return false;
         }
 
-        let digits: Vec&lt;u32&gt; = bsn.chars()
+        let digits: Vec<u32> = bsn.chars()
             .filter_map(|c| c.to_digit(10))
             .collect();
 
@@ -292,7 +292,7 @@ impl PIIDetector {
 
         let has_legal_privileged = matches.iter().any(|m| m.is_legal_privileged.unwrap_or(false));
         let has_high_confidence = matches.iter().any(|m| m.confidence > 0.9);
-        let unique_types = matches.iter().map(|m| &m.pii_type).collect::&lt;std::collections::HashSet&lt;_&gt;&gt;().len();
+        let unique_types = matches.iter().map(|m| &m.pii_type).collect::<std::collections::HashSet<_>>().len();
 
         if has_legal_privileged {
             RiskLevel::Critical
@@ -305,14 +305,14 @@ impl PIIDetector {
         }
     }
 
-    fn generate_suggestions(&self, matches: &[PIIMatch]) -> Vec&lt;String&gt; {
+    fn generate_suggestions(&self, matches: &[PIIMatch]) -> Vec<String> {
         let mut suggestions = Vec::new();
 
         if matches.is_empty() {
             return suggestions;
         }
 
-        let types: std::collections::HashSet&lt;_&gt; = matches.iter().map(|m| &m.pii_type).collect();
+        let types: std::collections::HashSet<_> = matches.iter().map(|m| &m.pii_type).collect();
 
         if types.contains(&PIIType::AttorneyClientPrivilege) {
             suggestions.push("⚠️ Attorney-client privileged content detected. Consider removing or marking as confidential.".to_string());
@@ -353,7 +353,7 @@ impl PIIDetector {
             matches.len(),
             matches.iter()
                 .map(|m| format!("\"{:?}\"", m.pii_type))
-                .collect::&lt;Vec&lt;_&gt;&gt;()
+                .collect::<Vec<_>>()
                 .join(","),
             chrono::Utc::now().to_rfc3339()
         );
@@ -382,7 +382,7 @@ impl PIIDetector {
         masked_text
     }
 
-    pub fn get_audit_log(&self) -> Vec&lt;PIIMatch&gt; {
+    pub fn get_audit_log(&self) -> Vec<PIIMatch> {
         self.audit_log.clone()
     }
 
@@ -393,40 +393,40 @@ impl PIIDetector {
 
 // Tauri commands
 #[command]
-pub async fn detect_pii_rust(text: String, config: Option&lt;PIIDetectorConfig&gt;) -> Result&lt;PIIDetectionResult, String&gt; {
+pub async fn detect_pii_rust(text: String, config: Option<PIIDetectorConfig>) -> Result<PIIDetectionResult, String> {
     let mut detector = PIIDetector::new(config);
     Ok(detector.detect_pii(&text))
 }
 
 #[command]
-pub async fn mask_pii_text(text: String, matches: Vec&lt;PIIMatch&gt;) -> Result&lt;String, String&gt; {
+pub async fn mask_pii_text(text: String, matches: Vec<PIIMatch>) -> Result<String, String> {
     let detector = PIIDetector::new(None);
     Ok(detector.mask_text(&text, &matches))
 }
 
 #[command]
-pub async fn validate_dutch_bsn(bsn: String) -> Result&lt;bool, String&gt; {
+pub async fn validate_dutch_bsn(bsn: String) -> Result<bool, String> {
     let detector = PIIDetector::new(None);
-    let clean_bsn = bsn.chars().filter(|c| c.is_numeric()).collect::&lt;String&gt;();
+    let clean_bsn = bsn.chars().filter(|c| c.is_numeric()).collect::<String>();
     Ok(detector.validate_bsn(&clean_bsn))
 }
 
 #[command]
-pub async fn validate_dutch_rsin(rsin: String) -> Result&lt;bool, String&gt; {
+pub async fn validate_dutch_rsin(rsin: String) -> Result<bool, String> {
     let detector = PIIDetector::new(None);
-    let clean_rsin = rsin.chars().filter(|c| c.is_numeric()).collect::&lt;String&gt;();
+    let clean_rsin = rsin.chars().filter(|c| c.is_numeric()).collect::<String>();
     Ok(detector.validate_rsin(&clean_rsin))
 }
 
 #[command]
-pub async fn get_pii_audit_log() -> Result&lt;Vec&lt;PIIMatch&gt;, String&gt; {
+pub async fn get_pii_audit_log() -> Result<Vec<PIIMatch>, String> {
     // Note: In a real implementation, you'd want to maintain state
     // This is a simplified version for demonstration
     Ok(Vec::new())
 }
 
 #[command]
-pub async fn export_pii_audit_log() -> Result&lt;String, String&gt; {
+pub async fn export_pii_audit_log() -> Result<String, String> {
     let audit_log = get_pii_audit_log().await?;
     let export_data = serde_json::json!({
         "export_date": chrono::Utc::now().to_rfc3339(),
@@ -437,7 +437,7 @@ pub async fn export_pii_audit_log() -> Result&lt;String, String&gt; {
             "confidence": entry.confidence,
             "is_legal_privileged": entry.is_legal_privileged,
             "country": entry.country
-        })).collect::&lt;Vec&lt;_&gt;&gt;()
+        })).collect::<Vec<_>>()
     });
 
     Ok(export_data.to_string())
@@ -445,7 +445,7 @@ pub async fn export_pii_audit_log() -> Result&lt;String, String&gt; {
 
 // Batch processing for documents
 #[command]
-pub async fn process_document_pii(content: String, filename: String, config: Option&lt;PIIDetectorConfig&gt;) -> Result&lt;serde_json::Value, String&gt; {
+pub async fn process_document_pii(content: String, filename: String, config: Option<PIIDetectorConfig>) -> Result<serde_json::Value, String> {
     let mut detector = PIIDetector::new(config);
     let result = detector.detect_pii(&content);
 

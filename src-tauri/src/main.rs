@@ -30,8 +30,6 @@ mod mcp_server;
 #[cfg(feature = "desktop")]
 mod security;
 #[cfg(feature = "desktop")]
-mod stripe_integration;
-#[cfg(feature = "desktop")]
 mod stripe_integration_v2;
 #[cfg(feature = "desktop")]
 mod mollie_integration;
@@ -56,8 +54,6 @@ use llm_commands::*;
 use llm_manager::{LLMManager, list_models, download_model, load_model, unload_model, remove_model, get_recommended_models, get_system_info as llm_get_system_info, generate_response, chat_with_model, get_embeddings, show_model_info, pull_model, create_model, copy_model};
 #[cfg(feature = "desktop")]
 use local_api::*;
-#[cfg(feature = "desktop")]
-use stripe_integration::*;
 #[cfg(feature = "desktop")]
 use mollie_integration::*;
 #[cfg(feature = "desktop")]
@@ -287,18 +283,19 @@ fn main() {
             validate_dutch_rsin,
             get_pii_audit_log,
             export_pii_audit_log,
-            process_document_pii
-            // Stripe payment integration commands
+            process_document_pii,
+            // Stripe payment integration commands (v2)
             stripe_init_client,
             stripe_create_customer,
-            stripe_get_customer,
             stripe_create_subscription,
             stripe_get_subscription,
-            stripe_update_subscription,
-            stripe_cancel_subscription,
             stripe_create_payment_intent,
-            stripe_get_invoices,
+            stripe_list_invoices,
             stripe_handle_webhook,
+            stripe_create_team_subscription,
+            stripe_validate_test_payment,
+            stripe_configure_test_mode,
+            get_env_var,
             // Mollie payment integration commands
             mollie_init_client,
             mollie_create_customer,
